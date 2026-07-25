@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic
+// CanFiyat Portal Main Application Logic with Supabase Cloud Sync
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -15,6 +15,14 @@ function initApp() {
   renderStats();
   renderProductGrid();
   setupEventListeners();
+
+  // Async sync with Supabase Cloud DB
+  StorageManager.fetchFromSupabase((cloudMap) => {
+    currentProducts = cloudMap;
+    renderStats();
+    renderProductGrid();
+    console.log("Synced latest product slot state from Supabase Cloud DB!");
+  });
 }
 
 function setupEventListeners() {
@@ -309,8 +317,8 @@ function calculateCurrentModal() {
   document.getElementById("s1_profit_iy").innerText = PriceCalculator.formatTL(iyRes.netProfit);
 }
 
-// Save Current Product Slot Changes
-function saveCurrentProductSlot() {
+// Save Current Product Slot Changes to Supabase & LocalStorage
+async function saveCurrentProductSlot() {
   if (!selectedProductId) return;
 
   const volume = document.getElementById("slot-volume").value;
@@ -341,13 +349,13 @@ function saveCurrentProductSlot() {
     }
   };
 
-  StorageManager.saveProduct(updatedProduct);
+  await StorageManager.saveProduct(updatedProduct);
   currentProducts = StorageManager.getProducts();
   
   renderProductGrid();
   renderStats();
 
-  showToast("Ürün Slot Ayarları Başarıyla Kaydedildi! ✅");
+  showToast("Ürün Slot Ayarları Bulut Veritabanına (Supabase) Kaydedildi! ☁️✅");
 }
 
 // Reset Catalog Data to Factory Default
