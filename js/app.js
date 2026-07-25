@@ -1,10 +1,11 @@
-// CanFiyat Portal Main Application Logic with Row/Table & Card View Options
+// CanFiyat Portal Main Application Logic with 4 Simulation Systems
 
 let currentProducts = {};
 let activeCategory = "all";
 let searchQuery = "";
 let selectedProductId = null;
-let viewMode = "rows"; // Default view: 'rows' (Yan Yana Satır Düzeni)
+let viewMode = "rows"; // Default view: 'rows'
+let activeSimTab = "system1"; // Default modal sub-tab: 'system1'
 
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
@@ -41,7 +42,6 @@ function setupEventListeners() {
   });
 }
 
-// Toggle between Rows (Satır) and Grid Cards (Kart) view
 function setViewMode(mode) {
   viewMode = mode;
   document.querySelectorAll(".view-mode-btn").forEach(btn => {
@@ -113,7 +113,6 @@ function renderProductGrid() {
     return;
   }
 
-  // Adjust container grid layout based on viewMode
   if (viewMode === "rows") {
     container.className = "flex flex-col gap-3 w-full";
   } else {
@@ -136,11 +135,8 @@ function renderProductGrid() {
       : "bg-emerald-950/60 text-emerald-300 border-emerald-800/40";
 
     if (viewMode === "rows") {
-      // Horizontal Row Layout (Side-by-side Data View)
       const rowHtml = `
         <div class="glass-card rounded-xl p-4 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:border-blue-500/40 transition-all group">
-          
-          <!-- Column 1: SKU & Name & Category -->
           <div class="flex items-center gap-3 min-w-[280px]">
             <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
               ${product.sku}
@@ -155,19 +151,16 @@ function renderProductGrid() {
             </div>
           </div>
 
-          <!-- Column 2: 1KG Cost -->
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[130px]">
             <span class="text-slate-400 block text-[10px] uppercase font-semibold">1KG Toptan</span>
             <span class="font-bold text-slate-200">${PriceCalculator.formatTL(product.costPerKg)}</span>
           </div>
 
-          <!-- Column 3: Packaging & Unit Cost -->
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[150px]">
             <span class="text-slate-400 block text-[10px] uppercase font-semibold">Ambalaj & Birim Maliyet</span>
             <span class="font-bold text-blue-400">${product.selectedVolume || "250ml"} (${PriceCalculator.formatTL(unitCost)})</span>
           </div>
 
-          <!-- Column 4: Trendyol List Price -->
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
             <span class="text-slate-400 block text-[10px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Trendyol Etiket
@@ -175,7 +168,6 @@ function renderProductGrid() {
             <span class="font-bold text-white">${PriceCalculator.formatTL(tyResult.listPrice)}</span>
           </div>
 
-          <!-- Column 5: Net Profit -->
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[130px]">
             <span class="text-slate-400 block text-[10px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Net Kâr
@@ -183,7 +175,6 @@ function renderProductGrid() {
             <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit || 300)}</span>
           </div>
 
-          <!-- Column 6: Action Button -->
           <div class="min-w-[180px]">
             <button onclick="openProductSlot('${product.id}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg text-xs flex items-center justify-center gap-2 transition-all">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,12 +183,10 @@ function renderProductGrid() {
               SLOT AYARLARI & HESAPLA
             </button>
           </div>
-
         </div>
       `;
       container.insertAdjacentHTML("beforeend", rowHtml);
     } else {
-      // Grid Card Layout
       const cardHtml = `
         <div class="glass-card glass-card-hover rounded-xl p-5 border border-slate-800 flex flex-col justify-between relative overflow-hidden group">
           <div class="absolute -right-10 -top-10 w-28 h-28 bg-blue-600/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
@@ -259,6 +248,39 @@ function clearSearch() {
   renderProductGrid();
 }
 
+// Switch between System 1, 2, 3, 4 tabs inside modal
+function switchSimTab(tabId) {
+  activeSimTab = tabId;
+
+  document.querySelectorAll(".sim-tab-btn").forEach(btn => {
+    btn.classList.remove("active", "bg-blue-600", "text-white");
+    btn.classList.add("inactive", "text-slate-400");
+  });
+
+  const activeBtn = document.getElementById(`sim-tab-${tabId}`);
+  if (activeBtn) {
+    activeBtn.classList.remove("inactive", "text-slate-400");
+    activeBtn.classList.add("active", "bg-blue-600", "text-white");
+  }
+
+  // Show/Hide Containers
+  ["system1", "system2", "system3", "system4"].forEach(id => {
+    const el = document.getElementById(`sim-${id}-container`);
+    if (el) {
+      if (id === tabId) {
+        el.classList.remove("hidden");
+        el.classList.add("block");
+      } else {
+        el.classList.add("hidden");
+        el.classList.remove("block");
+      }
+    }
+  });
+
+  // Calculate current active tab
+  calculateCurrentModal();
+}
+
 function openProductSlot(productId) {
   selectedProductId = productId;
   const product = currentProducts[productId];
@@ -295,7 +317,8 @@ function openProductSlot(productId) {
     calculateCurrentModal();
   };
 
-  calculateCurrentModal();
+  // Reset tab to system1 on open
+  switchSimTab("system1");
 
   const modal = document.getElementById("product-slot-modal");
   modal.classList.remove("hidden");
@@ -312,6 +335,18 @@ function closeProductSlot() {
 function calculateCurrentModal() {
   if (!selectedProductId) return;
 
+  if (activeSimTab === "system1") {
+    calculateSystem1Modal();
+  } else if (activeSimTab === "system2") {
+    calculateSystem2Modal();
+  } else if (activeSimTab === "system3") {
+    calculateSystem3Modal();
+  } else if (activeSimTab === "system4") {
+    calculateSystem4Modal();
+  }
+}
+
+function calculateSystem1Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
@@ -376,6 +411,82 @@ function calculateCurrentModal() {
   document.getElementById("s1_hakedis_iy").innerText = PriceCalculator.formatTL(iyRes.payout);
   document.getElementById("s1_rec_maliyet_iy").innerText = `-${PriceCalculator.formatTL(iyRes.wholesaleCost)}`;
   document.getElementById("s1_profit_iy").innerText = PriceCalculator.formatTL(iyRes.netProfit);
+}
+
+function calculateSystem2Modal() {
+  const product = currentProducts[selectedProductId];
+  if (!product) return;
+
+  const volume = document.getElementById("slot-volume").value;
+  const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volume, packagingCost);
+
+  const webPrice = parseFloat(document.getElementById("s2_web_price").value) || 0;
+
+  const s2Res = PriceCalculator.calculateSystem2({
+    webSalePrice: webPrice,
+    unitCost: unitCost,
+    tyComm: parseFloat(document.getElementById("s1_comm_ty").value) || 19,
+    tyCargo: parseFloat(document.getElementById("s1_kargo_ty").value) || 110,
+    hbComm: parseFloat(document.getElementById("s1_comm_hb").value) || 17,
+    hbCargo: parseFloat(document.getElementById("s1_kargo_hb").value) || 110
+  });
+
+  document.getElementById("s2_web_profit_display").innerText = PriceCalculator.formatTL(s2Res.webProfit);
+  document.getElementById("s2_ty_eq_price").innerText = PriceCalculator.formatTL(s2Res.tyEquivalentList);
+  document.getElementById("s2_ty_payout").innerText = `Eşdeğer Hakediş: ${PriceCalculator.formatTL(s2Res.tyPayout)}`;
+
+  document.getElementById("s2_hb_eq_price").innerText = PriceCalculator.formatTL(s2Res.hbEquivalentList);
+  document.getElementById("s2_hb_payout").innerText = `Eşdeğer Hakediş: ${PriceCalculator.formatTL(s2Res.hbPayout)}`;
+}
+
+function calculateSystem3Modal() {
+  const product = currentProducts[selectedProductId];
+  if (!product) return;
+
+  const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 300;
+  const matrix = PriceCalculator.calculateSystem3VolumeMatrix(product.costPerKg, targetProfit);
+
+  const tbody = document.getElementById("s3-matrix-tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+  matrix.forEach(row => {
+    const tr = `
+      <tr class="hover:bg-slate-900/60 transition-colors">
+        <td class="p-3 font-bold text-white">${row.volume}</td>
+        <td class="p-3 text-slate-300">${PriceCalculator.formatTL(row.packagingCost)}</td>
+        <td class="p-3 font-bold text-blue-400">${PriceCalculator.formatTL(row.unitCost)}</td>
+        <td class="p-3 font-bold text-white">${PriceCalculator.formatTL(row.tyPrice)}</td>
+        <td class="p-3 font-bold text-emerald-400 text-right">+${PriceCalculator.formatTL(row.netProfit)}</td>
+      </tr>
+    `;
+    tbody.insertAdjacentHTML("beforeend", tr);
+  });
+}
+
+function calculateSystem4Modal() {
+  const product = currentProducts[selectedProductId];
+  if (!product) return;
+
+  const volume = document.getElementById("slot-volume").value;
+  const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volume, packagingCost);
+
+  const retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 0;
+  const comm = parseFloat(document.getElementById("s4_comm").value) || 19;
+  const cargo = parseFloat(document.getElementById("s4_cargo").value) || 110;
+
+  const s4Res = PriceCalculator.calculateSystem4({
+    retailPrice: retailPrice,
+    unitCost: unitCost,
+    commission: comm,
+    cargo: cargo
+  });
+
+  document.getElementById("s4_payout_display").innerText = PriceCalculator.formatTL(s4Res.payout);
+  document.getElementById("s4_profit_display").innerText = PriceCalculator.formatTL(s4Res.netProfit);
+  document.getElementById("s4_margin_display").innerText = `%${s4Res.marginPercent}`;
 }
 
 async function saveCurrentProductSlot() {
