@@ -42,7 +42,7 @@
                         <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.07</span>
+                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.08</span>
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Supabase Bulut Veritabanı
                             </span>
@@ -212,8 +212,6 @@
                         <h2 id="modal-product-title" class="text-lg font-bold text-white tracking-tight">Ürün Slotu</h2>
                         <div class="flex items-center gap-2 text-xs text-slate-400">
                             <span id="modal-product-category" class="font-semibold text-blue-400">Kategori</span>
-                            <span>•</span>
-                            <span>1KG Toptan Maliyet: <strong id="modal-cost-kg" class="text-white">0 TL</strong></span>
                         </div>
                     </div>
                 </div>
@@ -245,6 +243,18 @@
             <!-- Modal Body (Scrollable Workspace) -->
             <div class="p-6 overflow-y-auto space-y-6 flex-grow">
                 
+                <!-- EDITABLE 1KG WHOLESALE COST BAR -->
+                <div class="bg-blue-950/30 border border-blue-800/60 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-0.5">
+                        <label class="text-xs font-bold text-blue-400 uppercase tracking-wider block">🌾 1KG Toptan Yağ Alış Fiyatı (₺/KG)</label>
+                        <p class="text-[11px] text-slate-400">Toptan ham yağ alış maliyetinizi buradan değiştirebilirsiniz. Tüm ambalaj fiyatları anında güncellenir.</p>
+                    </div>
+                    <div class="flex items-center gap-2 min-w-[200px]">
+                        <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-full text-base font-black text-white bg-slate-950 border border-blue-500 px-3.5 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400" oninput="calculateCurrentModal()">
+                        <span class="font-bold text-xs text-blue-300">₺/KG</span>
+                    </div>
+                </div>
+
                 <!-- ========================================== -->
                 <!-- SYSTEM 1 WORKSPACE                         -->
                 <!-- ========================================== -->
@@ -495,7 +505,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    TÜM ŞİŞE AYARLARINI BU ÜRÜNE KAYDET
+                    TÜM AYARLARI VE 1KG MALİYETİ KAYDET
                 </button>
             </div>
 

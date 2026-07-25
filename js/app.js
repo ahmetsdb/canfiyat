@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic (v1.07) - Multi-Volume Bottle Slots per Product Card
+// CanFiyat Portal Main Application Logic (v1.08) - Editable 1KG Wholesale Cost & Multi-Volume Slots
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -210,7 +210,7 @@ function renderProductGrid() {
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
-              TÜM ŞİŞELERİ & HESAPLA
+              SLOT AYARLARI & HESAPLA
             </button>
           </div>
         </div>
@@ -262,7 +262,7 @@ function renderProductGrid() {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
             </svg>
-            TÜM ŞİŞELERİ & HESAPLA
+            SLOT AYARLARI & HESAPLA
           </button>
         </div>
       `;
@@ -337,7 +337,7 @@ function openProductSlot(productId) {
 
   document.getElementById("modal-product-title").innerText = `${product.name} (${product.sku})`;
   document.getElementById("modal-product-category").innerText = product.category;
-  document.getElementById("modal-cost-kg").innerText = PriceCalculator.formatTL(product.costPerKg);
+  document.getElementById("slot-cost-per-kg").value = product.costPerKg;
 
   renderVolumeTabs(product);
   loadActiveVolumeConfig(product, activeVolume);
@@ -372,7 +372,6 @@ function renderVolumeTabs(product) {
 }
 
 function selectModalVolumeTab(volKey) {
-  // First save current inputs into existing activeVolume
   saveInputsToCurrentVolumeConfig();
 
   activeVolume = volKey;
@@ -489,14 +488,22 @@ function calculateCurrentModal() {
   }
 }
 
+function getModalCostPerKg() {
+  const inputVal = parseFloat(document.getElementById("slot-cost-per-kg").value);
+  if (!isNaN(inputVal) && inputVal >= 0) return inputVal;
+  const product = currentProducts[selectedProductId];
+  return product ? product.costPerKg : 1000;
+}
+
 function calculateSystem1Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  const costPerKg = getModalCostPerKg();
   const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
   const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
 
-  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolume, packagingCost);
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(costPerKg, activeVolume, packagingCost);
   document.getElementById("calculated-unit-cost").innerText = PriceCalculator.formatTL(unitCost);
 
   const tyInput = {
@@ -559,8 +566,9 @@ function calculateSystem2Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  const costPerKg = getModalCostPerKg();
   const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
-  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolume, packagingCost);
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(costPerKg, activeVolume, packagingCost);
 
   const webPrice = parseFloat(document.getElementById("s2_web_price").value) || 0;
 
@@ -585,8 +593,9 @@ function calculateSystem3Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  const costPerKg = getModalCostPerKg();
   const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 70;
-  const matrix = PriceCalculator.calculateSystem3VolumeMatrix(product.costPerKg, targetProfit);
+  const matrix = PriceCalculator.calculateSystem3VolumeMatrix(costPerKg, targetProfit);
 
   const tbody = document.getElementById("s3-matrix-tbody");
   if (!tbody) return;
@@ -610,8 +619,9 @@ function calculateSystem4Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  const costPerKg = getModalCostPerKg();
   const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
-  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolume, packagingCost);
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(costPerKg, activeVolume, packagingCost);
 
   const retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 0;
   const comm = parseFloat(document.getElementById("s4_comm").value) || 19;
@@ -638,6 +648,7 @@ async function saveCurrentProductSlot() {
   if (!product) return;
 
   product.activeVolume = activeVolume;
+  product.costPerKg = getModalCostPerKg();
 
   await StorageManager.saveProduct(product);
   currentProducts = StorageManager.getProducts();
@@ -645,7 +656,7 @@ async function saveCurrentProductSlot() {
   renderProductGrid();
   renderStats();
 
-  showToast(`${product.name} İçin Tüm Ambalaj Şişe Ayarları Kaydedildi! ☁️✅`);
+  showToast(`${product.name} İçin 1KG Maliyeti (${PriceCalculator.formatTL(product.costPerKg)}) ve Tüm Şişe Ayarları Kaydedildi! ☁️✅`);
 }
 
 function resetCatalog() {
