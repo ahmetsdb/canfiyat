@@ -1,17 +1,26 @@
-// CanFiyat Complete Calculation Engine (Systems 1, 2, 3 & 4)
+// CanFiyat Complete Calculation Engine (Systems 1, 2, 3 & 4 with ml, gr, kg support)
 
 class PriceCalculator {
+  // Convert any volume/weight string (e.g. 20ml, 50gr, 0.5kg, 1kg) into ml/gr numeric value
   static getVolumeMl(volumeStr) {
-    const map = {
-      "20ml": 20,
-      "30ml": 30,
-      "50ml": 50,
-      "100ml": 100,
-      "250ml": 250,
-      "500ml": 500,
-      "1000ml": 1000
-    };
-    return map[volumeStr] || 250;
+    if (!volumeStr) return 250;
+    const str = String(volumeStr).toLowerCase().trim();
+
+    if (str.includes("kg")) {
+      const num = parseFloat(str.replace("kg", "").trim());
+      return isNaN(num) ? 1000 : num * 1000;
+    }
+    if (str.includes("gr") || str.includes("g")) {
+      const num = parseFloat(str.replace("gr", "").replace("g", "").trim());
+      return isNaN(num) ? 250 : num;
+    }
+    if (str.includes("ml")) {
+      const num = parseFloat(str.replace("ml", "").trim());
+      return isNaN(num) ? 250 : num;
+    }
+
+    const parsed = parseFloat(str);
+    return isNaN(parsed) ? 250 : parsed;
   }
 
   // Calculate Unit Wholesale Cost for a specific volume size
@@ -93,9 +102,9 @@ class PriceCalculator {
     };
   }
 
-  // SYSTEM 3: Hacim & Gramaj Ölçeklendirme Matrisi (30ml, 50ml, 100ml, 250ml, 500ml, 1000ml)
+  // SYSTEM 3: Hacim & Gramaj Ölçeklendirme Matrisi
   static calculateSystem3VolumeMatrix(costPerKg, targetProfitPerUnit = 70) {
-    const volumes = ["30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
+    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
     return volumes.map(vol => {
       const packagingCost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
       const unitCost = this.calculateUnitWholesaleCost(costPerKg, vol, packagingCost);
@@ -116,7 +125,7 @@ class PriceCalculator {
     });
   }
 
-  // SYSTEM 4: Toptandan Perakendeye (Verilen Satış Fiyatından Kârlılık Hesabı)
+  // SYSTEM 4: Toptandan Perakendeye
   static calculateSystem4({ retailPrice, unitCost, commission = 19, cargo = 110 }) {
     const price = parseFloat(retailPrice) || 0;
     const cost = parseFloat(unitCost) || 0;

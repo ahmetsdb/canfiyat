@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic with Exact Bottle Packaging Costs
+// CanFiyat Portal Main Application Logic with Product Variant & Custom Product Creation
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -6,6 +6,7 @@ let searchQuery = "";
 let selectedProductId = null;
 let viewMode = "rows"; // Default view: 'rows'
 let activeSimTab = "system1"; // Default modal sub-tab: 'system1'
+let addProductMode = "variant"; // 'variant' | 'custom'
 
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
@@ -249,6 +250,146 @@ function clearSearch() {
   if (searchInput) searchInput.value = "";
   searchQuery = "";
   renderProductGrid();
+}
+
+// ==========================================
+// ADD NEW PRODUCT / VARIANT MODAL LOGIC
+// ==========================================
+function openAddProductModal() {
+  const selectEl = document.getElementById("add-base-product");
+  if (selectEl) {
+    selectEl.innerHTML = "";
+    Object.values(currentProducts).forEach(p => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.innerText = `${p.name} (${p.sku}) - 1KG: ${PriceCalculator.formatTL(p.costPerKg)}`;
+      selectEl.appendChild(option);
+    });
+  }
+
+  setAddMode("variant");
+
+  const modal = document.getElementById("add-product-modal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeAddProductModal() {
+  const modal = document.getElementById("add-product-modal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
+function setAddMode(mode) {
+  addProductMode = mode;
+  const variantBtn = document.getElementById("add-mode-variant-btn");
+  const customBtn = document.getElementById("add-mode-custom-btn");
+  const variantForm = document.getElementById("add-variant-form");
+  const customForm = document.getElementById("add-custom-form");
+
+  if (mode === "variant") {
+    variantBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
+    customBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
+    variantForm.classList.remove("hidden");
+    variantForm.classList.add("block");
+    customForm.classList.add("hidden");
+    customForm.classList.remove("block");
+  } else {
+    customBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
+    variantBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
+    customForm.classList.remove("hidden");
+    customForm.classList.add("block");
+    variantForm.classList.add("hidden");
+    variantForm.classList.remove("block");
+  }
+}
+
+function onVariantVolumeChange() {
+  const vol = document.getElementById("add-variant-volume").value;
+  const cost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
+  document.getElementById("add-variant-packaging-cost").value = cost;
+}
+
+function onBaseProductChange() {
+  onVariantVolumeChange();
+}
+
+async function submitNewProduct() {
+  if (addProductMode === "variant") {
+    const baseId = document.getElementById("add-base-product").value;
+    const baseProduct = currentProducts[baseId];
+    if (!baseProduct) return;
+
+    const volume = document.getElementById("add-variant-volume").value;
+    const packagingCost = parseFloat(document.getElementById("add-variant-packaging-cost").value) || 14.50;
+
+    const newId = `${baseProduct.sku}-${volume.toUpperCase()}`;
+    const newSku = `${baseProduct.sku}-${volume.toUpperCase()}`;
+    const newName = `${baseProduct.name} (${volume})`;
+
+    const newProduct = {
+      id: newId,
+      sku: newSku,
+      name: newName,
+      category: baseProduct.category,
+      kdv: baseProduct.kdv,
+      unit: "1KG",
+      costPerKg: baseProduct.costPerKg,
+      selectedVolume: volume,
+      packagingCost: packagingCost,
+      targetProfit: 70,
+      channels: {
+        trendyol: { commission: 19, discount: 0, cargo: 110 },
+        hepsiburada: { commission: 17, discount: 0, cargo: 110 },
+        iyzico: { commission: 4, discount: 0, cargo: 110 }
+      }
+    };
+
+    await StorageManager.saveProduct(newProduct);
+    currentProducts = StorageManager.getProducts();
+
+    renderStats();
+    renderProductGrid();
+    closeAddProductModal();
+
+    showToast(`Yeni Ambalaj Slotu Oluşturuldu: ${newName} ✅`);
+    openProductSlot(newId);
+  } else {
+    // Custom product mode
+    const sku = document.getElementById("add-custom-sku").value.trim() || `CUSTOM-${Date.now()}`;
+    const name = document.getElementById("add-custom-name").value.trim() || "Özel Ürün";
+    const category = document.getElementById("add-custom-category").value;
+    const costKg = parseFloat(document.getElementById("add-custom-cost-kg").value) || 1000;
+    const kdv = parseFloat(document.getElementById("add-custom-kdv").value) || 20;
+
+    const newProduct = {
+      id: sku,
+      sku: sku,
+      name: name,
+      category: category,
+      kdv: kdv,
+      unit: "1KG",
+      costPerKg: costKg,
+      selectedVolume: "250ml",
+      packagingCost: 14.50,
+      targetProfit: 70,
+      channels: {
+        trendyol: { commission: 19, discount: 0, cargo: 110 },
+        hepsiburada: { commission: 17, discount: 0, cargo: 110 },
+        iyzico: { commission: 4, discount: 0, cargo: 110 }
+      }
+    };
+
+    await StorageManager.saveProduct(newProduct);
+    currentProducts = StorageManager.getProducts();
+
+    renderStats();
+    renderProductGrid();
+    closeAddProductModal();
+
+    showToast(`Yeni Özel Ürün Eklendi: ${name} ✅`);
+    openProductSlot(sku);
+  }
 }
 
 function switchSimTab(tabId) {
