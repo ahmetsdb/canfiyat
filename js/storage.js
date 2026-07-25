@@ -1,4 +1,4 @@
-// CanFiyat Storage Manager with Multi-Volume Bottle Slots per Product
+// CanFiyat Storage Manager with Multi-Volume Product Slots & Independent System 2 / System 4 Prices
 
 const SUPABASE_URL = "https://fmvvhwccthxigyyjnalg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_4hGtpGFz6qRHkI39zbrLug_HTvff6B6";
@@ -8,12 +8,11 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v4", // Multi-volume slots per product
+  PRODUCTS: "canfiyat_products_v5", // Product-specific independent System 2 & 4 prices
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1"
 };
 
 class StorageManager {
-  // Helper to generate default volume configurations for a product
   static createDefaultVolumeConfigs() {
     const configs = {};
     const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
@@ -21,6 +20,8 @@ class StorageManager {
       configs[vol] = {
         packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
         targetProfit: 70,
+        webSalePrice: 500, // Her ürüne ve ambalaja özel İyzico fiyatı (Sistem 2)
+        retailPrice: 650,  // Her ürüne ve ambalaja özel Perakende Fiyatı (Sistem 4)
         channels: {
           trendyol: { commission: 19, discount: 0, cargo: 110 },
           hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -122,7 +123,7 @@ class StorageManager {
       if (error) {
         console.warn("Supabase seed warning:", error.message);
       } else {
-        console.log("Supabase database seeded with multi-volume product slots!");
+        console.log("Supabase database seeded with product-specific System 2 & 4 prices!");
       }
     } catch (e) {
       console.error("Seed error:", e);

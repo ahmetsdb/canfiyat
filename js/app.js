@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic (v1.08) - Editable 1KG Wholesale Cost & Multi-Volume Slots
+// CanFiyat Portal Main Application Logic (v1.09) - Product & Volume Specific System 2 & 4 Prices
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -103,6 +103,8 @@ function getVolumeConfig(product, volKey) {
     product.volumes[volKey] = {
       packagingCost: DEFAULT_PACKAGING_COSTS[volKey] || 14.50,
       targetProfit: 70,
+      webSalePrice: 500,
+      retailPrice: 650,
       channels: {
         trendyol: { commission: 19, discount: 0, cargo: 110 },
         hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -389,6 +391,10 @@ function loadActiveVolumeConfig(product, volKey) {
 
   document.getElementById("slot-packaging-cost").value = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
   document.getElementById("slot-target-profit").value = config.targetProfit ?? 70;
+  
+  // Independent System 2 & System 4 values for this specific product volume slot
+  document.getElementById("s2_web_price").value = config.webSalePrice ?? 500;
+  document.getElementById("s4_retail_price").value = config.retailPrice ?? 650;
 
   const ty = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
   const hb = config.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
@@ -417,6 +423,10 @@ function saveInputsToCurrentVolumeConfig() {
   const config = getVolumeConfig(product, activeVolume);
   config.packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
   config.targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
+  
+  // Store independent System 2 & System 4 prices into this specific volume slot
+  config.webSalePrice = parseFloat(document.getElementById("s2_web_price").value) || 500;
+  config.retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 650;
 
   config.channels = {
     trendyol: {
@@ -656,7 +666,7 @@ async function saveCurrentProductSlot() {
   renderProductGrid();
   renderStats();
 
-  showToast(`${product.name} İçin 1KG Maliyeti (${PriceCalculator.formatTL(product.costPerKg)}) ve Tüm Şişe Ayarları Kaydedildi! ☁️✅`);
+  showToast(`${product.name} İçin Tüm Ayarlar ve Sistem 2/4 Fiyatları Saklandı! ☁️✅`);
 }
 
 function resetCatalog() {
