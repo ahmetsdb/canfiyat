@@ -42,7 +42,7 @@
                         <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.06</span>
+                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.07</span>
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Supabase Bulut Veritabanı
                             </span>
@@ -58,7 +58,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    + YENİ ÜRÜN / SLOT EKLE
+                    + YENİ ÜRÜN EKLE
                 </button>
 
                 <div class="bg-slate-900/90 border border-slate-800 px-4 py-2 text-center rounded-xl">
@@ -136,14 +136,14 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- CREATE NEW PRODUCT / SLOT MODAL            -->
+    <!-- CREATE NEW PRODUCT MODAL                   -->
     <!-- ========================================== -->
     <div id="add-product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
             <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
                 <div class="flex items-center gap-2">
                     <span class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-sm">+</span>
-                    <h2 class="text-base font-bold text-white tracking-tight">Yeni Ürün / Ambalaj Slotu Ekle</h2>
+                    <h2 class="text-base font-bold text-white tracking-tight">Yeni Özel Ürün Ekle</h2>
                 </div>
                 <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,78 +153,36 @@
             </div>
 
             <div class="p-6 space-y-4 text-xs">
-                <!-- Mode Toggle: Existing Product Variant vs Custom New Product -->
-                <div class="flex gap-2 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-2">
-                    <button id="add-mode-variant-btn" onclick="setAddMode('variant')" class="flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all">
-                        Mevcut Ürüne Yeni Şişe Ekle
-                    </button>
-                    <button id="add-mode-custom-btn" onclick="setAddMode('custom')" class="flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all">
-                        Tamamen Sıfır Ürün Ekle
-                    </button>
-                </div>
-
-                <!-- Variant Form -->
-                <div id="add-variant-form" class="space-y-4 block">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="input-group">
-                        <label>Mevcut Cansızzade Ürünü Seçin</label>
-                        <select id="add-base-product" onchange="onBaseProductChange()">
-                            <!-- Populated dynamically via JS -->
+                        <label>Stok Kodu (SKU)</label>
+                        <input type="text" id="add-custom-sku" placeholder="Örn: U.0999">
+                    </div>
+                    <div class="input-group">
+                        <label>Kategori</label>
+                        <select id="add-custom-category">
+                            <option value="Uçucu Yağlar">Uçucu Yağlar</option>
+                            <option value="Sabit Yağlar" selected>Sabit Yağlar</option>
                         </select>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="input-group">
-                            <label>Hedef Ambalaj Boyutu (ml / gr / kg)</label>
-                            <select id="add-variant-volume" onchange="onVariantVolumeChange()">
-                                <option value="20ml">20 ml / 20 gr (6.00 ₺)</option>
-                                <option value="30ml">30 ml / 30 gr (6.75 ₺)</option>
-                                <option value="50ml">50 ml / 50 gr (7.25 ₺)</option>
-                                <option value="100ml">100 ml / 100 gr (8.35 ₺)</option>
-                                <option value="250ml" selected>250 ml / 250 gr / 0.25 kg (14.50 ₺)</option>
-                                <option value="500ml">500 ml / 500 gr / 0.5 kg (25.00 ₺)</option>
-                                <option value="1000ml">1000 ml / 1 kg (35.00 ₺)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Şişe + Etiket Maliyeti (₺)</label>
-                            <input type="number" id="add-variant-packaging-cost" value="14.50" min="0" step="any">
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Custom Form -->
-                <div id="add-custom-form" class="space-y-4 hidden">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="input-group">
-                            <label>Stok Kodu (SKU)</label>
-                            <input type="text" id="add-custom-sku" placeholder="Örn: U.0999">
-                        </div>
-                        <div class="input-group">
-                            <label>Kategori</label>
-                            <select id="add-custom-category">
-                                <option value="Uçucu Yağlar">Uçucu Yağlar</option>
-                                <option value="Sabit Yağlar" selected>Sabit Yağlar</option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label>Ürün Adı</label>
+                    <input type="text" id="add-custom-name" placeholder="Örn: SAF AVOKADO YAĞI">
+                </div>
 
+                <div class="grid grid-cols-2 gap-4">
                     <div class="input-group">
-                        <label>Ürün Adı</label>
-                        <input type="text" id="add-custom-name" placeholder="Örn: SAF AVOKADO YAĞI">
+                        <label>1KG Toptan Maliyet (₺)</label>
+                        <input type="number" id="add-custom-cost-kg" value="1000" min="0" step="any">
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="input-group">
-                            <label>1KG Toptan Maliyet (₺)</label>
-                            <input type="number" id="add-custom-cost-kg" value="1000" min="0" step="any">
-                        </div>
-                        <div class="input-group">
-                            <label>KDV Oranı (%)</label>
-                            <select id="add-custom-kdv">
-                                <option value="1">%1 (Gıda/Tohum)</option>
-                                <option value="20" selected>%20 (Kozmetik/Uçucu)</option>
-                            </select>
-                        </div>
+                    <div class="input-group">
+                        <label>KDV Oranı (%)</label>
+                        <select id="add-custom-kdv">
+                            <option value="1">%1 (Gıda/Tohum)</option>
+                            <option value="20" selected>%20 (Kozmetik/Uçucu)</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -234,7 +192,7 @@
                     Vazgeç
                 </button>
                 <button onclick="submitNewProduct()" class="text-xs font-bold text-white px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/25">
-                    Ürün Slotunu Oluştur & Kaydet
+                    Ürünü Oluştur & Kaydet
                 </button>
             </div>
         </div>
@@ -267,7 +225,7 @@
             </div>
 
             <!-- Modal 4-System Mode Selector Tabs -->
-            <div class="px-6 pt-4 bg-slate-950/40 border-b border-slate-800">
+            <div class="px-6 pt-4 bg-slate-950/40 border-b border-slate-800 flex flex-col gap-3">
                 <div class="flex flex-wrap gap-2 p-1 bg-slate-950 rounded-xl border border-slate-800 inline-flex">
                     <button id="sim-tab-system1" onclick="switchSimTab('system1')" class="sim-tab-btn active px-4 py-2 rounded-lg font-semibold text-xs transition-all">
                         Sistem 1: Toptandan Fiyat Yarat
@@ -291,24 +249,25 @@
                 <!-- SYSTEM 1 WORKSPACE                         -->
                 <!-- ========================================== -->
                 <div id="sim-system1-container" class="space-y-6 block">
+                    
+                    <!-- BOTTLE SIZE SUB-TABS (İçerideki Ambalaj Sekmeleri) -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase text-blue-400 tracking-wider flex items-center gap-1.5">
+                                🧴 Ambalaj Boyutu Seçin (Her boyuta özel kayıtlı fiyatlar tutulur)
+                            </span>
+                            <span class="text-[10px] text-slate-500 font-medium">Tüm ambalaj ayarlarınız bu ürün kartının içinde muhafaza edilir.</span>
+                        </div>
+
+                        <!-- Bottle Size Tabs Container -->
+                        <div id="modal-volume-tabs" class="flex flex-wrap gap-2 pt-1">
+                            <!-- Rendered dynamically via JS: 20ml, 30ml, 50ml, 100ml, 250ml, 500ml, 1000ml -->
+                        </div>
+                    </div>
+
                     <!-- Product Slot Global Inputs (Packaging & Target Profit) -->
                     <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
-                            ⚙️ Bu Ürüne Özel Genel Parametreler (Toptan Maliyete Göre)
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="input-group">
-                                <label>Ambalaj Hacmi / Gramaj (ml / gr / kg)</label>
-                                <select id="slot-volume">
-                                    <option value="20ml">20 ml / 20 gr (Şişe+Kapak: 6.00 ₺)</option>
-                                    <option value="30ml">30 ml / 30 gr (Şişe: 2.50₺ + Kapak: 4.25₺ = 6.75 ₺)</option>
-                                    <option value="50ml">50 ml / 50 gr (Şişe: 3.00₺ + Kapak: 4.25₺ = 7.25 ₺)</option>
-                                    <option value="100ml">100 ml / 100 gr (Şişe: 4.10₺ + Kapak: 4.25₺ = 8.35 ₺)</option>
-                                    <option value="250ml" selected>250 ml / 250 gr / 0.25 kg (Toplam Ambalaj: 14.50 ₺)</option>
-                                    <option value="500ml">500 ml / 500 gr / 0.5 kg (Şişe+Kapak: 25.00 ₺)</option>
-                                    <option value="1000ml">1000 ml / 1 kg (Şişe+Kapak: 35.00 ₺)</option>
-                                </select>
-                            </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="input-group">
                                 <label>Şişe + Etiket Maliyeti (₺)</label>
                                 <input type="number" id="slot-packaging-cost" value="14.50" min="0" step="any" oninput="calculateCurrentModal()">
@@ -536,7 +495,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    BU ÜRÜNÜN SLOT AYARLARINI KAYDET
+                    TÜM ŞİŞE AYARLARINI BU ÜRÜNE KAYDET
                 </button>
             </div>
 

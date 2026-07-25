@@ -1,4 +1,4 @@
-// CanFiyat Storage Manager with Supabase Cloud Database Integration
+// CanFiyat Storage Manager with Multi-Volume Bottle Slots per Product
 
 const SUPABASE_URL = "https://fmvvhwccthxigyyjnalg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_4hGtpGFz6qRHkI39zbrLug_HTvff6B6";
@@ -8,30 +8,47 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v3", // Bumped version to reset initial default target profit to 70 TL
+  PRODUCTS: "canfiyat_products_v4", // Multi-volume slots per product
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1"
 };
 
 class StorageManager {
+  // Helper to generate default volume configurations for a product
+  static createDefaultVolumeConfigs() {
+    const configs = {};
+    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
+    volumes.forEach(vol => {
+      configs[vol] = {
+        packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
+        targetProfit: 70,
+        channels: {
+          trendyol: { commission: 19, discount: 0, cargo: 110 },
+          hepsiburada: { commission: 17, discount: 0, cargo: 110 },
+          iyzico: { commission: 4, discount: 0, cargo: 110 }
+        }
+      };
+    });
+    return configs;
+  }
+
   static getProducts() {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (!stored) {
         const initialMap = {};
         INITIAL_PRODUCTS.forEach(p => {
-          const vol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-          const packCost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
+          const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
 
           initialMap[p.id] = {
-            ...p,
-            selectedVolume: vol,
-            packagingCost: packCost,
-            targetProfit: 70, // Başlangıç Hedef Net Kâr: 70 TL
-            channels: {
-              trendyol: { commission: 19, discount: 0, cargo: 110 },
-              hepsiburada: { commission: 17, discount: 0, cargo: 110 },
-              iyzico: { commission: 4, discount: 0, cargo: 110 }
-            },
+            id: p.id,
+            sku: p.sku,
+            name: p.name,
+            category: p.category,
+            kdv: p.kdv,
+            unit: "1KG",
+            costPerKg: p.costPerKg,
+            activeVolume: defaultVol,
+            volumes: this.createDefaultVolumeConfigs(),
             updatedAt: new Date().toISOString()
           };
         });
@@ -59,8 +76,7 @@ class StorageManager {
       if (data && data.length > 0) {
         const cloudMap = {};
         data.forEach(item => {
-          // If profit is 300 (old default), update to 70 TL
-          const profit = (item.target_profit === 300 || !item.target_profit) ? 70 : item.target_profit;
+          const defaultVol = item.active_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
           cloudMap[item.id] = {
             id: item.id,
             sku: item.sku,
@@ -69,10 +85,8 @@ class StorageManager {
             kdv: item.kdv,
             unit: item.unit,
             costPerKg: item.cost_per_kg,
-            selectedVolume: item.selected_volume,
-            packagingCost: item.packaging_cost,
-            targetProfit: profit,
-            channels: item.channels,
+            activeVolume: defaultVol,
+            volumes: item.volumes || this.createDefaultVolumeConfigs(),
             updatedAt: item.updated_at
           };
         });
@@ -99,10 +113,8 @@ class StorageManager {
         kdv: p.kdv,
         unit: p.unit,
         cost_per_kg: p.costPerKg,
-        selected_volume: p.selectedVolume || "250ml",
-        packaging_cost: p.packagingCost || 14.50,
-        target_profit: p.targetProfit ?? 70,
-        channels: p.channels,
+        active_volume: p.activeVolume || "250ml",
+        volumes: p.volumes || this.createDefaultVolumeConfigs(),
         updated_at: new Date().toISOString()
       }));
 
@@ -110,7 +122,7 @@ class StorageManager {
       if (error) {
         console.warn("Supabase seed warning:", error.message);
       } else {
-        console.log("Supabase database seeded with 65 Cansızzade products!");
+        console.log("Supabase database seeded with multi-volume product slots!");
       }
     } catch (e) {
       console.error("Seed error:", e);
@@ -119,8 +131,10 @@ class StorageManager {
 
   static async saveProduct(productData) {
     const products = this.getProducts();
+    const existing = products[productData.id] || {};
+    
     const updated = {
-      ...products[productData.id],
+      ...existing,
       ...productData,
       updatedAt: new Date().toISOString()
     };
@@ -137,10 +151,8 @@ class StorageManager {
           kdv: updated.kdv,
           unit: updated.unit,
           cost_per_kg: updated.costPerKg,
-          selected_volume: updated.selectedVolume,
-          packaging_cost: updated.packagingCost,
-          target_profit: updated.targetProfit,
-          channels: updated.channels,
+          active_volume: updated.activeVolume,
+          volumes: updated.volumes,
           updated_at: updated.updatedAt
         });
       } catch (e) {

@@ -1,12 +1,22 @@
-// CanFiyat Portal Main Application Logic with Product Variant & Custom Product Creation
+// CanFiyat Portal Main Application Logic (v1.07) - Multi-Volume Bottle Slots per Product Card
 
 let currentProducts = {};
 let activeCategory = "all";
 let searchQuery = "";
 let selectedProductId = null;
-let viewMode = "rows"; // Default view: 'rows'
-let activeSimTab = "system1"; // Default modal sub-tab: 'system1'
-let addProductMode = "variant"; // 'variant' | 'custom'
+let viewMode = "rows"; // 'rows' | 'cards'
+let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4'
+let activeVolume = "250ml"; // Active bottle size sub-tab in modal
+
+const ALL_VOLUMES = [
+  { key: "20ml", label: "20 ml", price: "6.00 ₺" },
+  { key: "30ml", label: "30 ml", price: "6.75 ₺" },
+  { key: "50ml", label: "50 ml", price: "7.25 ₺" },
+  { key: "100ml", label: "100 ml", price: "8.35 ₺" },
+  { key: "250ml", label: "250 ml", price: "14.50 ₺" },
+  { key: "500ml", label: "500 ml", price: "25.00 ₺" },
+  { key: "1000ml", label: "1000 ml (1kg)", price: "35.00 ₺" }
+];
 
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
@@ -87,6 +97,22 @@ function filterCategory(cat) {
   renderProductGrid();
 }
 
+function getVolumeConfig(product, volKey) {
+  if (!product.volumes) product.volumes = StorageManager.createDefaultVolumeConfigs();
+  if (!product.volumes[volKey]) {
+    product.volumes[volKey] = {
+      packagingCost: DEFAULT_PACKAGING_COSTS[volKey] || 14.50,
+      targetProfit: 70,
+      channels: {
+        trendyol: { commission: 19, discount: 0, cargo: 110 },
+        hepsiburada: { commission: 17, discount: 0, cargo: 110 },
+        iyzico: { commission: 4, discount: 0, cargo: 110 }
+      }
+    };
+  }
+  return product.volumes[volKey];
+}
+
 function renderProductGrid() {
   const container = document.getElementById("product-grid");
   if (!container) return;
@@ -121,16 +147,16 @@ function renderProductGrid() {
   }
 
   filtered.forEach(product => {
-    const vol = product.selectedVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-    const packCost = product.packagingCost ?? (DEFAULT_PACKAGING_COSTS[vol] || 14.50);
-    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, vol, packCost);
+    const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+    const volConfig = getVolumeConfig(product, mainVol);
+    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, mainVol, volConfig.packagingCost);
     
     const tyResult = PriceCalculator.calculateSystem1Channel({
       wholesaleCost: unitCost,
-      targetProfit: product.targetProfit ?? 70,
-      commission: product.channels?.trendyol?.commission || 19,
-      discount: product.channels?.trendyol?.discount || 0,
-      cargo: product.channels?.trendyol?.cargo || 110
+      targetProfit: volConfig.targetProfit ?? 70,
+      commission: volConfig.channels?.trendyol?.commission || 19,
+      discount: volConfig.channels?.trendyol?.discount || 0,
+      cargo: volConfig.channels?.trendyol?.cargo || 110
     });
 
     const isUcucu = product.category === "Uçucu Yağlar";
@@ -161,8 +187,8 @@ function renderProductGrid() {
           </div>
 
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[150px]">
-            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Ambalaj & Birim Maliyet</span>
-            <span class="font-bold text-blue-400">${vol} (${PriceCalculator.formatTL(unitCost)})</span>
+            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Varsayılan Ambalaj</span>
+            <span class="font-bold text-blue-400">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
           </div>
 
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
@@ -176,7 +202,7 @@ function renderProductGrid() {
             <span class="text-slate-400 block text-[10px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Net Kâr
             </span>
-            <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit ?? 70)}</span>
+            <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
           </div>
 
           <div class="min-w-[180px]">
@@ -184,7 +210,7 @@ function renderProductGrid() {
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
-              SLOT AYARLARI & HESAPLA
+              TÜM ŞİŞELERİ & HESAPLA
             </button>
           </div>
         </div>
@@ -215,8 +241,8 @@ function renderProductGrid() {
                 <span class="font-bold text-slate-200">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Seçili Ambalaj</span>
-                <span class="font-bold text-blue-400">${vol} (${PriceCalculator.formatTL(unitCost)})</span>
+                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Varsayılan Ambalaj</span>
+                <span class="font-bold text-blue-400">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
               </div>
             </div>
 
@@ -227,7 +253,7 @@ function renderProductGrid() {
               </div>
               <div class="flex justify-between items-center text-slate-300">
                 <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Hedef Net Kâr:</span>
-                <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit ?? 70)}</span>
+                <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
               </div>
             </div>
           </div>
@@ -236,7 +262,7 @@ function renderProductGrid() {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
             </svg>
-            ÜRÜN SLOTUNA GİT & HESAPLA
+            TÜM ŞİŞELERİ & HESAPLA
           </button>
         </div>
       `;
@@ -253,22 +279,9 @@ function clearSearch() {
 }
 
 // ==========================================
-// ADD NEW PRODUCT / VARIANT MODAL LOGIC
+// ADD NEW CUSTOM PRODUCT MODAL LOGIC
 // ==========================================
 function openAddProductModal() {
-  const selectEl = document.getElementById("add-base-product");
-  if (selectEl) {
-    selectEl.innerHTML = "";
-    Object.values(currentProducts).forEach(p => {
-      const option = document.createElement("option");
-      option.value = p.id;
-      option.innerText = `${p.name} (${p.sku}) - 1KG: ${PriceCalculator.formatTL(p.costPerKg)}`;
-      selectEl.appendChild(option);
-    });
-  }
-
-  setAddMode("variant");
-
   const modal = document.getElementById("add-product-modal");
   modal.classList.remove("hidden");
   modal.classList.add("flex");
@@ -280,116 +293,156 @@ function closeAddProductModal() {
   modal.classList.remove("flex");
 }
 
-function setAddMode(mode) {
-  addProductMode = mode;
-  const variantBtn = document.getElementById("add-mode-variant-btn");
-  const customBtn = document.getElementById("add-mode-custom-btn");
-  const variantForm = document.getElementById("add-variant-form");
-  const customForm = document.getElementById("add-custom-form");
-
-  if (mode === "variant") {
-    variantBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
-    customBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
-    variantForm.classList.remove("hidden");
-    variantForm.classList.add("block");
-    customForm.classList.add("hidden");
-    customForm.classList.remove("block");
-  } else {
-    customBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
-    variantBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
-    customForm.classList.remove("hidden");
-    customForm.classList.add("block");
-    variantForm.classList.add("hidden");
-    variantForm.classList.remove("block");
-  }
-}
-
-function onVariantVolumeChange() {
-  const vol = document.getElementById("add-variant-volume").value;
-  const cost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
-  document.getElementById("add-variant-packaging-cost").value = cost;
-}
-
-function onBaseProductChange() {
-  onVariantVolumeChange();
-}
-
 async function submitNewProduct() {
-  if (addProductMode === "variant") {
-    const baseId = document.getElementById("add-base-product").value;
-    const baseProduct = currentProducts[baseId];
-    if (!baseProduct) return;
+  const sku = document.getElementById("add-custom-sku").value.trim() || `CUSTOM-${Date.now()}`;
+  const name = document.getElementById("add-custom-name").value.trim() || "Özel Ürün";
+  const category = document.getElementById("add-custom-category").value;
+  const costKg = parseFloat(document.getElementById("add-custom-cost-kg").value) || 1000;
+  const kdv = parseFloat(document.getElementById("add-custom-kdv").value) || 20;
 
-    const volume = document.getElementById("add-variant-volume").value;
-    const packagingCost = parseFloat(document.getElementById("add-variant-packaging-cost").value) || 14.50;
+  const defaultVol = category === "Uçucu Yağlar" ? "50ml" : "250ml";
 
-    const newId = `${baseProduct.sku}-${volume.toUpperCase()}`;
-    const newSku = `${baseProduct.sku}-${volume.toUpperCase()}`;
-    const newName = `${baseProduct.name} (${volume})`;
+  const newProduct = {
+    id: sku,
+    sku: sku,
+    name: name,
+    category: category,
+    kdv: kdv,
+    unit: "1KG",
+    costPerKg: costKg,
+    activeVolume: defaultVol,
+    volumes: StorageManager.createDefaultVolumeConfigs()
+  };
 
-    const newProduct = {
-      id: newId,
-      sku: newSku,
-      name: newName,
-      category: baseProduct.category,
-      kdv: baseProduct.kdv,
-      unit: "1KG",
-      costPerKg: baseProduct.costPerKg,
-      selectedVolume: volume,
-      packagingCost: packagingCost,
-      targetProfit: 70,
-      channels: {
-        trendyol: { commission: 19, discount: 0, cargo: 110 },
-        hepsiburada: { commission: 17, discount: 0, cargo: 110 },
-        iyzico: { commission: 4, discount: 0, cargo: 110 }
-      }
-    };
+  await StorageManager.saveProduct(newProduct);
+  currentProducts = StorageManager.getProducts();
 
-    await StorageManager.saveProduct(newProduct);
-    currentProducts = StorageManager.getProducts();
+  renderStats();
+  renderProductGrid();
+  closeAddProductModal();
 
-    renderStats();
-    renderProductGrid();
-    closeAddProductModal();
+  showToast(`Yeni Ürün Kartı Eklendi: ${name} ✅`);
+  openProductSlot(sku);
+}
 
-    showToast(`Yeni Ambalaj Slotu Oluşturuldu: ${newName} ✅`);
-    openProductSlot(newId);
-  } else {
-    // Custom product mode
-    const sku = document.getElementById("add-custom-sku").value.trim() || `CUSTOM-${Date.now()}`;
-    const name = document.getElementById("add-custom-name").value.trim() || "Özel Ürün";
-    const category = document.getElementById("add-custom-category").value;
-    const costKg = parseFloat(document.getElementById("add-custom-cost-kg").value) || 1000;
-    const kdv = parseFloat(document.getElementById("add-custom-kdv").value) || 20;
+// ==========================================
+// MODAL WORKSPACE & BOTTLE SIZE SUB-TABS LOGIC
+// ==========================================
+function openProductSlot(productId) {
+  selectedProductId = productId;
+  const product = currentProducts[productId];
+  if (!product) return;
 
-    const newProduct = {
-      id: sku,
-      sku: sku,
-      name: name,
-      category: category,
-      kdv: kdv,
-      unit: "1KG",
-      costPerKg: costKg,
-      selectedVolume: "250ml",
-      packagingCost: 14.50,
-      targetProfit: 70,
-      channels: {
-        trendyol: { commission: 19, discount: 0, cargo: 110 },
-        hepsiburada: { commission: 17, discount: 0, cargo: 110 },
-        iyzico: { commission: 4, discount: 0, cargo: 110 }
-      }
-    };
+  activeVolume = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
 
-    await StorageManager.saveProduct(newProduct);
-    currentProducts = StorageManager.getProducts();
+  document.getElementById("modal-product-title").innerText = `${product.name} (${product.sku})`;
+  document.getElementById("modal-product-category").innerText = product.category;
+  document.getElementById("modal-cost-kg").innerText = PriceCalculator.formatTL(product.costPerKg);
 
-    renderStats();
-    renderProductGrid();
-    closeAddProductModal();
+  renderVolumeTabs(product);
+  loadActiveVolumeConfig(product, activeVolume);
 
-    showToast(`Yeni Özel Ürün Eklendi: ${name} ✅`);
-    openProductSlot(sku);
+  switchSimTab("system1");
+
+  const modal = document.getElementById("product-slot-modal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function renderVolumeTabs(product) {
+  const container = document.getElementById("modal-volume-tabs");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  ALL_VOLUMES.forEach(vol => {
+    const isActive = vol.key === activeVolume;
+    const btnClass = isActive 
+      ? "bg-blue-600 text-white font-bold border-blue-400 shadow-md scale-105" 
+      : "bg-slate-900 text-slate-400 font-semibold border-slate-800 hover:bg-slate-800 hover:text-white";
+
+    const html = `
+      <button onclick="selectModalVolumeTab('${vol.key}')" class="px-3 py-1.5 rounded-lg text-xs border transition-all flex items-center gap-1.5 ${btnClass}">
+        <span>🧴 ${vol.label}</span>
+        <span class="text-[10px] opacity-75 font-mono">(${vol.price})</span>
+      </button>
+    `;
+    container.insertAdjacentHTML("beforeend", html);
+  });
+}
+
+function selectModalVolumeTab(volKey) {
+  // First save current inputs into existing activeVolume
+  saveInputsToCurrentVolumeConfig();
+
+  activeVolume = volKey;
+  const product = currentProducts[selectedProductId];
+  if (product) {
+    product.activeVolume = volKey;
+    renderVolumeTabs(product);
+    loadActiveVolumeConfig(product, volKey);
+    calculateCurrentModal();
   }
+}
+
+function loadActiveVolumeConfig(product, volKey) {
+  const config = getVolumeConfig(product, volKey);
+
+  document.getElementById("slot-packaging-cost").value = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
+  document.getElementById("slot-target-profit").value = config.targetProfit ?? 70;
+
+  const ty = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
+  const hb = config.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
+  const iy = config.channels?.iyzico || { commission: 4, discount: 0, cargo: 110 };
+
+  document.getElementById("s1_comm_ty").value = ty.commission;
+  document.getElementById("s1_disc_ty").value = ty.discount;
+  document.getElementById("s1_kargo_ty").value = ty.cargo;
+
+  document.getElementById("s1_comm_hb").value = hb.commission;
+  document.getElementById("s1_disc_hb").value = hb.discount;
+  document.getElementById("s1_kargo_hb").value = hb.cargo;
+
+  document.getElementById("s1_comm_iy").value = iy.commission;
+  document.getElementById("s1_disc_iy").value = iy.discount;
+  document.getElementById("s1_kargo_iy").value = iy.cargo;
+
+  calculateCurrentModal();
+}
+
+function saveInputsToCurrentVolumeConfig() {
+  if (!selectedProductId) return;
+  const product = currentProducts[selectedProductId];
+  if (!product) return;
+
+  const config = getVolumeConfig(product, activeVolume);
+  config.packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
+  config.targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
+
+  config.channels = {
+    trendyol: {
+      commission: parseFloat(document.getElementById("s1_comm_ty").value) || 0,
+      discount: parseFloat(document.getElementById("s1_disc_ty").value) || 0,
+      cargo: parseFloat(document.getElementById("s1_kargo_ty").value) || 0
+    },
+    hepsiburada: {
+      commission: parseFloat(document.getElementById("s1_comm_hb").value) || 0,
+      discount: parseFloat(document.getElementById("s1_disc_hb").value) || 0,
+      cargo: parseFloat(document.getElementById("s1_kargo_hb").value) || 0
+    },
+    iyzico: {
+      commission: parseFloat(document.getElementById("s1_comm_iy").value) || 0,
+      discount: parseFloat(document.getElementById("s1_disc_iy").value) || 0,
+      cargo: parseFloat(document.getElementById("s1_kargo_iy").value) || 0
+    }
+  };
+}
+
+function closeProductSlot() {
+  const modal = document.getElementById("product-slot-modal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+  selectedProductId = null;
 }
 
 function switchSimTab(tabId) {
@@ -422,58 +475,6 @@ function switchSimTab(tabId) {
   calculateCurrentModal();
 }
 
-function openProductSlot(productId) {
-  selectedProductId = productId;
-  const product = currentProducts[productId];
-  if (!product) return;
-
-  const defaultVol = product.selectedVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-
-  document.getElementById("modal-product-title").innerText = `${product.name} (${product.sku})`;
-  document.getElementById("modal-product-category").innerText = product.category;
-  document.getElementById("modal-cost-kg").innerText = PriceCalculator.formatTL(product.costPerKg);
-
-  document.getElementById("slot-volume").value = defaultVol;
-  document.getElementById("slot-packaging-cost").value = product.packagingCost ?? (DEFAULT_PACKAGING_COSTS[defaultVol] || 14.50);
-  document.getElementById("slot-target-profit").value = product.targetProfit ?? 70;
-
-  const ty = product.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
-  const hb = product.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
-  const iy = product.channels?.iyzico || { commission: 4, discount: 0, cargo: 110 };
-
-  document.getElementById("s1_comm_ty").value = ty.commission;
-  document.getElementById("s1_disc_ty").value = ty.discount;
-  document.getElementById("s1_kargo_ty").value = ty.cargo;
-
-  document.getElementById("s1_comm_hb").value = hb.commission;
-  document.getElementById("s1_disc_hb").value = hb.discount;
-  document.getElementById("s1_kargo_hb").value = hb.cargo;
-
-  document.getElementById("s1_comm_iy").value = iy.commission;
-  document.getElementById("s1_disc_iy").value = iy.discount;
-  document.getElementById("s1_kargo_iy").value = iy.cargo;
-
-  const volumeSelect = document.getElementById("slot-volume");
-  volumeSelect.onchange = () => {
-    const vol = volumeSelect.value;
-    document.getElementById("slot-packaging-cost").value = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
-    calculateCurrentModal();
-  };
-
-  switchSimTab("system1");
-
-  const modal = document.getElementById("product-slot-modal");
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
-}
-
-function closeProductSlot() {
-  const modal = document.getElementById("product-slot-modal");
-  modal.classList.add("hidden");
-  modal.classList.remove("flex");
-  selectedProductId = null;
-}
-
 function calculateCurrentModal() {
   if (!selectedProductId) return;
 
@@ -492,11 +493,10 @@ function calculateSystem1Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
-  const volume = document.getElementById("slot-volume").value;
   const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
   const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
 
-  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volume, packagingCost);
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolume, packagingCost);
   document.getElementById("calculated-unit-cost").innerText = PriceCalculator.formatTL(unitCost);
 
   const tyInput = {
@@ -559,9 +559,8 @@ function calculateSystem2Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
-  const volume = document.getElementById("slot-volume").value;
   const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
-  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volume, packagingCost);
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolume, packagingCost);
 
   const webPrice = parseFloat(document.getElementById("s2_web_price").value) || 0;
 
@@ -611,9 +610,8 @@ function calculateSystem4Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
-  const volume = document.getElementById("slot-volume").value;
   const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
-  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volume, packagingCost);
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolume, packagingCost);
 
   const retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 0;
   const comm = parseFloat(document.getElementById("s4_comm").value) || 19;
@@ -634,41 +632,20 @@ function calculateSystem4Modal() {
 async function saveCurrentProductSlot() {
   if (!selectedProductId) return;
 
-  const volume = document.getElementById("slot-volume").value;
-  const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
-  const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
+  saveInputsToCurrentVolumeConfig();
 
-  const updatedProduct = {
-    id: selectedProductId,
-    selectedVolume: volume,
-    packagingCost: packagingCost,
-    targetProfit: targetProfit,
-    channels: {
-      trendyol: {
-        commission: parseFloat(document.getElementById("s1_comm_ty").value) || 0,
-        discount: parseFloat(document.getElementById("s1_disc_ty").value) || 0,
-        cargo: parseFloat(document.getElementById("s1_kargo_ty").value) || 0
-      },
-      hepsiburada: {
-        commission: parseFloat(document.getElementById("s1_comm_hb").value) || 0,
-        discount: parseFloat(document.getElementById("s1_disc_hb").value) || 0,
-        cargo: parseFloat(document.getElementById("s1_kargo_hb").value) || 0
-      },
-      iyzico: {
-        commission: parseFloat(document.getElementById("s1_comm_iy").value) || 0,
-        discount: parseFloat(document.getElementById("s1_disc_iy").value) || 0,
-        cargo: parseFloat(document.getElementById("s1_kargo_iy").value) || 0
-      }
-    }
-  };
+  const product = currentProducts[selectedProductId];
+  if (!product) return;
 
-  await StorageManager.saveProduct(updatedProduct);
+  product.activeVolume = activeVolume;
+
+  await StorageManager.saveProduct(product);
   currentProducts = StorageManager.getProducts();
   
   renderProductGrid();
   renderStats();
 
-  showToast("Ürün Slot Ayarları Bulut Veritabanına (Supabase) Kaydedildi! ☁️✅");
+  showToast(`${product.name} İçin Tüm Ambalaj Şişe Ayarları Kaydedildi! ☁️✅`);
 }
 
 function resetCatalog() {
