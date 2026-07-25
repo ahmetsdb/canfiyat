@@ -24,7 +24,7 @@ class StorageManager {
             ...p,
             selectedVolume: "250ml",
             packagingCost: DEFAULT_PACKAGING_COSTS["250ml"],
-            targetProfit: 300,
+            targetProfit: 70, // Varsayılan Hedef Net Kâr: 70 TL
             channels: {
               trendyol: { commission: 19, discount: 0, cargo: 110 },
               hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -34,7 +34,6 @@ class StorageManager {
           };
         });
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
-        // Seed to Supabase asynchronously
         this.seedSupabaseDatabase(initialMap);
         return initialMap;
       }
@@ -45,7 +44,6 @@ class StorageManager {
     }
   }
 
-  // Load latest data from Supabase Cloud DB and refresh local cache
   static async fetchFromSupabase(onCompleteCallback) {
     if (!supabaseClient) return;
 
@@ -69,7 +67,7 @@ class StorageManager {
             costPerKg: item.cost_per_kg,
             selectedVolume: item.selected_volume,
             packagingCost: item.packaging_cost,
-            targetProfit: item.target_profit,
+            targetProfit: item.target_profit ?? 70,
             channels: item.channels,
             updatedAt: item.updated_at
           };
@@ -77,7 +75,6 @@ class StorageManager {
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(cloudMap));
         if (onCompleteCallback) onCompleteCallback(cloudMap);
       } else {
-        // DB is empty, seed initial data
         const localData = this.getProducts();
         this.seedSupabaseDatabase(localData);
       }
@@ -86,7 +83,6 @@ class StorageManager {
     }
   }
 
-  // Seed Supabase DB with 65 Cansızzade products
   static async seedSupabaseDatabase(productsMap) {
     if (!supabaseClient) return;
 
@@ -101,7 +97,7 @@ class StorageManager {
         cost_per_kg: p.costPerKg,
         selected_volume: p.selectedVolume || "250ml",
         packaging_cost: p.packagingCost || 25,
-        target_profit: p.targetProfit || 300,
+        target_profit: p.targetProfit ?? 70,
         channels: p.channels,
         updated_at: new Date().toISOString()
       }));
@@ -117,7 +113,6 @@ class StorageManager {
     }
   }
 
-  // Save Product Slot state to LocalStorage & Supabase Cloud DB
   static async saveProduct(productData) {
     const products = this.getProducts();
     const updated = {
@@ -128,7 +123,6 @@ class StorageManager {
     products[productData.id] = updated;
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
 
-    // Save to Supabase Cloud DB
     if (supabaseClient) {
       try {
         await supabaseClient.from("products").upsert({

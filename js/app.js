@@ -123,7 +123,7 @@ function renderProductGrid() {
     const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, product.selectedVolume || "250ml", product.packagingCost || 25);
     const tyResult = PriceCalculator.calculateSystem1Channel({
       wholesaleCost: unitCost,
-      targetProfit: product.targetProfit || 300,
+      targetProfit: product.targetProfit ?? 70,
       commission: product.channels?.trendyol?.commission || 19,
       discount: product.channels?.trendyol?.discount || 0,
       cargo: product.channels?.trendyol?.cargo || 110
@@ -172,7 +172,7 @@ function renderProductGrid() {
             <span class="text-slate-400 block text-[10px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Net Kâr
             </span>
-            <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit || 300)}</span>
+            <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit ?? 70)}</span>
           </div>
 
           <div class="min-w-[180px]">
@@ -223,7 +223,7 @@ function renderProductGrid() {
               </div>
               <div class="flex justify-between items-center text-slate-300">
                 <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Hedef Net Kâr:</span>
-                <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit || 300)}</span>
+                <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(product.targetProfit ?? 70)}</span>
               </div>
             </div>
           </div>
@@ -292,7 +292,7 @@ function openProductSlot(productId) {
 
   document.getElementById("slot-volume").value = product.selectedVolume || "250ml";
   document.getElementById("slot-packaging-cost").value = product.packagingCost ?? DEFAULT_PACKAGING_COSTS[product.selectedVolume || "250ml"];
-  document.getElementById("slot-target-profit").value = product.targetProfit ?? 300;
+  document.getElementById("slot-target-profit").value = product.targetProfit ?? 70;
 
   const ty = product.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
   const hb = product.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
