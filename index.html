@@ -27,54 +27,54 @@
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="p-4 md:p-8 min-h-screen text-slate-100 bg-[#090d16]">
+<body class="p-3 md:p-6 min-h-screen text-slate-100 bg-[#090d16]">
 
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div class="max-w-7xl mx-auto space-y-6">
         
         <!-- Header & Branding -->
-        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-            <div class="space-y-1">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/20">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div class="space-y-0.5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-lg shadow-lg shadow-blue-500/20">
                         💧
                     </div>
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                        <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
-                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.12</span>
-                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Supabase Bulut Veritabanı
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.13 Kompakt</span>
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
                         </h1>
-                        <p class="text-slate-400 text-xs md:text-sm font-medium">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
+                        <p class="text-slate-400 text-xs font-medium">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
                     </div>
                 </div>
             </div>
 
             <!-- Header Action & Stats Bar -->
-            <div class="flex items-center gap-3">
-                <button onclick="openAddProductModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/25 flex items-center gap-2 transition-all border border-blue-400/30">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-2.5">
+                <button onclick="openAddProductModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-blue-500/25 flex items-center gap-1.5 transition-all border border-blue-400/30">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     + YENİ ÜRÜN EKLE
                 </button>
 
-                <div class="bg-slate-900/90 border border-slate-800 px-4 py-2 text-center rounded-xl">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Toplam Ürün</span>
-                    <span class="text-lg font-black text-white" id="stat-total-count">0</span>
+                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 text-center rounded-xl">
+                    <span class="text-[9px] uppercase font-bold text-slate-400 block">Toplam Ürün</span>
+                    <span class="text-base font-black text-white" id="stat-total-count">0</span>
                 </div>
-                <div class="bg-slate-900/90 border border-slate-800 px-4 py-2 text-center rounded-xl">
-                    <span class="text-[10px] uppercase font-bold text-purple-400 block">Uçucu Yağlar</span>
-                    <span class="text-lg font-black text-purple-300" id="stat-ucucu-count">0</span>
+                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 text-center rounded-xl">
+                    <span class="text-[9px] uppercase font-bold text-purple-400 block">Uçucu Yağlar</span>
+                    <span class="text-base font-black text-purple-300" id="stat-ucucu-count">0</span>
                 </div>
-                <div class="bg-slate-900/90 border border-slate-800 px-4 py-2 text-center rounded-xl">
-                    <span class="text-[10px] uppercase font-bold text-emerald-400 block">Sabit Yağlar</span>
-                    <span class="text-lg font-black text-emerald-300" id="stat-sabit-count">0</span>
+                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 text-center rounded-xl">
+                    <span class="text-[9px] uppercase font-bold text-emerald-400 block">Sabit Yağlar</span>
+                    <span class="text-base font-black text-emerald-300" id="stat-sabit-count">0</span>
                 </div>
-                <button onclick="resetCatalog()" title="Fabrika Ayarlarına Sıfırla" class="bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 p-2.5 rounded-xl border border-slate-800 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="resetCatalog()" title="Fabrika Ayarlarına Sıfırla" class="bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 p-2 rounded-xl border border-slate-800 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
                 </button>
@@ -82,32 +82,32 @@
         </header>
 
         <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
-        <div class="flex flex-col lg:flex-row gap-4 justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80">
+        <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-slate-900/60 p-3 rounded-2xl border border-slate-800/80">
             
             <!-- Category Tabs -->
             <div class="flex flex-wrap gap-1.5 w-full lg:w-auto">
-                <button id="cat-tab-all" onclick="filterCategory('all')" class="cat-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-blue-600 text-white">
+                <button id="cat-tab-all" onclick="filterCategory('all')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-blue-600 text-white">
                     Tüm Ürünler (65)
                 </button>
-                <button id="cat-tab-Uçucu Yağlar" onclick="filterCategory('Uçucu Yağlar')" class="cat-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:bg-slate-700">
+                <button id="cat-tab-Uçucu Yağlar" onclick="filterCategory('Uçucu Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:bg-slate-700">
                     🌿 Uçucu Yağlar (23)
                 </button>
-                <button id="cat-tab-Sabit Yağlar" onclick="filterCategory('Sabit Yağlar')" class="cat-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:bg-slate-700">
+                <button id="cat-tab-Sabit Yağlar" onclick="filterCategory('Sabit Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:bg-slate-700">
                     🌻 Sabit Yağlar (42)
                 </button>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
                 <!-- View Mode Switcher (Satır vs Kart) -->
                 <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
-                        Satır / Tablo
+                        Satır
                     </button>
-                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                         Kartlar
@@ -115,13 +115,13 @@
                 </div>
 
                 <!-- Search Input -->
-                <div class="relative w-full sm:w-72">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="relative w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                 </div>
             </div>
 
@@ -129,7 +129,7 @@
 
         <!-- Main Product Stream Container (Default Row/Table View) -->
         <main>
-            <div id="product-grid" class="flex flex-col gap-3 w-full">
+            <div id="product-grid" class="flex flex-col gap-2.5 w-full">
                 <!-- Product rows render dynamically via app.js -->
             </div>
         </main>
@@ -138,22 +138,22 @@
     <!-- ========================================== -->
     <!-- CREATE NEW PRODUCT MODAL                   -->
     <!-- ========================================== -->
-    <div id="add-product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
-            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+    <div id="add-product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
+            <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
                 <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-sm">+</span>
-                    <h2 class="text-base font-bold text-white tracking-tight">Yeni Özel Ürün Ekle</h2>
+                    <span class="w-6 h-6 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs">+</span>
+                    <h2 class="text-sm font-bold text-white tracking-tight">Yeni Özel Ürün Ekle</h2>
                 </div>
-                <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white bg-slate-800 p-1 rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <div class="p-6 space-y-4 text-xs">
-                <div class="grid grid-cols-2 gap-4">
+            <div class="p-5 space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-3">
                     <div class="input-group">
                         <label>Stok Kodu (SKU)</label>
                         <input type="text" id="add-custom-sku" placeholder="Örn: U.0999">
@@ -172,7 +172,7 @@
                     <input type="text" id="add-custom-name" placeholder="Örn: SAF AVOKADO YAĞI">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div class="input-group">
                         <label>1KG Toptan Maliyet (₺)</label>
                         <input type="number" id="add-custom-cost-kg" value="1000" min="0" step="any">
@@ -187,11 +187,11 @@
                 </div>
             </div>
 
-            <div class="px-6 py-4 border-t border-slate-800 flex justify-between bg-slate-950/80">
-                <button onclick="closeAddProductModal()" class="text-xs font-semibold text-slate-400 hover:text-white px-4 py-2 rounded-lg bg-slate-800">
+            <div class="px-5 py-3 border-t border-slate-800 flex justify-between bg-slate-950/80">
+                <button onclick="closeAddProductModal()" class="text-xs font-semibold text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg bg-slate-800">
                     Vazgeç
                 </button>
-                <button onclick="submitNewProduct()" class="text-xs font-bold text-white px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/25">
+                <button onclick="submitNewProduct()" class="text-xs font-bold text-white px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/25">
                     Ürünü Oluştur & Kaydet
                 </button>
             </div>
@@ -199,191 +199,178 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- DEDICATED PRODUCT SLOT WORKSPACE MODAL    -->
+    <!-- ULTRA-COMPACT PRODUCT SLOT WORKSPACE MODAL -->
     <!-- ========================================== -->
-    <div id="product-slot-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col my-auto animate-slide-up">
+    <div id="product-slot-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col my-auto animate-slide-up">
             
-            <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
-                <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-sm">📍</span>
+            <!-- Compact Header -->
+            <div class="px-4 py-2.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs">📍</span>
                     <div>
-                        <h2 id="modal-product-title" class="text-lg font-bold text-white tracking-tight">Ürün Slotu</h2>
-                        <div class="flex items-center gap-2 text-xs text-slate-400">
-                            <span id="modal-product-category" class="font-semibold text-blue-400">Kategori</span>
-                        </div>
+                        <h2 id="modal-product-title" class="text-sm font-bold text-white tracking-tight">Ürün Slotu</h2>
+                        <span id="modal-product-category" class="text-[10px] font-semibold text-blue-400">Kategori</span>
                     </div>
                 </div>
-                <button onclick="closeProductSlot()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-2 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="closeProductSlot()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-1.5 rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
             <!-- Modal 5-System Mode Selector Tabs -->
-            <div class="px-6 pt-4 bg-slate-950/40 border-b border-slate-800 flex flex-col gap-3">
-                <div class="flex flex-wrap gap-2 p-1 bg-slate-950 rounded-xl border border-slate-800 inline-flex">
-                    <button id="sim-tab-system1" onclick="switchSimTab('system1')" class="sim-tab-btn active px-4 py-2 rounded-lg font-semibold text-xs transition-all">
-                        Sistem 1: Toptandan Fiyat Yarat
+            <div class="px-4 pt-2 pb-2 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between gap-2 overflow-x-auto">
+                <div class="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+                    <button id="sim-tab-system1" onclick="switchSimTab('system1')" class="sim-tab-btn active px-3 py-1 rounded-lg font-bold text-[11px] transition-all">
+                        Sistem 1: Toptan Fiyat
                     </button>
-                    <button id="sim-tab-system2" onclick="switchSimTab('system2')" class="sim-tab-btn inactive px-4 py-2 rounded-lg font-semibold text-xs transition-all">
-                        Sistem 2: İyzico Fiyatından Eşitle
+                    <button id="sim-tab-system2" onclick="switchSimTab('system2')" class="sim-tab-btn inactive px-3 py-1 rounded-lg font-bold text-[11px] transition-all">
+                        Sistem 2: İyzico Eşitle
                     </button>
-                    <button id="sim-tab-system3" onclick="switchSimTab('system3')" class="sim-tab-btn inactive px-4 py-2 rounded-lg font-semibold text-xs transition-all">
-                        Sistem 3: gr/kg Hacim Ölçekleme
+                    <button id="sim-tab-system3" onclick="switchSimTab('system3')" class="sim-tab-btn inactive px-3 py-1 rounded-lg font-bold text-[11px] transition-all">
+                        Sistem 3: Hacim Matrisi
                     </button>
-                    <button id="sim-tab-system4" onclick="switchSimTab('system4')" class="sim-tab-btn inactive px-4 py-2 rounded-lg font-semibold text-xs transition-all">
-                        Sistem 4: Perakende Fiyat Analizi
+                    <button id="sim-tab-system4" onclick="switchSimTab('system4')" class="sim-tab-btn inactive px-4 py-1 rounded-lg font-bold text-[11px] transition-all">
+                        Sistem 4: Perakende Analiz
                     </button>
-                    <button id="sim-tab-system5" onclick="switchSimTab('system5')" class="sim-tab-btn inactive px-4 py-2 rounded-lg font-semibold text-xs transition-all bg-gradient-to-r from-orange-950/50 to-amber-950/50 border border-orange-500/30 text-orange-300">
-                        🟠 Sistem 5: Trendyol Kampanya Etiketleri
+                    <button id="sim-tab-system5" onclick="switchSimTab('system5')" class="sim-tab-btn inactive px-3 py-1 rounded-lg font-bold text-[11px] transition-all bg-gradient-to-r from-orange-950/60 to-amber-950/60 border border-orange-500/40 text-orange-300">
+                        🟠 Sistem 5: Trendyol Teklif Simülatörü
                     </button>
                 </div>
             </div>
 
-            <!-- GLOBAL BOTTLE SIZE & ML SELECTOR BAR (ALWAYS VISIBLE IN ALL TABS) -->
-            <div class="px-6 py-3 bg-slate-950 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <!-- COMPACT DROPDOWN SELECTOR BAR FOR AMBALAJ (ML/GRAM) & 1KG COST -->
+            <div class="px-4 py-2 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+                
+                <!-- BOTTLE SIZE DROPDOWN MENU ("seçeyim gitsin yer kaplamasın") -->
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                        🧴 Ambalaj Boyutu Seçin (ml / gr / kg):
-                    </span>
+                    <label for="modal-volume-select" class="font-bold text-blue-400 uppercase text-[11px] flex items-center gap-1">
+                        🧴 Ambalaj / ml Seçiniz:
+                    </label>
+                    <select id="modal-volume-select" onchange="selectModalVolumeDropdown(this.value)" class="bg-slate-900 border border-blue-500/50 text-white font-bold text-xs px-3 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer shadow">
+                        <option value="20ml">20 ml (Şişe: 6.00 ₺)</option>
+                        <option value="30ml">30 ml (Şişe: 6.75 ₺)</option>
+                        <option value="50ml">50 ml (Şişe: 7.25 ₺)</option>
+                        <option value="100ml">100 ml (Şişe: 8.35 ₺)</option>
+                        <option value="250ml" selected>250 ml (Şişe: 14.50 ₺)</option>
+                        <option value="500ml">500 ml (Şişe: 25.00 ₺)</option>
+                        <option value="1000ml">1000 ml / 1kg (Şişe: 35.00 ₺)</option>
+                    </select>
                 </div>
-                <div id="modal-volume-tabs" class="flex flex-wrap gap-2">
-                    <!-- Rendered dynamically via JS: 20ml, 30ml, 50ml, 100ml, 250ml, 500ml, 1000ml -->
+
+                <!-- 1KG WHOLESALE COST FAST ENTRY INPUT -->
+                <div class="flex items-center gap-2">
+                    <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-semibold">🌾 1KG Toptan Alış:</label>
+                    <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-24 bg-slate-900 border border-slate-700 text-white font-bold text-xs px-2 py-1 rounded-lg focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
+                    <span class="text-slate-400 text-[11px]">₺/KG</span>
                 </div>
             </div>
 
             <!-- Modal Body (Scrollable Workspace) -->
-            <div class="p-6 overflow-y-auto space-y-6 flex-grow">
-                
-                <!-- EDITABLE 1KG WHOLESALE COST BAR -->
-                <div class="bg-blue-950/30 border border-blue-800/60 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="space-y-0.5">
-                        <label class="text-xs font-bold text-blue-400 uppercase tracking-wider block">🌾 1KG Toptan Yağ Alış Fiyatı (₺/KG)</label>
-                        <p class="text-[11px] text-slate-400">Toptan ham yağ alış maliyetinizi buradan değiştirebilirsiniz. Seçilen şişe boyutuna göre maliyet anında hesaplanır.</p>
-                    </div>
-                    <div class="flex items-center gap-2 min-w-[200px]">
-                        <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-full text-base font-black text-white bg-slate-950 border border-blue-500 px-3.5 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400" oninput="calculateCurrentModal()">
-                        <span class="font-bold text-xs text-blue-300">₺/KG</span>
-                    </div>
-                </div>
+            <div class="p-4 overflow-y-auto space-y-4 flex-grow text-xs">
 
                 <!-- ========================================== -->
                 <!-- SYSTEM 1 WORKSPACE                         -->
                 <!-- ========================================== -->
-                <div id="sim-system1-container" class="space-y-6 block">
-                    
-                    <!-- Product Slot Global Inputs (Packaging & Target Profit) -->
-                    <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div id="sim-system1-container" class="space-y-4 block">
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <div class="input-group">
-                                <label>Şişe + Etiket Maliyeti (₺)</label>
+                                <label class="text-[10px]">Şişe + Etiket Maliyeti (₺)</label>
                                 <input type="number" id="slot-packaging-cost" value="14.50" min="0" step="any" oninput="calculateCurrentModal()">
                             </div>
                             <div class="input-group">
-                                <label class="text-emerald-400">Hedeflenen Net Kâr (₺)</label>
+                                <label class="text-[10px] text-emerald-400">Hedeflenen Net Kâr (₺)</label>
                                 <input type="number" id="slot-target-profit" value="70" min="0" step="any" class="border-emerald-900 bg-emerald-950/30 text-emerald-300 font-bold" oninput="calculateCurrentModal()">
                             </div>
                         </div>
 
-                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                            <span class="text-slate-400">Toptan Yağ + Ambalaj Toplam Birim Maliyeti:</span>
-                            <span id="calculated-unit-cost" class="text-base font-black text-white">0.00 ₺</span>
+                        <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                            <span class="text-slate-400">Toptan Yağ + Şişe Toplam Birim Maliyeti:</span>
+                            <span id="calculated-unit-cost" class="text-sm font-black text-white">0.00 ₺</span>
                         </div>
                     </div>
 
-                    <!-- Channel Pricing Cards (Trendyol, Hepsiburada, Iyzico) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Channel Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         
                         <!-- Trendyol Card -->
-                        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col card-brand-ty">
-                            <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-orange-950/20">
-                                <h4 class="font-bold text-orange-400 text-sm flex items-center gap-1.5">🟠 Trendyol</h4>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded header-badge-ty">Pazaryeri</span>
+                        <div class="bg-slate-950 rounded-xl border border-slate-800 p-3 space-y-3 card-brand-ty">
+                            <div class="flex justify-between items-center bg-orange-950/20 p-1.5 rounded-lg">
+                                <h4 class="font-bold text-orange-400 text-xs">🟠 Trendyol</h4>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded header-badge-ty">Pazaryeri</span>
                             </div>
-                            <div class="p-4 space-y-4 flex-grow">
-                                <div class="grid grid-cols-3 gap-1.5">
-                                    <div class="input-group"><label>Kom (%)</label><input type="number" id="s1_comm_ty" value="19" step="any" oninput="calculateCurrentModal()"></div>
-                                    <div class="input-group"><label>İnd (%)</label><input type="number" id="s1_disc_ty" value="0" step="any" oninput="calculateCurrentModal()"></div>
-                                    <div class="input-group"><label>Kargo (₺)</label><input type="number" id="s1_kargo_ty" value="110" step="any" oninput="calculateCurrentModal()"></div>
-                                </div>
-                                
-                                <div class="bg-slate-900 border border-orange-900/30 rounded-lg p-3 text-center">
-                                    <div class="text-[9px] font-bold text-orange-400 uppercase tracking-widest">Liste Fiyatı</div>
-                                    <div class="text-xl font-black text-white" id="s1_list_ty">0.00 ₺</div>
-                                    <div class="text-[10px] text-slate-400" id="s1_sale_ty">İndirimli: 0.00 ₺</div>
-                                </div>
-
-                                <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-3 text-xs space-y-1">
-                                    <div class="breakdown-row"><span class="label">Müşteri Ödemesi</span><span class="val" id="s1_rec_sale_ty">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s1_rec_kargo_ty">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s1_rec_comm_ty">0.00 ₺</span></div>
-                                    <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s1_hakedis_ty">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s1_rec_maliyet_ty">0.00 ₺</span></div>
-                                    <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s1_profit_ty">0.00 ₺</span></div>
-                                </div>
+                            <div class="grid grid-cols-3 gap-1">
+                                <div class="input-group"><label class="text-[9px]">Kom (%)</label><input type="number" id="s1_comm_ty" value="19" step="any" oninput="calculateCurrentModal()"></div>
+                                <div class="input-group"><label class="text-[9px]">İnd (%)</label><input type="number" id="s1_disc_ty" value="0" step="any" oninput="calculateCurrentModal()"></div>
+                                <div class="input-group"><label class="text-[9px]">Kargo (₺)</label><input type="number" id="s1_kargo_ty" value="110" step="any" oninput="calculateCurrentModal()"></div>
+                            </div>
+                            <div class="bg-slate-900 border border-orange-900/30 rounded-lg p-2 text-center">
+                                <div class="text-[9px] font-bold text-orange-400 uppercase">Liste Fiyatı</div>
+                                <div class="text-lg font-black text-white" id="s1_list_ty">0.00 ₺</div>
+                                <div class="text-[9px] text-slate-400" id="s1_sale_ty">İndirimli: 0.00 ₺</div>
+                            </div>
+                            <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-2 text-[11px] space-y-1">
+                                <div class="breakdown-row"><span class="label">Müşteri Ödemesi</span><span class="val" id="s1_rec_sale_ty">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo</span><span class="val" id="s1_rec_kargo_ty">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Komisyon</span><span class="val" id="s1_rec_comm_ty">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s1_hakedis_ty">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s1_rec_maliyet_ty">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400" id="s1_profit_ty">0.00 ₺</span></div>
                             </div>
                         </div>
 
                         <!-- Hepsiburada Card -->
-                        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col card-brand-hb">
-                            <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-amber-950/20">
-                                <h4 class="font-bold text-amber-400 text-sm flex items-center gap-1.5">🟡 Hepsiburada</h4>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded header-badge-hb">Pazaryeri</span>
+                        <div class="bg-slate-950 rounded-xl border border-slate-800 p-3 space-y-3 card-brand-hb">
+                            <div class="flex justify-between items-center bg-amber-950/20 p-1.5 rounded-lg">
+                                <h4 class="font-bold text-amber-400 text-xs">🟡 Hepsiburada</h4>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded header-badge-hb">Pazaryeri</span>
                             </div>
-                            <div class="p-4 space-y-4 flex-grow">
-                                <div class="grid grid-cols-3 gap-1.5">
-                                    <div class="input-group"><label>Kom (%)</label><input type="number" id="s1_comm_hb" value="17" step="any" oninput="calculateCurrentModal()"></div>
-                                    <div class="input-group"><label>İnd (%)</label><input type="number" id="s1_disc_hb" value="0" step="any" oninput="calculateCurrentModal()"></div>
-                                    <div class="input-group"><label>Kargo (₺)</label><input type="number" id="s1_kargo_hb" value="110" step="any" oninput="calculateCurrentModal()"></div>
-                                </div>
-                                
-                                <div class="bg-slate-900 border border-amber-900/30 rounded-lg p-3 text-center">
-                                    <div class="text-[9px] font-bold text-amber-400 uppercase tracking-widest">Liste Fiyatı</div>
-                                    <div class="text-xl font-black text-white" id="s1_list_hb">0.00 ₺</div>
-                                    <div class="text-[10px] text-slate-400" id="s1_sale_hb">İndirimli: 0.00 ₺</div>
-                                </div>
-
-                                <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-3 text-xs space-y-1">
-                                    <div class="breakdown-row"><span class="label">Müşteri Ödemesi</span><span class="val" id="s1_rec_sale_hb">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s1_rec_kargo_hb">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s1_rec_comm_hb">0.00 ₺</span></div>
-                                    <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s1_hakedis_hb">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s1_rec_maliyet_hb">0.00 ₺</span></div>
-                                    <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s1_profit_hb">0.00 ₺</span></div>
-                                </div>
+                            <div class="grid grid-cols-3 gap-1">
+                                <div class="input-group"><label class="text-[9px]">Kom (%)</label><input type="number" id="s1_comm_hb" value="17" step="any" oninput="calculateCurrentModal()"></div>
+                                <div class="input-group"><label class="text-[9px]">İnd (%)</label><input type="number" id="s1_disc_hb" value="0" step="any" oninput="calculateCurrentModal()"></div>
+                                <div class="input-group"><label class="text-[9px]">Kargo (₺)</label><input type="number" id="s1_kargo_hb" value="110" step="any" oninput="calculateCurrentModal()"></div>
+                            </div>
+                            <div class="bg-slate-900 border border-amber-900/30 rounded-lg p-2 text-center">
+                                <div class="text-[9px] font-bold text-amber-400 uppercase">Liste Fiyatı</div>
+                                <div class="text-lg font-black text-white" id="s1_list_hb">0.00 ₺</div>
+                                <div class="text-[9px] text-slate-400" id="s1_sale_hb">İndirimli: 0.00 ₺</div>
+                            </div>
+                            <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-2 text-[11px] space-y-1">
+                                <div class="breakdown-row"><span class="label">Müşteri Ödemesi</span><span class="val" id="s1_rec_sale_hb">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo</span><span class="val" id="s1_rec_kargo_hb">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Komisyon</span><span class="val" id="s1_rec_comm_hb">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s1_hakedis_hb">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s1_rec_maliyet_hb">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400" id="s1_profit_hb">0.00 ₺</span></div>
                             </div>
                         </div>
 
                         <!-- İyzico (Kendi Web Siteniz) Card -->
-                        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col card-brand-iy">
-                            <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-cyan-950/20">
-                                <h4 class="font-bold text-cyan-400 text-sm flex items-center gap-1.5">🔵 Kendi Web Siteniz</h4>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded header-badge-iy">İyzico</span>
+                        <div class="bg-slate-950 rounded-xl border border-slate-800 p-3 space-y-3 card-brand-iy">
+                            <div class="flex justify-between items-center bg-cyan-950/20 p-1.5 rounded-lg">
+                                <h4 class="font-bold text-cyan-400 text-xs">🔵 Kendi Web Siteniz</h4>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded header-badge-iy">İyzico</span>
                             </div>
-                            <div class="p-4 space-y-4 flex-grow">
-                                <div class="grid grid-cols-3 gap-1.5">
-                                    <div class="input-group"><label>Kom (%)</label><input type="number" id="s1_comm_iy" value="4" step="any" oninput="calculateCurrentModal()"></div>
-                                    <div class="input-group"><label>İnd (%)</label><input type="number" id="s1_disc_iy" value="0" step="any" oninput="calculateCurrentModal()"></div>
-                                    <div class="input-group"><label>Kargo (₺)</label><input type="number" id="s1_kargo_iy" value="110" step="any" oninput="calculateCurrentModal()"></div>
-                                </div>
-                                
-                                <div class="bg-slate-900 border border-cyan-900/30 rounded-lg p-3 text-center">
-                                    <div class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest">Liste Fiyatı</div>
-                                    <div class="text-xl font-black text-white" id="s1_list_iy">0.00 ₺</div>
-                                    <div class="text-[10px] text-slate-400" id="s1_sale_iy">İndirimli: 0.00 ₺</div>
-                                </div>
-
-                                <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-3 text-xs space-y-1">
-                                    <div class="breakdown-row"><span class="label">Müşteri Ödemesi</span><span class="val" id="s1_rec_sale_iy">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s1_rec_kargo_iy">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s1_rec_comm_iy">0.00 ₺</span></div>
-                                    <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s1_hakedis_iy">0.00 ₺</span></div>
-                                    <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s1_rec_maliyet_iy">0.00 ₺</span></div>
-                                    <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s1_profit_iy">0.00 ₺</span></div>
-                                </div>
+                            <div class="grid grid-cols-3 gap-1">
+                                <div class="input-group"><label class="text-[9px]">Kom (%)</label><input type="number" id="s1_comm_iy" value="4" step="any" oninput="calculateCurrentModal()"></div>
+                                <div class="input-group"><label class="text-[9px]">İnd (%)</label><input type="number" id="s1_disc_iy" value="0" step="any" oninput="calculateCurrentModal()"></div>
+                                <div class="input-group"><label class="text-[9px]">Kargo (₺)</label><input type="number" id="s1_kargo_iy" value="110" step="any" oninput="calculateCurrentModal()"></div>
+                            </div>
+                            <div class="bg-slate-900 border border-cyan-900/30 rounded-lg p-2 text-center">
+                                <div class="text-[9px] font-bold text-cyan-400 uppercase">Liste Fiyatı</div>
+                                <div class="text-lg font-black text-white" id="s1_list_iy">0.00 ₺</div>
+                                <div class="text-[9px] text-slate-400" id="s1_sale_iy">İndirimli: 0.00 ₺</div>
+                            </div>
+                            <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-2 text-[11px] space-y-1">
+                                <div class="breakdown-row"><span class="label">Müşteri Ödemesi</span><span class="val" id="s1_rec_sale_iy">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo</span><span class="val" id="s1_rec_kargo_iy">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Komisyon</span><span class="val" id="s1_rec_comm_iy">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s1_hakedis_iy">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s1_rec_maliyet_iy">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400" id="s1_profit_iy">0.00 ₺</span></div>
                             </div>
                         </div>
 
@@ -391,60 +378,46 @@
                 </div>
 
                 <!-- SYSTEM 2 WORKSPACE -->
-                <div id="sim-system2-container" class="space-y-6 hidden">
-                    <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
-                            🔵 Web Sitenizdeki (İyzico) Fiyata Göre Pazaryeri Fiyatı Eşitleme
-                        </h3>
-                        <p class="text-xs text-slate-400">Bu ürüne ve seçili ambalaj boyutuna özel web satış fiyatınızı girdiğinizde, diğer pazaryerlerinde de **aynı net kârı** elde etmek için koymanız gereken eşdeğer liste fiyatlarını anında hesaplar.</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div id="sim-system2-container" class="space-y-4 hidden">
+                    <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h3 class="text-xs font-bold text-cyan-400 uppercase">🔵 Web Sitenizdeki (İyzico) Fiyata Göre Pazaryeri Fiyatı Eşitleme</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div class="input-group">
-                                <label>Web Sitesi (İyzico) Satış Fiyatınız (₺)</label>
+                                <label>Web Sitesi Satış Fiyatınız (₺)</label>
                                 <input type="number" id="s2_web_price" value="500" min="0" step="any" class="border-cyan-900 bg-cyan-950/30 text-cyan-300 font-bold" oninput="calculateSystem2Modal()">
                             </div>
-                            <div class="bg-slate-900 border border-cyan-900/30 p-3 rounded-lg flex items-center justify-between text-xs">
-                                <span class="text-slate-400 font-medium">Web Satışından Elde Edilen Net Kâr:</span>
-                                <span id="s2_web_profit_display" class="font-black text-emerald-400 text-base">0.00 ₺</span>
+                            <div class="bg-slate-900 border border-cyan-900/30 p-2 rounded-lg flex items-center justify-between">
+                                <span class="text-slate-400 font-medium">Web Satışından Net Kâr:</span>
+                                <span id="s2_web_profit_display" class="font-black text-emerald-400 text-sm">0.00 ₺</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div class="bg-slate-950 p-5 rounded-xl border border-orange-900/40 space-y-3">
-                            <h4 class="font-bold text-orange-400 text-sm">🟠 Eşdeğer Trendyol Fiyatı</h4>
-                            <p class="text-xs text-slate-400">Web sitenizdeki kârı birebir korumak için Trendyol'da açmanız gereken satış fiyatı:</p>
-                            <div class="text-2xl font-black text-white" id="s2_ty_eq_price">0.00 ₺</div>
-                            <div class="text-xs text-slate-400" id="s2_ty_payout">Eşdeğer Hakediş: 0.00 ₺</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-950 p-4 rounded-xl border border-orange-900/40 space-y-2">
+                            <h4 class="font-bold text-orange-400 text-xs">🟠 Eşdeğer Trendyol Fiyatı</h4>
+                            <div class="text-xl font-black text-white" id="s2_ty_eq_price">0.00 ₺</div>
+                            <div class="text-[11px] text-slate-400" id="s2_ty_payout">Eşdeğer Hakediş: 0.00 ₺</div>
                         </div>
-
-                        <div class="bg-slate-950 p-5 rounded-xl border border-amber-900/40 space-y-3">
-                            <h4 class="font-bold text-amber-400 text-sm">🟡 Eşdeğer Hepsiburada Fiyatı</h4>
-                            <p class="text-xs text-slate-400">Web sitenizdeki kârı birebir korumak için Hepsiburada'da açmanız gereken satış fiyatı:</p>
-                            <div class="text-2xl font-black text-white" id="s2_hb_eq_price">0.00 ₺</div>
-                            <div class="text-xs text-slate-400" id="s2_hb_payout">Eşdeğer Hakediş: 0.00 ₺</div>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-amber-900/40 space-y-2">
+                            <h4 class="font-bold text-amber-400 text-xs">🟡 Eşdeğer Hepsiburada Fiyatı</h4>
+                            <div class="text-xl font-black text-white" id="s2_hb_eq_price">0.00 ₺</div>
+                            <div class="text-[11px] text-slate-400" id="s2_hb_payout">Eşdeğer Hakediş: 0.00 ₺</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- SYSTEM 3 WORKSPACE -->
-                <div id="sim-system3-container" class="space-y-6 hidden">
-                    <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 space-y-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-                            📏 Tüm Hacimler (ml / gr / kg) İçin Maliyet & Fiyat Ölçekleme Matrisi
-                        </h3>
-                        <p class="text-xs text-slate-400">1KG toptan maliyet üzerinden tüm ambalaj boyutları (20ml - 1000ml / 1kg) için birim maliyetler ve önerilen Trendyol satış fiyatları matrisi:</p>
-                    </div>
-
+                <div id="sim-system3-container" class="space-y-4 hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left border-collapse bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
                             <thead class="bg-slate-900 text-slate-400 uppercase font-bold text-[10px]">
                                 <tr>
-                                    <th class="p-3">Hacim / Gramaj</th>
-                                    <th class="p-3">Şişe + Etiket (₺)</th>
-                                    <th class="p-3">Toplam Birim Maliyet</th>
-                                    <th class="p-3">Trendyol Satış Fiyatı</th>
-                                    <th class="p-3 text-right">Net Kâr</th>
+                                    <th class="p-2.5">Hacim / Gramaj</th>
+                                    <th class="p-2.5">Şişe + Etiket</th>
+                                    <th class="p-2.5">Birim Maliyet</th>
+                                    <th class="p-2.5">Trendyol Fiyatı</th>
+                                    <th class="p-2.5 text-right">Net Kâr</th>
                                 </tr>
                             </thead>
                             <tbody id="s3-matrix-tbody" class="divide-y divide-slate-800/80">
@@ -455,20 +428,15 @@
                 </div>
 
                 <!-- SYSTEM 4 WORKSPACE -->
-                <div id="sim-system4-container" class="space-y-6 hidden">
-                    <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                            🏷️ Perakende Satış Fiyatından Kârlılık Hesabı
-                        </h3>
-                        <p class="text-xs text-slate-400">Aklınızdaki perakende satış fiyatını girdiğinizde kesintiler sonrası elde edeceğiniz net kâr ve kâr marjını (%) hesaplar.</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div id="sim-system4-container" class="space-y-4 hidden">
+                    <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="input-group">
-                                <label>Perakende Satış Etiket Fiyatı (₺)</label>
+                                <label>Perakende Satış Fiyatı (₺)</label>
                                 <input type="number" id="s4_retail_price" value="650" min="0" step="any" class="border-emerald-900 bg-emerald-950/30 text-emerald-300 font-bold" oninput="calculateSystem4Modal()">
                             </div>
                             <div class="input-group">
-                                <label>Pazaryeri Komisyonu (%)</label>
+                                <label>Komisyon (%)</label>
                                 <input type="number" id="s4_comm" value="19" step="any" oninput="calculateSystem4Modal()">
                             </div>
                             <div class="input-group">
@@ -478,149 +446,124 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 text-center">
-                            <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Eline Geçecek Hakediş</div>
-                            <div class="text-2xl font-black text-white" id="s4_payout_display">0.00 ₺</div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center">
+                            <div class="text-[9px] text-slate-400 font-bold uppercase">Hakediş</div>
+                            <div class="text-lg font-black text-white" id="s4_payout_display">0.00 ₺</div>
                         </div>
-                        <div class="bg-slate-950 p-5 rounded-xl border border-emerald-900/40 text-center">
-                            <div class="text-[10px] text-emerald-400 font-bold uppercase mb-1">Net Kâr</div>
-                            <div class="text-2xl font-black text-emerald-400" id="s4_profit_display">0.00 ₺</div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-emerald-900/40 text-center">
+                            <div class="text-[9px] text-emerald-400 font-bold uppercase">Net Kâr</div>
+                            <div class="text-lg font-black text-emerald-400" id="s4_profit_display">0.00 ₺</div>
                         </div>
-                        <div class="bg-slate-950 p-5 rounded-xl border border-blue-900/40 text-center">
-                            <div class="text-[10px] text-blue-400 font-bold uppercase mb-1">Kâr Marjı (%)</div>
-                            <div class="text-2xl font-black text-blue-400" id="s4_margin_display">%0.0</div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-blue-900/40 text-center">
+                            <div class="text-[9px] text-blue-400 font-bold uppercase">Kâr Marjı (%)</div>
+                            <div class="text-lg font-black text-blue-400" id="s4_margin_display">%0.0</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- ========================================== -->
-                <!-- SYSTEM 5 WORKSPACE (TRENDYOL OFFER PRICE SIMULATOR) -->
+                <!-- SYSTEM 5 WORKSPACE (ULTRA-COMPACT TRENDYOL OFFER SIMULATOR) -->
                 <!-- ========================================== -->
-                <div id="sim-system5-container" class="space-y-6 hidden">
-                    <div class="bg-gradient-to-r from-orange-950/40 via-amber-950/30 to-red-950/40 p-5 rounded-xl border border-orange-800/50 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center gap-2">
-                                🟠 Trendyol Avantajlı Etiket Teklif Fiyatı Simülatörü
-                            </h3>
-                            <span id="s5-active-volume-badge" class="text-[11px] font-bold px-3 py-1 rounded bg-blue-950 text-blue-300 border border-blue-800/50">Seçili Ambalaj: 250 ml</span>
-                        </div>
-                        <p class="text-xs text-slate-300">Yukarıdan ambalaj boyutunu (ml/gram) seçin. Trendyol'un size teklif ettiği fiyatı ve komisyonu girin, toptan ham yağ + ambalaj maliyetinize göre kârda mısınız zararda mısınız anında görün!</p>
-                        
-                        <!-- Direct Price & Commission Inputs for 3 Trendyol Tiers -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                            
-                            <!-- 1. Avantajlı Fiyat -->
-                            <div class="bg-slate-950/90 p-3.5 rounded-xl border border-emerald-800/50 space-y-3">
-                                <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
-                                    <span>🟢 1. Avantajlı Etiket</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="input-group">
-                                        <label class="text-[10px]">Trendyol Teklif Fiyatı (₺)</label>
-                                        <input type="number" id="s5_price_av" value="792.96" min="0" step="any" class="border-emerald-900 bg-emerald-950/40 text-white font-bold" oninput="calculateSystem5Modal()">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="text-[10px]">Kampanya Komisyonu (%)</label>
-                                        <input type="number" id="s5_comm_av" value="15.0" min="0" step="any" oninput="calculateSystem5Modal()">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 2. Çok Avantajlı Fiyat -->
-                            <div class="bg-slate-950/90 p-3.5 rounded-xl border border-amber-800/50 space-y-3">
-                                <div class="flex items-center justify-between text-xs font-bold text-amber-400">
-                                    <span>🟡 2. Çok Avantajlı Etiket</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="input-group">
-                                        <label class="text-[10px]">Trendyol Teklif Fiyatı (₺)</label>
-                                        <input type="number" id="s5_price_cak" value="744.87" min="0" step="any" class="border-amber-900 bg-amber-950/40 text-white font-bold" oninput="calculateSystem5Modal()">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="text-[10px]">Kampanya Komisyonu (%)</label>
-                                        <input type="number" id="s5_comm_cak" value="14.6" min="0" step="any" oninput="calculateSystem5Modal()">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 3. Süper Avantajlı Fiyat -->
-                            <div class="bg-slate-950/90 p-3.5 rounded-xl border border-rose-800/50 space-y-3">
-                                <div class="flex items-center justify-between text-xs font-bold text-rose-400">
-                                    <span>🔴 3. Süper Avantajlı Etiket</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="input-group">
-                                        <label class="text-[10px]">Trendyol Teklif Fiyatı (₺)</label>
-                                        <input type="number" id="s5_price_sup" value="612.94" min="0" step="any" class="border-rose-900 bg-rose-950/40 text-white font-bold" oninput="calculateSystem5Modal()">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="text-[10px]">Kampanya Komisyonu (%)</label>
-                                        <input type="number" id="s5_comm_sup" value="12.5" min="0" step="any" oninput="calculateSystem5Modal()">
-                                    </div>
-                                </div>
-                            </div>
-
+                <div id="sim-system5-container" class="space-y-4 hidden">
+                    
+                    <div class="bg-gradient-to-r from-orange-950/40 via-amber-950/30 to-red-950/40 p-3 rounded-xl border border-orange-800/40 space-y-3">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-orange-400 flex items-center gap-1.5">
+                                🟠 Trendyol Teklif Fiyatları & Özel Komisyon Simülatörü
+                            </span>
+                            <span id="s5-active-volume-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800/50">
+                                250 ml
+                            </span>
                         </div>
 
-                        <!-- Common Cargo Input -->
-                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="text-slate-400 font-semibold">Kargo Maliyeti:</span>
-                                <input type="number" id="s5_cargo" value="110" min="0" step="any" class="w-24 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-white font-bold" oninput="calculateSystem5Modal()">
-                                <span class="text-slate-400">₺</span>
+                        <div class="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-orange-900/30">
+                            <span>Kargo Kesintisi:</span>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="s5_cargo" value="110" min="0" step="any" class="w-16 px-1.5 py-0.5 bg-slate-950 border border-slate-800 rounded text-white font-bold text-xs" oninput="calculateSystem5Modal()">
+                                <span>₺</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Instant Results Breakdown Cards for Selected Bottle Size -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 3 TIGHT COLUMN CARDS: INPUTS & INSTANT RESULTS IN SINGLE VIEW -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         
-                        <!-- Avantajlı Result Card -->
-                        <div class="bg-slate-950 rounded-xl border border-emerald-900/50 p-4 space-y-3">
-                            <div class="text-xs font-bold text-emerald-400">🟢 1. Avantajlı Etiket Sonucu</div>
-                            <div class="bg-slate-900 p-3 rounded-lg text-center border border-emerald-900/30">
-                                <div class="text-[10px] text-slate-400 uppercase">Girdiğiniz Teklif Fiyatı</div>
-                                <div id="s5_res_price_av" class="text-xl font-black text-white">0.00 ₺</div>
+                        <!-- 1. Avantajlı Etiket Column -->
+                        <div class="bg-slate-950 rounded-xl border border-emerald-800/50 p-3 space-y-2.5">
+                            <div class="text-xs font-bold text-emerald-400 flex justify-between items-center">
+                                <span>🟢 1. Avantajlı Etiket</span>
                             </div>
-                            <div class="space-y-1.5 text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                                <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s5_res_comm_av">0.00 ₺</span></div>
-                                <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s5_res_cargo_av">0.00 ₺</span></div>
-                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s5_res_payout_av">0.00 ₺</span></div>
-                                <div class="breakdown-row negative"><span class="label">Seçili Ambalaj Maliyeti</span><span class="val" id="s5_res_cost_av">0.00 ₺</span></div>
-                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s5_res_profit_av">0.00 ₺</span></div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="input-group">
+                                    <label class="text-[9px]">Teklif Fiyatı (₺)</label>
+                                    <input type="number" id="s5_price_av" value="792.96" min="0" step="any" class="border-emerald-900 bg-emerald-950/40 text-white font-bold text-xs" oninput="calculateSystem5Modal()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="text-[9px]">Komisyon (%)</label>
+                                    <input type="number" id="s5_comm_av" value="15.0" min="0" step="any" class="text-xs" oninput="calculateSystem5Modal()">
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px] space-y-1">
+                                <div class="breakdown-row negative"><span class="label">Komisyon</span><span class="val" id="s5_res_comm_av">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo</span><span class="val" id="s5_res_cargo_av">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">Hakediş</span><span class="val font-bold text-white" id="s5_res_payout_av">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s5_res_cost_av">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400" id="s5_res_profit_av">0.00 ₺</span></div>
                             </div>
                         </div>
 
-                        <!-- Çok Avantajlı Result Card -->
-                        <div class="bg-slate-950 rounded-xl border border-amber-900/50 p-4 space-y-3">
-                            <div class="text-xs font-bold text-amber-400">🟡 2. Çok Avantajlı Etiket Sonucu</div>
-                            <div class="bg-slate-900 p-3 rounded-lg text-center border border-amber-900/30">
-                                <div class="text-[10px] text-slate-400 uppercase">Girdiğiniz Teklif Fiyatı</div>
-                                <div id="s5_res_price_cak" class="text-xl font-black text-white">0.00 ₺</div>
+                        <!-- 2. Çok Avantajlı Etiket Column -->
+                        <div class="bg-slate-950 rounded-xl border border-amber-800/50 p-3 space-y-2.5">
+                            <div class="text-xs font-bold text-amber-400 flex justify-between items-center">
+                                <span>🟡 2. Çok Avantajlı Etiket</span>
                             </div>
-                            <div class="space-y-1.5 text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                                <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s5_res_comm_cak">0.00 ₺</span></div>
-                                <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s5_res_cargo_cak">0.00 ₺</span></div>
-                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s5_res_payout_cak">0.00 ₺</span></div>
-                                <div class="breakdown-row negative"><span class="label">Seçili Ambalaj Maliyeti</span><span class="val" id="s5_res_cost_cak">0.00 ₺</span></div>
-                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s5_res_profit_cak">0.00 ₺</span></div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="input-group">
+                                    <label class="text-[9px]">Teklif Fiyatı (₺)</label>
+                                    <input type="number" id="s5_price_cak" value="744.87" min="0" step="any" class="border-amber-900 bg-amber-950/40 text-white font-bold text-xs" oninput="calculateSystem5Modal()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="text-[9px]">Komisyon (%)</label>
+                                    <input type="number" id="s5_comm_cak" value="14.6" min="0" step="any" class="text-xs" oninput="calculateSystem5Modal()">
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px] space-y-1">
+                                <div class="breakdown-row negative"><span class="label">Komisyon</span><span class="val" id="s5_res_comm_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo</span><span class="val" id="s5_res_cargo_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">Hakediş</span><span class="val font-bold text-white" id="s5_res_payout_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s5_res_cost_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400" id="s5_res_profit_cak">0.00 ₺</span></div>
                             </div>
                         </div>
 
-                        <!-- Süper Avantajlı Result Card -->
-                        <div class="bg-slate-950 rounded-xl border border-rose-900/50 p-4 space-y-3">
-                            <div class="text-xs font-bold text-rose-400">🔴 3. Süper Avantajlı Etiket Sonucu</div>
-                            <div class="bg-slate-900 p-3 rounded-lg text-center border border-rose-900/30">
-                                <div class="text-[10px] text-slate-400 uppercase">Girdiğiniz Teklif Fiyatı</div>
-                                <div id="s5_res_price_sup" class="text-xl font-black text-white">0.00 ₺</div>
+                        <!-- 3. Süper Avantajlı Etiket Column -->
+                        <div class="bg-slate-950 rounded-xl border border-rose-800/50 p-3 space-y-2.5">
+                            <div class="text-xs font-bold text-rose-400 flex justify-between items-center">
+                                <span>🔴 3. Süper Avantajlı Etiket</span>
                             </div>
-                            <div class="space-y-1.5 text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                                <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s5_res_comm_sup">0.00 ₺</span></div>
-                                <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s5_res_cargo_sup">0.00 ₺</span></div>
-                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s5_res_payout_sup">0.00 ₺</span></div>
-                                <div class="breakdown-row negative"><span class="label">Seçili Ambalaj Maliyeti</span><span class="val" id="s5_res_cost_sup">0.00 ₺</span></div>
-                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s5_res_profit_sup">0.00 ₺</span></div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="input-group">
+                                    <label class="text-[9px]">Teklif Fiyatı (₺)</label>
+                                    <input type="number" id="s5_price_sup" value="612.94" min="0" step="any" class="border-rose-900 bg-rose-950/40 text-white font-bold text-xs" oninput="calculateSystem5Modal()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="text-[9px]">Komisyon (%)</label>
+                                    <input type="number" id="s5_comm_sup" value="12.5" min="0" step="any" class="text-xs" oninput="calculateSystem5Modal()">
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px] space-y-1">
+                                <div class="breakdown-row negative"><span class="label">Komisyon</span><span class="val" id="s5_res_comm_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo</span><span class="val" id="s5_res_cargo_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">Hakediş</span><span class="val font-bold text-white" id="s5_res_payout_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Birim Maliyet</span><span class="val" id="s5_res_cost_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400" id="s5_res_profit_sup">0.00 ₺</span></div>
                             </div>
                         </div>
 
@@ -630,15 +573,15 @@
             </div>
 
             <!-- Modal Footer Actions -->
-            <div class="px-6 py-4 border-t border-slate-800 flex items-center justify-between bg-slate-950/80">
-                <button onclick="closeProductSlot()" class="text-xs font-semibold text-slate-400 hover:text-white px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+            <div class="px-4 py-2.5 border-t border-slate-800 flex items-center justify-between bg-slate-950/80">
+                <button onclick="closeProductSlot()" class="text-xs font-semibold text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
                     Kapat
                 </button>
-                <button onclick="saveCurrentProductSlot()" class="text-xs font-bold text-white px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 flex items-center gap-2 transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="saveCurrentProductSlot()" class="text-xs font-bold text-white px-5 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 flex items-center gap-1.5 transition-all">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    TÜM AYARLARI VE FİYATLARI KAYDET
+                    AYARLARI KAYDET
                 </button>
             </div>
 

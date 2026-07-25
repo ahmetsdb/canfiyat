@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic (v1.12) - Persistent Bottle Size Selection Across All Systems
+// CanFiyat Portal Main Application Logic (v1.13) - Ultra Compact Dropdown & Fit-on-Screen Layout
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -137,21 +137,21 @@ function renderProductGrid() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="py-12 text-center text-slate-400 bg-slate-900/50 rounded-2xl border border-slate-800 w-full">
-        <svg class="w-12 h-12 mx-auto text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="py-10 text-center text-slate-400 bg-slate-900/50 rounded-2xl border border-slate-800 w-full">
+        <svg class="w-10 h-10 mx-auto text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-        <p class="text-base font-medium">Aramanıza uygun Cansızzade ürünü bulunamadı.</p>
-        <button onclick="clearSearch()" class="mt-3 text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-4 py-2 rounded-lg">Aramayı Temizle</button>
+        <p class="text-xs font-medium">Aramanıza uygun Cansızzade ürünü bulunamadı.</p>
+        <button onclick="clearSearch()" class="mt-2 text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-1.5 rounded-lg">Aramayı Temizle</button>
       </div>
     `;
     return;
   }
 
   if (viewMode === "rows") {
-    container.className = "flex flex-col gap-3 w-full";
+    container.className = "flex flex-col gap-2.5 w-full";
   } else {
-    container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full";
+    container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full";
   }
 
   filtered.forEach(product => {
@@ -174,51 +174,51 @@ function renderProductGrid() {
 
     if (viewMode === "rows") {
       const rowHtml = `
-        <div class="glass-card rounded-xl p-4 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:border-blue-500/40 transition-all group">
-          <div class="flex items-center gap-3 min-w-[280px]">
-            <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+        <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-blue-500/40 transition-all group">
+          <div class="flex items-center gap-2.5 min-w-[260px]">
+            <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
               ${product.sku}
             </span>
             <div>
-              <h3 class="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+              <h3 class="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">
                 ${product.name}
               </h3>
-              <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded border mt-0.5 ${badgeClass}">
+              <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded border mt-0.5 ${badgeClass}">
                 ${product.category}
               </span>
             </div>
           </div>
 
-          <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[130px]">
-            <span class="text-slate-400 block text-[10px] uppercase font-semibold">1KG Toptan</span>
-            <span class="font-bold text-slate-200">${PriceCalculator.formatTL(product.costPerKg)}</span>
+          <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[120px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold">1KG Toptan</span>
+            <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(product.costPerKg)}</span>
           </div>
 
-          <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[150px]">
-            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Varsayılan Ambalaj</span>
-            <span class="font-bold text-blue-400">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
+          <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Ambalaj</span>
+            <span class="font-bold text-blue-400 text-xs">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
           </div>
 
-          <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
-            <span class="text-slate-400 block text-[10px] uppercase font-semibold flex items-center gap-1">
+          <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[130px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Trendyol Etiket
             </span>
-            <span class="font-bold text-white">${PriceCalculator.formatTL(tyResult.listPrice)}</span>
+            <span class="font-bold text-white text-xs">${PriceCalculator.formatTL(tyResult.listPrice)}</span>
           </div>
 
-          <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[130px]">
-            <span class="text-slate-400 block text-[10px] uppercase font-semibold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Net Kâr
+          <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[120px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Kâr
             </span>
-            <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
+            <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
           </div>
 
-          <div class="min-w-[180px]">
-            <button onclick="openProductSlot('${product.id}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg text-xs flex items-center justify-center gap-2 transition-all">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="min-w-[160px]">
+            <button onclick="openProductSlot('${product.id}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-3 rounded-xl shadow text-xs flex items-center justify-center gap-1.5 transition-all">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
-              SLOT AYARLARI & HESAPLA
+              AYARLARI AÇ
             </button>
           </div>
         </div>
@@ -226,51 +226,49 @@ function renderProductGrid() {
       container.insertAdjacentHTML("beforeend", rowHtml);
     } else {
       const cardHtml = `
-        <div class="glass-card glass-card-hover rounded-xl p-5 border border-slate-800 flex flex-col justify-between relative overflow-hidden group">
-          <div class="absolute -right-10 -top-10 w-28 h-28 bg-blue-600/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
-          
+        <div class="glass-card glass-card-hover rounded-xl p-4 border border-slate-800 flex flex-col justify-between relative overflow-hidden group">
           <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-[11px] font-bold px-2.5 py-1 rounded-md border ${badgeClass}">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badgeClass}">
                 ${product.category}
               </span>
-              <span class="font-mono text-xs font-semibold text-slate-400 bg-slate-950 px-2 py-1 rounded border border-slate-800">
+              <span class="font-mono text-[10px] font-semibold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
                 ${product.sku}
               </span>
             </div>
 
-            <h3 class="text-base font-bold text-white tracking-tight mb-2 group-hover:text-blue-400 transition-colors">
+            <h3 class="text-xs font-bold text-white tracking-tight mb-2 group-hover:text-blue-400 transition-colors">
               ${product.name}
             </h3>
 
-            <div class="grid grid-cols-2 gap-2 my-3 text-xs bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+            <div class="grid grid-cols-2 gap-2 my-2 text-xs bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
               <div>
-                <span class="text-slate-400 block text-[10px] uppercase font-semibold">1KG Toptan Fiyat</span>
-                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(product.costPerKg)}</span>
+                <span class="text-slate-400 block text-[9px] uppercase font-semibold">1KG Toptan</span>
+                <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Varsayılan Ambalaj</span>
-                <span class="font-bold text-blue-400">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
+                <span class="text-slate-400 block text-[9px] uppercase font-semibold">Ambalaj</span>
+                <span class="font-bold text-blue-400 text-xs">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
               </div>
             </div>
 
-            <div class="space-y-1.5 text-xs my-3">
+            <div class="space-y-1 text-xs my-2">
               <div class="flex justify-between items-center text-slate-300">
-                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Trendyol Etiketi:</span>
-                <span class="font-bold text-white">${PriceCalculator.formatTL(tyResult.listPrice)}</span>
+                <span class="flex items-center gap-1 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Trendyol:</span>
+                <span class="font-bold text-white text-xs">${PriceCalculator.formatTL(tyResult.listPrice)}</span>
               </div>
               <div class="flex justify-between items-center text-slate-300">
-                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Hedef Net Kâr:</span>
-                <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
+                <span class="flex items-center gap-1 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Net Kâr:</span>
+                <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
               </div>
             </div>
           </div>
 
-          <button onclick="openProductSlot('${product.id}')" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-lg shadow-lg text-xs flex items-center justify-center gap-2 transition-all">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onclick="openProductSlot('${product.id}')" class="mt-3 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-3 rounded-lg shadow text-xs flex items-center justify-center gap-1.5 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
             </svg>
-            SLOT AYARLARI & HESAPLA
+            AYARLARI AÇ
           </button>
         </div>
       `;
@@ -334,7 +332,7 @@ async function submitNewProduct() {
 }
 
 // ==========================================
-// MODAL WORKSPACE & BOTTLE SIZE SUB-TABS LOGIC
+// MODAL WORKSPACE & DROPDOWN VOLUME LOGIC
 // ==========================================
 function openProductSlot(productId) {
   selectedProductId = productId;
@@ -347,7 +345,7 @@ function openProductSlot(productId) {
   document.getElementById("modal-product-category").innerText = product.category;
   document.getElementById("slot-cost-per-kg").value = product.costPerKg;
 
-  renderVolumeTabs(product);
+  syncModalVolumeDropdown(activeVolume);
   loadActiveVolumeConfig(product, activeVolume);
 
   switchSimTab("system1");
@@ -357,36 +355,19 @@ function openProductSlot(productId) {
   modal.classList.add("flex");
 }
 
-function renderVolumeTabs(product) {
-  const container = document.getElementById("modal-volume-tabs");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  ALL_VOLUMES.forEach(vol => {
-    const isActive = vol.key === activeVolume;
-    const btnClass = isActive 
-      ? "bg-blue-600 text-white font-bold border-blue-400 shadow-md scale-105" 
-      : "bg-slate-900 text-slate-400 font-semibold border-slate-800 hover:bg-slate-800 hover:text-white";
-
-    const html = `
-      <button onclick="selectModalVolumeTab('${vol.key}')" class="px-3 py-1.5 rounded-lg text-xs border transition-all flex items-center gap-1.5 ${btnClass}">
-        <span>🧴 ${vol.label}</span>
-        <span class="text-[10px] opacity-75 font-mono">(${vol.price})</span>
-      </button>
-    `;
-    container.insertAdjacentHTML("beforeend", html);
-  });
+function syncModalVolumeDropdown(volKey) {
+  const select = document.getElementById("modal-volume-select");
+  if (select) select.value = volKey;
 }
 
-function selectModalVolumeTab(volKey) {
+function selectModalVolumeDropdown(volKey) {
   saveInputsToCurrentVolumeConfig();
 
   activeVolume = volKey;
   const product = currentProducts[selectedProductId];
   if (product) {
     product.activeVolume = volKey;
-    renderVolumeTabs(product);
+    syncModalVolumeDropdown(volKey);
     loadActiveVolumeConfig(product, volKey);
     calculateCurrentModal();
   }
@@ -546,7 +527,7 @@ function calculateSystem1Modal() {
     targetProfit: targetProfit,
     commission: parseFloat(document.getElementById("s1_comm_ty").value) || 0,
     discount: parseFloat(document.getElementById("s1_disc_ty").value) || 0,
-    cargo: parseFloat(document.getElementById("s1_kargo_ty").value) || 0
+    cargo: parseFloat(document.getElementById("s1_kargo_ty").value) || 110
   };
 
   const hbInput = {
@@ -554,7 +535,7 @@ function calculateSystem1Modal() {
     targetProfit: targetProfit,
     commission: parseFloat(document.getElementById("s1_comm_hb").value) || 0,
     discount: parseFloat(document.getElementById("s1_disc_hb").value) || 0,
-    cargo: parseFloat(document.getElementById("s1_kargo_hb").value) || 0
+    cargo: parseFloat(document.getElementById("s1_kargo_hb").value) || 110
   };
 
   const iyInput = {
@@ -562,7 +543,7 @@ function calculateSystem1Modal() {
     targetProfit: targetProfit,
     commission: parseFloat(document.getElementById("s1_comm_iy").value) || 0,
     discount: parseFloat(document.getElementById("s1_disc_iy").value) || 0,
-    cargo: parseFloat(document.getElementById("s1_kargo_iy").value) || 0
+    cargo: parseFloat(document.getElementById("s1_kargo_iy").value) || 110
   };
 
   const tyRes = PriceCalculator.calculateSystem1Channel(tyInput);
@@ -570,7 +551,7 @@ function calculateSystem1Modal() {
   const iyRes = PriceCalculator.calculateSystem1Channel(iyInput);
 
   document.getElementById("s1_list_ty").innerText = PriceCalculator.formatTL(tyRes.listPrice);
-  document.getElementById("s1_sale_ty").innerText = `İndirimli Fiyat: ${PriceCalculator.formatTL(tyRes.salePrice)}`;
+  document.getElementById("s1_sale_ty").innerText = `İndirimli: ${PriceCalculator.formatTL(tyRes.salePrice)}`;
   document.getElementById("s1_rec_sale_ty").innerText = PriceCalculator.formatTL(tyRes.salePrice);
   document.getElementById("s1_rec_kargo_ty").innerText = `-${PriceCalculator.formatTL(tyRes.cargoFee)}`;
   document.getElementById("s1_rec_comm_ty").innerText = `-${PriceCalculator.formatTL(tyRes.commAmount)}`;
@@ -579,7 +560,7 @@ function calculateSystem1Modal() {
   document.getElementById("s1_profit_ty").innerText = PriceCalculator.formatTL(tyRes.netProfit);
 
   document.getElementById("s1_list_hb").innerText = PriceCalculator.formatTL(hbRes.listPrice);
-  document.getElementById("s1_sale_hb").innerText = `İndirimli Fiyat: ${PriceCalculator.formatTL(hbRes.salePrice)}`;
+  document.getElementById("s1_sale_hb").innerText = `İndirimli: ${PriceCalculator.formatTL(hbRes.salePrice)}`;
   document.getElementById("s1_rec_sale_hb").innerText = PriceCalculator.formatTL(hbRes.salePrice);
   document.getElementById("s1_rec_kargo_hb").innerText = `-${PriceCalculator.formatTL(hbRes.cargoFee)}`;
   document.getElementById("s1_rec_comm_hb").innerText = `-${PriceCalculator.formatTL(hbRes.commAmount)}`;
@@ -588,7 +569,7 @@ function calculateSystem1Modal() {
   document.getElementById("s1_profit_hb").innerText = PriceCalculator.formatTL(hbRes.netProfit);
 
   document.getElementById("s1_list_iy").innerText = PriceCalculator.formatTL(iyRes.listPrice);
-  document.getElementById("s1_sale_iy").innerText = `İndirimli Fiyat: ${PriceCalculator.formatTL(iyRes.salePrice)}`;
+  document.getElementById("s1_sale_iy").innerText = `İndirimli: ${PriceCalculator.formatTL(iyRes.salePrice)}`;
   document.getElementById("s1_rec_sale_iy").innerText = PriceCalculator.formatTL(iyRes.salePrice);
   document.getElementById("s1_rec_kargo_iy").innerText = `-${PriceCalculator.formatTL(iyRes.cargoFee)}`;
   document.getElementById("s1_rec_comm_iy").innerText = `-${PriceCalculator.formatTL(iyRes.commAmount)}`;
@@ -639,11 +620,11 @@ function calculateSystem3Modal() {
   matrix.forEach(row => {
     const tr = `
       <tr class="hover:bg-slate-900/60 transition-colors">
-        <td class="p-3 font-bold text-white">${row.volume}</td>
-        <td class="p-3 text-slate-300">${PriceCalculator.formatTL(row.packagingCost)}</td>
-        <td class="p-3 font-bold text-blue-400">${PriceCalculator.formatTL(row.unitCost)}</td>
-        <td class="p-3 font-bold text-white">${PriceCalculator.formatTL(row.tyPrice)}</td>
-        <td class="p-3 font-bold text-emerald-400 text-right">+${PriceCalculator.formatTL(row.netProfit)}</td>
+        <td class="p-2.5 font-bold text-white">${row.volume}</td>
+        <td class="p-2.5 text-slate-300">${PriceCalculator.formatTL(row.packagingCost)}</td>
+        <td class="p-2.5 font-bold text-blue-400">${PriceCalculator.formatTL(row.unitCost)}</td>
+        <td class="p-2.5 font-bold text-white">${PriceCalculator.formatTL(row.tyPrice)}</td>
+        <td class="p-2.5 font-bold text-emerald-400 text-right">+${PriceCalculator.formatTL(row.netProfit)}</td>
       </tr>
     `;
     tbody.insertAdjacentHTML("beforeend", tr);
@@ -678,10 +659,10 @@ function calculateSystem5Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
-  // Update active volume badge in System 5 header
+  // Update active volume badge text
   const badgeEl = document.getElementById("s5-active-volume-badge");
   if (badgeEl) {
-    badgeEl.innerText = `Seçili Ambalaj: ${activeVolume}`;
+    badgeEl.innerText = `${activeVolume}`;
   }
 
   const costPerKg = getModalCostPerKg();
@@ -711,47 +692,44 @@ function calculateSystem5Modal() {
   const profitSup = payoutSup - unitCost;
 
   // Render Avantajlı Card
-  document.getElementById("s5_res_price_av").innerText = PriceCalculator.formatTL(priceAv);
   document.getElementById("s5_res_comm_av").innerText = `-${PriceCalculator.formatTL(commAmtAv)}`;
   document.getElementById("s5_res_cargo_av").innerText = `-${PriceCalculator.formatTL(cargo)}`;
   document.getElementById("s5_res_payout_av").innerText = PriceCalculator.formatTL(payoutAv);
   document.getElementById("s5_res_cost_av").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
   const elProfAv = document.getElementById("s5_res_profit_av");
   if (profitAv < 0) {
-    elProfAv.className = "val font-black text-rose-400 text-sm";
+    elProfAv.className = "val font-black text-rose-400 text-xs";
     elProfAv.innerText = `⚠️ ZARAR ${PriceCalculator.formatTL(profitAv)}`;
   } else {
-    elProfAv.className = "val font-black text-emerald-400 text-sm";
+    elProfAv.className = "val font-black text-emerald-400 text-xs";
     elProfAv.innerText = `+${PriceCalculator.formatTL(profitAv)}`;
   }
 
   // Render Çok Avantajlı Card
-  document.getElementById("s5_res_price_cak").innerText = PriceCalculator.formatTL(priceCak);
   document.getElementById("s5_res_comm_cak").innerText = `-${PriceCalculator.formatTL(commAmtCak)}`;
   document.getElementById("s5_res_cargo_cak").innerText = `-${PriceCalculator.formatTL(cargo)}`;
   document.getElementById("s5_res_payout_cak").innerText = PriceCalculator.formatTL(payoutCak);
   document.getElementById("s5_res_cost_cak").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
   const elProfCak = document.getElementById("s5_res_profit_cak");
   if (profitCak < 0) {
-    elProfCak.className = "val font-black text-rose-400 text-sm";
+    elProfCak.className = "val font-black text-rose-400 text-xs";
     elProfCak.innerText = `⚠️ ZARAR ${PriceCalculator.formatTL(profitCak)}`;
   } else {
-    elProfCak.className = "val font-black text-emerald-400 text-sm";
+    elProfCak.className = "val font-black text-emerald-400 text-xs";
     elProfCak.innerText = `+${PriceCalculator.formatTL(profitCak)}`;
   }
 
   // Render Süper Avantajlı Card
-  document.getElementById("s5_res_price_sup").innerText = PriceCalculator.formatTL(priceSup);
   document.getElementById("s5_res_comm_sup").innerText = `-${PriceCalculator.formatTL(commAmtSup)}`;
   document.getElementById("s5_res_cargo_sup").innerText = `-${PriceCalculator.formatTL(cargo)}`;
   document.getElementById("s5_res_payout_sup").innerText = PriceCalculator.formatTL(payoutSup);
   document.getElementById("s5_res_cost_sup").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
   const elProfSup = document.getElementById("s5_res_profit_sup");
   if (profitSup < 0) {
-    elProfSup.className = "val font-black text-rose-400 text-sm";
+    elProfSup.className = "val font-black text-rose-400 text-xs";
     elProfSup.innerText = `⚠️ ZARAR ${PriceCalculator.formatTL(profitSup)}`;
   } else {
-    elProfSup.className = "val font-black text-emerald-400 text-sm";
+    elProfSup.className = "val font-black text-emerald-400 text-xs";
     elProfSup.innerText = `+${PriceCalculator.formatTL(profitSup)}`;
   }
 }
@@ -802,5 +780,5 @@ function showToast(message) {
 
   setTimeout(() => {
     toast.remove();
-  }, 3500);
+  }, 3505);
 }
