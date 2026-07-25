@@ -1,11 +1,11 @@
-// CanFiyat Portal Main Application Logic (v1.09) - Product & Volume Specific System 2 & 4 Prices
+// CanFiyat Portal Main Application Logic (v1.10) - System 5 Trendyol Campaign Tier Simulator
 
 let currentProducts = {};
 let activeCategory = "all";
 let searchQuery = "";
 let selectedProductId = null;
 let viewMode = "rows"; // 'rows' | 'cards'
-let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4'
+let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4' | 'system5'
 let activeVolume = "250ml"; // Active bottle size sub-tab in modal
 
 const ALL_VOLUMES = [
@@ -392,7 +392,6 @@ function loadActiveVolumeConfig(product, volKey) {
   document.getElementById("slot-packaging-cost").value = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
   document.getElementById("slot-target-profit").value = config.targetProfit ?? 70;
   
-  // Independent System 2 & System 4 values for this specific product volume slot
   document.getElementById("s2_web_price").value = config.webSalePrice ?? 500;
   document.getElementById("s4_retail_price").value = config.retailPrice ?? 650;
 
@@ -424,7 +423,6 @@ function saveInputsToCurrentVolumeConfig() {
   config.packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
   config.targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
   
-  // Store independent System 2 & System 4 prices into this specific volume slot
   config.webSalePrice = parseFloat(document.getElementById("s2_web_price").value) || 500;
   config.retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 650;
 
@@ -468,7 +466,7 @@ function switchSimTab(tabId) {
     activeBtn.classList.add("active", "bg-blue-600", "text-white");
   }
 
-  ["system1", "system2", "system3", "system4"].forEach(id => {
+  ["system1", "system2", "system3", "system4", "system5"].forEach(id => {
     const el = document.getElementById(`sim-${id}-container`);
     if (el) {
       if (id === tabId) {
@@ -495,6 +493,8 @@ function calculateCurrentModal() {
     calculateSystem3Modal();
   } else if (activeSimTab === "system4") {
     calculateSystem4Modal();
+  } else if (activeSimTab === "system5") {
+    calculateSystem5Modal();
   }
 }
 
@@ -649,6 +649,51 @@ function calculateSystem4Modal() {
   document.getElementById("s4_margin_display").innerText = `%${s4Res.marginPercent}`;
 }
 
+function calculateSystem5Modal() {
+  const product = currentProducts[selectedProductId];
+  if (!product) return;
+
+  const costPerKg = getModalCostPerKg();
+  const avDisc = parseFloat(document.getElementById("s5_disc_av").value) || 10;
+  const cakDisc = parseFloat(document.getElementById("s5_disc_cak").value) || 18;
+  const supDisc = parseFloat(document.getElementById("s5_disc_sup").value) || 30;
+  const comm = parseFloat(document.getElementById("s5_comm").value) || 19;
+  const cargo = parseFloat(document.getElementById("s5_cargo").value) || 110;
+
+  const matrix = PriceCalculator.calculateSystem5CampaignMatrix(costPerKg, avDisc, cakDisc, supDisc, comm, cargo);
+
+  const tbody = document.getElementById("s5-matrix-tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+  matrix.forEach(row => {
+    const formatCell = (tier) => {
+      const isLoss = tier.profit < 0;
+      const badgeColor = isLoss ? "bg-rose-950/80 text-rose-300 border-rose-800/50" : "bg-emerald-950/80 text-emerald-300 border-emerald-800/50";
+      const profitText = isLoss ? `⚠️ ZARAR ${PriceCalculator.formatTL(tier.profit)}` : `+${PriceCalculator.formatTL(tier.profit)}`;
+      return `
+        <div class="space-y-1">
+          <div class="font-bold text-white">${PriceCalculator.formatTL(tier.price)}</div>
+          <div class="text-[10px] text-slate-400">Hakediş: ${PriceCalculator.formatTL(tier.payout)}</div>
+          <div class="text-[10px] font-bold px-1.5 py-0.5 rounded border inline-block ${badgeColor}">${profitText}</div>
+        </div>
+      `;
+    };
+
+    const tr = `
+      <tr class="hover:bg-slate-900/60 transition-colors">
+        <td class="p-3 font-bold text-white border-r border-slate-800">${row.volume}</td>
+        <td class="p-3 text-slate-300 border-r border-slate-800">${PriceCalculator.formatTL(row.unitCost)}</td>
+        <td class="p-3 font-bold text-slate-200 border-r border-slate-800">${PriceCalculator.formatTL(row.baseListPrice)}</td>
+        <td class="p-3 border-r border-slate-800 bg-emerald-950/10">${formatCell(row.av)}</td>
+        <td class="p-3 border-r border-slate-800 bg-amber-950/10">${formatCell(row.cak)}</td>
+        <td class="p-3 bg-rose-950/10">${formatCell(row.sup)}</td>
+      </tr>
+    `;
+    tbody.insertAdjacentHTML("beforeend", tr);
+  });
+}
+
 async function saveCurrentProductSlot() {
   if (!selectedProductId) return;
 
@@ -666,7 +711,7 @@ async function saveCurrentProductSlot() {
   renderProductGrid();
   renderStats();
 
-  showToast(`${product.name} İçin Tüm Ayarlar ve Sistem 2/4 Fiyatları Saklandı! ☁️✅`);
+  showToast(`${product.name} İçin Tüm Ayarlar ve Kampanya Etiketleri Saklandı! ☁️✅`);
 }
 
 function resetCatalog() {

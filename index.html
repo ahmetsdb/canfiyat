@@ -42,7 +42,7 @@
                         <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.09</span>
+                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.10</span>
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Supabase Bulut Veritabanı
                             </span>
@@ -222,7 +222,7 @@
                 </button>
             </div>
 
-            <!-- Modal 4-System Mode Selector Tabs -->
+            <!-- Modal 5-System Mode Selector Tabs -->
             <div class="px-6 pt-4 bg-slate-950/40 border-b border-slate-800 flex flex-col gap-3">
                 <div class="flex flex-wrap gap-2 p-1 bg-slate-950 rounded-xl border border-slate-800 inline-flex">
                     <button id="sim-tab-system1" onclick="switchSimTab('system1')" class="sim-tab-btn active px-4 py-2 rounded-lg font-semibold text-xs transition-all">
@@ -236,6 +236,9 @@
                     </button>
                     <button id="sim-tab-system4" onclick="switchSimTab('system4')" class="sim-tab-btn inactive px-4 py-2 rounded-lg font-semibold text-xs transition-all">
                         Sistem 4: Perakende Fiyat Analizi
+                    </button>
+                    <button id="sim-tab-system5" onclick="switchSimTab('system5')" class="sim-tab-btn inactive px-4 py-2 rounded-lg font-semibold text-xs transition-all bg-gradient-to-r from-orange-950/50 to-amber-950/50 border border-orange-500/30 text-orange-300">
+                        🟠 Sistem 5: Trendyol Kampanya Etiketleri
                     </button>
                 </div>
             </div>
@@ -491,6 +494,64 @@
                             <div class="text-[10px] text-blue-400 font-bold uppercase mb-1">Kâr Marjı (%)</div>
                             <div class="text-2xl font-black text-blue-400" id="s4_margin_display">%0.0</div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- SYSTEM 5 WORKSPACE (TRENDYOL CAMPAIGN TIER SIMULATOR) -->
+                <!-- ========================================== -->
+                <div id="sim-system5-container" class="space-y-6 hidden">
+                    <div class="bg-gradient-to-r from-orange-950/40 via-amber-950/30 to-red-950/40 p-5 rounded-xl border border-orange-800/50 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center gap-2">
+                                🟠 Trendyol Avantajlı Ürün Etiketleri Kampanya Projeksiyonu
+                            </h3>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800/40">3 Seviye Simülatör</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Trendyol Satıcı Paneli'ndeki 3 kampanya etiketi seviyesine (Avantajlı, Çok Avantajlı, Süper Avantajlı) girdiğinizde tüm ambalaj boyutlarında kalan net hakediş ve kârınızı anında karşılaştırır.</p>
+                        
+                        <!-- Customizable Campaign Tier Discounts & Parameters -->
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-2">
+                            <div class="input-group">
+                                <label class="text-emerald-400 font-bold">🟢 1. Avantajlı İndirimi (%)</label>
+                                <input type="number" id="s5_disc_av" value="10" min="0" max="100" step="any" class="border-emerald-900 bg-emerald-950/30 text-emerald-300 font-bold" oninput="calculateSystem5Modal()">
+                            </div>
+                            <div class="input-group">
+                                <label class="text-amber-400 font-bold">🟡 2. Çok Avantajlı İndirimi (%)</label>
+                                <input type="number" id="s5_disc_cak" value="18" min="0" max="100" step="any" class="border-amber-900 bg-amber-950/30 text-amber-300 font-bold" oninput="calculateSystem5Modal()">
+                            </div>
+                            <div class="input-group">
+                                <label class="text-rose-400 font-bold">🔴 3. Süper Avantajlı İndirimi (%)</label>
+                                <input type="number" id="s5_disc_sup" value="30" min="0" max="100" step="any" class="border-rose-900 bg-rose-950/30 text-rose-300 font-bold" oninput="calculateSystem5Modal()">
+                            </div>
+                            <div class="input-group">
+                                <label>Trendyol Komisyonu (%)</label>
+                                <input type="number" id="s5_comm" value="19" min="0" step="any" oninput="calculateSystem5Modal()">
+                            </div>
+                            <div class="input-group">
+                                <label>Kargo Maliyeti (₺)</label>
+                                <input type="number" id="s5_cargo" value="110" min="0" step="any" oninput="calculateSystem5Modal()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table for All Bottle Sizes -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border-collapse bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+                            <thead class="bg-slate-900 text-slate-400 uppercase font-bold text-[10px]">
+                                <tr>
+                                    <th class="p-3 border-r border-slate-800">Hacim</th>
+                                    <th class="p-3 border-r border-slate-800">Toptan Maliyet</th>
+                                    <th class="p-3 border-r border-slate-800">Standart Liste Fiyatı</th>
+                                    <th class="p-3 border-r border-slate-800 bg-emerald-950/20 text-emerald-300">🟢 1. Avantajlı Etiket</th>
+                                    <th class="p-3 border-r border-slate-800 bg-amber-950/20 text-amber-300">🟡 2. Çok Avantajlı Etiket</th>
+                                    <th class="p-3 bg-rose-950/20 text-rose-300">🔴 3. Süper Avantajlı Etiket</th>
+                                </tr>
+                            </thead>
+                            <tbody id="s5-matrix-tbody" class="divide-y divide-slate-800/80">
+                                <!-- Rendered dynamically via JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
-// CanFiyat Complete Calculation Engine (Systems 1, 2, 3 & 4 with ml, gr, kg support)
+// CanFiyat Complete Calculation Engine (Systems 1, 2, 3, 4 & 5 - Trendyol Campaign Simulator)
 
 class PriceCalculator {
-  // Convert any volume/weight string (e.g. 20ml, 50gr, 0.5kg, 1kg) into ml/gr numeric value
+  // Convert any volume/weight string into numeric ml/gr value
   static getVolumeMl(volumeStr) {
     if (!volumeStr) return 250;
     const str = String(volumeStr).toLowerCase().trim();
@@ -146,6 +146,53 @@ class PriceCalculator {
       netProfit: parseFloat(netProfit.toFixed(2)),
       marginPercent: parseFloat(marginPercent.toFixed(1))
     };
+  }
+
+  // SYSTEM 5: Trendyol Avantajlı Ürün Etiketleri Kampanya Simülasyonu
+  static calculateSystem5CampaignMatrix(costPerKg, avDisc = 10, cakDisc = 18, supDisc = 30, comm = 19, cargo = 110) {
+    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
+    return volumes.map(vol => {
+      const packagingCost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
+      const unitCost = this.calculateUnitWholesaleCost(costPerKg, vol, packagingCost);
+      
+      // Base System 1 price for 70 TL profit
+      const stdRes = this.calculateSystem1Channel({
+        wholesaleCost: unitCost,
+        targetProfit: 70,
+        commission: comm,
+        discount: 0,
+        cargo: cargo
+      });
+
+      const baseListPrice = stdRes.listPrice;
+
+      // 1. Avantajlı Fiyat (% avDisc discount)
+      const avPrice = parseFloat((baseListPrice * (1 - avDisc / 100)).toFixed(2));
+      const avComm = parseFloat((avPrice * (comm / 100)).toFixed(2));
+      const avPayout = parseFloat((avPrice - avComm - cargo).toFixed(2));
+      const avProfit = parseFloat((avPayout - unitCost).toFixed(2));
+
+      // 2. Çok Avantajlı Fiyat (% cakDisc discount)
+      const cakPrice = parseFloat((baseListPrice * (1 - cakDisc / 100)).toFixed(2));
+      const cakComm = parseFloat((cakPrice * (comm / 100)).toFixed(2));
+      const cakPayout = parseFloat((cakPrice - cakComm - cargo).toFixed(2));
+      const cakProfit = parseFloat((cakPayout - unitCost).toFixed(2));
+
+      // 3. Süper Avantajlı Fiyat (% supDisc discount)
+      const supPrice = parseFloat((baseListPrice * (1 - supDisc / 100)).toFixed(2));
+      const supComm = parseFloat((supPrice * (comm / 100)).toFixed(2));
+      const supPayout = parseFloat((supPrice - supComm - cargo).toFixed(2));
+      const supProfit = parseFloat((supPayout - unitCost).toFixed(2));
+
+      return {
+        volume: vol,
+        unitCost: unitCost,
+        baseListPrice: baseListPrice,
+        av: { price: avPrice, payout: avPayout, profit: avProfit },
+        cak: { price: cakPrice, payout: cakPayout, profit: cakProfit },
+        sup: { price: supPrice, payout: supPayout, profit: supProfit }
+      };
+    });
   }
 
   static formatTL(val) {
