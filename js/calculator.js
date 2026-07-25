@@ -4,6 +4,7 @@ class PriceCalculator {
   static getVolumeMl(volumeStr) {
     const map = {
       "20ml": 20,
+      "30ml": 30,
       "50ml": 50,
       "100ml": 100,
       "250ml": 250,
@@ -14,10 +15,14 @@ class PriceCalculator {
   }
 
   // Calculate Unit Wholesale Cost for a specific volume size
-  static calculateUnitWholesaleCost(costPerKg, volumeStr, packagingCost = 0) {
+  static calculateUnitWholesaleCost(costPerKg, volumeStr, packagingCost = null) {
     const ml = this.getVolumeMl(volumeStr);
     const rawOilCost = (costPerKg / 1000) * ml;
-    return parseFloat((rawOilCost + packagingCost).toFixed(2));
+    const packCost = (packagingCost !== null && packagingCost !== undefined && !isNaN(packagingCost)) 
+      ? parseFloat(packagingCost) 
+      : (DEFAULT_PACKAGING_COSTS[volumeStr] || 14.50);
+      
+    return parseFloat((rawOilCost + packCost).toFixed(2));
   }
 
   // SYSTEM 1: Toptan Maliyet + Hedef Kâr -> Kanal Satış Fiyatları & Hakediş
@@ -57,12 +62,10 @@ class PriceCalculator {
     const price = parseFloat(webSalePrice) || 0;
     const cost = parseFloat(unitCost) || 0;
     
-    // Web net profit from Web sale price
     const webCommFee = price * (iyComm / 100);
     const webPayout = price - webCommFee - iyCargo;
     const webProfit = webPayout - cost;
 
-    // Equivalent Trendyol price to get SAME net profit as Web
     const ty = this.calculateSystem1Channel({
       wholesaleCost: cost,
       targetProfit: Math.max(0, webProfit),
@@ -71,7 +74,6 @@ class PriceCalculator {
       cargo: tyCargo
     });
 
-    // Equivalent Hepsiburada price to get SAME net profit as Web
     const hb = this.calculateSystem1Channel({
       wholesaleCost: cost,
       targetProfit: Math.max(0, webProfit),
@@ -91,11 +93,11 @@ class PriceCalculator {
     };
   }
 
-  // SYSTEM 3: Hacim & Gramaj Ölçeklendirme Matrisi (20ml, 50ml, 100ml, 250ml, 500ml, 1000ml)
-  static calculateSystem3VolumeMatrix(costPerKg, targetProfitPerUnit = 300) {
-    const volumes = ["20ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
+  // SYSTEM 3: Hacim & Gramaj Ölçeklendirme Matrisi (30ml, 50ml, 100ml, 250ml, 500ml, 1000ml)
+  static calculateSystem3VolumeMatrix(costPerKg, targetProfitPerUnit = 70) {
+    const volumes = ["30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
     return volumes.map(vol => {
-      const packagingCost = DEFAULT_PACKAGING_COSTS[vol] || 25;
+      const packagingCost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
       const unitCost = this.calculateUnitWholesaleCost(costPerKg, vol, packagingCost);
       const ty = this.calculateSystem1Channel({
         wholesaleCost: unitCost,

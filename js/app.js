@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic with 4 Simulation Systems
+// CanFiyat Portal Main Application Logic with Exact Bottle Packaging Costs
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -120,7 +120,10 @@ function renderProductGrid() {
   }
 
   filtered.forEach(product => {
-    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, product.selectedVolume || "250ml", product.packagingCost || 25);
+    const vol = product.selectedVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+    const packCost = product.packagingCost ?? (DEFAULT_PACKAGING_COSTS[vol] || 14.50);
+    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, vol, packCost);
+    
     const tyResult = PriceCalculator.calculateSystem1Channel({
       wholesaleCost: unitCost,
       targetProfit: product.targetProfit ?? 70,
@@ -158,7 +161,7 @@ function renderProductGrid() {
 
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[150px]">
             <span class="text-slate-400 block text-[10px] uppercase font-semibold">Ambalaj & Birim Maliyet</span>
-            <span class="font-bold text-blue-400">${product.selectedVolume || "250ml"} (${PriceCalculator.formatTL(unitCost)})</span>
+            <span class="font-bold text-blue-400">${vol} (${PriceCalculator.formatTL(unitCost)})</span>
           </div>
 
           <div class="bg-slate-950/60 px-3.5 py-2 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
@@ -212,7 +215,7 @@ function renderProductGrid() {
               </div>
               <div>
                 <span class="text-slate-400 block text-[10px] uppercase font-semibold">Seçili Ambalaj</span>
-                <span class="font-bold text-blue-400">${product.selectedVolume || "250ml"} (${PriceCalculator.formatTL(unitCost)})</span>
+                <span class="font-bold text-blue-400">${vol} (${PriceCalculator.formatTL(unitCost)})</span>
               </div>
             </div>
 
@@ -248,7 +251,6 @@ function clearSearch() {
   renderProductGrid();
 }
 
-// Switch between System 1, 2, 3, 4 tabs inside modal
 function switchSimTab(tabId) {
   activeSimTab = tabId;
 
@@ -263,7 +265,6 @@ function switchSimTab(tabId) {
     activeBtn.classList.add("active", "bg-blue-600", "text-white");
   }
 
-  // Show/Hide Containers
   ["system1", "system2", "system3", "system4"].forEach(id => {
     const el = document.getElementById(`sim-${id}-container`);
     if (el) {
@@ -277,7 +278,6 @@ function switchSimTab(tabId) {
     }
   });
 
-  // Calculate current active tab
   calculateCurrentModal();
 }
 
@@ -286,12 +286,14 @@ function openProductSlot(productId) {
   const product = currentProducts[productId];
   if (!product) return;
 
+  const defaultVol = product.selectedVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+
   document.getElementById("modal-product-title").innerText = `${product.name} (${product.sku})`;
   document.getElementById("modal-product-category").innerText = product.category;
   document.getElementById("modal-cost-kg").innerText = PriceCalculator.formatTL(product.costPerKg);
 
-  document.getElementById("slot-volume").value = product.selectedVolume || "250ml";
-  document.getElementById("slot-packaging-cost").value = product.packagingCost ?? DEFAULT_PACKAGING_COSTS[product.selectedVolume || "250ml"];
+  document.getElementById("slot-volume").value = defaultVol;
+  document.getElementById("slot-packaging-cost").value = product.packagingCost ?? (DEFAULT_PACKAGING_COSTS[defaultVol] || 14.50);
   document.getElementById("slot-target-profit").value = product.targetProfit ?? 70;
 
   const ty = product.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
@@ -313,11 +315,10 @@ function openProductSlot(productId) {
   const volumeSelect = document.getElementById("slot-volume");
   volumeSelect.onchange = () => {
     const vol = volumeSelect.value;
-    document.getElementById("slot-packaging-cost").value = DEFAULT_PACKAGING_COSTS[vol] || 25;
+    document.getElementById("slot-packaging-cost").value = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
     calculateCurrentModal();
   };
 
-  // Reset tab to system1 on open
   switchSimTab("system1");
 
   const modal = document.getElementById("product-slot-modal");
@@ -444,7 +445,7 @@ function calculateSystem3Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
-  const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 300;
+  const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 70;
   const matrix = PriceCalculator.calculateSystem3VolumeMatrix(product.costPerKg, targetProfit);
 
   const tbody = document.getElementById("s3-matrix-tbody");

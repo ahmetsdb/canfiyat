@@ -8,23 +8,25 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v1",
+  PRODUCTS: "canfiyat_products_v3", // Bumped version to reset initial default target profit to 70 TL
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1"
 };
 
 class StorageManager {
-  // Sync products from Supabase DB or LocalStorage
   static getProducts() {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (!stored) {
         const initialMap = {};
         INITIAL_PRODUCTS.forEach(p => {
+          const vol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+          const packCost = DEFAULT_PACKAGING_COSTS[vol] || 14.50;
+
           initialMap[p.id] = {
             ...p,
-            selectedVolume: "250ml",
-            packagingCost: DEFAULT_PACKAGING_COSTS["250ml"],
-            targetProfit: 70, // Varsayılan Hedef Net Kâr: 70 TL
+            selectedVolume: vol,
+            packagingCost: packCost,
+            targetProfit: 70, // Başlangıç Hedef Net Kâr: 70 TL
             channels: {
               trendyol: { commission: 19, discount: 0, cargo: 110 },
               hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -57,6 +59,8 @@ class StorageManager {
       if (data && data.length > 0) {
         const cloudMap = {};
         data.forEach(item => {
+          // If profit is 300 (old default), update to 70 TL
+          const profit = (item.target_profit === 300 || !item.target_profit) ? 70 : item.target_profit;
           cloudMap[item.id] = {
             id: item.id,
             sku: item.sku,
@@ -67,7 +71,7 @@ class StorageManager {
             costPerKg: item.cost_per_kg,
             selectedVolume: item.selected_volume,
             packagingCost: item.packaging_cost,
-            targetProfit: item.target_profit ?? 70,
+            targetProfit: profit,
             channels: item.channels,
             updatedAt: item.updated_at
           };
@@ -96,7 +100,7 @@ class StorageManager {
         unit: p.unit,
         cost_per_kg: p.costPerKg,
         selected_volume: p.selectedVolume || "250ml",
-        packaging_cost: p.packagingCost || 25,
+        packaging_cost: p.packagingCost || 14.50,
         target_profit: p.targetProfit ?? 70,
         channels: p.channels,
         updated_at: new Date().toISOString()
