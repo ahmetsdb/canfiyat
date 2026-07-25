@@ -42,7 +42,7 @@
                         <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.10</span>
+                            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.12</span>
                             <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Supabase Bulut Veritabanı
                             </span>
@@ -243,6 +243,18 @@
                 </div>
             </div>
 
+            <!-- GLOBAL BOTTLE SIZE & ML SELECTOR BAR (ALWAYS VISIBLE IN ALL TABS) -->
+            <div class="px-6 py-3 bg-slate-950 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                        🧴 Ambalaj Boyutu Seçin (ml / gr / kg):
+                    </span>
+                </div>
+                <div id="modal-volume-tabs" class="flex flex-wrap gap-2">
+                    <!-- Rendered dynamically via JS: 20ml, 30ml, 50ml, 100ml, 250ml, 500ml, 1000ml -->
+                </div>
+            </div>
+
             <!-- Modal Body (Scrollable Workspace) -->
             <div class="p-6 overflow-y-auto space-y-6 flex-grow">
                 
@@ -250,7 +262,7 @@
                 <div class="bg-blue-950/30 border border-blue-800/60 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-0.5">
                         <label class="text-xs font-bold text-blue-400 uppercase tracking-wider block">🌾 1KG Toptan Yağ Alış Fiyatı (₺/KG)</label>
-                        <p class="text-[11px] text-slate-400">Toptan ham yağ alış maliyetinizi buradan değiştirebilirsiniz. Tüm ambalaj fiyatları anında güncellenir.</p>
+                        <p class="text-[11px] text-slate-400">Toptan ham yağ alış maliyetinizi buradan değiştirebilirsiniz. Seçilen şişe boyutuna göre maliyet anında hesaplanır.</p>
                     </div>
                     <div class="flex items-center gap-2 min-w-[200px]">
                         <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-full text-base font-black text-white bg-slate-950 border border-blue-500 px-3.5 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400" oninput="calculateCurrentModal()">
@@ -263,21 +275,6 @@
                 <!-- ========================================== -->
                 <div id="sim-system1-container" class="space-y-6 block">
                     
-                    <!-- BOTTLE SIZE SUB-TABS (İçerideki Ambalaj Sekmeleri) -->
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold uppercase text-blue-400 tracking-wider flex items-center gap-1.5">
-                                🧴 Ambalaj Boyutu Seçin (Her boyuta özel kayıtlı fiyatlar tutulur)
-                            </span>
-                            <span class="text-[10px] text-slate-500 font-medium">Tüm ambalaj ayarlarınız bu ürün kartının içinde muhafaza edilir.</span>
-                        </div>
-
-                        <!-- Bottle Size Tabs Container -->
-                        <div id="modal-volume-tabs" class="flex flex-wrap gap-2 pt-1">
-                            <!-- Rendered dynamically via JS: 20ml, 30ml, 50ml, 100ml, 250ml, 500ml, 1000ml -->
-                        </div>
-                    </div>
-
                     <!-- Product Slot Global Inputs (Packaging & Target Profit) -->
                     <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -498,60 +495,135 @@
                 </div>
 
                 <!-- ========================================== -->
-                <!-- SYSTEM 5 WORKSPACE (TRENDYOL CAMPAIGN TIER SIMULATOR) -->
+                <!-- SYSTEM 5 WORKSPACE (TRENDYOL OFFER PRICE SIMULATOR) -->
                 <!-- ========================================== -->
                 <div id="sim-system5-container" class="space-y-6 hidden">
                     <div class="bg-gradient-to-r from-orange-950/40 via-amber-950/30 to-red-950/40 p-5 rounded-xl border border-orange-800/50 space-y-4">
                         <div class="flex items-center justify-between">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center gap-2">
-                                🟠 Trendyol Avantajlı Ürün Etiketleri Kampanya Projeksiyonu
+                                🟠 Trendyol Avantajlı Etiket Teklif Fiyatı Simülatörü
                             </h3>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800/40">3 Seviye Simülatör</span>
+                            <span id="s5-active-volume-badge" class="text-[11px] font-bold px-3 py-1 rounded bg-blue-950 text-blue-300 border border-blue-800/50">Seçili Ambalaj: 250 ml</span>
                         </div>
-                        <p class="text-xs text-slate-300">Trendyol Satıcı Paneli'ndeki 3 kampanya etiketi seviyesine (Avantajlı, Çok Avantajlı, Süper Avantajlı) girdiğinizde tüm ambalaj boyutlarında kalan net hakediş ve kârınızı anında karşılaştırır.</p>
+                        <p class="text-xs text-slate-300">Yukarıdan ambalaj boyutunu (ml/gram) seçin. Trendyol'un size teklif ettiği fiyatı ve komisyonu girin, toptan ham yağ + ambalaj maliyetinize göre kârda mısınız zararda mısınız anında görün!</p>
                         
-                        <!-- Customizable Campaign Tier Discounts & Parameters -->
-                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-2">
-                            <div class="input-group">
-                                <label class="text-emerald-400 font-bold">🟢 1. Avantajlı İndirimi (%)</label>
-                                <input type="number" id="s5_disc_av" value="10" min="0" max="100" step="any" class="border-emerald-900 bg-emerald-950/30 text-emerald-300 font-bold" oninput="calculateSystem5Modal()">
+                        <!-- Direct Price & Commission Inputs for 3 Trendyol Tiers -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            
+                            <!-- 1. Avantajlı Fiyat -->
+                            <div class="bg-slate-950/90 p-3.5 rounded-xl border border-emerald-800/50 space-y-3">
+                                <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
+                                    <span>🟢 1. Avantajlı Etiket</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="input-group">
+                                        <label class="text-[10px]">Trendyol Teklif Fiyatı (₺)</label>
+                                        <input type="number" id="s5_price_av" value="792.96" min="0" step="any" class="border-emerald-900 bg-emerald-950/40 text-white font-bold" oninput="calculateSystem5Modal()">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="text-[10px]">Kampanya Komisyonu (%)</label>
+                                        <input type="number" id="s5_comm_av" value="15.0" min="0" step="any" oninput="calculateSystem5Modal()">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label class="text-amber-400 font-bold">🟡 2. Çok Avantajlı İndirimi (%)</label>
-                                <input type="number" id="s5_disc_cak" value="18" min="0" max="100" step="any" class="border-amber-900 bg-amber-950/30 text-amber-300 font-bold" oninput="calculateSystem5Modal()">
+
+                            <!-- 2. Çok Avantajlı Fiyat -->
+                            <div class="bg-slate-950/90 p-3.5 rounded-xl border border-amber-800/50 space-y-3">
+                                <div class="flex items-center justify-between text-xs font-bold text-amber-400">
+                                    <span>🟡 2. Çok Avantajlı Etiket</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="input-group">
+                                        <label class="text-[10px]">Trendyol Teklif Fiyatı (₺)</label>
+                                        <input type="number" id="s5_price_cak" value="744.87" min="0" step="any" class="border-amber-900 bg-amber-950/40 text-white font-bold" oninput="calculateSystem5Modal()">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="text-[10px]">Kampanya Komisyonu (%)</label>
+                                        <input type="number" id="s5_comm_cak" value="14.6" min="0" step="any" oninput="calculateSystem5Modal()">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label class="text-rose-400 font-bold">🔴 3. Süper Avantajlı İndirimi (%)</label>
-                                <input type="number" id="s5_disc_sup" value="30" min="0" max="100" step="any" class="border-rose-900 bg-rose-950/30 text-rose-300 font-bold" oninput="calculateSystem5Modal()">
+
+                            <!-- 3. Süper Avantajlı Fiyat -->
+                            <div class="bg-slate-950/90 p-3.5 rounded-xl border border-rose-800/50 space-y-3">
+                                <div class="flex items-center justify-between text-xs font-bold text-rose-400">
+                                    <span>🔴 3. Süper Avantajlı Etiket</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="input-group">
+                                        <label class="text-[10px]">Trendyol Teklif Fiyatı (₺)</label>
+                                        <input type="number" id="s5_price_sup" value="612.94" min="0" step="any" class="border-rose-900 bg-rose-950/40 text-white font-bold" oninput="calculateSystem5Modal()">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="text-[10px]">Kampanya Komisyonu (%)</label>
+                                        <input type="number" id="s5_comm_sup" value="12.5" min="0" step="any" oninput="calculateSystem5Modal()">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label>Trendyol Komisyonu (%)</label>
-                                <input type="number" id="s5_comm" value="19" min="0" step="any" oninput="calculateSystem5Modal()">
-                            </div>
-                            <div class="input-group">
-                                <label>Kargo Maliyeti (₺)</label>
-                                <input type="number" id="s5_cargo" value="110" min="0" step="any" oninput="calculateSystem5Modal()">
+
+                        </div>
+
+                        <!-- Common Cargo Input -->
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-400 font-semibold">Kargo Maliyeti:</span>
+                                <input type="number" id="s5_cargo" value="110" min="0" step="any" class="w-24 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-white font-bold" oninput="calculateSystem5Modal()">
+                                <span class="text-slate-400">₺</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Comparison Table for All Bottle Sizes -->
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left border-collapse bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
-                            <thead class="bg-slate-900 text-slate-400 uppercase font-bold text-[10px]">
-                                <tr>
-                                    <th class="p-3 border-r border-slate-800">Hacim</th>
-                                    <th class="p-3 border-r border-slate-800">Toptan Maliyet</th>
-                                    <th class="p-3 border-r border-slate-800">Standart Liste Fiyatı</th>
-                                    <th class="p-3 border-r border-slate-800 bg-emerald-950/20 text-emerald-300">🟢 1. Avantajlı Etiket</th>
-                                    <th class="p-3 border-r border-slate-800 bg-amber-950/20 text-amber-300">🟡 2. Çok Avantajlı Etiket</th>
-                                    <th class="p-3 bg-rose-950/20 text-rose-300">🔴 3. Süper Avantajlı Etiket</th>
-                                </tr>
-                            </thead>
-                            <tbody id="s5-matrix-tbody" class="divide-y divide-slate-800/80">
-                                <!-- Rendered dynamically via JS -->
-                            </tbody>
-                        </table>
+                    <!-- Instant Results Breakdown Cards for Selected Bottle Size -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- Avantajlı Result Card -->
+                        <div class="bg-slate-950 rounded-xl border border-emerald-900/50 p-4 space-y-3">
+                            <div class="text-xs font-bold text-emerald-400">🟢 1. Avantajlı Etiket Sonucu</div>
+                            <div class="bg-slate-900 p-3 rounded-lg text-center border border-emerald-900/30">
+                                <div class="text-[10px] text-slate-400 uppercase">Girdiğiniz Teklif Fiyatı</div>
+                                <div id="s5_res_price_av" class="text-xl font-black text-white">0.00 ₺</div>
+                            </div>
+                            <div class="space-y-1.5 text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                                <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s5_res_comm_av">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s5_res_cargo_av">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s5_res_payout_av">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Seçili Ambalaj Maliyeti</span><span class="val" id="s5_res_cost_av">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s5_res_profit_av">0.00 ₺</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Çok Avantajlı Result Card -->
+                        <div class="bg-slate-950 rounded-xl border border-amber-900/50 p-4 space-y-3">
+                            <div class="text-xs font-bold text-amber-400">🟡 2. Çok Avantajlı Etiket Sonucu</div>
+                            <div class="bg-slate-900 p-3 rounded-lg text-center border border-amber-900/30">
+                                <div class="text-[10px] text-slate-400 uppercase">Girdiğiniz Teklif Fiyatı</div>
+                                <div id="s5_res_price_cak" class="text-xl font-black text-white">0.00 ₺</div>
+                            </div>
+                            <div class="space-y-1.5 text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                                <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s5_res_comm_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s5_res_cargo_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s5_res_payout_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Seçili Ambalaj Maliyeti</span><span class="val" id="s5_res_cost_cak">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s5_res_profit_cak">0.00 ₺</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Süper Avantajlı Result Card -->
+                        <div class="bg-slate-950 rounded-xl border border-rose-900/50 p-4 space-y-3">
+                            <div class="text-xs font-bold text-rose-400">🔴 3. Süper Avantajlı Etiket Sonucu</div>
+                            <div class="bg-slate-900 p-3 rounded-lg text-center border border-rose-900/30">
+                                <div class="text-[10px] text-slate-400 uppercase">Girdiğiniz Teklif Fiyatı</div>
+                                <div id="s5_res_price_sup" class="text-xl font-black text-white">0.00 ₺</div>
+                            </div>
+                            <div class="space-y-1.5 text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                                <div class="breakdown-row negative"><span class="label">Komisyon Kesintisi</span><span class="val" id="s5_res_comm_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Kargo Kesintisi</span><span class="val" id="s5_res_cargo_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-slate-300">HAKEDİŞ</span><span class="val font-bold text-white" id="s5_res_payout_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row negative"><span class="label">Seçili Ambalaj Maliyeti</span><span class="val" id="s5_res_cost_sup">0.00 ₺</span></div>
+                                <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-bold text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s5_res_profit_sup">0.00 ₺</span></div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

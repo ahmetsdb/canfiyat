@@ -1,4 +1,4 @@
-// CanFiyat Portal Main Application Logic (v1.10) - System 5 Trendyol Campaign Tier Simulator
+// CanFiyat Portal Main Application Logic (v1.12) - Persistent Bottle Size Selection Across All Systems
 
 let currentProducts = {};
 let activeCategory = "all";
@@ -105,6 +105,12 @@ function getVolumeConfig(product, volKey) {
       targetProfit: 70,
       webSalePrice: 500,
       retailPrice: 650,
+      s5: {
+        priceAv: 792.96, commAv: 15.0,
+        priceCak: 744.87, commCak: 14.6,
+        priceSup: 612.94, commSup: 12.5,
+        cargo: 110
+      },
       channels: {
         trendyol: { commission: 19, discount: 0, cargo: 110 },
         hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -395,6 +401,15 @@ function loadActiveVolumeConfig(product, volKey) {
   document.getElementById("s2_web_price").value = config.webSalePrice ?? 500;
   document.getElementById("s4_retail_price").value = config.retailPrice ?? 650;
 
+  const s5 = config.s5 || { priceAv: 792.96, commAv: 15.0, priceCak: 744.87, commCak: 14.6, priceSup: 612.94, commSup: 12.5, cargo: 110 };
+  document.getElementById("s5_price_av").value = s5.priceAv ?? 792.96;
+  document.getElementById("s5_comm_av").value = s5.commAv ?? 15.0;
+  document.getElementById("s5_price_cak").value = s5.priceCak ?? 744.87;
+  document.getElementById("s5_comm_cak").value = s5.commCak ?? 14.6;
+  document.getElementById("s5_price_sup").value = s5.priceSup ?? 612.94;
+  document.getElementById("s5_comm_sup").value = s5.commSup ?? 12.5;
+  document.getElementById("s5_cargo").value = s5.cargo ?? 110;
+
   const ty = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
   const hb = config.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
   const iy = config.channels?.iyzico || { commission: 4, discount: 0, cargo: 110 };
@@ -425,6 +440,16 @@ function saveInputsToCurrentVolumeConfig() {
   
   config.webSalePrice = parseFloat(document.getElementById("s2_web_price").value) || 500;
   config.retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 650;
+
+  config.s5 = {
+    priceAv: parseFloat(document.getElementById("s5_price_av").value) || 0,
+    commAv: parseFloat(document.getElementById("s5_comm_av").value) || 15,
+    priceCak: parseFloat(document.getElementById("s5_price_cak").value) || 0,
+    commCak: parseFloat(document.getElementById("s5_comm_cak").value) || 14.6,
+    priceSup: parseFloat(document.getElementById("s5_price_sup").value) || 0,
+    commSup: parseFloat(document.getElementById("s5_comm_sup").value) || 12.5,
+    cargo: parseFloat(document.getElementById("s5_cargo").value) || 110
+  };
 
   config.channels = {
     trendyol: {
@@ -653,45 +678,82 @@ function calculateSystem5Modal() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  // Update active volume badge in System 5 header
+  const badgeEl = document.getElementById("s5-active-volume-badge");
+  if (badgeEl) {
+    badgeEl.innerText = `Seçili Ambalaj: ${activeVolume}`;
+  }
+
   const costPerKg = getModalCostPerKg();
-  const avDisc = parseFloat(document.getElementById("s5_disc_av").value) || 10;
-  const cakDisc = parseFloat(document.getElementById("s5_disc_cak").value) || 18;
-  const supDisc = parseFloat(document.getElementById("s5_disc_sup").value) || 30;
-  const comm = parseFloat(document.getElementById("s5_comm").value) || 19;
+  const packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(costPerKg, activeVolume, packagingCost);
   const cargo = parseFloat(document.getElementById("s5_cargo").value) || 110;
 
-  const matrix = PriceCalculator.calculateSystem5CampaignMatrix(costPerKg, avDisc, cakDisc, supDisc, comm, cargo);
+  // 1. Avantajlı
+  const priceAv = parseFloat(document.getElementById("s5_price_av").value) || 0;
+  const commAv = parseFloat(document.getElementById("s5_comm_av").value) || 15;
+  const commAmtAv = priceAv * (commAv / 100);
+  const payoutAv = priceAv - commAmtAv - cargo;
+  const profitAv = payoutAv - unitCost;
 
-  const tbody = document.getElementById("s5-matrix-tbody");
-  if (!tbody) return;
+  // 2. Çok Avantajlı
+  const priceCak = parseFloat(document.getElementById("s5_price_cak").value) || 0;
+  const commCak = parseFloat(document.getElementById("s5_comm_cak").value) || 14.6;
+  const commAmtCak = priceCak * (commCak / 100);
+  const payoutCak = priceCak - commAmtCak - cargo;
+  const profitCak = payoutCak - unitCost;
 
-  tbody.innerHTML = "";
-  matrix.forEach(row => {
-    const formatCell = (tier) => {
-      const isLoss = tier.profit < 0;
-      const badgeColor = isLoss ? "bg-rose-950/80 text-rose-300 border-rose-800/50" : "bg-emerald-950/80 text-emerald-300 border-emerald-800/50";
-      const profitText = isLoss ? `⚠️ ZARAR ${PriceCalculator.formatTL(tier.profit)}` : `+${PriceCalculator.formatTL(tier.profit)}`;
-      return `
-        <div class="space-y-1">
-          <div class="font-bold text-white">${PriceCalculator.formatTL(tier.price)}</div>
-          <div class="text-[10px] text-slate-400">Hakediş: ${PriceCalculator.formatTL(tier.payout)}</div>
-          <div class="text-[10px] font-bold px-1.5 py-0.5 rounded border inline-block ${badgeColor}">${profitText}</div>
-        </div>
-      `;
-    };
+  // 3. Süper Avantajlı
+  const priceSup = parseFloat(document.getElementById("s5_price_sup").value) || 0;
+  const commSup = parseFloat(document.getElementById("s5_comm_sup").value) || 12.5;
+  const commAmtSup = priceSup * (commSup / 100);
+  const payoutSup = priceSup - commAmtSup - cargo;
+  const profitSup = payoutSup - unitCost;
 
-    const tr = `
-      <tr class="hover:bg-slate-900/60 transition-colors">
-        <td class="p-3 font-bold text-white border-r border-slate-800">${row.volume}</td>
-        <td class="p-3 text-slate-300 border-r border-slate-800">${PriceCalculator.formatTL(row.unitCost)}</td>
-        <td class="p-3 font-bold text-slate-200 border-r border-slate-800">${PriceCalculator.formatTL(row.baseListPrice)}</td>
-        <td class="p-3 border-r border-slate-800 bg-emerald-950/10">${formatCell(row.av)}</td>
-        <td class="p-3 border-r border-slate-800 bg-amber-950/10">${formatCell(row.cak)}</td>
-        <td class="p-3 bg-rose-950/10">${formatCell(row.sup)}</td>
-      </tr>
-    `;
-    tbody.insertAdjacentHTML("beforeend", tr);
-  });
+  // Render Avantajlı Card
+  document.getElementById("s5_res_price_av").innerText = PriceCalculator.formatTL(priceAv);
+  document.getElementById("s5_res_comm_av").innerText = `-${PriceCalculator.formatTL(commAmtAv)}`;
+  document.getElementById("s5_res_cargo_av").innerText = `-${PriceCalculator.formatTL(cargo)}`;
+  document.getElementById("s5_res_payout_av").innerText = PriceCalculator.formatTL(payoutAv);
+  document.getElementById("s5_res_cost_av").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
+  const elProfAv = document.getElementById("s5_res_profit_av");
+  if (profitAv < 0) {
+    elProfAv.className = "val font-black text-rose-400 text-sm";
+    elProfAv.innerText = `⚠️ ZARAR ${PriceCalculator.formatTL(profitAv)}`;
+  } else {
+    elProfAv.className = "val font-black text-emerald-400 text-sm";
+    elProfAv.innerText = `+${PriceCalculator.formatTL(profitAv)}`;
+  }
+
+  // Render Çok Avantajlı Card
+  document.getElementById("s5_res_price_cak").innerText = PriceCalculator.formatTL(priceCak);
+  document.getElementById("s5_res_comm_cak").innerText = `-${PriceCalculator.formatTL(commAmtCak)}`;
+  document.getElementById("s5_res_cargo_cak").innerText = `-${PriceCalculator.formatTL(cargo)}`;
+  document.getElementById("s5_res_payout_cak").innerText = PriceCalculator.formatTL(payoutCak);
+  document.getElementById("s5_res_cost_cak").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
+  const elProfCak = document.getElementById("s5_res_profit_cak");
+  if (profitCak < 0) {
+    elProfCak.className = "val font-black text-rose-400 text-sm";
+    elProfCak.innerText = `⚠️ ZARAR ${PriceCalculator.formatTL(profitCak)}`;
+  } else {
+    elProfCak.className = "val font-black text-emerald-400 text-sm";
+    elProfCak.innerText = `+${PriceCalculator.formatTL(profitCak)}`;
+  }
+
+  // Render Süper Avantajlı Card
+  document.getElementById("s5_res_price_sup").innerText = PriceCalculator.formatTL(priceSup);
+  document.getElementById("s5_res_comm_sup").innerText = `-${PriceCalculator.formatTL(commAmtSup)}`;
+  document.getElementById("s5_res_cargo_sup").innerText = `-${PriceCalculator.formatTL(cargo)}`;
+  document.getElementById("s5_res_payout_sup").innerText = PriceCalculator.formatTL(payoutSup);
+  document.getElementById("s5_res_cost_sup").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
+  const elProfSup = document.getElementById("s5_res_profit_sup");
+  if (profitSup < 0) {
+    elProfSup.className = "val font-black text-rose-400 text-sm";
+    elProfSup.innerText = `⚠️ ZARAR ${PriceCalculator.formatTL(profitSup)}`;
+  } else {
+    elProfSup.className = "val font-black text-emerald-400 text-sm";
+    elProfSup.innerText = `+${PriceCalculator.formatTL(profitSup)}`;
+  }
 }
 
 async function saveCurrentProductSlot() {
@@ -711,7 +773,7 @@ async function saveCurrentProductSlot() {
   renderProductGrid();
   renderStats();
 
-  showToast(`${product.name} İçin Tüm Ayarlar ve Kampanya Etiketleri Saklandı! ☁️✅`);
+  showToast(`${product.name} İçin Tüm Ayarlar ve Trendyol Teklif Fiyatları Saklandı! ☁️✅`);
 }
 
 function resetCatalog() {
