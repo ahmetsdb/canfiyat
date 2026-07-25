@@ -73,10 +73,11 @@
             </div>
         </header>
 
-        <!-- Controls: Category Filter & Search Bar -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80">
+        <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
+        <div class="flex flex-col lg:flex-row gap-4 justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80">
+            
             <!-- Category Tabs -->
-            <div class="flex flex-wrap gap-1.5 w-full sm:w-auto">
+            <div class="flex flex-wrap gap-1.5 w-full lg:w-auto">
                 <button id="cat-tab-all" onclick="filterCategory('all')" class="cat-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-blue-600 text-white">
                     Tüm Ürünler (65)
                 </button>
@@ -88,21 +89,40 @@
                 </button>
             </div>
 
-            <!-- Search Input -->
-            <div class="relative w-full sm:w-80">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <!-- View Mode Switcher (Satır vs Kart) -->
+                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        Satır / Tablo
+                    </button>
+                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                        Kartlar
+                    </button>
                 </div>
-                <input type="text" id="search-input" placeholder="Ürün adı veya Stok Kodu (SKU) ara..." class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+
+                <!-- Search Input -->
+                <div class="relative w-full sm:w-72">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                </div>
             </div>
+
         </div>
 
-        <!-- Main Product Grid Container -->
+        <!-- Main Product Stream Container (Default Row/Table View) -->
         <main>
-            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Product cards render dynamically via app.js -->
+            <div id="product-grid" class="flex flex-col gap-3 w-full">
+                <!-- Product rows render dynamically via app.js -->
             </div>
         </main>
     </div>
