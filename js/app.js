@@ -103,14 +103,9 @@ function getVolumeConfig(product, volKey) {
     product.volumes[volKey] = {
       packagingCost: DEFAULT_PACKAGING_COSTS[volKey] || 14.50,
       targetProfit: 70,
-      webSalePrice: 500,
-      retailPrice: 650,
-      s5: {
-        priceAv: 792.96, commAv: 15.0,
-        priceCak: 744.87, commCak: 14.6,
-        priceSup: 612.94, commSup: 12.5,
-        cargo: 110
-      },
+      webSalePrice: null,
+      retailPrice: null,
+      s5: null,
       channels: {
         trendyol: { commission: 19, discount: 0, cargo: 110 },
         hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -120,6 +115,7 @@ function getVolumeConfig(product, volKey) {
   }
   return product.volumes[volKey];
 }
+
 
 function renderProductGrid() {
   const container = document.getElementById("product-grid");
@@ -376,20 +372,40 @@ function selectModalVolumeDropdown(volKey) {
 function loadActiveVolumeConfig(product, volKey) {
   const config = getVolumeConfig(product, volKey);
 
-  document.getElementById("slot-packaging-cost").value = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
-  document.getElementById("slot-target-profit").value = config.targetProfit ?? 70;
-  
-  document.getElementById("s2_web_price").value = config.webSalePrice ?? 500;
-  document.getElementById("s4_retail_price").value = config.retailPrice ?? 650;
+  const packCost = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
+  const targetProfit = config.targetProfit ?? 70;
+  const tyChannel = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
 
-  const s5 = config.s5 || { priceAv: 792.96, commAv: 15.0, priceCak: 744.87, commCak: 14.6, priceSup: 612.94, commSup: 12.5, cargo: 110 };
-  document.getElementById("s5_price_av").value = s5.priceAv ?? 792.96;
-  document.getElementById("s5_comm_av").value = s5.commAv ?? 15.0;
-  document.getElementById("s5_price_cak").value = s5.priceCak ?? 744.87;
-  document.getElementById("s5_comm_cak").value = s5.commCak ?? 14.6;
-  document.getElementById("s5_price_sup").value = s5.priceSup ?? 612.94;
-  document.getElementById("s5_comm_sup").value = s5.commSup ?? 12.5;
-  document.getElementById("s5_cargo").value = s5.cargo ?? 110;
+  const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volKey, packCost);
+  const s1TyRes = PriceCalculator.calculateSystem1Channel({
+    wholesaleCost: unitCost,
+    targetProfit: targetProfit,
+    commission: tyChannel.commission || 19,
+    discount: tyChannel.discount || 0,
+    cargo: tyChannel.cargo || 110
+  });
+
+  const baseTyPrice = s1TyRes.listPrice;
+
+  document.getElementById("slot-packaging-cost").value = packCost;
+  document.getElementById("slot-target-profit").value = targetProfit;
+  
+  document.getElementById("s2_web_price").value = config.webSalePrice ?? parseFloat((baseTyPrice * 0.85).toFixed(2));
+  document.getElementById("s4_retail_price").value = config.retailPrice ?? baseTyPrice;
+
+  const s5 = config.s5 || {};
+  const defaultAvPrice = parseFloat((baseTyPrice * 0.90).toFixed(2));  // 🟢 1. Avantajlı %10 indirimli teklif
+  const defaultCakPrice = parseFloat((baseTyPrice * 0.82).toFixed(2)); // 🟡 2. Çok Avantajlı %18 indirimli teklif
+  const defaultSupPrice = parseFloat((baseTyPrice * 0.70).toFixed(2)); // 🔴 3. Süper Avantajlı %30 indirimli teklif
+
+  document.getElementById("s5_price_av").value = s5.priceAv ?? defaultAvPrice;
+  document.getElementById("s5_comm_av").value = s5.commAv ?? 19.0;
+  document.getElementById("s5_price_cak").value = s5.priceCak ?? defaultCakPrice;
+  document.getElementById("s5_comm_cak").value = s5.commCak ?? 19.0;
+  document.getElementById("s5_price_sup").value = s5.priceSup ?? defaultSupPrice;
+  document.getElementById("s5_comm_sup").value = s5.commSup ?? 19.0;
+  document.getElementById("s5_cargo").value = s5.cargo ?? (tyChannel.cargo || 110);
+
 
   const ty = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
   const hb = config.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
