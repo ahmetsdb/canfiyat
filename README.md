@@ -55,7 +55,7 @@ Ahmet hiç kod açmadan tarayıcıdan test etmek isterse:
 
 ### 📂 2. GitHub Repositori Bağlantısı
 Projenin tüm kaynak kodları ve geçmiş sürümleri GitHub üzerindedir:
-👉 **[https://github.com/busyarch/canfiyat.git](https://github.com/busyarch/canfiyat.git)**
+👉 **[https://github.com/ahmetsdb/canfiyat.git](https://github.com/ahmetsdb/canfiyat.git)**
 
 ---
 
@@ -64,18 +64,18 @@ Projenin tüm kaynak kodları ve geçmiş sürümleri GitHub üzerindedir:
 Ahmet kendi Google Antigravity ortamında bu projeyi açarken Antigravity Chat ekranına şu komutu/istemi verebilir:
 
 ```bash
-git clone https://github.com/busyarch/canfiyat.git
+git clone https://github.com/ahmetsdb/canfiyat.git
 ```
 
 **Antigravity AI Prompt Örneği (Ahmet için):**
-> *"Antigravity, https://github.com/busyarch/canfiyat.git reposunu workspace'e klonla. Proje statik bir HTML/JS/Tailwind projesidir. Projeyi incele ve bir dev server (npx serve / npm run dev) başlatarak canlı önizlemesini göster."*
+> *"Antigravity, https://github.com/ahmetsdb/canfiyat.git reposunu workspace'e klonla. Proje statik bir HTML/JS/Tailwind projesidir. Projeyi incele ve bir dev server (npx serve / npm run dev) başlatarak canlı önizlemesini göster."*
 
 ### 🛠️ 4. Yerel Bilgisayarda Çalıştırma Komutları
 Eğer Ahmet projeyi kendi bilgisayarında yerel olarak çalıştırmak isterse:
 
 ```bash
 # 1. Repoyu klonlayın
-git clone https://github.com/busyarch/canfiyat.git
+git clone https://github.com/ahmetsdb/canfiyat.git
 
 # 2. Proje klasörüne girin
 cd canfiyat
