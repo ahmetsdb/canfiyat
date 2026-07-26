@@ -1,4 +1,4 @@
-# 💧 CanFiyat - Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı (v1.14 Trendyol Simülatör)
+# 💧 CanFiyat - Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı (v1.15 Pro Simülatör)
 
 CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi için özel olarak geliştirilmiş; **Toptan Ham Yağ Alış Fiyatı (1KG ₺)**, **Ambalaj/Şişe Boyutları (20ml - 1000ml)** ve **Pazaryeri Kesintileri (Trendyol, Hepsiburada, İyzico)** üzerinden anlık hakediş ve net kâr hesaplayan, bulut senkronizasyonlu profesyonel bir finansal simülasyon portalıdır.
 
@@ -95,6 +95,7 @@ npx serve ./
 * **v1.12:** Ambalaj boyutu sekmelerinin pencere üstüne sabitlenerek kalıcı hale getirilmesi.
 * **v1.13 Kompakt:** Ambalaj seçiminin dikey yer kaplamayan açılır menüye (Dropdown) dönüştürülmesi ve tüm ekranın kaydırma gerektirmeden tek bakışta görünecek şekilde kompaktlaştırılması.
 * **v1.14 Trendyol Simülatör:** Trendyol Teklif Simülatörü varsayılan komisyonunun %19 yapılması ve seçilen ambalaj boyutuna (ml) özel dinamik teklif fiyatlarının entegrasyonu.
+* **v1.15 Pro Simülatör:** Ahmet GitHub hesabı entegrasyonu, kişisel Vercel canlı yayını ve anlık otomasyon güncellemeleri.
 
 ---
 *CanFiyat Portal Documentation & User Guide - Created for Cansızzade Team & Ahmet* 💧
