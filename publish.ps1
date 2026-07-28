@@ -25,7 +25,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         $nextMinor = [int]$matches[1] + 1
         $Version = "v1.$nextMinor"
     } else {
-        $Version = "v1.22"
+        $Version = "v1.23"
     }
 } else {
     if (-not $Version.StartsWith("v")) {
@@ -41,7 +41,7 @@ Write-Host "Commit Mesaji: $Msg" -ForegroundColor Yellow
 if (Test-Path $indexPath) {
     $indexContent = Get-Content $indexPath -Raw -Encoding UTF8
     $indexContent = $indexContent -replace 'v1\.\d+[^<]*', $Version
-    $indexContent = $indexContent -replace '\?v=v?1\.\d+', "?v=$Version"
+    $indexContent = $indexContent -replace '\?v=[^"]*"', "?v=${Version}`""
     Set-Content -Path $indexPath -Value $indexContent -Encoding UTF8
     Write-Host "index.html versiyon rozeti ve script cache-busting etiketleri guncellendi." -ForegroundColor Green
 }
