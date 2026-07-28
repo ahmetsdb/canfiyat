@@ -1,5 +1,5 @@
 param (
-    [string]$Msg = "Anlik yenileme ve bilesen guncellemesi",
+    [string]$Msg = "Kompakt guncellemeler ve oturum kaydi",
     [string]$Version = "",
     [string]$DeployHook = ""
 )
@@ -25,7 +25,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         $nextMinor = [int]$matches[1] + 1
         $Version = "v1.$nextMinor"
     } else {
-        $Version = "v1.20"
+        $Version = "v1.22"
     }
 } else {
     if (-not $Version.StartsWith("v")) {
@@ -51,14 +51,17 @@ $readmeContent = $readmeContent -replace '\(v1\.\d+[^\)]*\)', "($Version)"
 Set-Content -Path $readmePath -Value $readmeContent -Encoding UTF8
 Write-Host "README.md versiyon bilgisi guncellendi." -ForegroundColor Green
 
-# Git Add, Commit & Push (Both main and master branches)
+# Git Add & Commit
 $commitTitle = "$Version : $Msg"
 & $gitExe add .
 & $gitExe commit -m "$commitTitle"
-& $gitExe push origin main
-& $gitExe push origin main:master
 
-# Vercel Deploy Hook (Anlik Otomatik Yayina Alma Webhook'u)
+# Push to busyarch and ahmetsdb GitHub repositories
+Write-Host "GitHub repolarina (busyarch & ahmetsdb) push yapiliyor..." -ForegroundColor Cyan
+& $gitExe push origin main
+& $gitExe push ahmetsdb main
+
+# Vercel Deploy Hook
 if ([string]::IsNullOrWhiteSpace($DeployHook) -and (Test-Path $hookPath)) {
     $DeployHook = (Get-Content $hookPath -Raw).Trim()
 }
@@ -73,4 +76,4 @@ if (-not [string]::IsNullOrWhiteSpace($DeployHook)) {
     }
 }
 
-Write-Host "Basariyla commit edildi ve GitHub main & master dallarina push yapildi!" -ForegroundColor Green
+Write-Host "Basariyla commit edildi ve GitHub repolarina push yapildi ($Version)!" -ForegroundColor Green
