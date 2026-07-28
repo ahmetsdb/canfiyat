@@ -409,7 +409,7 @@ function loadActiveVolumeConfig(product, volKey) {
 
   const ty = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
   const hb = config.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
-  const iy = config.channels?.iyzico || { commission: 4, discount: 0, cargo: 110 };
+  const iy = config.channels?.iyzico || { commission: 4, discount: 0, cargo: 82.50 };
 
   document.getElementById("s1_comm_ty").value = ty.commission;
   document.getElementById("s1_disc_ty").value = ty.discount;

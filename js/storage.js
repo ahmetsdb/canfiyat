@@ -25,7 +25,7 @@ class StorageManager {
         channels: {
           trendyol: { commission: 19, discount: 0, cargo: 110 },
           hepsiburada: { commission: 17, discount: 0, cargo: 110 },
-          iyzico: { commission: 4, discount: 0, cargo: 110 }
+          iyzico: { commission: 4, discount: 0, cargo: 82.50 }
         }
       };
     });

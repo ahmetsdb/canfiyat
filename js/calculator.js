@@ -67,7 +67,7 @@ class PriceCalculator {
   }
 
   // SYSTEM 2: İyzico (Web) Fiyatından Diğer Pazaryerlerine Eşitleme
-  static calculateSystem2({ webSalePrice, unitCost, tyComm = 19, tyCargo = 110, hbComm = 17, hbCargo = 110, iyComm = 4, iyCargo = 110 }) {
+  static calculateSystem2({ webSalePrice, unitCost, tyComm = 19, tyCargo = 110, hbComm = 17, hbCargo = 110, iyComm = 4, iyCargo = 82.50 }) {
     const price = parseFloat(webSalePrice) || 0;
     const cost = parseFloat(unitCost) || 0;
     

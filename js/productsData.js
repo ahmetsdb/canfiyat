@@ -91,5 +91,5 @@ const DEFAULT_PACKAGING_COSTS = {
 const DEFAULT_CHANNEL_PRESETS = {
   trendyol: { commission: 19, discount: 0, cargo: 110 },
   hepsiburada: { commission: 17, discount: 0, cargo: 110 },
-  iyzico: { commission: 4, discount: 0, cargo: 110 }
+  iyzico: { commission: 4, discount: 0, cargo: 82.50 }
 };
