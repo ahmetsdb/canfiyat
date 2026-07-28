@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.39</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.40</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -709,16 +709,16 @@
                     </div>
                 </div>
 
-                <!-- Direct Overhead Per KG Output Field -->
+                <!-- Monthly Estimated Production Volume (KG) -->
                 <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/40 space-y-2">
                     <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                        🏭 1KG Yağ Başına Sabit Tesis & İşçilik/SGK Payı (₺/KG):
+                        ⚙️ Aylık Ortalama İmalat Hacmi / Paylama Oranı (KG):
                     </label>
                     <div class="flex items-center gap-2">
-                        <input type="number" id="overhead-direct-per-kg" value="35" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-emerald-500/50 text-emerald-300 font-black text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400">
-                        <span class="font-bold text-slate-300 text-sm">₺/KG</span>
+                        <input type="number" id="overhead-capacity" value="8714" min="1" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-emerald-500/50 text-emerald-300 font-black text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                        <span class="font-bold text-slate-300 text-sm">KG</span>
                     </div>
-                    <p class="text-[10.5px] text-slate-400">1KG yağa eklenen sabit tesis gideri payı.</p>
+                    <p class="text-[10.5px] text-slate-400">Aylık toplam tesis ve işçilik gideri bu imalat kilosuna bölünerek 1KG yağa düşen pay otomatik hesaplanır.</p>
                 </div>
 
                 <!-- Calculation Summary Preview Banner -->
@@ -749,10 +749,10 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.39"></script>
-    <script src="js/storage.js?v=1.39"></script>
-    <script src="js/calculator.js?v=1.39"></script>
-    <script src="js/app.js?v=1.39"></script>
+    <script src="js/productsData.js?v=1.40"></script>
+    <script src="js/storage.js?v=1.40"></script>
+    <script src="js/calculator.js?v=1.40"></script>
+    <script src="js/app.js?v=1.40"></script>
 </body>
 </html>
 
