@@ -1,0 +1,19 @@
+{
+  "name": "canfiyat",
+  "version": "1.15.0",
+  "description": "Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı",
+  "main": "server.js",
+  "scripts": {
+    "dev": "npx serve ./",
+    "push": "powershell -ExecutionPolicy Bypass -File ./publish.ps1"
+  },
+  "keywords": [
+    "cansizzade",
+    "canfiyat",
+    "trendyol",
+    "hepsiburada",
+    "simulator"
+  ],
+  "author": "Ahmet",
+  "license": "ISC"
+}
