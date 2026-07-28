@@ -1,6 +1,7 @@
 // CanFiyat Portal Main Application Logic (v1.13) - Ultra Compact Dropdown & Fit-on-Screen Layout
 
 let currentProducts = {};
+let currentLayerMode = 1; // 1: Satış & Kârlılık, 2: Saf Üretim Maliyeti
 let activeCategory = "all";
 let searchQuery = "";
 let selectedProductId = null;
@@ -25,14 +26,26 @@ document.addEventListener("DOMContentLoaded", () => {
 function initApp() {
   currentProducts = StorageManager.getProducts();
   renderStats();
-  renderProductGrid();
+  if (currentLayerMode === 1) {
+    renderProductGrid();
+  } else {
+    renderLayer2Cards();
+  }
   setupEventListeners();
 
   // Async sync with Supabase Cloud DB
   StorageManager.fetchFromSupabase((cloudMap) => {
-    currentProducts = cloudMap;
+    if (cloudMap && Object.keys(cloudMap).length > 0) {
+      currentProducts = cloudMap;
+    } else {
+      currentProducts = StorageManager.getProducts();
+    }
     renderStats();
-    renderProductGrid();
+    if (currentLayerMode === 1) {
+      renderProductGrid();
+    } else {
+      renderLayer2Cards();
+    }
     console.log("Synced latest product slot state from Supabase Cloud DB!");
   });
 }
@@ -797,4 +810,321 @@ function showToast(message) {
   setTimeout(() => {
     toast.remove();
   }, 3505);
+}
+
+// =========================================================================
+// LAYER 2: SAF ÜRETİM MALİYETİ & FABRİKA GİDER MİMARİSİ
+// =========================================================================
+
+function switchLayerMode(mode) {
+  currentLayerMode = mode;
+
+  const btn1 = document.getElementById("layer-btn-1");
+  const btn2 = document.getElementById("layer-btn-2");
+  const view1 = document.getElementById("layer1-main-view");
+  const view2 = document.getElementById("layer2-main-view");
+  const btnOverhead = document.getElementById("btn-factory-overhead");
+
+  if (mode === 1) {
+    if (btn1) btn1.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/25";
+    if (btn2) btn2.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+    
+    if (view1) view1.classList.remove("hidden");
+    if (view2) view2.classList.add("hidden");
+    if (btnOverhead) btnOverhead.classList.add("hidden");
+
+    renderProductGrid();
+  } else {
+    if (btn1) btn1.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+    if (btn2) btn2.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-emerald-600 text-white shadow-lg shadow-emerald-500/25";
+
+    if (view1) view1.classList.add("hidden");
+    if (view2) view2.classList.remove("hidden");
+    if (btnOverhead) {
+      btnOverhead.classList.remove("hidden");
+      btnOverhead.classList.add("flex");
+    }
+
+    updateLayer2BannerStats();
+    renderLayer2Cards();
+  }
+}
+
+function updateLayer2BannerStats() {
+  const overhead = StorageManager.getFactoryOverhead();
+  const res = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
+  
+  const elKg = document.getElementById("l2-stat-overhead-per-kg");
+  if (elKg) elKg.innerText = `${PriceCalculator.formatTL(res.overheadPerKg)}/KG`;
+}
+
+function openFactoryOverheadModal() {
+  const overhead = StorageManager.getFactoryOverhead();
+  
+  const inputDirect = document.getElementById("overhead-direct-per-kg");
+  if (inputDirect) inputDirect.value = overhead.overheadPerKg || 35;
+
+  recalculateFactoryOverheadModal();
+
+  const modal = document.getElementById("factory-overhead-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+}
+
+function closeFactoryOverheadModal() {
+  const modal = document.getElementById("factory-overhead-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+function recalculateFactoryOverheadModal() {
+  const inputDirect = document.getElementById("overhead-direct-per-kg");
+  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
+
+  const res = PriceCalculator.calculateFactoryOverheadPerKg({ overheadPerKg: directVal });
+
+  const modalTotal = document.getElementById("modal-overhead-total");
+  if (modalTotal) modalTotal.innerText = `${PriceCalculator.formatTL(res.overheadPerKg)} / KG`;
+}
+
+function saveFactoryOverheadModal() {
+  const inputDirect = document.getElementById("overhead-direct-per-kg");
+  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
+
+  const overheadConfig = {
+    overheadPerKg: directVal
+  };
+
+  StorageManager.saveFactoryOverhead(overheadConfig);
+  closeFactoryOverheadModal();
+
+  updateLayer2BannerStats();
+  renderLayer2Cards();
+
+  showToast("1KG Yağ Başına Sabit Tesis Payı Kaydedildi! 🏭✅");
+}
+
+let openLayer2Breakdowns = {};
+
+function toggleLayer2Breakdown(productId) {
+  openLayer2Breakdowns[productId] = !openLayer2Breakdowns[productId];
+  renderLayer2Cards();
+}
+
+function renderLayer2Cards() {
+  const containerGrid = document.getElementById("layer2-product-grid");
+  const containerRows = document.getElementById("layer2-product-rows");
+  if (!containerGrid || !containerRows) return;
+
+  containerGrid.innerHTML = "";
+  containerRows.innerHTML = "";
+
+  if (viewMode === "rows") {
+    containerRows.classList.remove("hidden");
+    containerGrid.classList.add("hidden");
+  } else {
+    containerGrid.classList.remove("hidden");
+    containerRows.classList.add("hidden");
+  }
+
+  const productsList = Object.values(currentProducts).filter(p => {
+    if (!p || typeof p.name !== "string" || typeof p.sku !== "string") return false;
+    const matchesCat = (activeCategory === "all") || (p.category === activeCategory);
+    const pName = (p.name || "").toLowerCase();
+    const pSku = (p.sku || "").toLowerCase();
+    const matchesSearch = pName.includes(searchQuery) || pSku.includes(searchQuery);
+    return matchesCat && matchesSearch;
+  });
+
+  const overhead = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
+
+  productsList.forEach(product => {
+    const seedCost = product.seedCostPerKg || (product.costPerKg ? (product.costPerKg * 0.25) : 50);
+    const yieldPercent = product.yieldPercent || 25;
+    const vol = product.layer2Volume || "1000ml";
+    const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
+
+    const trueCostRes = PriceCalculator.calculateTrueProductionCost({
+      seedCostPerKg: seedCost,
+      yieldPercent: yieldPercent,
+      volumeStr: vol,
+      packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
+      overheadPerKg: overheadRes.overheadPerKg
+    });
+
+    const badgeClass = product.category === "Uçucu Yağlar"
+      ? "bg-purple-950/80 text-purple-300 border-purple-800/60"
+      : "bg-emerald-950/80 text-emerald-300 border-emerald-800/60";
+
+    if (viewMode === "rows") {
+      const rowHtml = `
+        <div class="glass-card rounded-xl p-3 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-950">
+          <div class="flex items-center gap-2.5 min-w-[240px]">
+            <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+              ${product.sku}
+            </span>
+            <div>
+              <h3 class="text-xs font-bold text-white">
+                ${product.name}
+              </h3>
+              <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full border ${badgeClass}">
+                ${product.category}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-400 font-semibold">Tohum:</span>
+              <input type="number" value="${seedCost}" min="0" step="any" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none">
+              <span class="text-[10px] text-slate-400">₺/KG</span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-400 font-semibold">Verim:</span>
+              <input type="number" value="${yieldPercent}" min="1" max="100" step="any" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none">
+              <span class="text-[10px] text-slate-400">%</span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none">
+                <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000ml (1KG)</option>
+                <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500ml</option>
+                <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250ml</option>
+                <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100ml</option>
+                <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50ml</option>
+                <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30ml</option>
+                <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20ml</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-500/30">
+            <div>
+              <span class="text-[9px] uppercase font-bold text-emerald-400 block">SAF NET MALİYET:</span>
+              <span class="text-sm font-black text-emerald-300">${PriceCalculator.formatTL(trueCostRes.trueProductionCost)}</span>
+            </div>
+            <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-[10px] text-emerald-400 hover:text-white font-bold bg-slate-900 border border-emerald-500/40 px-2 py-1 rounded-lg transition-all">
+              ${isBreakdownOpen ? "▲ Dökümü Kapat" : "▼ Maliyet Dökümü"}
+            </button>
+          </div>
+        </div>
+
+        ${isBreakdownOpen ? `
+          <div class="bg-slate-950/90 p-3 rounded-xl border border-emerald-500/40 space-y-1 text-xs my-1 animate-slide-up">
+            <div class="flex justify-between items-center text-slate-300">
+              <span>1. 🌾 Saf Yağ Hammaddesi (1KG):</span>
+              <span class="font-bold text-amber-300">${PriceCalculator.formatTL(trueCostRes.rawOilCostPerKg)}/KG</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>2. 🏭 Sabit Tesis & İşçilik/SGK Payı:</span>
+              <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(trueCostRes.totalOilCostPerKg - trueCostRes.rawOilCostPerKg)}/KG</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>3. 🧴 Şişe & Ambalaj Maliyeti:</span>
+              <span class="font-bold text-blue-400">${PriceCalculator.formatTL(trueCostRes.packagingCost)}</span>
+            </div>
+          </div>
+        ` : ""}
+      `;
+
+      containerRows.insertAdjacentHTML("beforeend", rowHtml);
+
+    } else {
+      const cardHtml = `
+        <div class="glass-card rounded-2xl p-4 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between relative overflow-hidden transition-all bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
+                ${product.category}
+              </span>
+              <span class="font-mono text-[10px] font-semibold text-slate-400 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">
+                ${product.sku}
+              </span>
+            </div>
+
+            <h3 class="text-sm font-extrabold text-white tracking-tight mb-3">
+              ${product.name}
+            </h3>
+
+            <div class="grid grid-cols-2 gap-2 my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80">
+              <div>
+                <label class="text-slate-400 block text-[9.5px] font-semibold mb-1">🌾 Tohum Alış (₺/KG)</label>
+                <input type="number" value="${seedCost}" min="0" step="any" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none focus:border-amber-400">
+              </div>
+
+              <div>
+                <label class="text-slate-400 block text-[9.5px] font-semibold mb-1">⚙️ Yağ Verimi (%)</label>
+                <input type="number" value="${yieldPercent}" min="1" max="100" step="any" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-full bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none focus:border-emerald-400">
+              </div>
+            </div>
+
+            <div class="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
+              <label class="text-slate-300 text-[10.5px] font-bold">🧴 Maliyet Ambalajı:</label>
+              <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2.5 py-1 rounded-lg focus:outline-none">
+                <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG) ★ Ana</option>
+                <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
+                <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
+                <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
+                <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
+                <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
+                <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
+              </select>
+            </div>
+
+            <button onclick="toggleLayer2Breakdown('${product.id}')" class="w-full text-center py-1.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-[11px] font-bold text-emerald-400 transition-all flex items-center justify-center gap-1.5 my-2">
+              <span>${isBreakdownOpen ? "▲ Maliyet Dökümünü Gizle" : "▼ 🔍 Maliyet Dökümünü Göster"}</span>
+            </button>
+
+            ${isBreakdownOpen ? `
+              <div class="space-y-1.5 text-xs my-2 bg-slate-950/90 p-3 rounded-xl border border-emerald-500/30 animate-slide-up">
+                <div class="flex justify-between items-center text-slate-400 text-[11px]">
+                  <span>1. 🌾 Saf Yağ Hammaddesi:</span>
+                  <span class="font-bold text-amber-300">${PriceCalculator.formatTL(trueCostRes.rawOilCostPerKg)}/KG</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-400 text-[11px]">
+                  <span>2. 🏭 Sabit Tesis Payı:</span>
+                  <span class="font-bold text-emerald-400">+${PriceCalculator.formatTL(trueCostRes.totalOilCostPerKg - trueCostRes.rawOilCostPerKg)}/KG</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-400 text-[11px]">
+                  <span>3. 🧴 Şişe & Ambalaj Maliyeti:</span>
+                  <span class="font-bold text-blue-400">${PriceCalculator.formatTL(trueCostRes.packagingCost)}</span>
+                </div>
+              </div>
+            ` : ""}
+          </div>
+
+          <div class="mt-2 pt-3 border-t border-slate-800/80 flex items-center justify-between bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30">
+            <div>
+              <span class="text-[9px] uppercase font-bold text-emerald-400 block">SAF NET ÜRETİM MALİYETİ:</span>
+              <span class="text-lg font-black text-emerald-300">${PriceCalculator.formatTL(trueCostRes.trueProductionCost)}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] uppercase font-bold text-slate-400 block">Arifoğlu Rekabet Tabanı</span>
+              <span class="text-xs font-bold text-white">${PriceCalculator.formatTL(trueCostRes.trueProductionCost * 2.2)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      containerGrid.insertAdjacentHTML("beforeend", cardHtml);
+    }
+  });
+}
+
+async function updateLayer2ProductField(productId, field, value) {
+  const product = currentProducts[productId];
+  if (!product) return;
+
+  if (field === "seedCostPerKg") product.seedCostPerKg = parseFloat(value) || 0;
+  if (field === "yieldPercent") product.yieldPercent = parseFloat(value) || 25;
+  if (field === "layer2Volume") product.layer2Volume = value;
+
+  await StorageManager.saveProduct(product);
+  renderLayer2Cards();
 }

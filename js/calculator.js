@@ -195,6 +195,38 @@ class PriceCalculator {
     });
   }
 
+  static calculateFactoryOverheadPerKg(config = {}) {
+    const directOverhead = parseFloat(config.overheadPerKg) || 35.00;
+    return {
+      overheadPerKg: directOverhead
+    };
+  }
+
+  static calculateTrueProductionCost(params = {}) {
+    const seedCostPerKg = parseFloat(params.seedCostPerKg) || 0;
+    const yieldPercent = parseFloat(params.yieldPercent) || 25;
+    const volumeStr = params.volumeStr || "1000ml";
+    const packagingCost = parseFloat(params.packagingCost) || 14.50;
+    const overheadPerKg = parseFloat(params.overheadPerKg) || 35.00;
+
+    const rawOilCostPerKg = yieldPercent > 0 ? (seedCostPerKg / (yieldPercent / 100)) : 0;
+    const totalOilCostPerKg = rawOilCostPerKg + overheadPerKg;
+
+    const volNum = parseFloat(volumeStr.replace("ml", "")) || 1000;
+    const oilPortionCost = (totalOilCostPerKg / 1000) * volNum;
+
+    const trueProductionCost = oilPortionCost + packagingCost;
+
+    return {
+      rawOilCostPerKg: parseFloat(rawOilCostPerKg.toFixed(2)),
+      totalOilCostPerKg: parseFloat(totalOilCostPerKg.toFixed(2)),
+      oilPortionCost: parseFloat(oilPortionCost.toFixed(2)),
+      packagingCost: packagingCost,
+      overheadPerKg: overheadPerKg,
+      trueProductionCost: parseFloat(trueProductionCost.toFixed(2))
+    };
+  }
+
   static formatTL(val) {
     if (isNaN(val)) return "0.00 ₺";
     return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(val);

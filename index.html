@@ -46,12 +46,22 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.37 (Geri Yüklendi)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.38</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
                         </h1>
                         <p class="text-slate-400 text-xs font-medium">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
+                        
+                        <!-- Dual-Dashboard Header Switcher -->
+                        <div class="flex items-center gap-1.5 mt-2 bg-slate-950 p-1 rounded-xl border border-slate-800 w-fit">
+                            <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/25">
+                                🛡️ 1. Katman: Satış & Kârlılık Portalı
+                            </button>
+                            <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white">
+                                ⚔️ 2. Katman: Saf Üretim Maliyet Portalı
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -131,10 +141,47 @@
 
         </div>
 
-        <!-- Main Product Stream Container (Default Row/Table View) -->
-        <main>
+        <!-- Main Product Stream Container (Default Row/Table View for Layer 1) -->
+        <main id="layer1-main-view">
             <div id="product-grid" class="flex flex-col gap-2.5 w-full">
                 <!-- Product rows render dynamically via app.js -->
+            </div>
+        </main>
+
+        <!-- Layer 2: True Production Cost Workspace Container -->
+        <main id="layer2-main-view" class="hidden">
+            <!-- Summary Overhead Banner -->
+            <div class="glass-card rounded-2xl p-4 mb-4 border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-teal-950/40 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xl border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
+                        🏭
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            Fabrika Genel Gider & İşçilik Dahil Saf Maliyet Paneli
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50">2. Katman Aktif</span>
+                        </h3>
+                        <p class="text-slate-400 text-xs">5 Kişi Maaş/SGK, 20 Kafalı Makine Elektriği ve Mealbox Yemek Gideri Otomatik Oranlanır</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs">
+                    <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-emerald-500/40">
+                        <span class="text-emerald-400 block text-[9px] uppercase font-bold">1KG Yağ Başına Gider Payı</span>
+                        <span class="font-bold text-emerald-300 text-xs" id="l2-stat-overhead-per-kg">35,00 ₺/KG</span>
+                    </div>
+                    <button id="btn-factory-overhead" onclick="openFactoryOverheadModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center gap-1">
+                        ⚙️ Gider Düzenle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layer 2 Product Stream Containers (Row View vs Card View) -->
+            <div id="layer2-product-rows" class="hidden flex flex-col gap-2.5 w-full">
+                <!-- Layer 2 Row View Renders Dynamically -->
+            </div>
+            <div id="layer2-product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Layer 2 Industrial Production Cards Render Dynamically -->
             </div>
         </main>
     </div>
@@ -592,14 +639,71 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- FACTORY OVERHEAD CONFIGURATION MODAL (L2)  -->
+    <!-- ========================================== -->
+    <div id="factory-overhead-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="glass-card max-w-xl w-full rounded-2xl border border-emerald-500/40 shadow-2xl overflow-hidden flex flex-col my-auto">
+            <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/30">
+                        🏭
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white tracking-tight">Fabrika 1KG Sabit Gider Ayarları</h3>
+                        <p class="text-slate-400 text-[11px]">1KG saf yağa eklenecek doğrudan sabit tesis & işçilik payı</p>
+                    </div>
+                </div>
+                <button onclick="closeFactoryOverheadModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs bg-slate-900/90">
+                <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/40 space-y-2">
+                    <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        🏭 1KG Yağ Başına Sabit Tesis & İşçilik/SGK Payı (₺/KG):
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="overhead-direct-per-kg" value="35" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-emerald-500/50 text-emerald-300 font-black text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                        <span class="font-bold text-slate-300 text-sm">₺/KG</span>
+                    </div>
+                    <p class="text-[10.5px] text-slate-400">5 Personel maaşı, SGK primleri, 20 kafalı makine elektriği ve yemek giderleri için 1KG yağa eklenecek sabit tesis payı.</p>
+                </div>
+
+                <div class="bg-gradient-to-r from-emerald-950 to-teal-950 p-3.5 rounded-xl border border-emerald-500/50 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Saf Üretim Maliyetine Eklenen Tesis Payı:</span>
+                        <span class="text-base font-black text-white" id="modal-overhead-total">35,00 ₺ / KG</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Durum:</span>
+                        <span class="text-xs font-bold text-emerald-300">✅ Hacimsiz Doğrudan Tesis Payı</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 border-t border-slate-800 flex items-center justify-between bg-slate-950">
+                <button onclick="closeFactoryOverheadModal()" class="text-xs font-semibold text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                    İptal
+                </button>
+                <button onclick="saveFactoryOverheadModal()" class="text-xs font-bold text-white px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/25 flex items-center gap-1.5 transition-all">
+                    GİDERİ KAYDET & UYGULA
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.37"></script>
-    <script src="js/storage.js?v=1.37"></script>
-    <script src="js/calculator.js?v=1.37"></script>
-    <script src="js/app.js?v=1.37"></script>
+    <script src="js/productsData.js?v=1.38"></script>
+    <script src="js/storage.js?v=1.38"></script>
+    <script src="js/calculator.js?v=1.38"></script>
+    <script src="js/app.js?v=1.38"></script>
 </body>
 </html>
 

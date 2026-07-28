@@ -186,4 +186,18 @@ class StorageManager {
   static saveGlobalSettings(settings) {
     localStorage.setItem(STORAGE_KEYS.GLOBAL_SETTINGS, JSON.stringify(settings));
   }
+
+  static getFactoryOverhead() {
+    try {
+      const stored = localStorage.getItem("canfiyat_factory_overhead");
+      if (!stored) return { overheadPerKg: 35.00 };
+      return JSON.parse(stored);
+    } catch (e) {
+      return { overheadPerKg: 35.00 };
+    }
+  }
+
+  static saveFactoryOverhead(overheadConfig) {
+    localStorage.setItem("canfiyat_factory_overhead", JSON.stringify(overheadConfig));
+  }
 }
