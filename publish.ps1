@@ -25,7 +25,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         $nextMinor = [int]$matches[1] + 1
         $Version = "v1.$nextMinor"
     } else {
-        $Version = "v1.23"
+        $Version = "v1.24"
     }
 } else {
     if (-not $Version.StartsWith("v")) {
@@ -56,10 +56,9 @@ $commitTitle = "$Version : $Msg"
 & $gitExe add .
 & $gitExe commit -m "$commitTitle"
 
-# Push to busyarch and ahmetsdb GitHub repositories
-Write-Host "GitHub repolarina (busyarch & ahmetsdb) push yapiliyor..." -ForegroundColor Cyan
+# Push strictly to ahmetsdb GitHub repository (origin)
+Write-Host "GitHub reposuna (ahmetsdb/canfiyat) push yapiliyor..." -ForegroundColor Cyan
 & $gitExe push origin main
-& $gitExe push ahmetsdb main
 
 # Vercel Deploy Hook
 if ([string]::IsNullOrWhiteSpace($DeployHook) -and (Test-Path $hookPath)) {
@@ -76,4 +75,4 @@ if (-not [string]::IsNullOrWhiteSpace($DeployHook)) {
     }
 }
 
-Write-Host "Basariyla commit edildi ve GitHub repolarina push yapildi ($Version)!" -ForegroundColor Green
+Write-Host "Basariyla commit edildi ve GitHub (ahmetsdb/canfiyat) reposuna push yapildi ($Version)!" -ForegroundColor Green
