@@ -19,7 +19,7 @@ $indexPath = Join-Path $PSScriptRoot "index.html"
 $readmeContent = Get-Content $readmePath -Raw -Encoding UTF8
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    if ($readmeContent -match 'v1\.(\d+)') {
+    if ($readmeContent -match '\(v1\.(\d+)\)') {
         $nextMinor = [int]$matches[1] + 1
         $Version = "v1.$nextMinor"
     } else {
@@ -43,8 +43,8 @@ if (Test-Path $indexPath) {
     Write-Host "index.html versiyon rozeti guncellendi." -ForegroundColor Green
 }
 
-# Update README.md version
-$readmeContent = $readmeContent -replace 'v1\.\d+[^`]*', $Version
+# Update README.md title version safely
+$readmeContent = $readmeContent -replace '\(v1\.\d+[^\)]*\)', "($Version)"
 Set-Content -Path $readmePath -Value $readmeContent -Encoding UTF8
 Write-Host "README.md versiyon bilgisi guncellendi." -ForegroundColor Green
 
