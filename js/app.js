@@ -854,15 +854,22 @@ function updateLayer2BannerStats() {
   const overhead = StorageManager.getFactoryOverhead();
   const res = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
   
+  const elTotal = document.getElementById("l2-stat-total-overhead");
   const elKg = document.getElementById("l2-stat-overhead-per-kg");
+
+  if (elTotal) elTotal.innerText = PriceCalculator.formatTL(res.totalMonthlyOverhead);
   if (elKg) elKg.innerText = `${PriceCalculator.formatTL(res.overheadPerKg)}/KG`;
 }
 
 function openFactoryOverheadModal() {
   const overhead = StorageManager.getFactoryOverhead();
   
-  const inputDirect = document.getElementById("overhead-direct-per-kg");
-  if (inputDirect) inputDirect.value = overhead.overheadPerKg || 35;
+  if (document.getElementById("overhead-salaries")) document.getElementById("overhead-salaries").value = overhead.salaries ?? 200000;
+  if (document.getElementById("overhead-sgk")) document.getElementById("overhead-sgk").value = overhead.sgk ?? 50000;
+  if (document.getElementById("overhead-electricity")) document.getElementById("overhead-electricity").value = overhead.electricity ?? 25000;
+  if (document.getElementById("overhead-catering")) document.getElementById("overhead-catering").value = overhead.catering ?? 30000;
+  if (document.getElementById("overhead-rent-sarf")) document.getElementById("overhead-rent-sarf").value = overhead.rentSarf ?? 0;
+  if (document.getElementById("overhead-direct-per-kg")) document.getElementById("overhead-direct-per-kg").value = overhead.overheadPerKg ?? 35;
 
   recalculateFactoryOverheadModal();
 
@@ -882,20 +889,40 @@ function closeFactoryOverheadModal() {
 }
 
 function recalculateFactoryOverheadModal() {
+  const salaries = document.getElementById("overhead-salaries") ? (parseFloat(document.getElementById("overhead-salaries").value) || 0) : 200000;
+  const sgk = document.getElementById("overhead-sgk") ? (parseFloat(document.getElementById("overhead-sgk").value) || 0) : 50000;
+  const electricity = document.getElementById("overhead-electricity") ? (parseFloat(document.getElementById("overhead-electricity").value) || 0) : 25000;
+  const catering = document.getElementById("overhead-catering") ? (parseFloat(document.getElementById("overhead-catering").value) || 0) : 30000;
+  const rentSarf = document.getElementById("overhead-rent-sarf") ? (parseFloat(document.getElementById("overhead-rent-sarf").value) || 0) : 0;
   const inputDirect = document.getElementById("overhead-direct-per-kg");
   const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
 
-  const res = PriceCalculator.calculateFactoryOverheadPerKg({ overheadPerKg: directVal });
+  const res = PriceCalculator.calculateFactoryOverheadPerKg({
+    salaries, sgk, electricity, catering, rentSarf, overheadPerKg: directVal
+  });
+
+  const modalMonthly = document.getElementById("modal-overhead-total-monthly");
+  if (modalMonthly) modalMonthly.innerText = PriceCalculator.formatTL(res.totalMonthlyOverhead);
 
   const modalTotal = document.getElementById("modal-overhead-total");
   if (modalTotal) modalTotal.innerText = `${PriceCalculator.formatTL(res.overheadPerKg)} / KG`;
 }
 
 function saveFactoryOverheadModal() {
+  const salaries = document.getElementById("overhead-salaries") ? (parseFloat(document.getElementById("overhead-salaries").value) || 0) : 200000;
+  const sgk = document.getElementById("overhead-sgk") ? (parseFloat(document.getElementById("overhead-sgk").value) || 0) : 50000;
+  const electricity = document.getElementById("overhead-electricity") ? (parseFloat(document.getElementById("overhead-electricity").value) || 0) : 25000;
+  const catering = document.getElementById("overhead-catering") ? (parseFloat(document.getElementById("overhead-catering").value) || 0) : 30000;
+  const rentSarf = document.getElementById("overhead-rent-sarf") ? (parseFloat(document.getElementById("overhead-rent-sarf").value) || 0) : 0;
   const inputDirect = document.getElementById("overhead-direct-per-kg");
   const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
 
   const overheadConfig = {
+    salaries,
+    sgk,
+    electricity,
+    catering,
+    rentSarf,
     overheadPerKg: directVal
   };
 
@@ -905,7 +932,7 @@ function saveFactoryOverheadModal() {
   updateLayer2BannerStats();
   renderLayer2Cards();
 
-  showToast("1KG Yağ Başına Sabit Tesis Payı Kaydedildi! 🏭✅");
+  showToast("Fabrika Aylık Giderleri & 1KG Sabit Pay Kaydedildi! 🏭✅");
 }
 
 let openLayer2Breakdowns = {};

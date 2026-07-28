@@ -190,10 +190,25 @@ class StorageManager {
   static getFactoryOverhead() {
     try {
       const stored = localStorage.getItem("canfiyat_factory_overhead");
-      if (!stored) return { overheadPerKg: 35.00 };
-      return JSON.parse(stored);
+      const defaultConfig = {
+        salaries: 200000,
+        sgk: 50000,
+        electricity: 25000,
+        catering: 30000,
+        rentSarf: 0,
+        overheadPerKg: 35.00
+      };
+      if (!stored) return defaultConfig;
+      return { ...defaultConfig, ...JSON.parse(stored) };
     } catch (e) {
-      return { overheadPerKg: 35.00 };
+      return {
+        salaries: 200000,
+        sgk: 50000,
+        electricity: 25000,
+        catering: 30000,
+        rentSarf: 0,
+        overheadPerKg: 35.00
+      };
     }
   }
 

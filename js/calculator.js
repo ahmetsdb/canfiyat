@@ -196,8 +196,22 @@ class PriceCalculator {
   }
 
   static calculateFactoryOverheadPerKg(config = {}) {
-    const directOverhead = parseFloat(config.overheadPerKg) || 35.00;
+    const salaries = parseFloat(config.salaries) ?? 200000;
+    const sgk = parseFloat(config.sgk) ?? 50000;
+    const electricity = parseFloat(config.electricity) ?? 25000;
+    const catering = parseFloat(config.catering) ?? 30000;
+    const rentSarf = parseFloat(config.rentSarf) ?? 0;
+    const directOverhead = parseFloat(config.overheadPerKg) ?? 35.00;
+
+    const totalMonthlyOverhead = salaries + sgk + electricity + catering + rentSarf;
+
     return {
+      salaries,
+      sgk,
+      electricity,
+      catering,
+      rentSarf,
+      totalMonthlyOverhead,
       overheadPerKg: directOverhead
     };
   }

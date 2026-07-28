@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.38</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.39</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -166,6 +166,10 @@
                 </div>
 
                 <div class="flex items-center gap-3 text-xs">
+                    <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[9px] uppercase font-semibold">Aylık Toplam Tesis Gideri</span>
+                        <span class="font-bold text-slate-200 text-xs" id="l2-stat-total-overhead">305.000,00 ₺</span>
+                    </div>
                     <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-emerald-500/40">
                         <span class="text-emerald-400 block text-[9px] uppercase font-bold">1KG Yağ Başına Gider Payı</span>
                         <span class="font-bold text-emerald-300 text-xs" id="l2-stat-overhead-per-kg">35,00 ₺/KG</span>
@@ -661,7 +665,51 @@
                 </button>
             </div>
 
-            <div class="p-5 space-y-4 text-xs bg-slate-900/90">
+            <div class="p-5 space-y-4 text-xs bg-slate-900/90 max-h-[80vh] overflow-y-auto">
+                <!-- Itemized Factory Monthly Expenses -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                            👥 5 Personel Net Maaş Toplamı (₺/Ay):
+                        </label>
+                        <input type="number" id="overhead-salaries" value="200000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-emerald-400">
+                        <span class="text-[9.5px] text-slate-500 block">Ortalama 40.000 ₺/kişi net x 5 personel</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                            🛡️ 5 Personel SGK Primi & Vergiler (₺/Ay):
+                        </label>
+                        <input type="number" id="overhead-sgk" value="50000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-blue-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-blue-400">
+                        <span class="text-[9.5px] text-slate-500 block">5 Personel aylık SGK prim gideri payı</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                            ⚡ 20 Kafalı Makine + Tesis Elektrik (₺/Ay):
+                        </label>
+                        <input type="number" id="overhead-electricity" value="25000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-400">
+                        <span class="text-[9.5px] text-slate-500 block">Sıkım makineleri, klima ve ofis harcaması</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                            🍱 Mealbox Yemek Gideri (₺/Ay):
+                        </label>
+                        <input type="number" id="overhead-catering" value="30000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-cyan-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-400">
+                        <span class="text-[9.5px] text-slate-500 block">6 Kişi x 5 Gün/Hafta yemek maliyeti</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1 md:col-span-2">
+                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                            📦 Koli, Şrink & Tesis Sarf Gideri (₺/Ay):
+                        </label>
+                        <input type="number" id="overhead-rent-sarf" value="0" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-purple-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-purple-400">
+                        <span class="text-[9.5px] text-slate-500 block">Opsiyonel koli/şrink gideri (Şu an 0 ₺)</span>
+                    </div>
+                </div>
+
+                <!-- Direct Overhead Per KG Output Field -->
                 <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/40 space-y-2">
                     <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                         🏭 1KG Yağ Başına Sabit Tesis & İşçilik/SGK Payı (₺/KG):
@@ -670,17 +718,18 @@
                         <input type="number" id="overhead-direct-per-kg" value="35" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-emerald-500/50 text-emerald-300 font-black text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400">
                         <span class="font-bold text-slate-300 text-sm">₺/KG</span>
                     </div>
-                    <p class="text-[10.5px] text-slate-400">5 Personel maaşı, SGK primleri, 20 kafalı makine elektriği ve yemek giderleri için 1KG yağa eklenecek sabit tesis payı.</p>
+                    <p class="text-[10.5px] text-slate-400">1KG yağa eklenen sabit tesis gideri payı.</p>
                 </div>
 
+                <!-- Calculation Summary Preview Banner -->
                 <div class="bg-gradient-to-r from-emerald-950 to-teal-950 p-3.5 rounded-xl border border-emerald-500/50 flex items-center justify-between">
                     <div>
-                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Saf Üretim Maliyetine Eklenen Tesis Payı:</span>
-                        <span class="text-base font-black text-white" id="modal-overhead-total">35,00 ₺ / KG</span>
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Aylık Toplam Tesis & İşçilik Gideri:</span>
+                        <span class="text-base font-black text-white" id="modal-overhead-total-monthly">305.000,00 ₺</span>
                     </div>
                     <div class="text-right">
-                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Durum:</span>
-                        <span class="text-xs font-bold text-emerald-300">✅ Hacimsiz Doğrudan Tesis Payı</span>
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">1KG Yağ Başına Eklenen Pay:</span>
+                        <span class="text-lg font-black text-emerald-300" id="modal-overhead-total">35,00 ₺ / KG</span>
                     </div>
                 </div>
             </div>
@@ -700,10 +749,10 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.38"></script>
-    <script src="js/storage.js?v=1.38"></script>
-    <script src="js/calculator.js?v=1.38"></script>
-    <script src="js/app.js?v=1.38"></script>
+    <script src="js/productsData.js?v=1.39"></script>
+    <script src="js/storage.js?v=1.39"></script>
+    <script src="js/calculator.js?v=1.39"></script>
+    <script src="js/app.js?v=1.39"></script>
 </body>
 </html>
 
