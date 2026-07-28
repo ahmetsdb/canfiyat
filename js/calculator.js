@@ -201,10 +201,9 @@ class PriceCalculator {
     const electricity = parseFloat(config.electricity) ?? 25000;
     const catering = parseFloat(config.catering) ?? 30000;
     const rentSarf = parseFloat(config.rentSarf) ?? 0;
-    const monthlyCapacityKg = parseFloat(config.monthlyCapacityKg) || 8714;
+    const directOverhead = parseFloat(config.overheadPerKg) ?? 35.00;
 
     const totalMonthlyOverhead = salaries + sgk + electricity + catering + rentSarf;
-    const overheadPerKg = monthlyCapacityKg > 0 ? (totalMonthlyOverhead / monthlyCapacityKg) : 0;
 
     return {
       salaries,
@@ -212,9 +211,8 @@ class PriceCalculator {
       electricity,
       catering,
       rentSarf,
-      monthlyCapacityKg,
-      totalMonthlyOverhead: parseFloat(totalMonthlyOverhead.toFixed(2)),
-      overheadPerKg: parseFloat(overheadPerKg.toFixed(2))
+      totalMonthlyOverhead,
+      overheadPerKg: directOverhead
     };
   }
 

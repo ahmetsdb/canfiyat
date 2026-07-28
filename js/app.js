@@ -869,7 +869,7 @@ function openFactoryOverheadModal() {
   if (document.getElementById("overhead-electricity")) document.getElementById("overhead-electricity").value = overhead.electricity ?? 25000;
   if (document.getElementById("overhead-catering")) document.getElementById("overhead-catering").value = overhead.catering ?? 30000;
   if (document.getElementById("overhead-rent-sarf")) document.getElementById("overhead-rent-sarf").value = overhead.rentSarf ?? 0;
-  if (document.getElementById("overhead-capacity")) document.getElementById("overhead-capacity").value = overhead.monthlyCapacityKg ?? 8714;
+  if (document.getElementById("overhead-direct-per-kg")) document.getElementById("overhead-direct-per-kg").value = overhead.overheadPerKg ?? 35;
 
   recalculateFactoryOverheadModal();
 
@@ -894,11 +894,11 @@ function recalculateFactoryOverheadModal() {
   const electricity = document.getElementById("overhead-electricity") ? (parseFloat(document.getElementById("overhead-electricity").value) || 0) : 25000;
   const catering = document.getElementById("overhead-catering") ? (parseFloat(document.getElementById("overhead-catering").value) || 0) : 30000;
   const rentSarf = document.getElementById("overhead-rent-sarf") ? (parseFloat(document.getElementById("overhead-rent-sarf").value) || 0) : 0;
-  const capacityInput = document.getElementById("overhead-capacity");
-  const capacityKg = capacityInput ? (parseFloat(capacityInput.value) || 8714) : 8714;
+  const inputDirect = document.getElementById("overhead-direct-per-kg");
+  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
 
   const res = PriceCalculator.calculateFactoryOverheadPerKg({
-    salaries, sgk, electricity, catering, rentSarf, monthlyCapacityKg: capacityKg
+    salaries, sgk, electricity, catering, rentSarf, overheadPerKg: directVal
   });
 
   const modalMonthly = document.getElementById("modal-overhead-total-monthly");
@@ -914,8 +914,8 @@ function saveFactoryOverheadModal() {
   const electricity = document.getElementById("overhead-electricity") ? (parseFloat(document.getElementById("overhead-electricity").value) || 0) : 25000;
   const catering = document.getElementById("overhead-catering") ? (parseFloat(document.getElementById("overhead-catering").value) || 0) : 30000;
   const rentSarf = document.getElementById("overhead-rent-sarf") ? (parseFloat(document.getElementById("overhead-rent-sarf").value) || 0) : 0;
-  const capacityInput = document.getElementById("overhead-capacity");
-  const capacityKg = capacityInput ? (parseFloat(capacityInput.value) || 8714) : 8714;
+  const inputDirect = document.getElementById("overhead-direct-per-kg");
+  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
 
   const overheadConfig = {
     salaries,
@@ -923,7 +923,7 @@ function saveFactoryOverheadModal() {
     electricity,
     catering,
     rentSarf,
-    monthlyCapacityKg: capacityKg
+    overheadPerKg: directVal
   };
 
   StorageManager.saveFactoryOverhead(overheadConfig);
@@ -932,7 +932,7 @@ function saveFactoryOverheadModal() {
   updateLayer2BannerStats();
   renderLayer2Cards();
 
-  showToast("Fabrika Aylık Giderleri & 1KG Payı Otomatik Hesaplandı! 🏭✅");
+  showToast("Doğrudan 1KG Sabit Tesis Payı Kaydedildi! 🏭✅");
 }
 
 let openLayer2Breakdowns = {};
