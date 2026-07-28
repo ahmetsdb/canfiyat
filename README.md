@@ -1,4 +1,4 @@
-﻿# 💧 CanFiyat - Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı (v1.19)
+﻿# 💧 CanFiyat - Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı (v1.20)
 
 CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi için özel olarak geliştirilmiş; **Toptan Ham Yağ Alış Fiyatı (1KG ₺)**, **Ambalaj/Şişe Boyutları (20ml - 1000ml)** ve **Pazaryeri Kesintileri (Trendyol, Hepsiburada, İyzico)** üzerinden anlık hakediş ve net kâr hesaplayan, bulut senkronizasyonlu profesyonel bir finansal simülasyon portalıdır.
 
@@ -13,7 +13,7 @@ CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi iç
 
 ### 2. 🧴 Bağımsız Ambalaj & Şişe Boyutu Hafızası (20ml - 1000ml / 1kg)
 * Her ürünün içinde 7 farklı ambalaj boyutu saklanır: **20ml, 30ml, 50ml, 100ml, 250ml, 500ml, 1000ml (1kg)**.
-* **Ürün ve Ambalaj İzolasyonu (v1.19):** Bir ürünün veya şişenin fiyatlarını değiştirdiğinizde bu değer yalnızca o ürüne ve o ambalaj boyutuna yazılır. Diğer ürünlerin veya şişelerin verilerini **kesinlikle bozmaz!**
+* **Ürün ve Ambalaj İzolasyonu (v1.20):** Bir ürünün veya şişenin fiyatlarını değiştirdiğinizde bu değer yalnızca o ürüne ve o ambalaj boyutuna yazılır. Diğer ürünlerin veya şişelerin verilerini **kesinlikle bozmaz!**
 
 ### 3. 🧮 5 Farklı Simülasyon ve Hesaplama Sistemi
 
@@ -35,7 +35,7 @@ CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi iç
 
 ---
 
-## 🎨 Kullanıcı Arayüzü & Ergonomi (v1.19)
+## 🎨 Kullanıcı Arayüzü & Ergonomi (v1.20)
 
 * **Açılır Kutu (Dropdown) Ambalaj Seçimi:** Ambalaj boyutu seçimi dikey yer kaplamayan şık bir dropdown menüden yapılır.
 * **Tek Ekrana Sığan Düzen (Fit-on-Screen):** Sayfayı kaydırmaya gerek kalmadan tüm hesaplama girdileri ve kârlılık sonuçları tek bakışta görünür.
@@ -96,6 +96,7 @@ Bilgisayarınızın başına geçtiğinizde Antigravity chat ekranına doğrudan
 
 ---
 *CanFiyat Portal Documentation & User Guide - Created for Cansızzade Team & Ahmet* 💧
+
 
 
 
