@@ -1,4 +1,4 @@
-﻿# 💧 CanFiyat - Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı (v1.25)
+# 💧 CanFiyat - Cansızzade Fiyat, Hakediş & Kâr Simülasyon Portalı
 
 CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi için özel olarak geliştirilmiş; **Toptan Ham Yağ Alış Fiyatı (1KG ₺)**, **Ambalaj/Şişe Boyutları (20ml - 1000ml)** ve **Pazaryeri Kesintileri (Trendyol, Hepsiburada, İyzico)** üzerinden anlık hakediş ve net kâr hesaplayan, bulut senkronizasyonlu profesyonel bir finansal simülasyon portalıdır.
 
@@ -13,7 +13,7 @@ CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi iç
 
 ### 2. 🧴 Bağımsız Ambalaj & Şişe Boyutu Hafızası (20ml - 1000ml / 1kg)
 * Her ürünün içinde 7 farklı ambalaj boyutu saklanır: **20ml, 30ml, 50ml, 100ml, 250ml, 500ml, 1000ml (1kg)**.
-* **Ürün ve Ambalaj İzolasyonu (v1.25):** Bir ürünün veya şişenin fiyatlarını değiştirdiğinizde bu değer yalnızca o ürüne ve o ambalaj boyutuna yazılır. Diğer ürünlerin veya şişelerin verilerini **kesinlikle bozmaz!**
+* **Ürün ve Ambalaj İzolasyonu (v1.09+):** Bir ürünün veya şişenin fiyatlarını değiştirdiğinizde bu değer yalnızca o ürüne ve o ambalaj boyutuna yazılır. Diğer ürünlerin veya şişelerin verilerini **kesinlikle bozmaz!**
 
 ### 3. 🧮 5 Farklı Simülasyon ve Hesaplama Sistemi
 
@@ -35,7 +35,7 @@ CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi iç
 
 ---
 
-## 🎨 Kullanıcı Arayüzü & Ergonomi (v1.25)
+## 🎨 Kullanıcı Arayüzü & Ergonomi
 
 * **Açılır Kutu (Dropdown) Ambalaj Seçimi:** Ambalaj boyutu seçimi dikey yer kaplamayan şık bir dropdown menüden yapılır.
 * **Tek Ekrana Sığan Düzen (Fit-on-Screen):** Sayfayı kaydırmaya gerek kalmadan tüm hesaplama girdileri ve kârlılık sonuçları tek bakışta görünür.
@@ -45,57 +45,13 @@ CanFiyat, **Cansızzade** markasının uçucu ve sabit yağ ürün yelpazesi iç
 
 ---
 
-## 🤝 Ahmet İle Projeyi Paylaşma ve Antigravity (Google AG) Üzerinde Çalışma Rehberi
+## 🤝 Projeyi Çalıştırma Rehberi
 
 ### 🌐 1. Canlı Sürüm Bağlantısı (Vercel)
 👉 **[https://canfiyat-two.vercel.app/](https://canfiyat-two.vercel.app/)**
 
 ### 📂 2. GitHub Repositori Bağlantısı
-Projenin tüm kaynak kodları ve geçmiş sürümleri GitHub üzerindedir:
 👉 **[https://github.com/ahmetsdb/canfiyat.git](https://github.com/ahmetsdb/canfiyat.git)**
 
 ---
-
-### 🛠️ 3. Ahmet'in Google Antigravity (AG) Üzerinde Projeyi Açma Adımları
-
-```bash
-git clone https://github.com/ahmetsdb/canfiyat.git
-```
-
-**Antigravity AI Prompt Örneği (Ahmet için):**
-> *"Antigravity, https://github.com/ahmetsdb/canfiyat.git reposunu workspace'e klonla. README.md dosyasındaki oturum notlarını oku ve kaldığımız yerden devam edelim."*
-
----
-
-## 📝 Değişiklik Günlüğü (Changelog) Summary
-
-* **v1.00 - v1.08:** Temel veri yapısı, 65 Cansızzade ürünü, 4 Sistem hesabı, Supabase Cloud DB kurulumu ve Vercel canlı yayını.
-* **v1.09:** Sistem 2 (Web/İyzico Fiyatı) ve Sistem 4 fiyatlarının her ürün ve ambalaj slotu için tamamen bağımsız hale getirilmesi.
-* **v1.10 - v1.11:** Trendyol Avantajlı Ürün Etiketleri 3-Seviyeli Kampanya Simülatörünün (Sistem 5) ilk sürümü.
-* **v1.12:** Ambalaj boyutu sekmelerinin pencere üstüne sabitlenerek kalıcı hale getirilmesi.
-* **v1.13 Kompakt:** Ambalaj seçiminin dikey yer kaplamayan açılır menüye (Dropdown) dönüştürülmesi.
-* **v1.14 Trendyol Simülatör:** Trendyol Teklif Simülatörü varsayılan komisyonunun %19 yapılması.
-* **v1.15 - v1.23:** Otomatik versiyon artırma, README devir-teslim notları, `publish.ps1` betiği ve önbellek kırma güncellemeleri.
-* **v1.24:** Repo bağlantısının tekil olarak `ahmetsdb/canfiyat` olarak güncellenmesi.
-
----
-
-## 📌 Oturum & Devir Teslim Notları (Living Session Log)
-
-> [!NOTE]
-> Bu bölüm, cihazlar arası geçiş yaparken veya Antigravity AI ile yeni bir oturum başlatıldığında projeye kaldığınız yerden eksiksiz devam edebilmeniz için dinamik olarak güncellenir.
-
-### 🟢 En Son Durum
-* **Canlı Vercel Adresi:** [https://canfiyat-two.vercel.app/](https://canfiyat-two.vercel.app/)
-* **Tek Yetkili Repo:** [https://github.com/ahmetsdb/canfiyat.git](https://github.com/ahmetsdb/canfiyat.git)
-* **Klonlama & Ortam:** Git sisteme kuruldu, repo `c:\Users\ahmet\OneDrive\Belgeler\canfiyat` klasörüne klonlandı (`main` dalı v1.24 aktif).
-* **Bildirim Ayarı:** Antigravity Windows bildirim sesleri kapatıldı (görsel açılır pencere aktif).
-* **Otomasyon:** `publish.ps1` betiği eklendi.
-
-### 🎯 Bilgisayarınıza Geçtiğinizde Antigravity'ye Yazabileceğiniz Prompt
-Bilgisayarınızın başına geçtiğinizde Antigravity chat ekranına doğrudan şu ifadeyi yazıp devam edebilirsiniz:
-> *"Antigravity, `git pull` yapıp en son kodları çek, README.md dosyasındaki 'Oturum & Devir Teslim Notları' bölümünü oku ve sıradaki geliştirme adımları için seni dinliyorum."*
-
----
 *CanFiyat Portal Documentation & User Guide - Created for Cansızzade Team & Ahmet* 💧
-

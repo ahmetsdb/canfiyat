@@ -1,1 +1,0 @@
-https://api.vercel.com/v1/integrations/deploy/prj_YnpeHPiN3VmofNvoy2hUStIdWeXW/X7m9Cb2wYN
