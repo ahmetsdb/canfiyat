@@ -97,4 +97,26 @@ npx serve ./
 * **v1.14 Trendyol Simülatör:** Trendyol Teklif Simülatörü varsayılan komisyonunun %19 yapılması ve seçilen ambalaj boyutuna (ml) özel dinamik teklif fiyatlarının entegrasyonu.
 
 ---
+
+## 📌 Oturum & Devir Teslim Notları (Living Session Log)
+
+> [!NOTE]
+> Bu bölüm, cihazlar arası geçiş yaparken veya Antigravity AI ile yeni bir oturum başlatıldığında projeye kaldığınız yerden eksiksiz devam edebilmeniz için dinamik olarak güncellenir.
+
+### 🟢 En Son Durum (Son Güncelleme: 28 Temmuz 2026)
+* **Klonlama & Ortam:** Git sisteme kuruldu, repo `c:\Users\ahmet\OneDrive\Belgeler\canfiyat` klasörüne klonlandı (`main` dalı v1.14 aktif).
+* **Bildirim Ayarı:** Antigravity Windows bildirim sesleri kapatıldı (görsel açılır pencere aktif).
+* **Aktif Sürüm:** `v1.14 (Trendyol Simülatör)`
+
+### 📋 Yapılan Son İşlemler & Özeti
+1. Reponun klonlanması ve çalışma ağacının yerel ortama hazırlanması.
+2. `calculator.js`, `app.js`, `productsData.js` ve `storage.js` mimarisinin incelenmesi.
+3. Windows bildirim seslerinin sessize alınması (`SoundEnabled = 0`).
+
+### 🎯 Bilgisayarınıza Geçtiğinizde Antigravity'ye Yazabileceğiniz Prompt
+Bilgisayarınızın başına geçtiğinizde Antigravity chat ekranına doğrudan şu ifadeyi yazıp devam edebilirsiniz:
+> *"Antigravity, README.md dosyasındaki 'Oturum & Devir Teslim Notları' bölümünü ve en son yapılan değişiklikleri oku. Projeyi anladığından emin ol ve sıradaki geliştirme adımları için seni dinliyorum."*
+
+---
 *CanFiyat Portal Documentation & User Guide - Created for Cansızzade Team & Ahmet* 💧
+
