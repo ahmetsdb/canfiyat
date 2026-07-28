@@ -23,7 +23,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         $nextMinor = [int]$matches[1] + 1
         $Version = "v1.$nextMinor"
     } else {
-        $Version = "v1.18"
+        $Version = "v1.19"
     }
 } else {
     if (-not $Version.StartsWith("v")) {
@@ -49,10 +49,11 @@ $readmeContent = $readmeContent -replace '\(v1\.\d+[^\)]*\)', "($Version)"
 Set-Content -Path $readmePath -Value $readmeContent -Encoding UTF8
 Write-Host "README.md versiyon bilgisi guncellendi." -ForegroundColor Green
 
-# Git Add, Commit & Push
+# Git Add, Commit & Push (Both main and master branches)
 $commitTitle = "$Version : $Msg"
 & $gitExe add .
 & $gitExe commit -m "$commitTitle"
 & $gitExe push origin main
+& $gitExe push origin main:master
 
-Write-Host "Basariyla commit edildi ve GitHub push yapildi!" -ForegroundColor Green
+Write-Host "Basariyla commit edildi ve GitHub main & master dallarina push yapildi!" -ForegroundColor Green
