@@ -191,7 +191,7 @@ function renderProductGrid() {
           </div>
 
           <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Ambalaj</span>
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold">ml Maliyeti</span>
             <span class="font-bold text-blue-400 text-xs">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
           </div>
 
@@ -243,7 +243,7 @@ function renderProductGrid() {
                 <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[9px] uppercase font-semibold">Ambalaj</span>
+                <span class="text-slate-400 block text-[9px] uppercase font-semibold">ml Maliyeti</span>
                 <span class="font-bold text-blue-400 text-xs">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
               </div>
             </div>
