@@ -199,7 +199,7 @@ class PriceCalculator {
     const salaries = parseFloat(config.salaries) ?? 200000;
     const sgk = parseFloat(config.sgk) ?? 50000;
     const electricity = parseFloat(config.electricity) ?? 20000;
-    const catering = parseFloat(config.catering) ?? 64000;
+    const catering = parseFloat(config.catering) ?? 60000;
     const rentSarf = parseFloat(config.rentSarf) ?? 0;
     const monthlyCapacityKg = parseFloat(config.monthlyCapacityKg) || 8714;
 
