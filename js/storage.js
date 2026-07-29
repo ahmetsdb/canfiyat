@@ -196,7 +196,7 @@ class StorageManager {
         electricity: 25000,
         catering: 30000,
         rentSarf: 0,
-        overheadPerKg: 15.00
+        monthlyCapacityKg: 8714
       };
       if (!stored) return defaultConfig;
       return { ...defaultConfig, ...JSON.parse(stored) };
@@ -207,7 +207,7 @@ class StorageManager {
         electricity: 25000,
         catering: 30000,
         rentSarf: 0,
-        overheadPerKg: 15.00
+        monthlyCapacityKg: 8714
       };
     }
   }
