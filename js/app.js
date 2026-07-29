@@ -932,9 +932,9 @@ function renderLayer3Cards() {
     const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
     
     let liveSitePriceHtml = `
-      <div class="flex items-center gap-1 mt-0.5">
-        <input type="number" placeholder="N/A" value="${hasVolPrice ? activeLivePrice : ''}" onchange="updateLiveSitePriceOverride('${product.id}', '${volKey}', this.value)" class="w-20 bg-slate-900 border border-purple-800/80 rounded px-1.5 py-0.5 text-purple-300 font-bold text-xs focus:outline-none focus:border-purple-400">
-        <span class="text-[10px] font-semibold text-purple-400">₺</span>
+      <div class="flex items-center gap-1">
+        <input type="number" placeholder="N/A" value="${hasVolPrice ? activeLivePrice : ''}" onchange="updateLiveSitePriceOverride('${product.id}', '${volKey}', this.value)" class="w-20 bg-slate-900 border border-purple-800/80 rounded px-2 py-1 text-purple-300 font-bold text-xs focus:outline-none focus:border-purple-400 text-center">
+        <span class="text-[11px] font-bold text-purple-400">₺</span>
       </div>
     `;
     let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
@@ -973,61 +973,66 @@ function renderLayer3Cards() {
     const isOverridden = overridePrice !== null && !isNaN(parseFloat(overridePrice));
 
     const rowHtml = `
-      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group ${!hasVolPrice ? 'opacity-80' : ''}">
-        <div class="flex items-center gap-3 min-w-[280px]">
-          <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+      <div class="glass-card rounded-xl p-3.5 border border-slate-800/80 bg-slate-900/50 hover:border-purple-500/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 ${!hasVolPrice ? 'opacity-75' : ''}">
+        <!-- Ürün Tanımlama -->
+        <div class="flex items-center gap-3 w-full md:w-1/3 min-w-[260px]">
+          <span class="font-mono text-[10px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-md border border-slate-800 shrink-0">
             ${product.sku || 'SKU'}
           </span>
-          <div>
-            <h3 class="text-xs font-bold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
+          <div class="truncate">
+            <h3 class="text-xs font-bold text-white group-hover:text-purple-400 transition-colors truncate">
               ${product.name}
             </h3>
-            <div class="flex items-center gap-1.5 mt-0.5">
+            <div class="flex items-center gap-1.5 mt-1">
               <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${catBadge}">
                 ${product.category || 'Bitkisel Yağ'}
               </span>
-              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-purple-800/40 bg-purple-950/40 text-purple-300">
-                ${volKey} Seçili
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-purple-800/50 bg-purple-950/60 text-purple-300">
+                ${volKey}
               </span>
-              ${isOverridden ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">✍️ Özel Düzenlendi</span>' : ''}
+              ${isOverridden ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">✍️ Düzenlendi</span>' : ''}
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full lg:w-auto text-xs">
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[140px]">
-            <span class="text-slate-400 block text-[9px] uppercase font-bold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-purple-400' : 'bg-slate-600'}"></span> 🌐 Canlı Site Fiyatı (Düzenlenebilir)
+        <!-- Metrikler Tablosu (XML Fiyatı, İyzico Tabanı, Net Fark, Durum) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full md:w-2/3 items-center">
+          <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800/90 flex flex-col">
+            <span class="text-[9px] font-bold uppercase text-purple-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-purple-400' : 'bg-slate-600'}"></span> 🌐 XML Canlı Fiyat
             </span>
-            ${liveSitePriceHtml}
+            <div class="mt-1">
+              ${liveSitePriceHtml}
+            </div>
           </div>
 
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[130px]">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> 🛡️ Katman 1 (İyzico Tabanı)
+          <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800/90 flex flex-col">
+            <span class="text-[9px] font-bold uppercase text-slate-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> 🛡️ İyzico Tabanı
             </span>
-            <span class="font-bold text-blue-300 text-xs">${PriceCalculator.formatTL(canFiyatBaseCost)}</span>
+            <span class="font-bold text-blue-300 text-xs mt-1 py-0.5">${PriceCalculator.formatTL(canFiyatBaseCost)}</span>
           </div>
 
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-emerald-400' : 'bg-slate-600'}"></span> 💰 Net Fiyat Farkı
+          <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800/90 flex flex-col">
+            <span class="text-[9px] font-bold uppercase text-slate-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-emerald-400' : 'bg-slate-600'}"></span> 💰 Net Fark
             </span>
-            ${netProfitMarginHtml}
+            <span class="mt-1 py-0.5">${netProfitMarginHtml}</span>
           </div>
 
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px] flex flex-col justify-center">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Durum</span>
-            <span class="font-mono font-bold text-xs px-1.5 py-0.5 rounded border w-fit mt-0.5 ${marginBadge}">
+          <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800/90 flex flex-col justify-between">
+            <span class="text-[9px] font-bold uppercase text-slate-400">Durum</span>
+            <span class="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded border w-fit mt-1 ${marginBadge}">
               ${statusText}
             </span>
           </div>
         </div>
 
-        <div class="min-w-[150px] flex items-center gap-1.5">
-          <a href="${siteUrl}" target="_blank" class="w-full ${hasVolPrice ? 'bg-purple-600 hover:bg-purple-500' : 'bg-slate-800 hover:bg-slate-700 text-slate-400'} text-white font-bold py-2 px-3 rounded-xl shadow text-xs flex items-center justify-center gap-1.5 transition-all">
+        <!-- Sitede İncele Butonu -->
+        <div class="shrink-0 w-full sm:w-auto">
+          <a href="${siteUrl}" target="_blank" class="w-full sm:w-auto ${hasVolPrice ? 'bg-purple-600 hover:bg-purple-500 text-white' : 'bg-slate-800 hover:bg-slate-700 text-slate-400'} font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
             </svg>
             ${hasVolPrice ? 'SİTEDE İNCELE' : 'SİTE LİNKİ'}
           </a>
