@@ -201,9 +201,11 @@ class PriceCalculator {
     const electricity = parseFloat(config.electricity) ?? 25000;
     const catering = parseFloat(config.catering) ?? 30000;
     const rentSarf = parseFloat(config.rentSarf) ?? 0;
-    const directOverhead = parseFloat(config.overheadPerKg) ?? 35.00;
+    const directOverhead = parseFloat(config.overheadPerKg) ?? 15.00;
 
     const totalMonthlyOverhead = salaries + sgk + electricity + catering + rentSarf;
+    const logo2025MonthlyKg = 20385.34; // 244,624.07 KG / 12 Months
+    const logoVerifiedOverheadPerKg = parseFloat((totalMonthlyOverhead / logo2025MonthlyKg).toFixed(2)); // 14.96 ₺/KG
 
     return {
       salaries,
@@ -212,6 +214,8 @@ class PriceCalculator {
       catering,
       rentSarf,
       totalMonthlyOverhead,
+      logo2025MonthlyKg,
+      logoVerifiedOverheadPerKg,
       overheadPerKg: directOverhead
     };
   }

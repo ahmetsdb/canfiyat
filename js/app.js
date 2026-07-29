@@ -869,7 +869,7 @@ function openFactoryOverheadModal() {
   if (document.getElementById("overhead-electricity")) document.getElementById("overhead-electricity").value = overhead.electricity ?? 25000;
   if (document.getElementById("overhead-catering")) document.getElementById("overhead-catering").value = overhead.catering ?? 30000;
   if (document.getElementById("overhead-rent-sarf")) document.getElementById("overhead-rent-sarf").value = overhead.rentSarf ?? 0;
-  if (document.getElementById("overhead-direct-per-kg")) document.getElementById("overhead-direct-per-kg").value = overhead.overheadPerKg ?? 35;
+  if (document.getElementById("overhead-direct-per-kg")) document.getElementById("overhead-direct-per-kg").value = overhead.overheadPerKg ?? 15;
 
   recalculateFactoryOverheadModal();
 
@@ -895,7 +895,7 @@ function recalculateFactoryOverheadModal() {
   const catering = document.getElementById("overhead-catering") ? (parseFloat(document.getElementById("overhead-catering").value) || 0) : 30000;
   const rentSarf = document.getElementById("overhead-rent-sarf") ? (parseFloat(document.getElementById("overhead-rent-sarf").value) || 0) : 0;
   const inputDirect = document.getElementById("overhead-direct-per-kg");
-  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
+  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 15) : 15;
 
   const res = PriceCalculator.calculateFactoryOverheadPerKg({
     salaries, sgk, electricity, catering, rentSarf, overheadPerKg: directVal
@@ -915,7 +915,7 @@ function saveFactoryOverheadModal() {
   const catering = document.getElementById("overhead-catering") ? (parseFloat(document.getElementById("overhead-catering").value) || 0) : 30000;
   const rentSarf = document.getElementById("overhead-rent-sarf") ? (parseFloat(document.getElementById("overhead-rent-sarf").value) || 0) : 0;
   const inputDirect = document.getElementById("overhead-direct-per-kg");
-  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 35) : 35;
+  const directVal = inputDirect ? (parseFloat(inputDirect.value) || 15) : 15;
 
   const overheadConfig = {
     salaries,
@@ -932,7 +932,7 @@ function saveFactoryOverheadModal() {
   updateLayer2BannerStats();
   renderLayer2Cards();
 
-  showToast("Doğrudan 1KG Sabit Tesis Payı Kaydedildi! 🏭✅");
+  showToast("Logo 2025 Verisiyle Doğrulanmış Tesis Payı Kaydedildi! 🏭✅");
 }
 
 let openLayer2Breakdowns = {};
