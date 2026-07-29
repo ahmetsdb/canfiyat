@@ -883,15 +883,20 @@ function renderLayer3Cards() {
   const factoryRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
   const overheadPerKg = factoryRes ? (factoryRes.overheadPerKg || 0) : 0;
   let totalScrapedMatchCount = 0;
-  const productsArr = Object.values(currentProducts);
+
+  let productsArr = Object.values(currentProducts || {});
+  if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
+    productsArr = INITIAL_PRODUCTS;
+  }
 
   productsArr.forEach(product => {
+    if (!product || !product.name) return;
     if (activeCategory !== "all" && product.category !== activeCategory) return;
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      const matchName = product.name.toLowerCase().includes(q);
-      const matchSku = product.sku.toLowerCase().includes(q);
+      const matchName = (product.name || "").toLowerCase().includes(q);
+      const matchSku = (product.sku || "").toLowerCase().includes(q);
       if (!matchName && !matchSku) return;
     }
 
@@ -906,10 +911,10 @@ function renderLayer3Cards() {
 
     const volKey = selectedVol;
     const volConfig = getVolumeConfig(product, volKey);
-    const packagingCost = volConfig.packagingCost || (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
+    const packagingCost = (volConfig && volConfig.packagingCost) || (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
 
     const ratio = PriceCalculator.getVolumeKgRatio(volKey);
-    const rawCostPerKg = product.costPerKg;
+    const rawCostPerKg = product.costPerKg || 100;
     const totalCostPerKg = rawCostPerKg + overheadPerKg;
     const canFiyatBaseCost = parseFloat(((totalCostPerKg * ratio) + packagingCost).toFixed(2));
 
@@ -941,7 +946,7 @@ function renderLayer3Cards() {
       <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group">
         <div class="flex items-center gap-3 min-w-[280px]">
           <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
-            ${product.sku}
+            ${product.sku || 'SKU'}
           </span>
           <div>
             <h3 class="text-xs font-bold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
@@ -949,7 +954,7 @@ function renderLayer3Cards() {
             </h3>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${catBadge}">
-                ${product.category}
+                ${product.category || 'Bitkisel Yağ'}
               </span>
               <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-purple-800/40 bg-purple-950/40 text-purple-300">
                 ${volKey} Seçili
