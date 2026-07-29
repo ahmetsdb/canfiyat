@@ -873,6 +873,11 @@ function switchLayerMode(mode) {
   }
 }
 
+function updateLiveSitePriceOverride(productId, volKey, newPrice) {
+  StorageManager.setSiteOverride(productId, volKey, newPrice);
+  renderLayer3Cards();
+}
+
 function renderLayer3Cards() {
   const container = document.getElementById("layer3-product-grid");
   if (!container) return;
@@ -913,11 +918,25 @@ function renderLayer3Cards() {
 
     const canFiyatBaseCost = sys1Result.salePrice; // Katman 1 / Sistem 1 İyzico Fiyatı
 
-    // Fetch site data from LIVE_SITE_SCRAPED_DATA
+    // Fetch site data from LIVE_SITE_SCRAPED_DATA or StorageManager site overrides
+    const overridePrice = StorageManager.getSiteOverride(product.id, volKey);
     const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-    const hasVolPrice = siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0;
     
-    let liveSitePriceHtml = `<span class="font-bold text-slate-500 text-sm">N/A (Sitede Yok)</span>`;
+    let activeLivePrice = null;
+    if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
+      activeLivePrice = parseFloat(overridePrice);
+    } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0) {
+      activeLivePrice = siteData.samplePrices[volKey];
+    }
+
+    const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
+    
+    let liveSitePriceHtml = `
+      <div class="flex items-center gap-1 mt-0.5">
+        <input type="number" placeholder="N/A" value="${hasVolPrice ? activeLivePrice : ''}" onchange="updateLiveSitePriceOverride('${product.id}', '${volKey}', this.value)" class="w-20 bg-slate-900 border border-purple-800/80 rounded px-1.5 py-0.5 text-purple-300 font-bold text-xs focus:outline-none focus:border-purple-400">
+        <span class="text-[10px] font-semibold text-purple-400">₺</span>
+      </div>
+    `;
     let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
     let marginBadge = `bg-slate-900/80 text-slate-400 border-slate-800`;
     let statusText = `⚪ Sitede Satılmıyor`;
@@ -925,12 +944,10 @@ function renderLayer3Cards() {
 
     if (hasVolPrice) {
       totalScrapedMatchCount++;
-      const livePrice = siteData.samplePrices[volKey];
+      const livePrice = activeLivePrice;
       const netProfitMargin = parseFloat((livePrice - canFiyatBaseCost).toFixed(2));
       const profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
 
-      liveSitePriceHtml = `<span class="font-black text-purple-300 text-sm">${PriceCalculator.formatTL(livePrice)}</span>`;
-      
       if (netProfitMargin >= 0) {
         netProfitMarginHtml = `<span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
       } else {
@@ -953,8 +970,10 @@ function renderLayer3Cards() {
       ? "bg-purple-950/60 text-purple-300 border-purple-800/40" 
       : "bg-emerald-950/60 text-emerald-300 border-emerald-800/40";
 
+    const isOverridden = overridePrice !== null && !isNaN(parseFloat(overridePrice));
+
     const rowHtml = `
-      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group ${!hasVolPrice ? 'opacity-70' : ''}">
+      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group ${!hasVolPrice ? 'opacity-80' : ''}">
         <div class="flex items-center gap-3 min-w-[280px]">
           <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
             ${product.sku || 'SKU'}
@@ -970,14 +989,15 @@ function renderLayer3Cards() {
               <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-purple-800/40 bg-purple-950/40 text-purple-300">
                 ${volKey} Seçili
               </span>
+              ${isOverridden ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">✍️ Özel Düzenlendi</span>' : ''}
             </div>
           </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full lg:w-auto text-xs">
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[130px]">
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[140px]">
             <span class="text-slate-400 block text-[9px] uppercase font-bold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-purple-400' : 'bg-slate-600'}"></span> 🌐 Sitedeki Canlı Fiyat
+              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-purple-400' : 'bg-slate-600'}"></span> 🌐 Canlı Site Fiyatı (Düzenlenebilir)
             </span>
             ${liveSitePriceHtml}
           </div>

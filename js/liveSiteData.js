@@ -1,4 +1,4 @@
-﻿// Official Bulletproof Live Site Data mapped from GOOGLE-MERCHANT.xml (ENDORA EXCLUDED)
+﻿// Official Audited Live Site Data mapped from GOOGLE-MERCHANT.xml
 const LIVE_SITE_SCRAPED_DATA = {
   "A.0200": { id: "A.0200", sku: "A.0200", name: "BUĞDAY YAĞI", url: "https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi-toptan", samplePrices: {"100ml": 400, "50ml": 300, "250ml": 320, "1000ml": 600}, hasSitePrice: true },
   "T.0013": { id: "T.0013", sku: "T.0013", name: "BUĞDAY ÖZÜ YAĞI (ruşeym)", url: "https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi-toptan", samplePrices: {"100ml": 400, "50ml": 300, "250ml": 320, "1000ml": 600}, hasSitePrice: true },

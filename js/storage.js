@@ -9,7 +9,8 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
 
 const STORAGE_KEYS = {
   PRODUCTS: "canfiyat_products_v7", // Target profit set to 0 TL default
-  GLOBAL_SETTINGS: "canfiyat_global_settings_v1"
+  GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
+  SITE_OVERRIDES: "canfiyat_site_overrides_v1"
 };
 
 class StorageManager {
@@ -214,5 +215,33 @@ class StorageManager {
 
   static saveFactoryOverhead(overheadConfig) {
     localStorage.setItem("canfiyat_factory_overhead", JSON.stringify(overheadConfig));
+  }
+
+  static getSiteOverrides() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SITE_OVERRIDES);
+      return stored ? JSON.parse(stored) : {};
+    } catch(e) {
+      return {};
+    }
+  }
+
+  static getSiteOverride(productId, volKey) {
+    const map = this.getSiteOverrides();
+    const key = `${productId}_${volKey}`;
+    return (map && map[key] !== undefined) ? map[key] : null;
+  }
+
+  static setSiteOverride(productId, volKey, price) {
+    try {
+      const map = this.getSiteOverrides();
+      const key = `${productId}_${volKey}`;
+      if (price === null || price === "" || isNaN(parseFloat(price))) {
+        delete map[key];
+      } else {
+        map[key] = parseFloat(price);
+      }
+      localStorage.setItem(STORAGE_KEYS.SITE_OVERRIDES, JSON.stringify(map));
+    } catch(e) {}
   }
 }
