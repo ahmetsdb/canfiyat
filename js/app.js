@@ -913,7 +913,7 @@ function renderLayer3Cards() {
     const volConfig = getVolumeConfig(product, volKey);
     const packagingCost = (volConfig && volConfig.packagingCost) || (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
 
-    const ratio = PriceCalculator.getVolumeKgRatio(volKey);
+    const ratio = (typeof PriceCalculator !== "undefined" && PriceCalculator.getVolumeMl) ? (PriceCalculator.getVolumeMl(volKey) / 1000) : 0.25;
     const rawCostPerKg = product.costPerKg || 100;
     const totalCostPerKg = rawCostPerKg + overheadPerKg;
     const canFiyatBaseCost = parseFloat(((totalCostPerKg * ratio) + packagingCost).toFixed(2));

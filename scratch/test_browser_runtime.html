@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Runtime Test</title>
+</head>
+<body>
+    <div id="test-log"></div>
+    <script src="js/productsData.js"></script>
+    <script src="js/liveSiteData.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        const log = document.getElementById("test-log");
+        function writeLog(msg) {
+            log.innerHTML += "<p>" + msg + "</p>";
+        }
+
+        try {
+            writeLog("Initial products: " + INITIAL_PRODUCTS.length);
+            writeLog("Scraped live site data: " + LIVE_SITE_SCRAPED_DATA.length);
+
+            initApp();
+            writeLog("initApp completed.");
+
+            switchLayerMode(3);
+            writeLog("switchLayerMode(3) completed.");
+
+            const grid = document.getElementById("layer3-product-grid");
+            if (grid) {
+                writeLog("Grid element found. Children count: " + grid.children.length);
+            } else {
+                writeLog("Grid element NOT FOUND!");
+            }
+        } catch (e) {
+            writeLog("<b style='color:red;'>RUNTIME ERROR: " + e.message + "<br>" + e.stack + "</b>");
+        }
+    </script>
+</body>
+</html>

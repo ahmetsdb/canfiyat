@@ -23,6 +23,11 @@ class PriceCalculator {
     return isNaN(parsed) ? 250 : parsed;
   }
 
+  static getVolumeKgRatio(volumeStr) {
+    const ml = this.getVolumeMl(volumeStr);
+    return ml / 1000;
+  }
+
   // Calculate Unit Wholesale Cost for a specific volume size
   static calculateUnitWholesaleCost(costPerKg, volumeStr, packagingCost = null) {
     const ml = this.getVolumeMl(volumeStr);
