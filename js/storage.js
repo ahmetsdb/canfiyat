@@ -8,7 +8,7 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v5", // Product-specific independent System 2 & 4 prices
+  PRODUCTS: "canfiyat_products_v6", // KDV-inclusive wholesale selling prices
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1"
 };
 

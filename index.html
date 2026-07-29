@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.44</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.46 (KDV Dahil Toptan Satış)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -229,7 +229,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="input-group">
-                        <label>1KG Toptan Maliyet (₺)</label>
+                        <label>1KG Toptan Satış (KDV Dahil)</label>
                         <input type="number" id="add-custom-cost-kg" value="1000" min="0" step="any">
                     </div>
                     <div class="input-group">
@@ -317,7 +317,7 @@
 
                 <!-- 1KG WHOLESALE COST FAST ENTRY INPUT -->
                 <div class="flex items-center gap-2">
-                    <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-semibold">🌾 1KG Toptan Alış:</label>
+                    <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-semibold">🌾 1KG Toptan Satış (KDV Dahil):</label>
                     <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-24 bg-slate-900 border border-slate-700 text-white font-bold text-xs px-2 py-1 rounded-lg focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
                     <span class="text-slate-400 text-[11px]">₺/KG</span>
                 </div>
@@ -749,10 +749,10 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.44"></script>
-    <script src="js/storage.js?v=1.44"></script>
-    <script src="js/calculator.js?v=1.44"></script>
-    <script src="js/app.js?v=1.44"></script>
+    <script src="js/productsData.js?v=1.46"></script>
+    <script src="js/storage.js?v=1.46"></script>
+    <script src="js/calculator.js?v=1.46"></script>
+    <script src="js/app.js?v=1.46"></script>
 </body>
 </html>
 
