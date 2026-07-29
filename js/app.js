@@ -43,8 +43,10 @@ function initApp() {
     renderStats();
     if (currentLayerMode === 1) {
       renderProductGrid();
-    } else {
+    } else if (currentLayerMode === 2) {
       renderLayer2Cards();
+    } else if (currentLayerMode === 3) {
+      renderLayer3Cards();
     }
     console.log("Synced latest product slot state from Supabase Cloud DB!");
   });
@@ -55,7 +57,9 @@ function setupEventListeners() {
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
       searchQuery = e.target.value.toLowerCase().trim();
-      renderProductGrid();
+      if (currentLayerMode === 1) renderProductGrid();
+      else if (currentLayerMode === 2) renderLayer2Cards();
+      else if (currentLayerMode === 3) renderLayer3Cards();
     });
   }
 
@@ -107,7 +111,9 @@ function filterCategory(cat) {
     activeBtn.classList.add("bg-blue-600", "text-white");
   }
 
-  renderProductGrid();
+  if (currentLayerMode === 1) renderProductGrid();
+  else if (currentLayerMode === 2) renderLayer2Cards();
+  else if (currentLayerMode === 3) renderLayer3Cards();
 }
 
 function getVolumeConfig(product, volKey) {
@@ -877,23 +883,23 @@ function renderLayer3Cards() {
   const factoryRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
   const overheadPerKg = factoryRes.overheadPerKg;
 
-  let totalScrapedMatchCount = 0;
+  const productsArr = Object.values(currentProducts);
 
-  currentProducts.forEach(product => {
-    if (currentCategoryFilter !== "all" && product.category !== currentCategoryFilter) return;
+  productsArr.forEach(product => {
+    if (activeCategory !== "all" && product.category !== activeCategory) return;
 
-    if (currentSearchQuery) {
-      const q = currentSearchQuery.toLowerCase();
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       const matchName = product.name.toLowerCase().includes(q);
       const matchSku = product.sku.toLowerCase().includes(q);
       if (!matchName && !matchSku) return;
     }
 
     // Match with scraped live site data
-    let siteItem = typeof LIVE_SITE_SCRAPED_DATA !== "undefined" ? LIVE_SITE_SCRAPED_DATA.find(s => {
-      const sName = s.name.toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
-      const pName = product.name.toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
-      return sName.includes(pName) || pName.includes(sName);
+    let siteItem = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined" && Array.isArray(LIVE_SITE_SCRAPED_DATA)) ? LIVE_SITE_SCRAPED_DATA.find(s => {
+      const sTitle = ((s && (s.title || s.name)) || "").toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
+      const pName = ((product && product.name) || "").toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
+      return sTitle.includes(pName) || pName.includes(sTitle);
     }) : null;
 
     if (siteItem) totalScrapedMatchCount++;
