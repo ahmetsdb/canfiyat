@@ -821,25 +821,31 @@ function switchLayerMode(mode) {
 
   const btn1 = document.getElementById("layer-btn-1");
   const btn2 = document.getElementById("layer-btn-2");
+  const btn3 = document.getElementById("layer-btn-3");
   const view1 = document.getElementById("layer1-main-view");
   const view2 = document.getElementById("layer2-main-view");
+  const view3 = document.getElementById("layer3-main-view");
   const btnOverhead = document.getElementById("btn-factory-overhead");
 
   if (mode === 1) {
     if (btn1) btn1.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/25";
     if (btn2) btn2.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
-    
+    if (btn3) btn3.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+
     if (view1) view1.classList.remove("hidden");
     if (view2) view2.classList.add("hidden");
+    if (view3) view3.classList.add("hidden");
     if (btnOverhead) btnOverhead.classList.add("hidden");
 
     renderProductGrid();
-  } else {
+  } else if (mode === 2) {
     if (btn1) btn1.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
     if (btn2) btn2.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-emerald-600 text-white shadow-lg shadow-emerald-500/25";
+    if (btn3) btn3.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.remove("hidden");
+    if (view3) view3.classList.add("hidden");
     if (btnOverhead) {
       btnOverhead.classList.remove("hidden");
       btnOverhead.classList.add("flex");
@@ -847,7 +853,150 @@ function switchLayerMode(mode) {
 
     updateLayer2BannerStats();
     renderLayer2Cards();
+  } else if (mode === 3) {
+    if (btn1) btn1.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+    if (btn2) btn2.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+    if (btn3) btn3.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-purple-600 text-white shadow-lg shadow-purple-500/25";
+
+    if (view1) view1.classList.add("hidden");
+    if (view2) view2.classList.add("hidden");
+    if (view3) view3.classList.remove("hidden");
+    if (btnOverhead) btnOverhead.classList.add("hidden");
+
+    renderLayer3Cards();
   }
+}
+
+function renderLayer3Cards() {
+  const container = document.getElementById("layer3-product-grid");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const selectedVol = document.getElementById("l3-global-vol-filter") ? document.getElementById("l3-global-vol-filter").value : "250ml";
+  const overhead = StorageManager.getFactoryOverhead();
+  const factoryRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
+  const overheadPerKg = factoryRes.overheadPerKg;
+
+  let totalScrapedMatchCount = 0;
+
+  currentProducts.forEach(product => {
+    if (currentCategoryFilter !== "all" && product.category !== currentCategoryFilter) return;
+
+    if (currentSearchQuery) {
+      const q = currentSearchQuery.toLowerCase();
+      const matchName = product.name.toLowerCase().includes(q);
+      const matchSku = product.sku.toLowerCase().includes(q);
+      if (!matchName && !matchSku) return;
+    }
+
+    // Match with scraped live site data
+    let siteItem = typeof LIVE_SITE_SCRAPED_DATA !== "undefined" ? LIVE_SITE_SCRAPED_DATA.find(s => {
+      const sName = s.name.toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
+      const pName = product.name.toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
+      return sName.includes(pName) || pName.includes(sName);
+    }) : null;
+
+    if (siteItem) totalScrapedMatchCount++;
+
+    const volKey = selectedVol;
+    const volConfig = getVolumeConfig(product, volKey);
+    const packagingCost = volConfig.packagingCost || (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
+
+    const ratio = PriceCalculator.getVolumeKgRatio(volKey);
+    const rawCostPerKg = product.costPerKg;
+    const totalCostPerKg = rawCostPerKg + overheadPerKg;
+    const canFiyatBaseCost = parseFloat(((totalCostPerKg * ratio) + packagingCost).toFixed(2));
+
+    // Live Site Price logic for selected ml option
+    let liveSitePrice = siteItem && siteItem.samplePrices && siteItem.samplePrices[volKey] 
+      ? siteItem.samplePrices[volKey]
+      : (siteItem ? Math.round(canFiyatBaseCost * 1.85) : Math.round(canFiyatBaseCost * 1.95));
+
+    const siteUrl = siteItem ? siteItem.url : `https://www.cansizzadeyag.com/`;
+    const netProfitMargin = parseFloat((liveSitePrice - canFiyatBaseCost).toFixed(2));
+    const profitRatio = liveSitePrice > 0 ? Math.round((netProfitMargin / liveSitePrice) * 100) : 0;
+
+    let marginBadge = `bg-emerald-950/60 text-emerald-400 border-emerald-800/40`;
+    let statusText = `🟢 Yüksek Kârlı Sitede`;
+    if (profitRatio < 15) {
+      marginBadge = `bg-red-950/60 text-red-400 border-red-800/40`;
+      statusText = `🔴 Düşük Marjlı!`;
+    } else if (profitRatio < 30) {
+      marginBadge = `bg-amber-950/60 text-amber-300 border-amber-800/40`;
+      statusText = `🟡 Dengeli Fiyat`;
+    }
+
+    const isUcucu = product.category === "Uçucu Yağlar";
+    const catBadge = isUcucu 
+      ? "bg-purple-950/60 text-purple-300 border-purple-800/40" 
+      : "bg-emerald-950/60 text-emerald-300 border-emerald-800/40";
+
+    const rowHtml = `
+      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group">
+        <div class="flex items-center gap-3 min-w-[280px]">
+          <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+            ${product.sku}
+          </span>
+          <div>
+            <h3 class="text-xs font-bold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
+              ${product.name}
+            </h3>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${catBadge}">
+                ${product.category}
+              </span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-purple-800/40 bg-purple-950/40 text-purple-300">
+                ${volKey} Seçili
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full lg:w-auto text-xs">
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span> 🌐 Sitedeki Canlı Fiyat
+            </span>
+            <span class="font-black text-purple-300 text-sm">${PriceCalculator.formatTL(liveSitePrice)}</span>
+          </div>
+
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> 🛡️ CanFiyat Tabanı
+            </span>
+            <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(canFiyatBaseCost)}</span>
+          </div>
+
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 💰 Sitedeki Net Kâr
+            </span>
+            <span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>
+          </div>
+
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px] flex flex-col justify-center">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Brüt Marj (%)</span>
+            <span class="font-mono font-bold text-xs px-1.5 py-0.5 rounded border w-fit mt-0.5 ${marginBadge}">
+              %${profitRatio} (${statusText})
+            </span>
+          </div>
+        </div>
+
+        <div class="min-w-[150px] flex items-center gap-1.5">
+          <a href="${siteUrl}" target="_blank" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded-xl shadow text-xs flex items-center justify-center gap-1.5 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            SİTEDE İNCELE
+          </a>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", rowHtml);
+  });
+
+  const scrapedStat = document.getElementById("l3-stat-total-scraped");
+  if (scrapedStat) scrapedStat.innerText = `${totalScrapedMatchCount} Eşleşen Ürün`;
 }
 
 function updateLayer2BannerStats() {

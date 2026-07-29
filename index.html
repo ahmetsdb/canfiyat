@@ -46,20 +46,23 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.49 (Sıfır Net Kâr Tabanlı)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.50 (3. Katman: Canlı Site Karşılaştırmalı)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
                         </h1>
                         <p class="text-slate-400 text-xs font-medium">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
                         
-                        <!-- Dual-Dashboard Header Switcher -->
-                        <div class="flex items-center gap-1.5 mt-2 bg-slate-950 p-1 rounded-xl border border-slate-800 w-fit">
+                        <!-- Multi-Dashboard Header Switcher -->
+                        <div class="flex flex-wrap items-center gap-1.5 mt-2 bg-slate-950 p-1 rounded-xl border border-slate-800 w-fit">
                             <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/25">
                                 🛡️ 1. Katman: Satış & Kârlılık Portalı
                             </button>
                             <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white">
                                 ⚔️ 2. Katman: Saf Üretim Maliyet Portalı
+                            </button>
+                            <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white">
+                                🌐 3. Katman: Web Sitesi Canlı Karşılaştırma
                             </button>
                         </div>
                     </div>
@@ -186,6 +189,51 @@
             </div>
             <div id="layer2-product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Layer 2 Industrial Production Cards Render Dynamically -->
+            </div>
+        </main>
+
+        <!-- Layer 3: Live Website Comparison Workspace (cansizzadeyag.com) -->
+        <main id="layer3-main-view" class="hidden space-y-4">
+            <!-- Summary Live Site Scraper Banner -->
+            <div class="glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-xl border border-purple-500/30 shadow-lg shadow-purple-500/10">
+                        🌐
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            cansizzadeyag.com Canlı Web Sitesi Karşılaştırma Portalı
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">Ideasoft Canlı Altyapı</span>
+                        </h3>
+                        <p class="text-slate-400 text-xs">Sitenizdeki perakende satış fiyatları ile CanFiyat saf üretim maliyetlerinin birebir kârlılık karşılaştırması</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 text-xs">
+                    <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Taranan Ürün</span>
+                        <span id="l3-stat-total-scraped" class="text-xs font-black text-purple-400">62 Ürün</span>
+                    </div>
+                    <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Aktif Seçili Ambalaj</span>
+                        <select id="l3-global-vol-filter" onchange="renderLayer3Cards()" class="bg-slate-900 border border-purple-800 text-purple-300 text-xs font-bold rounded-lg px-2 py-0.5 focus:outline-none">
+                            <option value="250ml" selected>250 ml</option>
+                            <option value="50ml">50 ml</option>
+                            <option value="1000ml">1000 ml / 1 KG</option>
+                        </select>
+                    </div>
+                    <a href="https://www.cansizzadeyag.com/" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-lg shadow-purple-500/25">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        SİTEYE GİT
+                    </a>
+                </div>
+            </div>
+
+            <!-- Layer 3 Stream Grid -->
+            <div id="layer3-product-grid" class="flex flex-col gap-3 w-full">
+                <!-- Layer 3 live site comparison rows render dynamically -->
             </div>
         </main>
     </div>
@@ -749,10 +797,11 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.49"></script>
-    <script src="js/storage.js?v=1.49"></script>
-    <script src="js/calculator.js?v=1.49"></script>
-    <script src="js/app.js?v=1.49"></script>
+    <script src="js/productsData.js?v=1.50"></script>
+    <script src="js/liveSiteData.js?v=1.50"></script>
+    <script src="js/storage.js?v=1.50"></script>
+    <script src="js/calculator.js?v=1.50"></script>
+    <script src="js/app.js?v=1.50"></script>
 </body>
 </html>
 
