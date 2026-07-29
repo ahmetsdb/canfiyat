@@ -115,7 +115,7 @@ function getVolumeConfig(product, volKey) {
   if (!product.volumes[volKey]) {
     product.volumes[volKey] = {
       packagingCost: DEFAULT_PACKAGING_COSTS[volKey] || 14.50,
-      targetProfit: 70,
+      targetProfit: 0,
       webSalePrice: null,
       retailPrice: null,
       s5: null,
@@ -170,7 +170,7 @@ function renderProductGrid() {
     
     const tyResult = PriceCalculator.calculateSystem1Channel({
       wholesaleCost: unitCost,
-      targetProfit: volConfig.targetProfit ?? 70,
+      targetProfit: volConfig.targetProfit ?? 0,
       commission: volConfig.channels?.trendyol?.commission || 19,
       discount: volConfig.channels?.trendyol?.discount || 0,
       cargo: volConfig.channels?.trendyol?.cargo || 110
@@ -219,7 +219,7 @@ function renderProductGrid() {
             <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Kâr
             </span>
-            <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
+            <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 0)}</span>
           </div>
 
           <div class="min-w-[160px]">
@@ -268,7 +268,7 @@ function renderProductGrid() {
               </div>
               <div class="flex justify-between items-center text-slate-300">
                 <span class="flex items-center gap-1 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Net Kâr:</span>
-                <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 70)}</span>
+                <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 0)}</span>
               </div>
             </div>
           </div>
@@ -386,7 +386,7 @@ function loadActiveVolumeConfig(product, volKey) {
   const config = getVolumeConfig(product, volKey);
 
   const packCost = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
-  const targetProfit = config.targetProfit ?? 70;
+  const targetProfit = config.targetProfit ?? 0;
   const tyChannel = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
 
   const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volKey, packCost);
@@ -639,7 +639,7 @@ function calculateSystem3Modal() {
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
-  const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 70;
+  const targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
   const matrix = PriceCalculator.calculateSystem3VolumeMatrix(costPerKg, targetProfit);
 
   const tbody = document.getElementById("s3-matrix-tbody");

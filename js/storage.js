@@ -8,7 +8,7 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v6", // KDV-inclusive wholesale selling prices
+  PRODUCTS: "canfiyat_products_v7", // Target profit set to 0 TL default
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1"
 };
 
@@ -19,7 +19,7 @@ class StorageManager {
     volumes.forEach(vol => {
       configs[vol] = {
         packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
-        targetProfit: 70,
+        targetProfit: 0,
         webSalePrice: 500, // Her ürüne ve ambalaja özel İyzico fiyatı (Sistem 2)
         retailPrice: 650,  // Her ürüne ve ambalaja özel Perakende Fiyatı (Sistem 4)
         channels: {
