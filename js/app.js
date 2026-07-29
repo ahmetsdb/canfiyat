@@ -879,9 +879,6 @@ function renderLayer3Cards() {
   container.innerHTML = "";
 
   const selectedVol = document.getElementById("l3-global-vol-filter") ? document.getElementById("l3-global-vol-filter").value : "250ml";
-  const overhead = StorageManager.getFactoryOverhead();
-  const factoryRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
-  const overheadPerKg = factoryRes ? (factoryRes.overheadPerKg || 0) : 0;
   let totalScrapedMatchCount = 0;
 
   let productsArr = Object.values(currentProducts || {});
@@ -900,41 +897,55 @@ function renderLayer3Cards() {
       if (!matchName && !matchSku) return;
     }
 
-    // Match with scraped live site data
-    let siteItem = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined" && Array.isArray(LIVE_SITE_SCRAPED_DATA)) ? LIVE_SITE_SCRAPED_DATA.find(s => {
-      const sTitle = ((s && (s.title || s.name)) || "").toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
-      const pName = ((product && product.name) || "").toLowerCase().replace(/yağı|yag|–|-|\s/g, "");
-      return sTitle.includes(pName) || pName.includes(sTitle);
-    }) : null;
-
-    if (siteItem) totalScrapedMatchCount++;
-
     const volKey = selectedVol;
     const volConfig = getVolumeConfig(product, volKey);
-    const packagingCost = (volConfig && volConfig.packagingCost) || (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
+    const wholesaleUnitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volKey, volConfig.packagingCost);
 
-    const ratio = (typeof PriceCalculator !== "undefined" && PriceCalculator.getVolumeMl) ? (PriceCalculator.getVolumeMl(volKey) / 1000) : 0.25;
-    const rawCostPerKg = product.costPerKg || 100;
-    const totalCostPerKg = rawCostPerKg + overheadPerKg;
-    const canFiyatBaseCost = parseFloat(((totalCostPerKg * ratio) + packagingCost).toFixed(2));
+    // Calculate Katman 1 / Sistem 1 İyzico Web Sale Price as baseline cost comparison
+    const iyzicoConfig = (volConfig && volConfig.channels && volConfig.channels.iyzico) ? volConfig.channels.iyzico : { commission: 4, discount: 0, cargo: 82.50 };
+    const sys1Result = PriceCalculator.calculateSystem1Channel({
+      wholesaleCost: wholesaleUnitCost,
+      targetProfit: (volConfig && volConfig.targetProfit) ? volConfig.targetProfit : 0,
+      commission: iyzicoConfig.commission || 4,
+      discount: iyzicoConfig.discount || 0,
+      cargo: iyzicoConfig.cargo || 82.50
+    });
 
-    // Live Site Price logic for selected ml option
-    let liveSitePrice = siteItem && siteItem.samplePrices && siteItem.samplePrices[volKey] 
-      ? siteItem.samplePrices[volKey]
-      : (siteItem ? Math.round(canFiyatBaseCost * 1.85) : Math.round(canFiyatBaseCost * 1.95));
+    const canFiyatBaseCost = sys1Result.salePrice; // Katman 1 / Sistem 1 İyzico Fiyatı
 
-    const siteUrl = siteItem ? siteItem.url : `https://www.cansizzadeyag.com/`;
-    const netProfitMargin = parseFloat((liveSitePrice - canFiyatBaseCost).toFixed(2));
-    const profitRatio = liveSitePrice > 0 ? Math.round((netProfitMargin / liveSitePrice) * 100) : 0;
+    // Fetch site data from LIVE_SITE_SCRAPED_DATA
+    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
+    const hasVolPrice = siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0;
+    
+    let liveSitePriceHtml = `<span class="font-bold text-slate-500 text-sm">N/A (Sitede Yok)</span>`;
+    let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
+    let marginBadge = `bg-slate-900/80 text-slate-400 border-slate-800`;
+    let statusText = `⚪ Sitede Satılmıyor`;
+    let siteUrl = (siteData && siteData.url) ? siteData.url : `https://www.cansizzadeyag.com/`;
 
-    let marginBadge = `bg-emerald-950/60 text-emerald-400 border-emerald-800/40`;
-    let statusText = `🟢 Yüksek Kârlı Sitede`;
-    if (profitRatio < 15) {
-      marginBadge = `bg-red-950/60 text-red-400 border-red-800/40`;
-      statusText = `🔴 Düşük Marjlı!`;
-    } else if (profitRatio < 30) {
-      marginBadge = `bg-amber-950/60 text-amber-300 border-amber-800/40`;
-      statusText = `🟡 Dengeli Fiyat`;
+    if (hasVolPrice) {
+      totalScrapedMatchCount++;
+      const livePrice = siteData.samplePrices[volKey];
+      const netProfitMargin = parseFloat((livePrice - canFiyatBaseCost).toFixed(2));
+      const profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
+
+      liveSitePriceHtml = `<span class="font-black text-purple-300 text-sm">${PriceCalculator.formatTL(livePrice)}</span>`;
+      
+      if (netProfitMargin >= 0) {
+        netProfitMarginHtml = `<span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+      } else {
+        netProfitMarginHtml = `<span class="font-black text-red-400 text-xs">${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+      }
+
+      marginBadge = `bg-emerald-950/60 text-emerald-400 border-emerald-800/40`;
+      statusText = `🟢 Yüksek Kârlı`;
+      if (profitRatio < 15) {
+        marginBadge = `bg-red-950/60 text-red-400 border-red-800/40`;
+        statusText = `🔴 Düşük Marjlı`;
+      } else if (profitRatio < 30) {
+        marginBadge = `bg-amber-950/60 text-amber-300 border-amber-800/40`;
+        statusText = `🟡 Dengeli Fiyat`;
+      }
     }
 
     const isUcucu = product.category === "Uçucu Yağlar";
@@ -943,7 +954,7 @@ function renderLayer3Cards() {
       : "bg-emerald-950/60 text-emerald-300 border-emerald-800/40";
 
     const rowHtml = `
-      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group">
+      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-purple-500/40 transition-all group ${!hasVolPrice ? 'opacity-70' : ''}">
         <div class="flex items-center gap-3 min-w-[280px]">
           <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
             ${product.sku || 'SKU'}
@@ -964,41 +975,41 @@ function renderLayer3Cards() {
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full lg:w-auto text-xs">
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[130px]">
             <span class="text-slate-400 block text-[9px] uppercase font-bold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span> 🌐 Sitedeki Canlı Fiyat
+              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-purple-400' : 'bg-slate-600'}"></span> 🌐 Sitedeki Canlı Fiyat
             </span>
-            <span class="font-black text-purple-300 text-sm">${PriceCalculator.formatTL(liveSitePrice)}</span>
+            ${liveSitePriceHtml}
+          </div>
+
+          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[130px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> 🛡️ Katman 1 (İyzico Tabanı)
+            </span>
+            <span class="font-bold text-blue-300 text-xs">${PriceCalculator.formatTL(canFiyatBaseCost)}</span>
           </div>
 
           <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
             <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> 🛡️ CanFiyat Tabanı
+              <span class="w-1.5 h-1.5 rounded-full ${hasVolPrice ? 'bg-emerald-400' : 'bg-slate-600'}"></span> 💰 Net Fiyat Farkı
             </span>
-            <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(canFiyatBaseCost)}</span>
-          </div>
-
-          <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px]">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 💰 Sitedeki Net Kâr
-            </span>
-            <span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>
+            ${netProfitMarginHtml}
           </div>
 
           <div class="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-slate-800/80 min-w-[120px] flex flex-col justify-center">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Brüt Marj (%)</span>
+            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Durum</span>
             <span class="font-mono font-bold text-xs px-1.5 py-0.5 rounded border w-fit mt-0.5 ${marginBadge}">
-              %${profitRatio} (${statusText})
+              ${statusText}
             </span>
           </div>
         </div>
 
         <div class="min-w-[150px] flex items-center gap-1.5">
-          <a href="${siteUrl}" target="_blank" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded-xl shadow text-xs flex items-center justify-center gap-1.5 transition-all">
+          <a href="${siteUrl}" target="_blank" class="w-full ${hasVolPrice ? 'bg-purple-600 hover:bg-purple-500' : 'bg-slate-800 hover:bg-slate-700 text-slate-400'} text-white font-bold py-2 px-3 rounded-xl shadow text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
             </svg>
-            SİTEDE İNCELE
+            ${hasVolPrice ? 'SİTEDE İNCELE' : 'SİTE LİNKİ'}
           </a>
         </div>
       </div>
@@ -1007,7 +1018,7 @@ function renderLayer3Cards() {
   });
 
   const scrapedStat = document.getElementById("l3-stat-total-scraped");
-  if (scrapedStat) scrapedStat.innerText = `${totalScrapedMatchCount} Eşleşen Ürün`;
+  if (scrapedStat) scrapedStat.innerText = `${totalScrapedMatchCount} Sitede Aktif Ürün`;
 }
 
 function updateLayer2BannerStats() {
