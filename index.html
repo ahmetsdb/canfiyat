@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.46 (KDV Dahil Toptan Satış)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/50">v1.47</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -688,16 +688,16 @@
                         <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
                             ⚡ 20 Kafalı Makine + Tesis Elektrik (₺/Ay):
                         </label>
-                        <input type="number" id="overhead-electricity" value="25000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-400">
-                        <span class="text-[9.5px] text-slate-500 block">Sıkım makineleri, klima ve ofis harcaması</span>
+                        <input type="number" id="overhead-electricity" value="20000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-400">
+                        <span class="text-[9.5px] text-slate-500 block">Nisan faturasına göre (3.421 kWh/ay)</span>
                     </div>
 
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
                         <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                            🍱 Mealbox Yemek Gideri (₺/Ay):
+                            🍱 Catering Yemek Gideri (₺/Ay):
                         </label>
-                        <input type="number" id="overhead-catering" value="30000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-cyan-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-400">
-                        <span class="text-[9.5px] text-slate-500 block">6 Kişi x 5 Gün/Hafta yemek maliyeti</span>
+                        <input type="number" id="overhead-catering" value="57255" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-cyan-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-400">
+                        <span class="text-[9.5px] text-slate-500 block">5 Personel x (347 ₺ + %10 KDV) x 30 Gün</span>
                     </div>
 
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1 md:col-span-2">
@@ -749,10 +749,10 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.46"></script>
-    <script src="js/storage.js?v=1.46"></script>
-    <script src="js/calculator.js?v=1.46"></script>
-    <script src="js/app.js?v=1.46"></script>
+    <script src="js/productsData.js?v=1.47"></script>
+    <script src="js/storage.js?v=1.47"></script>
+    <script src="js/calculator.js?v=1.47"></script>
+    <script src="js/app.js?v=1.47"></script>
 </body>
 </html>
 

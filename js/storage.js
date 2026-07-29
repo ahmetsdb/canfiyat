@@ -193,8 +193,8 @@ class StorageManager {
       const defaultConfig = {
         salaries: 200000,
         sgk: 50000,
-        electricity: 25000,
-        catering: 30000,
+        electricity: 20000,
+        catering: 64000,
         rentSarf: 0,
         monthlyCapacityKg: 8714
       };
@@ -204,8 +204,8 @@ class StorageManager {
       return {
         salaries: 200000,
         sgk: 50000,
-        electricity: 25000,
-        catering: 30000,
+        electricity: 20000,
+        catering: 64000,
         rentSarf: 0,
         monthlyCapacityKg: 8714
       };
