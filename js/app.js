@@ -881,8 +881,8 @@ function renderLayer3Cards() {
   const selectedVol = document.getElementById("l3-global-vol-filter") ? document.getElementById("l3-global-vol-filter").value : "250ml";
   const overhead = StorageManager.getFactoryOverhead();
   const factoryRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
-  const overheadPerKg = factoryRes.overheadPerKg;
-
+  const overheadPerKg = factoryRes ? (factoryRes.overheadPerKg || 0) : 0;
+  let totalScrapedMatchCount = 0;
   const productsArr = Object.values(currentProducts);
 
   productsArr.forEach(product => {
