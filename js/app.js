@@ -1326,11 +1326,11 @@ function renderLayer2Cards() {
         const ml = PriceCalculator.getVolumeMl(vol);
         const kg = ml / 1000;
 
-        // HAMMADDE TOHUM ALIŞ FİYATI VE PRES SIKIM VERİM YÜZDESİ HESAPLAMASI
+        // HAMMADDE TOHUM ALIŞ FİYATI VE PRES SIKIM VERİM YÜZDESİ HESAPLAMASI (SABİT TOHUM ALIŞ ÇAPASI)
         const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
         const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
           ? product.seedCostPerKg
-          : parseFloat(((product.costPerKg || 1212.00) * (yieldPct / 100)).toFixed(2));
+          : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
         const costPerKg = (yieldPct > 0)
           ? parseFloat((seedCost / (yieldPct / 100)).toFixed(2))
           : (product.costPerKg || 1212.00);
@@ -1802,17 +1802,20 @@ async function updateLayer2ProductField(productId, field, value) {
   const product = currentProducts[productId];
   if (!product) return;
 
+  // Tohum Alış Fiyatını Sabit Çapa Olarak Kilitler (Verim Değişimlerinde Sürüklenme Olmaz)
+  if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {
+    product.seedCostPerKg = parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+  }
+
   if (field === "seedCostPerKg") product.seedCostPerKg = parseFloat(value) || 0;
   if (field === "yieldPercent") product.yieldPercent = parseFloat(value) || 25;
   if (field === "layer2Volume") product.layer2Volume = value;
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
 
-  // Pres Sıkım Verimi & Tohum Alış Fiyatından 1KG Saf Yağ Maliyeti Hesaplama
-  const seedCost = product.seedCostPerKg !== undefined ? product.seedCostPerKg : ((product.costPerKg || 1212.00) * 0.25);
-  const yieldPct = product.yieldPercent !== undefined ? product.yieldPercent : 25;
-  if (yieldPct > 0) {
-    product.costPerKg = parseFloat((seedCost / (yieldPct / 100)).toFixed(2));
-  }
+  // Pres Sıkım Verimi & Tohum Alış Fiyatından 1KG Saf Yağ Maliyetini Tam Hassasiyetle Hesaplama
+  const seedCost = product.seedCostPerKg;
+  const yieldPct = (product.yieldPercent && product.yieldPercent > 0) ? product.yieldPercent : 25;
+  product.costPerKg = parseFloat((seedCost / (yieldPct / 100)).toFixed(2));
 
   await StorageManager.saveProduct(product);
   renderLayer2Cards();
