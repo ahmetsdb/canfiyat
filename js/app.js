@@ -1344,7 +1344,7 @@ function renderLayer2Cards() {
     productsList.forEach(product => {
       try {
         const vol = product.layer2Volume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-        const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 50;
+        const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!product.layer2DrawerOpen;
 
@@ -1954,6 +1954,17 @@ function setZeroProfitFloor() {
     calculateCurrentModal();
     if (typeof showToast !== "undefined") {
       showToast("🔴 Kırmızı Çizgi Dip Fiyat Aktif (Hedef Kâr: 0 ₺)", "info");
+    }
+  }
+}
+
+function setDefaultProfit70() {
+  const profitInput = document.getElementById("slot-target-profit");
+  if (profitInput) {
+    profitInput.value = 70;
+    calculateCurrentModal();
+    if (typeof showToast !== "undefined") {
+      showToast("🟢 Standart Hedef Kâr (70 ₺) Aktif", "info");
     }
   }
 }
