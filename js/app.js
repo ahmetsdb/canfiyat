@@ -1449,11 +1449,11 @@ function renderLayer2Cards() {
 
                 <!-- Vurgulu Saf Fabrika Maliyeti Rozeti & Aksiyon Butonları -->
                 <div class="flex items-center gap-2.5">
-                  <div class="bg-gradient-to-r from-emerald-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-emerald-500/50 shadow-md">
-                    <span class="text-[9px] uppercase font-extrabold text-emerald-400 block tracking-wider">SAF FABRİKA MALİYETİ:</span>
-                    <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(netCost)}</span>
+                  <div class="bg-gradient-to-r from-teal-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-teal-500/50 shadow-md">
+                    <span class="text-[9px] uppercase font-extrabold text-teal-400 block tracking-wider">SAF FABRİKA MALİYETİ:</span>
+                    <span class="text-base font-black text-teal-300">${PriceCalculator.formatTL(netCost)}</span>
                   </div>
-                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-emerald-300 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
+                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-slate-200 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                     📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
                   </button>
                   <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs text-purple-300 hover:text-white font-bold bg-purple-950 hover:bg-purple-900 border border-purple-800/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
@@ -1465,7 +1465,7 @@ function renderLayer2Cards() {
               <!-- ANLAMSAL RENKLENDİRİLMİŞ RESMİ FATURA DÖKÜM TABLOSU -->
               ${isBreakdownOpen ? `
                 <div class="bg-slate-950/95 p-4 rounded-2xl border border-slate-800 text-xs space-y-2.5 animate-slide-up max-w-4xl">
-                  <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-extrabold text-xs text-emerald-400 tracking-wider">
+                  <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-extrabold text-xs text-teal-400 tracking-wider">
                     <span>📋 UYGULANAN FABRİKA SAF MALİYET HESABI (${supplyType === 'wholesale' ? 'TOPTAN HAZIR ALIŞ' : 'PRES SIKIMI'})</span>
                     <span>TUTAR (TL)</span>
                   </div>
@@ -1503,9 +1503,9 @@ function renderLayer2Cards() {
                   </div>
 
                   <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between font-black text-xs">
-                    <span class="text-emerald-400 tracking-wide">🏁 TOPLAM SAF FABRİKA ÇIKIŞ MALİYETİ</span>
-                    <span class="grow border-b border-dashed border-emerald-500/40 mx-2"></span>
-                    <span class="text-emerald-300 text-sm shrink-0">${PriceCalculator.formatTL(netCost)}</span>
+                    <span class="text-teal-400 tracking-wide">🏁 TOPLAM SAF FABRİKA ÇIKIŞ MALİYETİ</span>
+                    <span class="grow border-b border-dashed border-teal-500/40 mx-2"></span>
+                    <span class="text-teal-300 text-sm shrink-0">${PriceCalculator.formatTL(netCost)}</span>
                   </div>
                 </div>
               ` : ""}
