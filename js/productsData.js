@@ -86,7 +86,8 @@ const DEFAULT_PACKAGING_COSTS = {
   "100ml": 8.35,   // Şişe: 4.10 TL + Kapak+Tıpa: 4.25 TL = 8.35 TL
   "250ml": 14.50,  // Toplam: 14.50 TL
   "500ml": 25.00,  // 500ml
-  "1000ml": 35.00  // 1000ml (1 KG)
+  "1000ml": 35.00, // 1000ml (1 KG)
+  "5000ml": 45.00  // 5000ml (5 KG Bidon)
 };
 
 // Global default channel settings

@@ -16,7 +16,7 @@ const STORAGE_KEYS = {
 class StorageManager {
   static createDefaultVolumeConfigs() {
     const configs = {};
-    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
+    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
     volumes.forEach(vol => {
       configs[vol] = {
         packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,

@@ -989,7 +989,7 @@ function renderLayer3Cards() {
     // Accordion Table HTML for All Volumes
     let accordionHtml = "";
     if (isExpanded) {
-      const allVols = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml"];
+      const allVols = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
       let rowsHtml = "";
       
       allVols.forEach(vKey => {
@@ -1101,6 +1101,7 @@ function renderLayer3Cards() {
                   <option value="250ml" ${volKey === '250ml' ? 'selected' : ''}>250 ml</option>
                   <option value="500ml" ${volKey === '500ml' ? 'selected' : ''}>500 ml</option>
                   <option value="1000ml" ${volKey === '1000ml' ? 'selected' : ''}>1000 ml / 1 KG</option>
+                  <option value="5000ml" ${volKey === '5000ml' ? 'selected' : ''}>5000 ml / 5 KG</option>
                   <option value="100ml" ${volKey === '100ml' ? 'selected' : ''}>100 ml</option>
                   <option value="50ml" ${volKey === '50ml' ? 'selected' : ''}>50 ml</option>
                   <option value="30ml" ${volKey === '30ml' ? 'selected' : ''}>30 ml</option>
