@@ -1463,104 +1463,105 @@ function renderLayer2Cards() {
                 </div>
               </div>
 
-              <!-- SİSTEM 1 KANAL DETAY KARTLARI GRID -->
+              <!-- SİSTEM 1 KANAL DETAY KARTLARI GRID (SIRA: TRENDYOL -> IYZICO WEB -> HEPSIBURADA -> MAGAZA) -->
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                 <!-- 1. TRENDYOL SİSTEM 1 KARTI -->
-                <div class="bg-gradient-to-b from-slate-900 to-amber-950/20 p-3 rounded-xl border border-amber-800/50 space-y-1.5 flex flex-col justify-between">
+                <div class="bg-gradient-to-b from-slate-900 to-amber-950/20 p-3 rounded-xl border border-amber-800/50 space-y-2 flex flex-col justify-between shadow-lg">
                   <div>
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
-                      <span class="font-extrabold text-amber-400 flex items-center gap-1">🧡 TRENDYOL</span>
-                      <span class="text-[10px] font-bold text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-800">%19 Kom.</span>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                      <span class="font-extrabold text-amber-400 text-xs flex items-center gap-1">🧡 TRENDYOL</span>
+                      <span class="text-[10px] font-bold text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">%19 Kom.</span>
                     </div>
-                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
-                      <span>Tavsiye Satış Fiyatı:</span>
+                    <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                      <span class="font-medium text-slate-400">Tavsiye Satış Fiyatı:</span>
                       <span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(tySim.salePrice)}</span>
                     </div>
-                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
-                      <div class="flex justify-between"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.commAmount)}</span></div>
-                      <div class="flex justify-between"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.cargoFee)}</span></div>
-                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(tySim.payout)}</span></div>
-                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                      <div class="flex justify-between items-center"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.commAmount)}</span></div>
+                      <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.cargoFee)}</span></div>
+                      <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(tySim.payout)}</span></div>
+                      <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-300 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
                     </div>
                   </div>
-                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                  <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400 uppercase tracking-wider text-[11px]">NET KÂRINIZ:</span>
                     <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(tySim.netProfit)}</span>
                   </div>
                 </div>
 
-                <!-- 2. HEPSİBURADA SİSTEM 1 KARTI -->
-                <div class="bg-gradient-to-b from-slate-900 to-orange-950/20 p-3 rounded-xl border border-orange-800/50 space-y-1.5 flex flex-col justify-between">
+                <!-- 2. İYZİCO (WEB SİTENİZ) SİSTEM 1 KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-blue-950/20 p-3 rounded-xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
                   <div>
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
-                      <span class="font-extrabold text-orange-400 flex items-center gap-1">🧡 HEPSİBURADA</span>
-                      <span class="text-[10px] font-bold text-orange-300 bg-orange-950 px-1.5 py-0.5 rounded border border-orange-800">%17 Kom.</span>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                      <span class="font-extrabold text-blue-400 text-xs flex items-center gap-1">🌐 İYZİCO (WEB SİTENİZ)</span>
+                      <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">%4 Kom.</span>
                     </div>
-                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
-                      <span>Tavsiye Satış Fiyatı:</span>
-                      <span class="font-black text-orange-300 text-sm">${PriceCalculator.formatTL(hbSim.salePrice)}</span>
-                    </div>
-                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
-                      <div class="flex justify-between"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.commAmount)}</span></div>
-                      <div class="flex justify-between"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.cargoFee)}</span></div>
-                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(hbSim.payout)}</span></div>
-                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
-                    </div>
-                  </div>
-                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-                    <span class="text-emerald-400">NET KÂRINIZ:</span>
-                    <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(hbSim.netProfit)}</span>
-                  </div>
-                </div>
-
-                <!-- 3. İYZİCO (WEB SİTENİZ) SİSTEM 1 KARTI -->
-                <div class="bg-gradient-to-b from-slate-900 to-blue-950/20 p-3 rounded-xl border border-blue-800/50 space-y-1.5 flex flex-col justify-between">
-                  <div>
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
-                      <span class="font-extrabold text-blue-400 flex items-center gap-1">🌐 İYZİCO (WEB SİTENİZ)</span>
-                      <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800">%4 Kom.</span>
-                    </div>
-                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
-                      <span>Tavsiye Satış Fiyatı:</span>
+                    <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                      <span class="font-medium text-slate-400">Tavsiye Satış Fiyatı:</span>
                       <span class="font-black text-blue-300 text-sm">${PriceCalculator.formatTL(iySim.salePrice)}</span>
                     </div>
-                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
-                      <div class="flex justify-between"><span>(-) İyzico Komisyonu (%4):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.commAmount)}</span></div>
-                      <div class="flex justify-between"><span>(-) Kargo Ücreti (82.50TL):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.cargoFee)}</span></div>
-                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(iySim.payout)}</span></div>
-                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                      <div class="flex justify-between items-center"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.commAmount)}</span></div>
+                      <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.cargoFee)}</span></div>
+                      <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(iySim.payout)}</span></div>
+                      <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-300 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
                     </div>
                   </div>
-                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                  <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400 uppercase tracking-wider text-[11px]">NET KÂRINIZ:</span>
                     <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(iySim.netProfit)}</span>
                   </div>
                 </div>
 
-                <!-- 4. PERAKENDE FİZİKİ MAĞAZA KARTI -->
-                <div class="bg-gradient-to-b from-slate-900 to-emerald-950/20 p-3 rounded-xl border border-emerald-800/50 space-y-1.5 flex flex-col justify-between">
+                <!-- 3. HEPSİBURADA SİSTEM 1 KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-orange-950/20 p-3 rounded-xl border border-orange-800/50 space-y-2 flex flex-col justify-between shadow-lg">
                   <div>
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
-                      <span class="font-extrabold text-emerald-400 flex items-center gap-1">🏪 FİZİKİ MAĞAZA</span>
-                      <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">Direkt</span>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                      <span class="font-extrabold text-orange-400 text-xs flex items-center gap-1">🧡 HEPSİBURADA</span>
+                      <span class="text-[10px] font-bold text-orange-300 bg-orange-950 px-2 py-0.5 rounded border border-orange-800">%17 Kom.</span>
                     </div>
-                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
-                      <span>Mağaza Satış Fiyatı:</span>
-                      <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(storePrice)}</span>
+                    <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                      <span class="font-medium text-slate-400">Tavsiye Satış Fiyatı:</span>
+                      <span class="font-black text-orange-300 text-sm">${PriceCalculator.formatTL(hbSim.salePrice)}</span>
                     </div>
-                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
-                      <div class="flex justify-between"><span>(-) Komisyon Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
-                      <div class="flex justify-between"><span>(-) Kargo Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
-                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Elinize Kalan (Kasa):</span><span class="text-emerald-300">${PriceCalculator.formatTL(storePrice)}</span></div>
-                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                      <div class="flex justify-between items-center"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.commAmount)}</span></div>
+                      <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.cargoFee)}</span></div>
+                      <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(hbSim.payout)}</span></div>
+                      <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-300 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
                     </div>
                   </div>
-                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                  <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400 uppercase tracking-wider text-[11px]">NET KÂRINIZ:</span>
+                    <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(hbSim.netProfit)}</span>
+                  </div>
+                </div>
+
+                <!-- 4. PERAKENDE FİZİKİ MAĞAZA KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-emerald-950/20 p-3 rounded-xl border border-emerald-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                  <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                      <span class="font-extrabold text-emerald-400 text-xs flex items-center gap-1">🏪 FİZİKİ MAĞAZA</span>
+                      <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Direkt</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                      <span class="font-medium text-slate-400">Mağaza Satış Fiyatı:</span>
+                      <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(storePrice)}</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                      <div class="flex justify-between items-center"><span>(-) Komisyon Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                      <div class="flex justify-between items-center"><span>(-) Kargo Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                      <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Elinize Kalan (Kasa):</span><span class="text-emerald-300">${PriceCalculator.formatTL(storePrice)}</span></div>
+                      <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-300 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    </div>
+                  </div>
+                  <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400 uppercase tracking-wider text-[11px]">NET KÂRINIZ:</span>
                     <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(targetProfitInput)}</span>
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           ` : ""}
         </div>
