@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.85 (🟢 Standart 70 TL Kâr & 🎁 Kombin Simülatör Tam Fix)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.86 (🎁 Kombin Set Ürün & Hacim (ml) Seçimi Aktif)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -830,26 +830,79 @@
                 </button>
             </div>
 
-            <!-- Set Ürün Seçim Alanı -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <div>
-                    <label class="block text-xs font-bold text-purple-300 mb-1">1. Ürün Seçin:</label>
-                    <select id="bundle-item-1" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
+            <!-- Set Ürün Seçim ve Ambalaj Hacim Alanı -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <!-- 1. ÜRÜN KUTUSU -->
+                <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs font-extrabold text-purple-300">1. Ürün Seçimi:</label>
+                    <select id="bundle-item-1" onchange="onBundleItemProductChange(1); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
                         <!-- Populated dynamically via JS -->
                     </select>
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <span class="text-[10px] font-bold text-slate-400">🧴 Hacim:</span>
+                        <select id="bundle-vol-1" onchange="updateBundleSimulator()" class="bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none">
+                            <option value="250ml" selected>250 ml</option>
+                            <option value="500ml">500 ml</option>
+                            <option value="1000ml">1000 ml (1 KG)</option>
+                            <option value="100ml">100 ml</option>
+                            <option value="50ml">50 ml</option>
+                            <option value="30ml">30 ml</option>
+                            <option value="20ml">20 ml</option>
+                        </select>
+                    </div>
+                    <div class="text-right pt-1 border-t border-slate-800/80">
+                        <span class="text-[9px] text-slate-400 block uppercase">Ürün Saf Maliyeti:</span>
+                        <span id="bundle-item-cost-1" class="text-xs font-black text-amber-300">0,00 ₺</span>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-purple-300 mb-1">2. Ürün Seçin:</label>
-                    <select id="bundle-item-2" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
+
+                <!-- 2. ÜRÜN KUTUSU -->
+                <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs font-extrabold text-purple-300">2. Ürün Seçimi:</label>
+                    <select id="bundle-item-2" onchange="onBundleItemProductChange(2); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
                         <!-- Populated dynamically via JS -->
                     </select>
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <span class="text-[10px] font-bold text-slate-400">🧴 Hacim:</span>
+                        <select id="bundle-vol-2" onchange="updateBundleSimulator()" class="bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none">
+                            <option value="250ml">250 ml</option>
+                            <option value="500ml">500 ml</option>
+                            <option value="1000ml">1000 ml (1 KG)</option>
+                            <option value="100ml">100 ml</option>
+                            <option value="50ml" selected>50 ml</option>
+                            <option value="30ml">30 ml</option>
+                            <option value="20ml">20 ml</option>
+                        </select>
+                    </div>
+                    <div class="text-right pt-1 border-t border-slate-800/80">
+                        <span class="text-[9px] text-slate-400 block uppercase">Ürün Saf Maliyeti:</span>
+                        <span id="bundle-item-cost-2" class="text-xs font-black text-amber-300">0,00 ₺</span>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">3. Ürün (Opsiyonel):</label>
-                    <select id="bundle-item-3" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
+
+                <!-- 3. ÜRÜN KUTUSU (OPSİYONEL) -->
+                <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs font-extrabold text-slate-400">3. Ürün (Opsiyonel):</label>
+                    <select id="bundle-item-3" onchange="onBundleItemProductChange(3); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
                         <option value="">-- Ürün Yok (2'li Paket) --</option>
                         <!-- Populated dynamically via JS -->
                     </select>
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <span class="text-[10px] font-bold text-slate-400">🧴 Hacim:</span>
+                        <select id="bundle-vol-3" onchange="updateBundleSimulator()" class="bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none">
+                            <option value="250ml">250 ml</option>
+                            <option value="500ml">500 ml</option>
+                            <option value="1000ml">1000 ml (1 KG)</option>
+                            <option value="100ml">100 ml</option>
+                            <option value="50ml">50 ml</option>
+                            <option value="30ml" selected>30 ml</option>
+                            <option value="20ml">20 ml</option>
+                        </select>
+                    </div>
+                    <div class="text-right pt-1 border-t border-slate-800/80">
+                        <span class="text-[9px] text-slate-400 block uppercase">Ürün Saf Maliyeti:</span>
+                        <span id="bundle-item-cost-3" class="text-xs font-black text-amber-300">0,00 ₺</span>
+                    </div>
                 </div>
             </div>
 
@@ -886,11 +939,11 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.85"></script>
-    <script src="js/liveSiteData.js?v=1.85"></script>
-    <script src="js/storage.js?v=1.85"></script>
-    <script src="js/calculator.js?v=1.85"></script>
-    <script src="js/app.js?v=1.85"></script>
+    <script src="js/productsData.js?v=1.86"></script>
+    <script src="js/liveSiteData.js?v=1.86"></script>
+    <script src="js/storage.js?v=1.86"></script>
+    <script src="js/calculator.js?v=1.86"></script>
+    <script src="js/app.js?v=1.86"></script>
 </body>
 </html>
 

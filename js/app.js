@@ -2017,6 +2017,20 @@ function populateBundleProductDropdowns() {
   }
 }
 
+function onBundleItemProductChange(idx) {
+  const sel = document.getElementById(`bundle-item-${idx}`);
+  const volSel = document.getElementById(`bundle-vol-${idx}`);
+  if (!sel || !volSel) return;
+  if (!currentProducts || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+  const pList = Object.values(currentProducts || {});
+  const p = currentProducts[sel.value] || pList.find(item => item.id === sel.value || item.sku === sel.value);
+  if (p) {
+    volSel.value = p.layer2Volume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+  }
+}
+
 function updateBundleSimulator() {
   try {
     const sel1 = document.getElementById("bundle-item-1");
@@ -2035,14 +2049,23 @@ function updateBundleSimulator() {
     const p2 = currentProducts[sel2.value] || pList.find(p => (p.sku === sel2.value || p.id === sel2.value));
     const p3 = sel3.value ? (currentProducts[sel3.value] || pList.find(p => (p.sku === sel3.value || p.id === sel3.value))) : null;
 
-    const items = [p1, p2, p3].filter(Boolean);
-    if (items.length === 0) return;
+    const vol1 = document.getElementById("bundle-vol-1")?.value || "250ml";
+    const vol2 = document.getElementById("bundle-vol-2")?.value || "50ml";
+    const vol3 = document.getElementById("bundle-vol-3")?.value || "30ml";
+
+    const itemEntries = [];
+    if (p1) itemEntries.push({ product: p1, vol: vol1, idx: 1 });
+    if (p2) itemEntries.push({ product: p2, vol: vol2, idx: 2 });
+    if (p3) itemEntries.push({ product: p3, vol: vol3, idx: 3 });
+
+    if (itemEntries.length === 0) return;
 
     const overhead = StorageManager.getFactoryOverhead();
     const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
 
-    const costsList = items.map(product => {
-      const vol = product.layer2Volume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+    const costsList = itemEntries.map((entry, index) => {
+      const product = entry.product;
+      const vol = entry.vol;
       const ml = PriceCalculator.getVolumeMl(vol);
       const kg = ml / 1000;
 
@@ -2070,8 +2093,18 @@ function updateBundleSimulator() {
       else if (vol === "20ml") laborAssemblyFee = 17.80;
       else if (vol === "5000ml" || vol === "5kg") laborAssemblyFee = 15.00;
 
-      return parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
+      const itemNetCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
+
+      const costBadge = document.getElementById(`bundle-item-cost-${entry.idx}`);
+      if (costBadge) costBadge.textContent = PriceCalculator.formatTL(itemNetCost);
+
+      return itemNetCost;
     });
+
+    if (!p3) {
+      const costBadge3 = document.getElementById("bundle-item-cost-3");
+      if (costBadge3) costBadge3.textContent = "0,00 ₺";
+    }
 
     const bundleTargetPrice = parseFloat(priceInput.value) || 0;
     const totalCost = costsList.reduce((a, b) => a + b, 0);
@@ -2080,13 +2113,28 @@ function updateBundleSimulator() {
     if (costEl) costEl.textContent = PriceCalculator.formatTL(totalCost);
 
     const cargoSavingsEl = document.getElementById("bundle-cargo-savings");
-    const savedCargo = (items.length - 1) * 110;
+    const savedCargo = (itemEntries.length - 1) * 110;
     if (cargoSavingsEl) cargoSavingsEl.textContent = `+${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu!`;
 
     const tyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 19, cargo: 110 });
     const iyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 4, cargo: 82.50 });
     const hbRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 17, cargo: 110 });
     const storeProfit = bundleTargetPrice - totalCost;
+
+    const itemsSummaryHtml = `
+      <div class="text-[10px] text-slate-300 font-semibold bg-slate-950/90 p-2 rounded-xl border border-slate-800 space-y-1 mb-2">
+        <div class="font-bold text-purple-300 uppercase tracking-wider text-[9px] border-b border-slate-800/80 pb-1 flex justify-between">
+          <span>📦 SET İÇERİĞİ & SEÇİLEN HACİMLER</span>
+          <span>BİRİM MALİYET</span>
+        </div>
+        ${itemEntries.map((e, idx) => `
+          <div class="flex justify-between items-center text-slate-300">
+            <span class="truncate pr-1">${idx + 1}. ${e.product.name} <strong class="text-sky-300">(${e.vol})</strong></span>
+            <span class="font-bold text-amber-300 shrink-0 ml-1">${PriceCalculator.formatTL(costsList[idx])}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
 
     const resultsGrid = document.getElementById("bundle-results-grid");
     if (resultsGrid) {
@@ -2098,6 +2146,9 @@ function updateBundleSimulator() {
               <span class="font-extrabold text-amber-400 text-xs">🧡 TRENDYOL</span>
               <span class="text-[10px] font-bold text-amber-300 bg-amber-950 px-2 py-0.5 rounded-full border border-amber-800">%19 Kom.</span>
             </div>
+
+            ${itemsSummaryHtml}
+
             <div class="space-y-1.5 text-xs text-slate-300">
               <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-amber-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
               <div class="flex justify-between"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(tyRes.commAmount)}</span></div>
@@ -2119,6 +2170,9 @@ function updateBundleSimulator() {
               <span class="font-extrabold text-blue-400 text-xs">🌐 İYZİCO (WEB)</span>
               <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded-full border border-blue-800">%4 Kom.</span>
             </div>
+
+            ${itemsSummaryHtml}
+
             <div class="space-y-1.5 text-xs text-slate-300">
               <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-blue-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
               <div class="flex justify-between"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.commAmount)}</span></div>
@@ -2140,6 +2194,9 @@ function updateBundleSimulator() {
               <span class="font-extrabold text-orange-400 text-xs">🧡 HEPSİBURADA</span>
               <span class="text-[10px] font-bold text-orange-300 bg-orange-950 px-2 py-0.5 rounded-full border border-orange-800">%17 Kom.</span>
             </div>
+
+            ${itemsSummaryHtml}
+
             <div class="space-y-1.5 text-xs text-slate-300">
               <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-orange-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
               <div class="flex justify-between"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(hbRes.commAmount)}</span></div>
@@ -2161,6 +2218,9 @@ function updateBundleSimulator() {
               <span class="font-extrabold text-emerald-400 text-xs">🏪 FİZİKİ MAĞAZA</span>
               <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">Direkt</span>
             </div>
+
+            ${itemsSummaryHtml}
+
             <div class="space-y-1.5 text-xs text-slate-300">
               <div class="flex justify-between"><span>Mağaza Set Fiyatı:</span><span class="font-bold text-emerald-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
               <div class="flex justify-between"><span>(-) Komisyon:</span><span class="text-emerald-400 font-semibold">0,00 ₺</span></div>
