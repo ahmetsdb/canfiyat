@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.83 (🔴 Kırmızı Çizgi Dip Fiyat & 🎁 Kombin Set Simülatörü Aktif)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.84 (🔴 Ürün İçi Dip Fiyat & 🎁 Kusursuz Kombin Set Simülatörü Aktif)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -396,7 +396,12 @@
                                 <input type="number" id="slot-packaging-cost" value="14.50" min="0" step="any" oninput="calculateCurrentModal()">
                             </div>
                             <div class="input-group">
-                                <label class="text-[10px] text-emerald-400">Hedeflenen Net Kâr (₺)</label>
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[10px] text-emerald-400">Hedeflenen Net Kâr (₺)</label>
+                                    <button onclick="setZeroProfitFloor()" class="text-[9px] font-bold text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800 hover:bg-rose-900 transition-all flex items-center gap-1">
+                                        🔴 Dip Fiyat Yap (0 ₺ Kâr)
+                                    </button>
+                                </div>
                                 <input type="number" id="slot-target-profit" value="0" min="0" step="any" class="border-emerald-900 bg-emerald-950/30 text-emerald-300 font-bold" oninput="calculateCurrentModal()">
                             </div>
                         </div>
@@ -874,11 +879,11 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.83"></script>
-    <script src="js/liveSiteData.js?v=1.83"></script>
-    <script src="js/storage.js?v=1.83"></script>
-    <script src="js/calculator.js?v=1.83"></script>
-    <script src="js/app.js?v=1.83"></script>
+    <script src="js/productsData.js?v=1.84"></script>
+    <script src="js/liveSiteData.js?v=1.84"></script>
+    <script src="js/storage.js?v=1.84"></script>
+    <script src="js/calculator.js?v=1.84"></script>
+    <script src="js/app.js?v=1.84"></script>
 </body>
 </html>
 
