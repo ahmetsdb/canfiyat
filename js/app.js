@@ -1365,43 +1365,51 @@ function renderLayer2Cards() {
 
         if (activeView === "rows") {
           const rowHtml = `
-            <div class="glass-card rounded-xl p-4 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between gap-3 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-950 shadow-xl">
+            <div class="glass-card rounded-2xl p-4 border border-slate-800/90 hover:border-emerald-500/40 flex flex-col justify-between gap-3.5 bg-slate-950/90 shadow-xl transition-all">
               <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-[260px]">
-                  <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0">
+                <!-- Ürün SKU ve Adı -->
+                <div class="flex items-center gap-2.5 min-w-[240px]">
+                  <span class="font-mono text-xs font-bold text-slate-300 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800 shrink-0">
                     ${product.sku}
                   </span>
                   <div class="truncate">
-                    <h3 class="text-sm font-extrabold text-white truncate">
+                    <h3 class="text-sm font-extrabold text-white truncate tracking-tight">
                       ${product.name}
                     </h3>
-                    <span class="text-xs font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
                       ${product.category}
                     </span>
                   </div>
                 </div>
 
-                <!-- HAMMADDE ALIŞ & PRES VERİM GİRDİLERİ -->
-                <div class="flex flex-wrap items-center gap-2 bg-slate-950/90 p-2 rounded-xl border border-amber-500/30">
-                  <div class="flex items-center gap-1">
-                    <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
-                    <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
-                    <span class="text-[11px] font-bold text-amber-400">₺/KG</span>
+                <!-- SLEEK HAMMADDE ALIŞ & SIKIM VERİMİ KONTROL HAP-PANELİ -->
+                <div class="flex flex-wrap items-center gap-2.5 bg-slate-900/90 px-3 py-1.5 rounded-2xl border border-amber-500/30 shadow-inner">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1">🌾 Tohum Alış:</span>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:border-amber-400">
+                      <span class="text-[11px] font-bold text-amber-400">₺/KG</span>
+                    </div>
                   </div>
-                  <div class="flex items-center gap-1 border-l border-slate-800 pl-2">
-                    <span class="text-xs font-bold text-blue-400">💧 Verim:</span>
-                    <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-14 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
-                    <span class="text-[11px] font-bold text-blue-400">%</span>
+                  <div class="h-4 w-px bg-slate-800"></div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-blue-400 flex items-center gap-1">💧 Verim:</span>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none focus:border-blue-400">
+                      <span class="text-[11px] font-bold text-blue-400">%</span>
+                    </div>
                   </div>
-                  <div class="border-l border-slate-800 pl-2 text-right">
-                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">1KG Yağ Maliyeti:</span>
+                  <div class="h-4 w-px bg-slate-800"></div>
+                  <div class="text-right">
+                    <span class="text-[9px] text-slate-400 font-semibold block uppercase tracking-wider">1KG Yağ Maliyeti</span>
                     <span class="text-xs font-black text-amber-300">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
                 </div>
 
+                <!-- Ambalaj Hacim Seçici -->
                 <div class="flex items-center gap-2">
                   <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
-                  <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
+                  <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
                     <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
                     <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
                     <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
@@ -1413,56 +1421,57 @@ function renderLayer2Cards() {
                   </select>
                 </div>
 
+                <!-- Vurgulu Saf Fabrika Maliyeti Rozeti & Aksiyon Butonları -->
                 <div class="flex items-center gap-2.5">
-                  <div class="bg-emerald-950/70 px-3.5 py-1.5 rounded-xl border border-emerald-500/40">
-                    <span class="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider">SAF FABRİKA MALİYETİ:</span>
+                  <div class="bg-gradient-to-r from-emerald-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-emerald-500/50 shadow-md">
+                    <span class="text-[9px] uppercase font-extrabold text-emerald-400 block tracking-wider">SAF FABRİKA MALİYETİ:</span>
                     <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(netCost)}</span>
                   </div>
-                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-emerald-300 hover:text-white font-bold bg-slate-900 border border-emerald-500/40 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-emerald-300 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                     📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
                   </button>
-                  <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs text-purple-300 hover:text-white font-bold bg-purple-950 hover:bg-purple-900 border border-purple-800/80 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                  <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs text-purple-300 hover:text-white font-bold bg-purple-950 hover:bg-purple-900 border border-purple-800/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                     ⚡ ${isDrawerOpen ? "Sistem 1'i Gizle" : "Sistem 1 Simülatörü"}
                   </button>
                 </div>
               </div>
 
-              <!-- SIKI KADEMELİ FATURA DÖKÜM TABLOSU (DOT-LEADER RECEIPT STYLE) -->
+              <!-- RESMİ FATURA DÖKÜM TABLOSU (MODERN ŞIK DİZAYN - NO MATRIX CODE TEXT) -->
               ${isBreakdownOpen ? `
-                <div class="bg-slate-950 p-4.5 rounded-xl border border-emerald-500/50 text-sm font-mono space-y-2.5 animate-slide-up max-w-3xl">
-                  <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-bold text-xs text-emerald-400 uppercase tracking-wider">
-                    <span>📋 UYGULANAN FABRİKA MALİYET KALEMİ (RESMİ FATURA DÖKÜMÜ)</span>
+                <div class="bg-slate-950/95 p-4 rounded-2xl border border-slate-800 text-xs space-y-2.5 animate-slide-up max-w-4xl">
+                  <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-extrabold text-xs text-emerald-400 tracking-wider">
+                    <span>📋 UYGULANAN FABRİKA SAF MALİYET HESABI (RESMİ FATURA DÖKÜMÜ)</span>
                     <span>TUTAR (TL)</span>
                   </div>
 
                   <div class="flex items-baseline justify-between text-slate-200">
-                    <span class="shrink-0 font-medium">1. 🧴 Hammadde Yağ Payı (${vol} @ ${PriceCalculator.formatTL(seedCost)}/KG Tohum x %${yieldPct} Verim = ${PriceCalculator.formatTL(costPerKg)}/KG Yağ)</span>
-                    <span class="grow border-b border-dotted border-slate-700 mx-2"></span>
-                    <span class="font-bold text-amber-300 shrink-0 text-sm">${PriceCalculator.formatTL(rawOilCost)}</span>
+                    <span class="shrink-0 font-medium text-slate-300">1. 🧴 Hammadde Yağ Payı (${vol} @ ${PriceCalculator.formatTL(seedCost)}/KG Tohum x %${yieldPct} Verim = ${PriceCalculator.formatTL(costPerKg)}/KG Yağ)</span>
+                    <span class="grow border-b border-dotted border-slate-800 mx-2"></span>
+                    <span class="font-bold text-amber-300 shrink-0 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
                   </div>
 
                   <div class="flex items-baseline justify-between text-slate-200">
-                    <span class="shrink-0 font-medium">2. 🍾 Cam Şişe, Kapak & Tıpa Ambalaj Maliyeti</span>
-                    <span class="grow border-b border-dotted border-slate-700 mx-2"></span>
-                    <span class="font-bold text-blue-300 shrink-0 text-sm">${PriceCalculator.formatTL(packCost)}</span>
+                    <span class="shrink-0 font-medium text-slate-300">2. 🍾 Cam Şişe, Kapak & Tıpa Ambalaj Maliyeti</span>
+                    <span class="grow border-b border-dotted border-slate-800 mx-2"></span>
+                    <span class="font-bold text-blue-300 shrink-0 text-xs">${PriceCalculator.formatTL(packCost)}</span>
                   </div>
 
                   <div class="flex items-baseline justify-between text-slate-200">
-                    <span class="shrink-0 font-medium">3. ⚡ Hacimsel Tesis & Enerji Payı (${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG x ${kg} KG)</span>
-                    <span class="grow border-b border-dotted border-slate-700 mx-2"></span>
-                    <span class="font-bold text-purple-300 shrink-0 text-sm">${PriceCalculator.formatTL(linearOverhead)}</span>
+                    <span class="shrink-0 font-medium text-slate-300">3. ⚡ Hacimsel Tesis & Enerji Payı (${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG x ${kg} KG)</span>
+                    <span class="grow border-b border-dotted border-slate-800 mx-2"></span>
+                    <span class="font-bold text-purple-300 shrink-0 text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
                   </div>
 
                   <div class="flex items-baseline justify-between text-slate-200">
-                    <span class="shrink-0 font-medium">4. 🛠️ Pipet/Damlalık Montaj & Kutulama İşçilik Payı</span>
-                    <span class="grow border-b border-dotted border-slate-700 mx-2"></span>
-                    <span class="font-bold text-cyan-300 shrink-0 text-sm">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
+                    <span class="shrink-0 font-medium text-slate-300">4. 🛠️ Pipet/Damlalık Montaj & Kutulama İşçilik Payı</span>
+                    <span class="grow border-b border-dotted border-slate-800 mx-2"></span>
+                    <span class="font-bold text-cyan-300 shrink-0 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
                   </div>
 
-                  <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between font-black text-sm">
+                  <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between font-black text-xs">
                     <span class="text-emerald-400 tracking-wide">🏁 TOPLAM SAF FABRİKA ÇIKIŞ MALİYETİ</span>
-                    <span class="grow border-b border-dashed border-emerald-500/50 mx-2"></span>
-                    <span class="text-emerald-300 text-lg shrink-0">${PriceCalculator.formatTL(netCost)}</span>
+                    <span class="grow border-b border-dashed border-emerald-500/40 mx-2"></span>
+                    <span class="text-emerald-300 text-sm shrink-0">${PriceCalculator.formatTL(netCost)}</span>
                   </div>
                 </div>
               ` : ""}
