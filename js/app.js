@@ -1057,9 +1057,9 @@ function renderLayer3Cards() {
 
       accordionHtml = `
         <div class="mt-3 pt-3 border-t border-slate-800/80 bg-slate-950/90 rounded-xl p-3 animate-fadeIn">
-          <div class="text-xs font-bold text-purple-300 mb-2 flex items-center justify-between">
+          <div class="text-xs font-bold text-purple-300 mb-2 flex items-center justify-between flex-wrap gap-2">
             <span class="flex items-center gap-1.5">📊 <span class="text-white">${product.name}</span> - Tüm Ambalaj Boyutları Karşılaştırması</span>
-            <span class="text-[10px] text-slate-400">Tüm boyutların kârlılıklarını tek bakışta inceleyin & canlı fiyatı değiştirin</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950/90 text-amber-300 border border-amber-800/80 flex items-center gap-1">🏷️ Toptan 1 KG Liste Fiyatımız: <span class="font-black text-amber-200">${PriceCalculator.formatTL(product.costPerKg)}</span></span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
@@ -1085,7 +1085,7 @@ function renderLayer3Cards() {
       <div class="glass-card rounded-xl p-3.5 border border-slate-800/80 bg-slate-900/50 hover:border-purple-500/50 transition-all flex flex-col gap-3 ${!hasVolPrice ? 'opacity-85' : ''}">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <!-- Ürün Tanımlama & Özel Ambalaj Seçici -->
-          <div class="flex items-center gap-3 w-full md:w-1/3 min-w-[260px]">
+          <div class="flex items-center gap-3 w-full md:w-1/3 min-w-[280px]">
             <span class="font-mono text-[10px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-md border border-slate-800 shrink-0">
               ${product.sku || 'SKU'}
             </span>
@@ -1093,9 +1093,12 @@ function renderLayer3Cards() {
               <h3 class="text-xs font-bold text-white group-hover:text-purple-400 transition-colors truncate">
                 ${product.name}
               </h3>
-              <div class="flex items-center gap-1.5 mt-1">
+              <div class="flex items-center gap-1.5 mt-1 flex-wrap">
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${catBadge}">
                   ${product.category || 'Bitkisel Yağ'}
+                </span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/80 flex items-center gap-1 shadow-sm" title="1 KG Toptan Liste Fiyatımız">
+                  🏷️ Toptan 1 KG: <span class="font-black text-amber-200">${PriceCalculator.formatTL(product.costPerKg)}</span>
                 </span>
                 <select onchange="updateCardVolume('${product.id}', this.value)" class="bg-slate-900 border border-purple-800/80 text-purple-300 text-[10px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-purple-400">
                   <option value="250ml" ${volKey === '250ml' ? 'selected' : ''}>250 ml</option>
