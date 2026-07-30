@@ -1359,7 +1359,7 @@ function renderLayer2Cards() {
       const rowHtml = `
         <div class="glass-card rounded-xl p-4 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between gap-3 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-950 shadow-xl">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-[280px]">
+            <div class="flex items-center gap-3 min-w-[260px]">
               <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0">
                 ${product.sku}
               </span>
@@ -1373,25 +1373,36 @@ function renderLayer2Cards() {
               </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-              <div class="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
-                <span class="text-xs text-slate-400 font-semibold">1KG Toptan:</span>
-                <span class="text-sm font-bold text-amber-300">${PriceCalculator.formatTL(costPerKg)}</span>
+            <!-- HAMMADDE ALIŞ & PRES VERİM GİRDİLERİ -->
+            <div class="flex flex-wrap items-center gap-2 bg-slate-950/90 p-2 rounded-xl border border-amber-500/30">
+              <div class="flex items-center gap-1">
+                <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
+                <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
+                <span class="text-[11px] font-bold text-amber-400">₺/KG</span>
               </div>
+              <div class="flex items-center gap-1 border-l border-slate-800 pl-2">
+                <span class="text-xs font-bold text-blue-400">💧 Verim:</span>
+                <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-14 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
+                <span class="text-[11px] font-bold text-blue-400">%</span>
+              </div>
+              <div class="border-l border-slate-800 pl-2 text-right">
+                <span class="text-[10px] text-slate-400 font-semibold block uppercase">1KG Yağ Maliyeti:</span>
+                <span class="text-xs font-black text-amber-300">${PriceCalculator.formatTL(costPerKg)}</span>
+              </div>
+            </div>
 
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
-                <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
-                  <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
-                  <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
-                  <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
-                  <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
-                  <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
-                  <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
-                  <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
-                  <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
-                </select>
-              </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
+              <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
+                <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
+                <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
+                <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
+                <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
+                <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
+                <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
+                <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
+                <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
+              </select>
             </div>
 
             <div class="flex items-center gap-2.5">
@@ -1417,7 +1428,7 @@ function renderLayer2Cards() {
               </div>
 
               <div class="flex items-baseline justify-between text-slate-200">
-                <span class="shrink-0 font-medium">1. 🧴 Hammadde Yağ Payı (${vol} @ ${PriceCalculator.formatTL(costPerKg)}/KG)</span>
+                <span class="shrink-0 font-medium">1. 🧴 Hammadde Yağ Payı (${vol} @ ${PriceCalculator.formatTL(seedCost)}/KG Tohum x %${yieldPct} Verim = ${PriceCalculator.formatTL(costPerKg)}/KG Yağ)</span>
                 <span class="grow border-b border-dotted border-slate-700 mx-2"></span>
                 <span class="font-bold text-amber-300 shrink-0 text-sm">${PriceCalculator.formatTL(rawOilCost)}</span>
               </div>
@@ -1545,13 +1556,13 @@ function renderLayer2Cards() {
                       <span class="text-xs font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Direkt</span>
                     </div>
                     <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
-                      <span class="font-semibold text-slate-400">Mağaza Satış Fiyatı:</span>
+                      <span class="font-semibold text-slate-400">Mağaza Fiyatı:</span>
                       <span class="font-black text-emerald-300 text-base">${PriceCalculator.formatTL(storePrice)}</span>
                     </div>
                     <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                      <div class="flex justify-between items-center"><span>(-) Komisyon Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
-                      <div class="flex justify-between items-center"><span>(-) Kargo Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
-                      <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Elinize Kalan (Kasa):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(storePrice)}</span></div>
+                      <div class="flex justify-between items-center"><span>(-) Komisyon:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                      <div class="flex justify-between items-center"><span>(-) Kargo:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                      <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Kasa (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(storePrice)}</span></div>
                       <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
                     </div>
                   </div>
@@ -1573,22 +1584,44 @@ function renderLayer2Cards() {
         <div class="glass-card rounded-2xl p-4 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between relative overflow-hidden transition-all bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 shadow-xl">
           <div>
             <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-xs font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
                 ${product.category}
               </span>
-              <span class="font-mono text-xs font-semibold text-slate-300 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">
+              <span class="font-mono text-xs font-semibold text-slate-300 bg-slate-950 px-2.5 py-0.5 rounded-full border border-slate-800">
                 ${product.sku}
               </span>
             </div>
 
-            <h3 class="text-base font-extrabold text-white tracking-tight mb-2 truncate">
+            <h3 class="text-sm font-extrabold text-white tracking-tight mb-2 truncate">
               ${product.name}
             </h3>
+
+            <!-- HAMMADDE ALIŞ & PRES VERİM GİRDİLERİ (CARD VIEW) -->
+            <div class="my-2 bg-slate-950/90 p-2.5 rounded-xl border border-amber-500/30 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                  <span class="text-xs font-bold text-amber-400">₺/KG</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-400">💧 Pres Verimi:</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                  <span class="text-xs font-bold text-blue-400">%</span>
+                </div>
+              </div>
+              <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">1KG Yağ Maliyeti:</span>
+                <span class="text-xs font-black text-amber-300">${PriceCalculator.formatTL(costPerKg)}</span>
+              </div>
+            </div>
 
             <!-- Ambalaj Boyutu Seçici -->
             <div class="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
               <label class="text-slate-200 text-xs font-bold">🧴 Ambalaj Boyutu:</label>
-              <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2.5 py-1 rounded-lg focus:outline-none">
+              <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
                 <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
                 <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
                 <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
@@ -1705,12 +1738,12 @@ function renderLayer2Cards() {
 
                 <div class="bg-slate-900/90 p-2.5 rounded-lg border border-emerald-800/50">
                   <div class="flex justify-between items-center font-bold text-emerald-300">
-                    <span>🏪 Fiziki Mağaza Fiyatı:</span>
+                    <span>🏪 Fiziki Mağaza:</span>
                     <span class="text-sm font-black">${PriceCalculator.formatTL(storePrice)}</span>
                   </div>
-                  <div class="text-xs text-slate-300 mt-1 flex justify-between">
-                    <span>Maliyet: -${PriceCalculator.formatTL(netCost)}</span>
-                    <span class="font-bold text-emerald-300">Net Kâr: +${PriceCalculator.formatTL(targetProfitInput)}</span>
+                  <div class="text-xs text-slate-300 mt-1 space-y-1">
+                    <div class="flex justify-between"><span>Komisyon: 0 TL</span><span>Kargo: 0 TL</span></div>
+                    <div class="flex justify-between font-semibold text-emerald-300"><span>Kasa: ${PriceCalculator.formatTL(storePrice)}</span><span>Net Kâr: +${PriceCalculator.formatTL(targetProfitInput)}</span></div>
                   </div>
                 </div>
               </div>
@@ -1737,7 +1770,14 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "seedCostPerKg") product.seedCostPerKg = parseFloat(value) || 0;
   if (field === "yieldPercent") product.yieldPercent = parseFloat(value) || 25;
   if (field === "layer2Volume") product.layer2Volume = value;
-  if (field === "layer2Margin") product.layer2Margin = parseFloat(value) || 0;
+  if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
+
+  // Pres Sıkım Verimi & Tohum Alış Fiyatından 1KG Saf Yağ Maliyeti Hesaplama
+  const seedCost = product.seedCostPerKg !== undefined ? product.seedCostPerKg : ((product.costPerKg || 1212.00) * 0.25);
+  const yieldPct = product.yieldPercent !== undefined ? product.yieldPercent : 25;
+  if (yieldPct > 0) {
+    product.costPerKg = parseFloat((seedCost / (yieldPct / 100)).toFixed(2));
+  }
 
   await StorageManager.saveProduct(product);
   renderLayer2Cards();
