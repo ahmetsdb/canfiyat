@@ -1297,7 +1297,7 @@ function renderLayer2Cards() {
 
   productsList.forEach(product => {
     const vol = product.layer2Volume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-    const targetMargin = product.layer2Margin || 30; // default %30 net profit margin
+    const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 50; // default 50 TL net profit
     const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
     const isDrawerOpen = !!product.layer2DrawerOpen;
 
@@ -1324,13 +1324,32 @@ function renderLayer2Cards() {
     const totalOverhead = parseFloat((linearOverhead + laborAssemblyFee).toFixed(2));
     const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
-    const profitAmt = netCost * (targetMargin / 100);
-    
-    // Channel Minimum Price Calculations
-    const iyPrice = (netCost + profitAmt + 82.50) / 0.96;
-    const tyPrice = (netCost + profitAmt + 110.00) / 0.81;
-    const hbPrice = (netCost + profitAmt + 110.00) / 0.83;
-    const storePrice = netCost + profitAmt;
+    // SYSTEM 1 CHANNEL SIMULATIONS (BASED ON REAL SAF FABRİKA MALİYETİ)
+    const tySim = PriceCalculator.calculateSystem1Channel({
+      wholesaleCost: netCost,
+      targetProfit: targetProfitInput,
+      commission: 19,
+      discount: 0,
+      cargo: 110
+    });
+
+    const hbSim = PriceCalculator.calculateSystem1Channel({
+      wholesaleCost: netCost,
+      targetProfit: targetProfitInput,
+      commission: 17,
+      discount: 0,
+      cargo: 110
+    });
+
+    const iySim = PriceCalculator.calculateSystem1Channel({
+      wholesaleCost: netCost,
+      targetProfit: targetProfitInput,
+      commission: 4,
+      discount: 0,
+      cargo: 82.50
+    });
+
+    const storePrice = netCost + targetProfitInput;
 
     const badgeClass = product.category === "Uçucu Yağlar"
       ? "bg-purple-950/80 text-purple-300 border-purple-800/60"
@@ -1338,7 +1357,7 @@ function renderLayer2Cards() {
 
     if (viewMode === "rows") {
       const rowHtml = `
-        <div class="glass-card rounded-xl p-3 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between gap-3 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-950">
+        <div class="glass-card rounded-xl p-3.5 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between gap-3 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-950">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div class="flex items-center gap-2.5 min-w-[260px]">
               <span class="font-mono text-[11px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 shrink-0">
@@ -1380,77 +1399,166 @@ function renderLayer2Cards() {
                 <span class="text-[9px] uppercase font-bold text-emerald-400 block">SAF FABRİKA MALİYETİ:</span>
                 <span class="text-sm font-black text-emerald-300">${PriceCalculator.formatTL(netCost)}</span>
               </div>
-              <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-[10px] text-emerald-300 hover:text-white font-bold bg-slate-900 border border-emerald-500/40 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1">
+              <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-[10px] text-emerald-300 hover:text-white font-bold bg-slate-900 border border-emerald-500/40 px-3 py-2 rounded-xl transition-all flex items-center gap-1 shadow">
                 📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
               </button>
-              <button onclick="toggleLayer2Drawer('${product.id}')" class="text-[10px] text-purple-300 hover:text-white font-bold bg-purple-950/60 border border-purple-800/60 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1">
-                💡 ${isDrawerOpen ? "Kanal Fiyatlarını Gizle" : "Kanal Fiyat Tavsiyeleri"}
+              <button onclick="toggleLayer2Drawer('${product.id}')" class="text-[10px] text-purple-300 hover:text-white font-bold bg-purple-950/80 border border-purple-800/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1 shadow">
+                ⚡ ${isDrawerOpen ? "Sistem 1'i Gizle" : "Sistem 1 Kanal Simülatörü"}
               </button>
             </div>
           </div>
 
-          <!-- FATURA KESER GİBİ DETAYLI İTEMİZE DÖKÜM TABLOSU (ROW VIEW) -->
+          <!-- SIKI KADEMELİ FATURA DÖKÜM TABLOSU (DOT-LEADER RECEIPT STYLE) -->
           ${isBreakdownOpen ? `
-            <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/50 text-xs text-slate-200 space-y-2 animate-slide-up">
+            <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/50 text-xs font-mono space-y-2 animate-slide-up max-w-2xl">
               <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-bold text-[11px] text-emerald-400 uppercase tracking-wider">
-                <span>📋 UYGULANAN FABRİKA MALİYET KALEMİ (FATURA KESER GİBİ DETAYLI HESAP)</span>
+                <span>📋 UYGULANAN FABRİKA MALİYET KALEMİ (RESMİ DÖKÜM)</span>
                 <span>TUTAR (TL)</span>
               </div>
 
-              <div class="flex justify-between items-center text-slate-300">
-                <span>1. 🧴 Hammadde Yağ Payı (${vol} @ ${PriceCalculator.formatTL(costPerKg)}/KG):</span>
-                <span class="font-bold text-amber-300">${PriceCalculator.formatTL(rawOilCost)}</span>
+              <div class="flex items-baseline justify-between text-slate-300">
+                <span class="shrink-0">1. 🧴 Hammadde Yağ Payı (${vol} @ ${PriceCalculator.formatTL(costPerKg)}/KG)</span>
+                <span class="grow border-b border-dotted border-slate-700/80 mx-2"></span>
+                <span class="font-bold text-amber-300 shrink-0">${PriceCalculator.formatTL(rawOilCost)}</span>
               </div>
 
-              <div class="flex justify-between items-center text-slate-300">
-                <span>2. 🍾 Cam Şişe, Kapak & Tıpa Ambalaj Maliyeti:</span>
-                <span class="font-bold text-blue-300">${PriceCalculator.formatTL(packCost)}</span>
+              <div class="flex items-baseline justify-between text-slate-300">
+                <span class="shrink-0">2. 🍾 Cam Şişe, Kapak & Tıpa Ambalaj Maliyeti</span>
+                <span class="grow border-b border-dotted border-slate-700/80 mx-2"></span>
+                <span class="font-bold text-blue-300 shrink-0">${PriceCalculator.formatTL(packCost)}</span>
               </div>
 
-              <div class="flex justify-between items-center text-slate-300">
-                <span>3. ⚡ Hacimsel Tesis & Enerji Payı (${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG x ${kg} KG):</span>
-                <span class="font-bold text-purple-300">${PriceCalculator.formatTL(linearOverhead)}</span>
+              <div class="flex items-baseline justify-between text-slate-300">
+                <span class="shrink-0">3. ⚡ Hacimsel Tesis & Enerji Payı (${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG x ${kg} KG)</span>
+                <span class="grow border-b border-dotted border-slate-700/80 mx-2"></span>
+                <span class="font-bold text-purple-300 shrink-0">${PriceCalculator.formatTL(linearOverhead)}</span>
               </div>
 
-              <div class="flex justify-between items-center text-slate-300">
-                <span>4. 🛠️ Pipet/Damlalık Montaj & Kutulama İşçilik Payı:</span>
-                <span class="font-bold text-cyan-300">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
+              <div class="flex items-baseline justify-between text-slate-300">
+                <span class="shrink-0">4. 🛠️ Pipet/Damlalık Montaj & Kutulama İşçilik Payı</span>
+                <span class="grow border-b border-dotted border-slate-700/80 mx-2"></span>
+                <span class="font-bold text-cyan-300 shrink-0">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
               </div>
 
-              <div class="pt-2 border-t border-slate-800 flex justify-between items-center font-black text-sm">
-                <span class="text-emerald-400">🏁 TOPLAM SAF FABRİKA ÇIKIŞ MALİYETİ:</span>
-                <span class="text-emerald-300 text-base">${PriceCalculator.formatTL(netCost)}</span>
+              <div class="pt-2 border-t border-slate-800 flex items-center justify-between font-black text-sm">
+                <span class="text-emerald-400">🏁 TOPLAM SAF FABRİKA ÇIKIŞ MALİYETİ</span>
+                <span class="grow border-b border-dashed border-emerald-500/50 mx-2"></span>
+                <span class="text-emerald-300 text-base shrink-0">${PriceCalculator.formatTL(netCost)}</span>
               </div>
             </div>
           ` : ""}
 
-          <!-- KANAL SATIŞ FİYATI ÖNERİ ÇEKMECESİ (ROW VIEW) -->
+          <!-- SİSTEM 1 KANAL SATIŞ SIMÜLATÖRÜ (KATMAN 1 STİLİ TAM KARTLAR) -->
           ${isDrawerOpen ? `
-            <div class="bg-slate-950 p-3.5 rounded-xl border border-purple-800/50 space-y-2.5 animate-slide-up">
-              <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
-                <label class="text-[11px] font-bold text-purple-300">🎯 Hedef Net Kâr Marjınız (%):</label>
-                <div class="flex items-center gap-1">
-                  <input type="number" value="${targetMargin}" min="0" max="300" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Margin', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-bold text-xs px-2 py-1 rounded-md text-center focus:outline-none">
-                  <span class="text-xs font-bold text-purple-400">%</span>
+            <div class="bg-slate-950 p-4 rounded-xl border border-purple-800/60 space-y-3 animate-slide-up">
+              <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-extrabold text-purple-300 flex items-center gap-1.5">⚡ KATMAN 1 SİSTEM 1 KANAL FİYATI & HAKEDİŞ SİMÜLATÖRÜ</span>
+                  <span class="text-[10px] text-slate-400">(Saf Fabrika Maliyeti Üzerinden Otomatik Hesaplama)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <label class="text-xs font-bold text-slate-300">Hedef Net Kâr (₺):</label>
+                  <input type="number" value="${targetProfitInput}" min="0" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-24 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-sm px-2.5 py-1 rounded-lg text-center focus:outline-none">
+                  <span class="text-xs font-bold text-purple-400">₺ / Adet</span>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                <div class="bg-slate-900/90 p-2.5 rounded-lg border border-blue-800/50">
-                  <span class="text-slate-400 block text-[9.5px] font-semibold uppercase">🌐 İyzico (Web):</span>
-                  <span class="font-extrabold text-blue-300 text-sm">${PriceCalculator.formatTL(iyPrice)}</span>
+              <!-- SİSTEM 1 KANAL DETAY KARTLARI GRID -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <!-- 1. TRENDYOL SİSTEM 1 KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-amber-950/20 p-3 rounded-xl border border-amber-800/50 space-y-1.5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
+                      <span class="font-extrabold text-amber-400 flex items-center gap-1">🧡 TRENDYOL</span>
+                      <span class="text-[10px] font-bold text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-800">%19 Kom.</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
+                      <span>Tavsiye Satış Fiyatı:</span>
+                      <span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(tySim.salePrice)}</span>
+                    </div>
+                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
+                      <div class="flex justify-between"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.commAmount)}</span></div>
+                      <div class="flex justify-between"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.cargoFee)}</span></div>
+                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(tySim.payout)}</span></div>
+                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    </div>
+                  </div>
+                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                    <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(tySim.netProfit)}</span>
+                  </div>
                 </div>
-                <div class="bg-slate-900/90 p-2.5 rounded-lg border border-amber-800/50">
-                  <span class="text-slate-400 block text-[9.5px] font-semibold uppercase">🧡 Trendyol (%19):</span>
-                  <span class="font-extrabold text-amber-300 text-sm">${PriceCalculator.formatTL(tyPrice)}</span>
+
+                <!-- 2. HEPSİBURADA SİSTEM 1 KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-orange-950/20 p-3 rounded-xl border border-orange-800/50 space-y-1.5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
+                      <span class="font-extrabold text-orange-400 flex items-center gap-1">🧡 HEPSİBURADA</span>
+                      <span class="text-[10px] font-bold text-orange-300 bg-orange-950 px-1.5 py-0.5 rounded border border-orange-800">%17 Kom.</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
+                      <span>Tavsiye Satış Fiyatı:</span>
+                      <span class="font-black text-orange-300 text-sm">${PriceCalculator.formatTL(hbSim.salePrice)}</span>
+                    </div>
+                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
+                      <div class="flex justify-between"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.commAmount)}</span></div>
+                      <div class="flex justify-between"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.cargoFee)}</span></div>
+                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(hbSim.payout)}</span></div>
+                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    </div>
+                  </div>
+                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                    <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(hbSim.netProfit)}</span>
+                  </div>
                 </div>
-                <div class="bg-slate-900/90 p-2.5 rounded-lg border border-orange-800/50">
-                  <span class="text-slate-400 block text-[9.5px] font-semibold uppercase">🧡 Hepsiburada (%17):</span>
-                  <span class="font-extrabold text-orange-300 text-sm">${PriceCalculator.formatTL(hbPrice)}</span>
+
+                <!-- 3. İYZİCO (WEB SİTENİZ) SİSTEM 1 KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-blue-950/20 p-3 rounded-xl border border-blue-800/50 space-y-1.5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
+                      <span class="font-extrabold text-blue-400 flex items-center gap-1">🌐 İYZİCO (WEB SİTENİZ)</span>
+                      <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800">%4 Kom.</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
+                      <span>Tavsiye Satış Fiyatı:</span>
+                      <span class="font-black text-blue-300 text-sm">${PriceCalculator.formatTL(iySim.salePrice)}</span>
+                    </div>
+                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
+                      <div class="flex justify-between"><span>(-) İyzico Komisyonu (%4):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.commAmount)}</span></div>
+                      <div class="flex justify-between"><span>(-) Kargo Ücreti (82.50TL):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.cargoFee)}</span></div>
+                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300">${PriceCalculator.formatTL(iySim.payout)}</span></div>
+                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    </div>
+                  </div>
+                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                    <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(iySim.netProfit)}</span>
+                  </div>
                 </div>
-                <div class="bg-slate-900/90 p-2.5 rounded-lg border border-emerald-800/50">
-                  <span class="text-slate-400 block text-[9.5px] font-semibold uppercase">🏪 Perakende Mağaza:</span>
-                  <span class="font-extrabold text-emerald-300 text-sm">${PriceCalculator.formatTL(storePrice)}</span>
+
+                <!-- 4. PERAKENDE FİZİKİ MAĞAZA KARTI -->
+                <div class="bg-gradient-to-b from-slate-900 to-emerald-950/20 p-3 rounded-xl border border-emerald-800/50 space-y-1.5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
+                      <span class="font-extrabold text-emerald-400 flex items-center gap-1">🏪 FİZİKİ MAĞAZA</span>
+                      <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">Direkt</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300 text-[11px] mb-1">
+                      <span>Mağaza Satış Fiyatı:</span>
+                      <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(storePrice)}</span>
+                    </div>
+                    <div class="space-y-1 text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1.5">
+                      <div class="flex justify-between"><span>(-) Komisyon Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                      <div class="flex justify-between"><span>(-) Kargo Kesintisi:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                      <div class="flex justify-between font-bold text-slate-200 border-t border-slate-800/60 pt-1"><span>(=) Elinize Kalan (Kasa):</span><span class="text-emerald-300">${PriceCalculator.formatTL(storePrice)}</span></div>
+                      <div class="flex justify-between"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-400 font-semibold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                    </div>
+                  </div>
+                  <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                    <span class="text-emerald-400">NET KÂRINIZ:</span>
+                    <span class="text-emerald-300 font-black text-sm">+${PriceCalculator.formatTL(targetProfitInput)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1497,80 +1605,102 @@ function renderLayer2Cards() {
               <span>📋 ${isBreakdownOpen ? "Fatura Dökümünü Gizle" : "📋 Fatura Keser Gibi Detaylı Maliyet Dökümü"}</span>
             </button>
 
-            <!-- FATURA KESER GİBİ DETAYLI İTEMİZE DÖKÜM TABLOSU (CARD VIEW) -->
+            <!-- FATURA KESER GİBİ SIKI DÖKÜM TABLOSU (CARD VIEW RECEIPT STYLE) -->
             ${isBreakdownOpen ? `
-              <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/40 text-[11px] text-slate-200 space-y-1.5 animate-slide-up my-2">
+              <div class="bg-slate-950 p-3.5 rounded-xl border border-emerald-500/40 text-[11px] font-mono space-y-2 animate-slide-up my-2">
                 <div class="flex justify-between items-center pb-1.5 border-b border-slate-800 font-bold text-[9.5px] text-emerald-400 uppercase tracking-wider">
                   <span>📋 MALİYET KALEMİ (FATURA KESER GİBİ)</span>
-                  <span>TUTAR (TL)</span>
+                  <span>TUTAR</span>
                 </div>
 
-                <div class="flex justify-between items-center text-slate-300">
-                  <span>1. 🧴 Yağ Payı (${vol} @ ${PriceCalculator.formatTL(costPerKg)}/KG):</span>
-                  <span class="font-bold text-amber-300">${PriceCalculator.formatTL(rawOilCost)}</span>
+                <div class="flex items-baseline justify-between text-slate-300">
+                  <span class="shrink-0">1. 🧴 Yağ Payı (${vol})</span>
+                  <span class="grow border-b border-dotted border-slate-700/80 mx-1.5"></span>
+                  <span class="font-bold text-amber-300 shrink-0">${PriceCalculator.formatTL(rawOilCost)}</span>
                 </div>
 
-                <div class="flex justify-between items-center text-slate-300">
-                  <span>2. 🍾 Şişe, Kapak & Tıpa Ambalajı:</span>
-                  <span class="font-bold text-blue-300">${PriceCalculator.formatTL(packCost)}</span>
+                <div class="flex items-baseline justify-between text-slate-300">
+                  <span class="shrink-0">2. 🍾 Şişe/Kapak</span>
+                  <span class="grow border-b border-dotted border-slate-700/80 mx-1.5"></span>
+                  <span class="font-bold text-blue-300 shrink-0">${PriceCalculator.formatTL(packCost)}</span>
                 </div>
 
-                <div class="flex justify-between items-center text-slate-300">
-                  <span>3. ⚡ Hacimsel Tesis & Enerji Payı:</span>
-                  <span class="font-bold text-purple-300">${PriceCalculator.formatTL(linearOverhead)}</span>
+                <div class="flex items-baseline justify-between text-slate-300">
+                  <span class="shrink-0">3. ⚡ Tesis Payı</span>
+                  <span class="grow border-b border-dotted border-slate-700/80 mx-1.5"></span>
+                  <span class="font-bold text-purple-300 shrink-0">${PriceCalculator.formatTL(linearOverhead)}</span>
                 </div>
 
-                <div class="flex justify-between items-center text-slate-300">
-                  <span>4. 🛠️ Pipet/Damlalık Montaj & İşçilik:</span>
-                  <span class="font-bold text-cyan-300">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
+                <div class="flex items-baseline justify-between text-slate-300">
+                  <span class="shrink-0">4. 🛠️ İşçilik Montaj</span>
+                  <span class="grow border-b border-dotted border-slate-700/80 mx-1.5"></span>
+                  <span class="font-bold text-cyan-300 shrink-0">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
                 </div>
 
-                <div class="pt-1.5 border-t border-slate-800 flex justify-between items-center font-black text-xs">
-                  <span class="text-emerald-400">🏁 TOPLAM SAF MALİYET:</span>
-                  <span class="text-emerald-300">${PriceCalculator.formatTL(netCost)}</span>
+                <div class="pt-1.5 border-t border-slate-800 flex items-center justify-between font-black text-xs">
+                  <span class="text-emerald-400">🏁 TOPLAM SAF MALİYET</span>
+                  <span class="grow border-b border-dashed border-emerald-500/50 mx-1.5"></span>
+                  <span class="text-emerald-300 shrink-0">${PriceCalculator.formatTL(netCost)}</span>
                 </div>
               </div>
             ` : ""}
           </div>
 
-          <!-- SAF FABRİKA ÇIKIŞ MALİYETİ VURGU ROZETİ & ÇEKMECE BUTONU -->
+          <!-- SAF FABRİKA ÇIKIŞ MALİYETİ VURGU ROZETİ & SİSTEM 1 BUTONU -->
           <div class="mt-2 pt-3 border-t border-slate-800/80 bg-gradient-to-r from-emerald-950/60 to-slate-950 p-3 rounded-xl border border-emerald-500/40 flex items-center justify-between">
             <div>
               <span class="text-[9px] uppercase font-bold text-emerald-400 block tracking-wider">SAF FABRİKA ÇIKIŞ MALİYETİ:</span>
               <span class="text-lg font-black text-emerald-300">${PriceCalculator.formatTL(netCost)}</span>
             </div>
             <button onclick="toggleLayer2Drawer('${product.id}')" class="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-800/60 transition-all flex items-center gap-1 shadow-lg shadow-purple-950/40">
-              💡 ${isDrawerOpen ? "Kanal Fiyatlarını Gizle" : "Kanal Satış Tavsiyeleri"}
+              ⚡ ${isDrawerOpen ? "Sistem 1'i Gizle" : "Sistem 1 Simülatörü"}
             </button>
           </div>
 
-          <!-- KANAL SATIŞ FİYATI ÖNERİ ÇEKMECESİ (CARD VIEW) -->
+          <!-- SİSTEM 1 KANAL SATIŞ SİMÜLATÖRÜ ÇEKMECESİ (CARD VIEW) -->
           ${isDrawerOpen ? `
             <div class="mt-3 pt-3 border-t border-slate-800 bg-slate-950/95 p-3 rounded-xl border border-purple-800/50 animate-slide-up space-y-2.5">
               <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
-                <label class="text-[10.5px] font-bold text-purple-300">🎯 Hedef Net Kâr Marjınız (%):</label>
+                <label class="text-[10.5px] font-bold text-purple-300">🎯 Hedef Net Kâr (₺):</label>
                 <div class="flex items-center gap-1">
-                  <input type="number" value="${targetMargin}" min="0" max="300" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Margin', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-bold text-xs px-2 py-1 rounded-md text-center focus:outline-none">
-                  <span class="text-xs font-bold text-purple-400">%</span>
+                  <input type="number" value="${targetProfitInput}" min="0" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-bold text-xs px-2 py-1 rounded-md text-center focus:outline-none">
+                  <span class="text-xs font-bold text-purple-400">₺</span>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 text-[10.5px]">
-                <div class="bg-slate-900/90 p-2 rounded-lg border border-blue-800/50">
-                  <span class="text-slate-400 block text-[9px] font-semibold uppercase">🌐 İyzico (Web):</span>
-                  <span class="font-extrabold text-blue-300 text-xs">${PriceCalculator.formatTL(iyPrice)}</span>
-                </div>
+              <!-- SİSTEM 1 KANAL HESAP KARTLARI -->
+              <div class="grid grid-cols-1 gap-2 text-[10.5px]">
                 <div class="bg-slate-900/90 p-2 rounded-lg border border-amber-800/50">
-                  <span class="text-slate-400 block text-[9px] font-semibold uppercase">🧡 Trendyol (%19):</span>
-                  <span class="font-extrabold text-amber-300 text-xs">${PriceCalculator.formatTL(tyPrice)}</span>
+                  <div class="flex justify-between items-center font-bold text-amber-300">
+                    <span>🧡 Trendyol (Satış Fiyatı):</span>
+                    <span class="text-xs font-black">${PriceCalculator.formatTL(tySim.salePrice)}</span>
+                  </div>
+                  <div class="text-[9.5px] text-slate-400 mt-1 space-y-0.5">
+                    <div class="flex justify-between"><span>Komisyon (%19): -${PriceCalculator.formatTL(tySim.commAmount)}</span><span>Kargo: -110 TL</span></div>
+                    <div class="flex justify-between font-semibold text-emerald-300"><span>Hakediş: ${PriceCalculator.formatTL(tySim.payout)}</span><span>Net Kâr: +${PriceCalculator.formatTL(tySim.netProfit)}</span></div>
+                  </div>
                 </div>
-                <div class="bg-slate-900/90 p-2 rounded-lg border border-orange-800/50">
-                  <span class="text-slate-400 block text-[9px] font-semibold uppercase">🧡 Hepsiburada (%17):</span>
-                  <span class="font-extrabold text-orange-300 text-xs">${PriceCalculator.formatTL(hbPrice)}</span>
+
+                <div class="bg-slate-900/90 p-2 rounded-lg border border-blue-800/50">
+                  <div class="flex justify-between items-center font-bold text-blue-300">
+                    <span>🌐 İyzico Web (Satış Fiyatı):</span>
+                    <span class="text-xs font-black">${PriceCalculator.formatTL(iySim.salePrice)}</span>
+                  </div>
+                  <div class="text-[9.5px] text-slate-400 mt-1 space-y-0.5">
+                    <div class="flex justify-between"><span>Komisyon (%4): -${PriceCalculator.formatTL(iySim.commAmount)}</span><span>Kargo: -82.50 TL</span></div>
+                    <div class="flex justify-between font-semibold text-emerald-300"><span>Hakediş: ${PriceCalculator.formatTL(iySim.payout)}</span><span>Net Kâr: +${PriceCalculator.formatTL(iySim.netProfit)}</span></div>
+                  </div>
                 </div>
+
                 <div class="bg-slate-900/90 p-2 rounded-lg border border-emerald-800/50">
-                  <span class="text-slate-400 block text-[9px] font-semibold uppercase">🏪 Perakende Mağaza:</span>
-                  <span class="font-extrabold text-emerald-300 text-xs">${PriceCalculator.formatTL(storePrice)}</span>
+                  <div class="flex justify-between items-center font-bold text-emerald-300">
+                    <span>🏪 Fiziki Mağaza Fiyatı:</span>
+                    <span class="text-xs font-black">${PriceCalculator.formatTL(storePrice)}</span>
+                  </div>
+                  <div class="text-[9.5px] text-slate-400 mt-1 flex justify-between">
+                    <span>Maliyet: -${PriceCalculator.formatTL(netCost)}</span>
+                    <span class="font-bold text-emerald-300">Net Kâr: +${PriceCalculator.formatTL(targetProfitInput)}</span>
+                  </div>
                 </div>
               </div>
             </div>
