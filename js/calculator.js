@@ -28,6 +28,48 @@ class PriceCalculator {
     return ml / 1000;
   }
 
+  // Time & Labor Handling Overhead Matrix per Bottle Volume Size
+  static getOverheadForVolume(volKey, overheadPerKg = 110.00) {
+    const ml = this.getVolumeMl(volKey);
+    const kg = ml / 1000;
+    
+    // Base linear volume overhead (Elektrik / Enerji Payı)
+    const linearVolumeOverhead = overheadPerKg * kg;
+    
+    // Packaging Handling & Pipette/Labor Assembly Surcharge per Bottle
+    let laborAssemblyFee = 8.00;
+    if (volKey === "1000ml" || volKey === "1kg") laborAssemblyFee = 10.00;
+    else if (volKey === "500ml") laborAssemblyFee = 9.00;
+    else if (volKey === "250ml") laborAssemblyFee = 8.00;
+    else if (volKey === "100ml") laborAssemblyFee = 7.50;
+    else if (volKey === "50ml") laborAssemblyFee = 9.50;  // dropper assembly
+    else if (volKey === "30ml") laborAssemblyFee = 14.70; // pipette + box assembly
+    else if (volKey === "20ml") laborAssemblyFee = 17.80; // roll-on / pipette assembly
+    else if (volKey === "5000ml" || volKey === "5kg") laborAssemblyFee = 15.00;
+
+    return parseFloat((linearVolumeOverhead + laborAssemblyFee).toFixed(2));
+  }
+
+  // LAYER 2: Complete 3-Component Factory Cost Breakdown
+  static calculateLayer2FullBreakdown({ costPerKg, volumeStr, packagingCost, overheadPerKg = 110.00 }) {
+    const ml = this.getVolumeMl(volumeStr);
+    const rawOilCost = parseFloat(((costPerKg / 1000) * ml).toFixed(2));
+    
+    const packCost = (packagingCost !== null && packagingCost !== undefined && !isNaN(packagingCost)) 
+      ? parseFloat(packagingCost) 
+      : (DEFAULT_PACKAGING_COSTS[volumeStr] || 14.50);
+      
+    const overheadCost = this.getOverheadForVolume(volumeStr, overheadPerKg);
+    const totalNetFactoryCost = parseFloat((rawOilCost + packCost + overheadCost).toFixed(2));
+    
+    return {
+      rawOilCost,
+      packCost,
+      overheadCost,
+      totalNetFactoryCost
+    };
+  }
+
   // Calculate Unit Wholesale Cost for a specific volume size
   static calculateUnitWholesaleCost(costPerKg, volumeStr, packagingCost = null) {
     const ml = this.getVolumeMl(volumeStr);
