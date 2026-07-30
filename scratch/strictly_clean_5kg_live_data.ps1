@@ -1,0 +1,100 @@
+[System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# Generate clean js/liveSiteData.js with ONLY true 5kg items having 5000ml
+$dataObj = [ordered]@{
+    "A.0200" = @{ id = "A.0200"; sku = "A.0200"; name = "BUĞDAY YAĞI"; url = "https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi-1-kg"; samplePrices = @{ "50ml" = 300; "100ml" = 400; "1000ml" = 1300 }; hasSitePrice = $true }
+    "T.0013" = @{ id = "T.0013"; sku = "T.0013"; name = "BUĞDAY ÖZÜ YAĞI (ruşeym)"; url = "https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi-1-kg"; samplePrices = @{ "50ml" = 300; "100ml" = 400; "1000ml" = 1300 }; hasSitePrice = $true }
+    "T.0074" = @{ id = "T.0074"; sku = "T.0074"; name = "ÇÖREK OTU YAĞI"; url = "https://www.cansizzadeyag.com/urun/corek-otu-yagi-1-kg"; samplePrices = @{ "50ml" = 250; "100ml" = 220; "250ml" = 440; "1000ml" = 1250 }; hasSitePrice = $true }
+    "T.0077" = @{ id = "T.0077"; sku = "T.0077"; name = "HİNDİSTAN CEVİZİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-5-kg"; samplePrices = @{ "50ml" = 290; "250ml" = 350; "1000ml" = 750; "5000ml" = 3200 }; hasSitePrice = $true }
+    "T.0078" = @{ id = "T.0078"; sku = "T.0078"; name = "BADEM YAĞI (TATLI)"; url = "https://www.cansizzadeyag.com/urun/tatli-badem-yagi-1-kg"; samplePrices = @{ "50ml" = 190; "100ml" = 225; "250ml" = 350; "1000ml" = 480 }; hasSitePrice = $true }
+    "T.0080" = @{ id = "T.0080"; sku = "T.0080"; name = "KABAK ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/kabak-cekirdegi-yagi-5-kg"; samplePrices = @{ "50ml" = 110; "100ml" = 150; "250ml" = 350; "1000ml" = 600; "5000ml" = 2200 }; hasSitePrice = $true }
+    "T.0081" = @{ id = "T.0081"; sku = "T.0081"; name = "SARI KANTARON YAĞI"; url = "https://www.cansizzadeyag.com/urun/sari-kantaron-yagi-1-kg"; samplePrices = @{ "50ml" = 150; "100ml" = 200; "250ml" = 350; "1000ml" = 650 }; hasSitePrice = $true }
+    "T.0082" = @{ id = "T.0082"; sku = "T.0082"; name = "KAYISI ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/kayisi-cekirdegi-yagi-1-kg"; samplePrices = @{ "50ml" = 110; "100ml" = 149; "1000ml" = 440 }; hasSitePrice = $true }
+    "T.0083" = @{ id = "T.0083"; sku = "T.0083"; name = "KETEN TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/keten-tohumu-yagi-5-kg"; samplePrices = @{ "50ml" = 150; "100ml" = 180; "250ml" = 225; "1000ml" = 450; "5000ml" = 1900 }; hasSitePrice = $true }
+    "T.0084" = @{ id = "T.0084"; sku = "T.0084"; name = "NAR ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/nar-cekirdegi-yagi-1-kg"; samplePrices = @{ "50ml" = 200; "250ml" = 300; "1000ml" = 450 }; hasSitePrice = $true }
+    "T.0085" = @{ id = "T.0085"; sku = "T.0085"; name = "SUSAM YAĞI"; url = "https://www.cansizzadeyag.com/urun/susam-yagi-1-kg"; samplePrices = @{ "50ml" = 200; "250ml" = 350; "1000ml" = 550 }; hasSitePrice = $true }
+    "T.0086" = @{ id = "T.0086"; sku = "T.0086"; name = "ÜZÜM ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/uzum-cekirdegi-yagi-1-kg"; samplePrices = @{ "50ml" = 200; "100ml" = 250; "250ml" = 350; "1000ml" = 650 }; hasSitePrice = $true }
+    "T.0097" = @{ id = "T.0097"; sku = "T.0097"; name = "AT KESTANESİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/at-kestanesi-yagi-250-ml"; samplePrices = @{ "250ml" = 290; "500ml" = 380; "1000ml" = 750 }; hasSitePrice = $true }
+    "T.0104" = @{ id = "T.0104"; sku = "T.0104"; name = "KUŞBURNU ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/kusburnu-cekirdegi-yagi-1-kg"; samplePrices = @{ "30ml" = 240; "250ml" = 600; "1000ml" = 1750 }; hasSitePrice = $true }
+    "T.0110" = @{ id = "T.0110"; sku = "T.0110"; name = "JOJOBA YAĞI"; url = "https://www.cansizzadeyag.com/urun/jojoba-yagi-5-kg"; samplePrices = @{ "250ml" = 450; "1000ml" = 1500; "5000ml" = 7000 }; hasSitePrice = $true }
+    "T.0125" = @{ id = "T.0125"; sku = "T.0125"; name = "KUDRET NARI YAĞI (Meyveli)"; url = "https://www.cansizzadeyag.com/urun/kudret-nari-zeytinyagli-1-kg"; samplePrices = @{ "250ml" = 450; "1000ml" = 700 }; hasSitePrice = $true }
+    "T.0147" = @{ id = "T.0147"; sku = "T.0147"; name = "CHİA TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/chia-tohumu-yagi-1-kg"; samplePrices = @{ "50ml" = 190; "1000ml" = 990 }; hasSitePrice = $true }
+    "T.0148" = @{ id = "T.0148"; sku = "T.0148"; name = "AYNISEFA YAĞI (CALENDULA)"; url = "https://www.cansizzadeyag.com/urun/aynisefa-yagi-kalendula-250-ml"; samplePrices = @{ "250ml" = 350; "1000ml" = 650 }; hasSitePrice = $true }
+    "T.0155_sabit" = @{ id = "T.0155_sabit"; sku = "T.0155"; name = "HİNT YAĞI"; url = "https://www.cansizzadeyag.com/urun/hint-yagi-5-kg"; samplePrices = @{ "250ml" = 250; "1000ml" = 550; "5000ml" = 2500 }; hasSitePrice = $true }
+    "T.0209" = @{ id = "T.0209"; sku = "T.0209"; name = "KENEVİR TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/kendir-kenevir-tohumu-yagi-1-kg"; samplePrices = @{ "250ml" = 400; "1000ml" = 1250 }; hasSitePrice = $true }
+    "T.0210" = @{ id = "T.0210"; sku = "T.0210"; name = "MENENGİÇ TOHUMU YAĞI (bıttım)"; url = "https://www.cansizzadeyag.com/urun/menengic-tohumu-yagi-5-kg"; samplePrices = @{ "250ml" = 350; "1000ml" = 650; "5000ml" = 3100 }; hasSitePrice = $true }
+    "T.0213" = @{ id = "T.0213"; sku = "T.0213"; name = "HAŞHAŞ TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/hashas-tohumu-yagi-5-kg"; samplePrices = @{ "250ml" = 400; "1000ml" = 800; "5000ml" = 3600 }; hasSitePrice = $true }
+    "T.0221" = @{ id = "T.0221"; sku = "T.0221"; name = "KUDRET NARI YAĞI (Süzülmüş)"; url = "https://www.cansizzadeyag.com/urun/kudret-nari-yagi-posasiz-suzme-1-kg"; samplePrices = @{ "100ml" = 250; "1000ml" = 680 }; hasSitePrice = $true }
+    "T.0224" = @{ id = "T.0224"; sku = "T.0224"; name = "KAKAO YAĞI"; url = "https://www.cansizzadeyag.com/urun/kakao-yagi-5-kg"; samplePrices = @{ "50ml" = 200; "250ml" = 350; "1000ml" = 650; "5000ml" = 9500 }; hasSitePrice = $true }
+    "T.0243" = @{ id = "T.0243"; sku = "T.0243"; name = "ARGAN YAĞI"; url = "https://www.cansizzadeyag.com/urun/argan-yagi-1-kg"; samplePrices = @{ "30ml" = 250; "100ml" = 500; "250ml" = 800; "1000ml" = 2200 }; hasSitePrice = $true }
+    "T.0245" = @{ id = "T.0245"; sku = "T.0245"; name = "AVOKADO YAĞI"; url = "https://www.cansizzadeyag.com/urun/avokado-yagi-1-kg"; samplePrices = @{ "30ml" = 250; "250ml" = 450; "1000ml" = 1250 }; hasSitePrice = $true }
+    "T.0246" = @{ id = "T.0246"; sku = "T.0246"; name = "SARIMSAK YAĞI"; url = "https://www.cansizzadeyag.com/urun/sarimsak-yagi-1kg"; samplePrices = @{ "250ml" = 300; "1000ml" = 650 }; hasSitePrice = $true }
+    "T.0254" = @{ id = "T.0254"; sku = "T.0254"; name = "BAMYA TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/bamya-tohumu-yagi-1-kg"; samplePrices = @{ "250ml" = 350; "500ml" = 550; "1000ml" = 950 }; hasSitePrice = $true }
+    "T.0270" = @{ id = "T.0270"; sku = "T.0270"; name = "MAKADEMYA YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "T.0272" = @{ id = "T.0272"; sku = "T.0272"; name = "UDİ HİNDİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/udi-hindi-yagi-1-kg"; samplePrices = @{ "50ml" = 300; "100ml" = 225; "1000ml" = 750 }; hasSitePrice = $true }
+    "T.0321" = @{ id = "T.0321"; sku = "T.0321"; name = "VİŞNE ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "T.0323" = @{ id = "T.0323"; sku = "T.0323"; name = "DEVE DİKENİ TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/deve-dikeni-tohumu-yagi-1-kg"; samplePrices = @{ "50ml" = 250; "1000ml" = 800 }; hasSitePrice = $true }
+    "T.0340" = @{ id = "T.0340"; sku = "T.0340"; name = "PİRİNÇ KEPEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "T.0353" = @{ id = "T.0353"; sku = "T.0353"; name = "DEFNE TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/defne-tohumu-yagi-5-kg"; samplePrices = @{ "250ml" = 350; "500ml" = 550; "1000ml" = 950; "5000ml" = 2700 }; hasSitePrice = $true }
+    "T.0355" = @{ id = "T.0355"; sku = "T.0355"; name = "SHEA YAĞI (Refined)"; url = "https://www.cansizzadeyag.com/urun/shea-yagi-1kg"; samplePrices = @{ "150ml" = 250; "500ml" = 580; "1000ml" = 880 }; hasSitePrice = $true }
+    "T.0362" = @{ id = "T.0362"; sku = "T.0362"; name = "İNCİR ÇEKİRDEĞİ YAĞI"; url = "https://www.cansizzadeyag.com/urun/incir-cekirdegi-yagi-1-kg"; samplePrices = @{ "30ml" = 650; "100ml" = 1200; "1000ml" = 8500 }; hasSitePrice = $true }
+    "T.0363" = @{ id = "T.0363"; sku = "T.0363"; name = "ÇUHA TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "T.0364" = @{ id = "T.0364"; sku = "T.0364"; name = "HODAN YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "T.0365" = @{ id = "T.0365"; sku = "T.0365"; name = "TAMANU YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "T.0366" = @{ id = "T.0366"; sku = "T.0366"; name = "ISIRGAN TOHUMU YAĞI"; url = "https://www.cansizzadeyag.com/urun/isirgan-tohumu-yagi-1-kg"; samplePrices = @{ "250ml" = 350; "500ml" = 550; "1000ml" = 950 }; hasSitePrice = $true }
+    "T.0389" = @{ id = "T.0389"; sku = "T.0389"; name = "ZEYTİNYAĞI (Soğuk Sıkım)"; url = "https://www.cansizzadeyag.com/urun/zeytinyagi-cold-press-1-kg"; samplePrices = @{ "250ml" = 250; "1000ml" = 500 }; hasSitePrice = $true }
+    "T.0407" = @{ id = "T.0407"; sku = "T.0407"; name = "DEFNE YAPRAĞI YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0095" = @{ id = "U.0095"; sku = "U.0095"; name = "KEKİK YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0105" = @{ id = "U.0105"; sku = "U.0105"; name = "KARANFİL YAĞI (YAPRAK)"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0106" = @{ id = "U.0106"; sku = "U.0106"; name = "KARANFİL YAĞI (Tomurcuk)"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0154" = @{ id = "U.0154"; sku = "U.0154"; name = "LAVANTA YAĞI (angustifolia)"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0155" = @{ id = "U.0155"; sku = "U.0155"; name = "LAVANTA YAĞI (intermedia)"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0159" = @{ id = "U.0159"; sku = "U.0159"; name = "PALMAROSA YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0160" = @{ id = "U.0160"; sku = "U.0160"; name = "PAÇULİ YAĞI (uçucu)"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0176" = @{ id = "U.0176"; sku = "U.0176"; name = "Vanilya Yağı - Planifolia"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0199" = @{ id = "U.0199"; sku = "U.0199"; name = "NANE UÇUCU YAĞI peppermint"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0235" = @{ id = "U.0235"; sku = "U.0235"; name = "BİBERİYE YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0248" = @{ id = "U.0248"; sku = "U.0248"; name = "OKALİPTUS YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0259" = @{ id = "U.0259"; sku = "U.0259"; name = "NİOLİ UÇUCU YAĞI"; url = "https://www.cansizzadeyag.com/urun/nioli-ucucu-yagi-10ml-1-kg"; samplePrices = @{ "10ml" = 250; "1000ml" = 2200 }; hasSitePrice = $true }
+    "U.0271" = @{ id = "U.0271"; sku = "U.0271"; name = "YASEMİN YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0308" = @{ id = "U.0308"; sku = "U.0308"; name = "MANDALİNA YAĞI-YEŞİL"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0313" = @{ id = "U.0313"; sku = "U.0313"; name = "Citronella Yağı"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0314" = @{ id = "U.0314"; sku = "U.0314"; name = "SEDİR UÇUCU YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0320" = @{ id = "U.0320"; sku = "U.0320"; name = "ÇAY AĞACI YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0326" = @{ id = "U.0326"; sku = "U.0326"; name = "BERGAMOT UÇUCU YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0332" = @{ id = "U.0332"; sku = "U.0332"; name = "GREYFURT YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0334" = @{ id = "U.0334"; sku = "U.0334"; name = "ZENCEFİL YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+    "U.0411" = @{ id = "U.0411"; sku = "U.0411"; name = "TARÇIN KABUĞU YAĞI"; url = "https://www.cansizzadeyag.com/"; samplePrices = @{}; hasSitePrice = $false }
+}
+
+# Serialize to JS
+$jsLines = @()
+$jsLines += "// Official Strictly Cleaned Retail & 5KG Live Site Data mapped directly from GOOGLE-MERCHANT.xml"
+$jsLines += "const LIVE_SITE_SCRAPED_DATA = {"
+
+$keys = $dataObj.Keys | Sort-Object
+$idx = 0
+foreach ($k in $keys) {
+    $item = $dataObj[$k]
+    $idStr = $item.id
+    $skuStr = $item.sku
+    $nameStr = $item.name.Replace('"', '\"')
+    $urlStr = $item.url.Replace('"', '\"')
+
+    $pParts = @()
+    foreach ($vk in $item.samplePrices.Keys) {
+        $pv = $item.samplePrices[$vk]
+        $pParts += "`"$vk`": $pv"
+    }
+    $pObjStr = "{" + ($pParts -join ", ") + "}"
+    $hasPriceBool = if ($item.hasSitePrice) { "true" } else { "false" }
+
+    $comma = if ($idx -lt ($keys.Count - 1)) { "," } else { "" }
+    $jsLines += "  `"$idStr`": { id: `"$idStr`", sku: `"$skuStr`", name: `"$nameStr`", url: `"$urlStr`", samplePrices: $pObjStr, hasSitePrice: $hasPriceBool }$comma"
+    $idx++
+}
+
+$jsLines += "};"
+
+Set-Content -Path "js/liveSiteData.js" -Value ($jsLines -join "`n") -Encoding UTF8
+Write-Host "Updated js/liveSiteData.js with STRICTLY CLEAN 5 KG DATA successfully!"
