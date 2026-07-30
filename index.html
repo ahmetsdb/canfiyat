@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.82 (Özel Kâr Yeşili Renk Hiyerarşisi Aktif)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.83 (🔴 Kırmızı Çizgi Dip Fiyat & 🎁 Kombin Set Simülatörü Aktif)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -71,6 +71,9 @@
 
             <!-- Header Action & Stats Bar -->
             <div class="flex items-center gap-2.5">
+                <button onclick="openBundleSimulatorModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-purple-500/25 flex items-center gap-1.5 transition-all border border-purple-400/30">
+                    🎁 KOMBİN SET SİMS
+                </button>
                 <button onclick="openAddProductModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-blue-500/25 flex items-center gap-1.5 transition-all border border-blue-400/30">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -115,8 +118,8 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                <!-- View Mode Switcher (Satır vs Kart) -->
-                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <!-- View Mode Switcher (Satır vs Kart) & Redline Toggle -->
+                <div class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
                     <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -128,6 +131,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                         Kartlar
+                    </button>
+                    <button id="btn-toggle-redline" onclick="toggleRedLineFloor()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1">
+                        🔴 Dip Fiyat
                     </button>
                 </div>
 
@@ -796,17 +802,83 @@
                 </button>
             </div>
         </div>
+    <!-- 🎁 KOMBİN SET KÂRLILIK SİMÜLATÖRÜ MODAL -->
+    <div id="modal-bundle-simulator" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden animate-fade-in p-4">
+        <div class="glass-card bg-slate-900 border border-purple-800/60 rounded-2xl w-full max-w-4xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🎁</span>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">Kombin Set Kârlılık Simülatörü</h3>
+                        <p class="text-xs text-slate-400">Çoklu Ürün Paketleyip Tek Kargo İle Dev Kargo Kârı (+110 ₺) Elde Edin</p>
+                    </div>
+                </div>
+                <button onclick="closeBundleSimulatorModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Set Ürün Seçim Alanı -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                    <label class="block text-xs font-bold text-purple-300 mb-1">1. Ürün Seçin:</label>
+                    <select id="bundle-item-1" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-purple-300 mb-1">2. Ürün Seçin:</label>
+                    <select id="bundle-item-2" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">3. Ürün (Opsiyonel):</label>
+                    <select id="bundle-item-3" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
+                        <option value="">-- Ürün Yok (2'li Paket) --</option>
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Set Satış Fiyatı & Kargo Avantaj Özeti -->
+            <div class="flex flex-wrap items-center justify-between bg-slate-950/80 p-3.5 rounded-xl border border-purple-500/40 gap-3">
+                <div class="flex items-center gap-3">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Kombin Set Satış Fiyatınız (₺):</span>
+                        <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-32 bg-slate-900 border border-purple-500 text-purple-300 font-extrabold text-base px-3 py-1 rounded-xl text-center focus:outline-none">
+                    </div>
+                    <div class="border-l border-slate-800 pl-3">
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Kombin Ürün Saf Maliyet Toplamı:</span>
+                        <span id="bundle-total-cost" class="text-sm font-black text-amber-300">0,00 ₺</span>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-950/80 px-3.5 py-2 rounded-xl border border-emerald-500/50 flex items-center gap-2">
+                    <span class="text-xl">🚀</span>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider">Tek Kargo Kâr Avantajı:</span>
+                        <span id="bundle-cargo-savings" class="text-sm font-black text-emerald-300">+110,00 ₺ Kargo Tasarrufu!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kombin Kanal Kârlılık Sonuç Kartları -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5" id="bundle-results-grid">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.82"></script>
-    <script src="js/liveSiteData.js?v=1.82"></script>
-    <script src="js/storage.js?v=1.82"></script>
-    <script src="js/calculator.js?v=1.82"></script>
-    <script src="js/app.js?v=1.82"></script>
+    <script src="js/productsData.js?v=1.83"></script>
+    <script src="js/liveSiteData.js?v=1.83"></script>
+    <script src="js/storage.js?v=1.83"></script>
+    <script src="js/calculator.js?v=1.83"></script>
+    <script src="js/app.js?v=1.83"></script>
 </body>
 </html>
 

@@ -1896,3 +1896,220 @@ async function updateLayer2ProductField(productId, field, value) {
   await StorageManager.saveProduct(product);
   renderLayer2Cards();
 }
+
+// ----------------------------------------------------
+// 🔴 KIRMIZI ÇİZGİ DİP FİYAT VE 🎁 KOMBİN SET SİMS
+// ----------------------------------------------------
+
+let showRedLineFloor = false;
+
+function toggleRedLineFloor() {
+  showRedLineFloor = !showRedLineFloor;
+  const btn = document.getElementById("btn-toggle-redline");
+  if (btn) {
+    if (showRedLineFloor) {
+      btn.classList.remove("bg-slate-900", "text-rose-400");
+      btn.classList.add("bg-rose-600", "text-white", "shadow-lg", "shadow-rose-600/30");
+      btn.innerHTML = `🔴 Dip Fiyat (AÇIK)`;
+    } else {
+      btn.classList.remove("bg-rose-600", "text-white", "shadow-lg", "shadow-rose-600/30");
+      btn.classList.add("bg-slate-900", "text-rose-400");
+      btn.innerHTML = `🔴 Dip Fiyat`;
+    }
+  }
+
+  if (currentLayerMode === 1) renderProductGrid();
+  else if (currentLayerMode === 2) renderLayer2Cards();
+}
+
+function openBundleSimulatorModal() {
+  const modal = document.getElementById("modal-bundle-simulator");
+  if (!modal) return;
+  populateBundleProductDropdowns();
+  updateBundleSimulator();
+  modal.classList.remove("hidden");
+}
+
+function closeBundleSimulatorModal() {
+  const modal = document.getElementById("modal-bundle-simulator");
+  if (modal) modal.classList.add("hidden");
+}
+
+function populateBundleProductDropdowns() {
+  const pList = Object.values(currentProducts || {});
+  if (pList.length === 0) return;
+
+  const sel1 = document.getElementById("bundle-item-1");
+  const sel2 = document.getElementById("bundle-item-2");
+  const sel3 = document.getElementById("bundle-item-3");
+
+  if (!sel1 || !sel2 || !sel3) return;
+
+  let optionsHtml = pList.map(p => {
+    return `<option value="${p.id}">${p.sku} - ${p.name} (${p.category})</option>`;
+  }).join("");
+
+  sel1.innerHTML = optionsHtml;
+  sel2.innerHTML = optionsHtml;
+  sel3.innerHTML = `<option value="">-- Ürün Yok (2'li Paket) --</option>` + optionsHtml;
+
+  if (pList.length >= 2) {
+    sel1.value = pList[0].id;
+    sel2.value = pList[1].id;
+  }
+}
+
+function updateBundleSimulator() {
+  const sel1 = document.getElementById("bundle-item-1");
+  const sel2 = document.getElementById("bundle-item-2");
+  const sel3 = document.getElementById("bundle-item-3");
+  const priceInput = document.getElementById("bundle-target-price");
+
+  if (!sel1 || !sel2 || !sel3 || !priceInput) return;
+
+  const p1 = currentProducts[sel1.value];
+  const p2 = currentProducts[sel2.value];
+  const p3 = sel3.value ? currentProducts[sel3.value] : null;
+
+  const items = [p1, p2, p3].filter(Boolean);
+  if (items.length === 0) return;
+
+  const overhead = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
+
+  const costsList = items.map(product => {
+    const vol = product.layer2Volume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+    const ml = PriceCalculator.getVolumeMl(vol);
+    const kg = ml / 1000;
+
+    const supplyType = product.supplyType || "press";
+    const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
+    const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
+      ? product.seedCostPerKg
+      : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+
+    const costPerKg = (supplyType === "wholesale")
+      ? (product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : (product.costPerKg || 1950.00))
+      : ((yieldPct > 0) ? parseFloat((seedCost / (yieldPct / 100)).toFixed(2)) : (product.costPerKg || 1212.00));
+
+    const rawOilCost = parseFloat(((costPerKg / 1000) * ml).toFixed(2));
+    const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
+    const linearOverhead = parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
+
+    let laborAssemblyFee = 8.00;
+    if (vol === "1000ml" || vol === "1kg") laborAssemblyFee = 10.00;
+    else if (vol === "500ml") laborAssemblyFee = 9.00;
+    else if (vol === "250ml") laborAssemblyFee = 8.00;
+    else if (vol === "100ml") laborAssemblyFee = 7.50;
+    else if (vol === "50ml") laborAssemblyFee = 9.50;
+    else if (vol === "30ml") laborAssemblyFee = 14.70;
+    else if (vol === "20ml") laborAssemblyFee = 17.80;
+    else if (vol === "5000ml" || vol === "5kg") laborAssemblyFee = 15.00;
+
+    return parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
+  });
+
+  const bundleTargetPrice = parseFloat(priceInput.value) || 0;
+  const totalCost = costsList.reduce((a, b) => a + b, 0);
+
+  const costEl = document.getElementById("bundle-total-cost");
+  if (costEl) costEl.textContent = PriceCalculator.formatTL(totalCost);
+
+  const cargoSavingsEl = document.getElementById("bundle-cargo-savings");
+  const savedCargo = (items.length - 1) * 110;
+  if (cargoSavingsEl) cargoSavingsEl.textContent = `+${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu!`;
+
+  const tyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 19, cargo: 110 });
+  const iyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 4, cargo: 82.50 });
+  const hbRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 17, cargo: 110 });
+  const storeProfit = bundleTargetPrice - totalCost;
+
+  const resultsGrid = document.getElementById("bundle-results-grid");
+  if (resultsGrid) {
+    resultsGrid.innerHTML = `
+      <!-- 1. TRENDYOL KOMBİN KARTI -->
+      <div class="bg-gradient-to-b from-slate-900 to-amber-950/30 p-4 rounded-2xl border border-amber-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="font-extrabold text-amber-400 text-xs">🧡 TRENDYOL</span>
+            <span class="text-[10px] font-bold text-amber-300 bg-amber-950 px-2 py-0.5 rounded-full border border-amber-800">%19 Kom.</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-slate-300">
+            <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-amber-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(tyRes.commAmount)}</span></div>
+            <div class="flex justify-between"><span>(-) Tek Kargo:</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(tyRes.cargoFee)}</span></div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(tyRes.payout)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
+          </div>
+        </div>
+        <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+          <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
+          <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(tyRes.netProfit)}</span>
+        </div>
+      </div>
+
+      <!-- 2. İYZİCO (WEB SİTENİZ) KOMBİN KARTI -->
+      <div class="bg-gradient-to-b from-slate-900 to-blue-950/30 p-4 rounded-2xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="font-extrabold text-blue-400 text-xs">🌐 İYZİCO (WEB)</span>
+            <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded-full border border-blue-800">%4 Kom.</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-slate-300">
+            <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-blue-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.commAmount)}</span></div>
+            <div class="flex justify-between"><span>(-) Tek Kargo:</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.cargoFee)}</span></div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(iyRes.payout)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
+          </div>
+        </div>
+        <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+          <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
+          <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(iyRes.netProfit)}</span>
+        </div>
+      </div>
+
+      <!-- 3. HEPSİBURADA KOMBİN KARTI -->
+      <div class="bg-gradient-to-b from-slate-900 to-orange-950/30 p-4 rounded-2xl border border-orange-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="font-extrabold text-orange-400 text-xs">🧡 HEPSİBURADA</span>
+            <span class="text-[10px] font-bold text-orange-300 bg-orange-950 px-2 py-0.5 rounded-full border border-orange-800">%17 Kom.</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-slate-300">
+            <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-orange-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(hbRes.commAmount)}</span></div>
+            <div class="flex justify-between"><span>(-) Tek Kargo:</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(hbRes.cargoFee)}</span></div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(hbRes.payout)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
+          </div>
+        </div>
+        <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+          <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
+          <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(hbRes.netProfit)}</span>
+        </div>
+      </div>
+
+      <!-- 4. PERAKENDE FİZİKİ MAĞAZA KOMBİN KARTI -->
+      <div class="bg-gradient-to-b from-slate-900 to-emerald-950/30 p-4 rounded-2xl border border-emerald-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="font-extrabold text-emerald-400 text-xs">🏪 FİZİKİ MAĞAZA</span>
+            <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">Direkt</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-slate-300">
+            <div class="flex justify-between"><span>Mağaza Set Fiyatı:</span><span class="font-bold text-emerald-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon:</span><span class="text-emerald-400 font-semibold">0,00 ₺</span></div>
+            <div class="flex justify-between"><span>(-) Kargo:</span><span class="text-emerald-400 font-semibold">0,00 ₺</span></div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Kasa:</span><span class="text-emerald-300">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
+          </div>
+        </div>
+        <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+          <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
+          <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(storeProfit)}</span>
+        </div>
+      </div>
+    `;
+  }
+}

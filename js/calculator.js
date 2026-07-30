@@ -290,6 +290,51 @@ class PriceCalculator {
     };
   }
 
+  // Kırmızı Çizgi / Başabaş Satış Fiyatı (0 TL Net Kâr İçin Dip Satış Fiyatı)
+  static calculateBreakEvenPrice({ wholesaleCost, commission = 19, cargo = 110 }) {
+    const cost = parseFloat(wholesaleCost) || 0;
+    const commDec = (parseFloat(commission) || 0) / 100;
+    const cargoFee = parseFloat(cargo) || 0;
+
+    const commFactor = commDec >= 1 ? 0.99 : (1 - commDec);
+    const breakEvenPrice = (cost + cargoFee) / commFactor;
+    const commAmount = breakEvenPrice * commDec;
+    const payout = breakEvenPrice - commAmount - cargoFee;
+
+    return {
+      breakEvenPrice: parseFloat(breakEvenPrice.toFixed(2)),
+      commAmount: parseFloat(commAmount.toFixed(2)),
+      cargoFee: cargoFee,
+      payout: parseFloat(payout.toFixed(2)),
+      netProfit: 0.00
+    };
+  }
+
+  // Kombin / Set Paket Kârlılık Simülatörü
+  static calculateBundleSim({ itemsCostList = [], bundlePrice = 0, commission = 19, cargo = 110 }) {
+    const price = parseFloat(bundlePrice) || 0;
+    const commDec = (parseFloat(commission) || 0) / 100;
+    const singleCargoFee = parseFloat(cargo) || 0;
+
+    const totalItemsWholesaleCost = itemsCostList.reduce((acc, c) => acc + (parseFloat(c) || 0), 0);
+    const commAmount = price * commDec;
+    const payout = price - commAmount - singleCargoFee;
+    const netProfit = payout - totalItemsWholesaleCost;
+
+    const itemCount = itemsCostList.length || 1;
+    const savedCargoAmount = Math.max(0, (itemCount - 1) * singleCargoFee);
+
+    return {
+      bundlePrice: price,
+      totalItemsWholesaleCost: parseFloat(totalItemsWholesaleCost.toFixed(2)),
+      commAmount: parseFloat(commAmount.toFixed(2)),
+      cargoFee: singleCargoFee,
+      payout: parseFloat(payout.toFixed(2)),
+      netProfit: parseFloat(netProfit.toFixed(2)),
+      savedCargoAmount: parseFloat(savedCargoAmount.toFixed(2))
+    };
+  }
+
   static formatTL(val) {
     if (isNaN(val)) return "0.00 ₺";
     return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(val);
