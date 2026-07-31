@@ -8,7 +8,6 @@ let selectedProductId = null;
 let viewMode = "rows"; // 'rows' | 'cards'
 let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4' | 'system5'
 let activeVolume = "250ml"; // Active bottle size sub-tab in modal
-let showRedLineFloor = false; // 🔴 Dip Fiyat Toplu Görünüm Anahtarı
 
 const ALL_VOLUMES = [
   { key: "20ml", label: "20 ml", price: "6.00 ₺" },
@@ -1927,6 +1926,7 @@ async function updateLayer2ProductField(productId, field, value) {
 // 🔴 KIRMIZI ÇİZGİ DİP FİYAT VE 🎁 KOMBİN SET SİMS
 // ----------------------------------------------------
 
+let showRedLineFloor = false;
 
 function toggleRedLineFloor() {
   showRedLineFloor = !showRedLineFloor;
@@ -1989,27 +1989,6 @@ function closeBundleSimulatorModal() {
   if (modal) modal.classList.add("hidden");
 }
 
-let lastSuggestedDipPrice = 0;
-let lastSuggestedTargetPrice = 0;
-
-function applySuggestedBundlePrice(type) {
-  const priceInput = document.getElementById("bundle-target-price");
-  if (!priceInput) return;
-  if (type === "dip" && lastSuggestedDipPrice > 0) {
-    priceInput.value = lastSuggestedDipPrice;
-    updateBundleSimulator();
-    if (typeof showToast !== "undefined") {
-      showToast(`🔴 Dip Satış Fiyatı (${PriceCalculator.formatTL(lastSuggestedDipPrice)}) Uygulandı`, "info");
-    }
-  } else if (type === "target" && lastSuggestedTargetPrice > 0) {
-    priceInput.value = lastSuggestedTargetPrice;
-    updateBundleSimulator();
-    if (typeof showToast !== "undefined") {
-      showToast(`🟢 Önerilen Standart Fiyat (${PriceCalculator.formatTL(lastSuggestedTargetPrice)}) Uygulandı`, "success");
-    }
-  }
-}
-
 function populateBundleProductDropdowns() {
   if (!currentProducts || Object.keys(currentProducts).length === 0) {
     currentProducts = StorageManager.getProducts();
@@ -2028,16 +2007,14 @@ function populateBundleProductDropdowns() {
     return `<option value="${idKey}">${p.sku} - ${p.name} (${p.category})</option>`;
   }).join("");
 
-  sel1.innerHTML = `<option value="">-- 1. Ürünü Seçin --</option>` + optionsHtml;
-  sel2.innerHTML = `<option value="">-- 2. Ürünü Seçin --</option>` + optionsHtml;
-  sel3.innerHTML = `<option value="">-- 3. Ürün (Opsiyonel) --</option>` + optionsHtml;
+  sel1.innerHTML = optionsHtml;
+  sel2.innerHTML = optionsHtml;
+  sel3.innerHTML = `<option value="">-- Ürün Yok (2'li Paket) --</option>` + optionsHtml;
 
-  sel1.value = "";
-  sel2.value = "";
-  sel3.value = "";
-
-  const priceInput = document.getElementById("bundle-target-price");
-  if (priceInput) priceInput.value = "";
+  if (pList.length >= 2) {
+    sel1.value = pList[0].id || pList[0].sku;
+    sel2.value = pList[1].id || pList[1].sku;
+  }
 }
 
 function onBundleItemProductChange(idx) {
@@ -2068,8 +2045,8 @@ function updateBundleSimulator() {
     }
 
     const pList = Object.values(currentProducts);
-    const p1 = sel1.value ? (currentProducts[sel1.value] || pList.find(p => (p.sku === sel1.value || p.id === sel1.value))) : null;
-    const p2 = sel2.value ? (currentProducts[sel2.value] || pList.find(p => (p.sku === sel2.value || p.id === sel2.value))) : null;
+    const p1 = currentProducts[sel1.value] || pList.find(p => (p.sku === sel1.value || p.id === sel1.value));
+    const p2 = currentProducts[sel2.value] || pList.find(p => (p.sku === sel2.value || p.id === sel2.value));
     const p3 = sel3.value ? (currentProducts[sel3.value] || pList.find(p => (p.sku === sel3.value || p.id === sel3.value))) : null;
 
     const vol1 = document.getElementById("bundle-vol-1")?.value || "250ml";
@@ -2077,96 +2054,72 @@ function updateBundleSimulator() {
     const vol3 = document.getElementById("bundle-vol-3")?.value || "30ml";
 
     const itemEntries = [];
-    if (p1 && sel1.value) itemEntries.push({ product: p1, vol: vol1, idx: 1 });
-    if (p2 && sel2.value) itemEntries.push({ product: p2, vol: vol2, idx: 2 });
-    if (p3 && sel3.value) itemEntries.push({ product: p3, vol: vol3, idx: 3 });
+    if (p1) itemEntries.push({ product: p1, vol: vol1, idx: 1 });
+    if (p2) itemEntries.push({ product: p2, vol: vol2, idx: 2 });
+    if (p3) itemEntries.push({ product: p3, vol: vol3, idx: 3 });
 
-    const resultsGrid = document.getElementById("bundle-results-grid");
+    if (itemEntries.length === 0) return;
 
-    if (itemEntries.length < 2) {
-      const costEl = document.getElementById("bundle-total-cost");
-      if (costEl) costEl.textContent = "0,00 ₺";
-      const dipEl = document.getElementById("bundle-suggested-dip");
-      if (dipEl) dipEl.textContent = "0,00 ₺";
-      const targetEl = document.getElementById("bundle-suggested-target");
-      if (targetEl) targetEl.textContent = "0,00 ₺";
-      const cargoSavingsEl = document.getElementById("bundle-cargo-savings");
-      if (cargoSavingsEl) cargoSavingsEl.textContent = "+0,00 ₺ Kargo Tasarrufu";
+    const overhead = StorageManager.getFactoryOverhead();
+    const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
 
-      [1, 2, 3].forEach(i => {
-        const badge = document.getElementById(`bundle-item-cost-${i}`);
-        if (badge) badge.textContent = "0,00 ₺";
-      });
-
-      if (resultsGrid) {
-        resultsGrid.innerHTML = `
-          <div class="col-span-full bg-slate-950/80 p-8 rounded-2xl border border-purple-800/40 text-center space-y-2.5 my-2 shadow-xl">
-            <div class="text-4xl animate-bounce">📦</div>
-            <h4 class="text-base font-extrabold text-purple-300">Kombin Paketiniz İçin En Az 2 Ürün Seçiniz</h4>
-            <p class="text-xs text-slate-400 max-w-md mx-auto">
-              Yukarıdaki <strong>1. Ürün</strong> ve <strong>2. Ürün</strong> kutularından istediğiniz yağları ve ambalaj hacimlerini seçiniz. Sistem otomatik olarak 🔴 <strong>Dip Fiyat</strong> ve 🟢 <strong>Önerilen Satış Fiyatı</strong> tekliflerini hesaplayacaktır.
-            </p>
-          </div>
-        `;
-      }
-      return;
-    }
-
-    const costsList = itemEntries.map((entry) => {
+    const costsList = itemEntries.map((entry, index) => {
       const product = entry.product;
       const vol = entry.vol;
-      const volConfig = getVolumeConfig(product, vol);
-      const packCost = volConfig.packagingCost ?? (DEFAULT_PACKAGING_COSTS[vol] || 14.50);
-      const itemKatman1Cost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, vol, packCost);
+      const ml = PriceCalculator.getVolumeMl(vol);
+      const kg = ml / 1000;
+
+      const supplyType = product.supplyType || "press";
+      const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
+      const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
+        ? product.seedCostPerKg
+        : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+
+      const costPerKg = (supplyType === "wholesale")
+        ? (product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : (product.costPerKg || 1950.00))
+        : ((yieldPct > 0) ? parseFloat((seedCost / (yieldPct / 100)).toFixed(2)) : (product.costPerKg || 1212.00));
+
+      const rawOilCost = parseFloat(((costPerKg / 1000) * ml).toFixed(2));
+      const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
+      const linearOverhead = parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
+
+      let laborAssemblyFee = 8.00;
+      if (vol === "1000ml" || vol === "1kg") laborAssemblyFee = 10.00;
+      else if (vol === "500ml") laborAssemblyFee = 9.00;
+      else if (vol === "250ml") laborAssemblyFee = 8.00;
+      else if (vol === "100ml") laborAssemblyFee = 7.50;
+      else if (vol === "50ml") laborAssemblyFee = 9.50;
+      else if (vol === "30ml") laborAssemblyFee = 14.70;
+      else if (vol === "20ml") laborAssemblyFee = 17.80;
+      else if (vol === "5000ml" || vol === "5kg") laborAssemblyFee = 15.00;
+
+      const itemNetCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
 
       const costBadge = document.getElementById(`bundle-item-cost-${entry.idx}`);
-      if (costBadge) costBadge.textContent = PriceCalculator.formatTL(itemKatman1Cost);
+      if (costBadge) costBadge.textContent = PriceCalculator.formatTL(itemNetCost);
 
-      return itemKatman1Cost;
+      return itemNetCost;
     });
 
-    [1, 2, 3].forEach(i => {
-      if (!itemEntries.some(e => e.idx === i)) {
-        const badge = document.getElementById(`bundle-item-cost-${i}`);
-        if (badge) badge.textContent = "0,00 ₺";
-      }
-    });
+    if (!p3) {
+      const costBadge3 = document.getElementById("bundle-item-cost-3");
+      if (costBadge3) costBadge3.textContent = "0,00 ₺";
+    }
 
+    const bundleTargetPrice = parseFloat(priceInput.value) || 0;
     const totalCost = costsList.reduce((a, b) => a + b, 0);
 
     const costEl = document.getElementById("bundle-total-cost");
     if (costEl) costEl.textContent = PriceCalculator.formatTL(totalCost);
 
-    // AKILLI SATEŞ FİYATI ÖNERİLERİ HESAPLAMASI
-    const breakEvenRes = PriceCalculator.calculateBreakEvenPrice({ wholesaleCost: totalCost, commission: 19, cargo: 110 });
-    lastSuggestedDipPrice = breakEvenRes.breakEvenPrice;
-
-    // Her bir ürün başına 70 TL standart kâr hedefli önerilen paket fiyatı
-    const stdTargetProfit = itemEntries.length * 70;
-    const suggestedTargetRes = PriceCalculator.calculateSystem1Channel({ wholesaleCost: totalCost, targetProfit: stdTargetProfit, commission: 19, discount: 0, cargo: 110 });
-    lastSuggestedTargetPrice = suggestedTargetRes.listPrice;
-
-    const dipEl = document.getElementById("bundle-suggested-dip");
-    if (dipEl) dipEl.textContent = PriceCalculator.formatTL(lastSuggestedDipPrice);
-
-    const targetEl = document.getElementById("bundle-suggested-target");
-    if (targetEl) targetEl.textContent = PriceCalculator.formatTL(lastSuggestedTargetPrice);
-
-    // Fiyat kutusu boşsa otomatik önerilen standart fiyatı doldur
-    if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
-      priceInput.value = lastSuggestedTargetPrice;
-    }
-
-    const bundleTargetPrice = parseFloat(priceInput.value) || 0;
-
     const cargoSavingsEl = document.getElementById("bundle-cargo-savings");
     const savedCargo = (itemEntries.length - 1) * 110;
-    if (cargoSavingsEl) cargoSavingsEl.textContent = `+${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu`;
+    if (cargoSavingsEl) cargoSavingsEl.textContent = `+${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu!`;
 
     const tyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 19, cargo: 110 });
     const iyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 4, cargo: 82.50 });
     const hbRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 17, cargo: 110 });
-    const storeProfit = parseFloat((bundleTargetPrice - totalCost).toFixed(2));
+    const storeProfit = bundleTargetPrice - totalCost;
 
     const itemsSummaryHtml = `
       <div class="text-[10px] text-slate-300 font-semibold bg-slate-950/90 p-2 rounded-xl border border-slate-800 space-y-1 mb-2">
