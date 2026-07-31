@@ -32,40 +32,40 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initApp() {
-  currentProducts = StorageManager.getProducts();
-  
-  if (!currentProducts || typeof currentProducts !== 'object' || Object.keys(currentProducts).length === 0) {
-    if (typeof STORAGE_KEYS !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
-    }
+  console.log("Initializing CanFiyat Portal v1.97...");
+  try {
     currentProducts = StorageManager.getProducts();
-  }
-
-  renderStats();
-  if (currentLayerMode === 1) {
-    renderProductGrid();
-  } else if (currentLayerMode === 2) {
-    renderLayer2Cards();
-  } else if (currentLayerMode === 3) {
-    renderLayer3Cards();
-  }
-  setupEventListeners();
-
-  // Async sync with Supabase Cloud DB
-  StorageManager.fetchFromSupabase((cloudMap) => {
-    if (cloudMap && Object.keys(cloudMap).length > 0) {
-      currentProducts = cloudMap;
-      renderStats();
-      if (currentLayerMode === 1) {
-        renderProductGrid();
-      } else if (currentLayerMode === 2) {
-        renderLayer2Cards();
-      } else if (currentLayerMode === 3) {
-        renderLayer3Cards();
-      }
-      console.log("Synced latest product slot state from Supabase Cloud DB!");
+    if (!currentProducts || typeof currentProducts !== "object" || Object.keys(currentProducts).length === 0) {
+      currentProducts = StorageManager.resetToDefault() || {};
     }
-  });
+
+    renderStats();
+    if (currentLayerMode === 1) {
+      renderProductGrid();
+    } else if (currentLayerMode === 2) {
+      renderLayer2Cards();
+    } else if (currentLayerMode === 3) {
+      renderLayer3Cards();
+    }
+    setupEventListeners();
+
+    StorageManager.fetchFromSupabase((cloudMap) => {
+      if (cloudMap && Object.keys(cloudMap).length > 0) {
+        currentProducts = cloudMap;
+        renderStats();
+        if (currentLayerMode === 1) {
+          renderProductGrid();
+        } else if (currentLayerMode === 2) {
+          renderLayer2Cards();
+        } else if (currentLayerMode === 3) {
+          renderLayer3Cards();
+        }
+        console.log("Synced latest product slot state from Supabase Cloud DB!");
+      }
+    });
+  } catch (err) {
+    console.error("Critical error in initApp:", err);
+  }
 }
 
 function setupEventListeners() {
@@ -158,7 +158,11 @@ function renderProductGrid() {
 
   container.innerHTML = "";
 
-  const productsArr = Object.values(currentProducts);
+  if (!currentProducts || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+
+  const productsArr = Object.values(currentProducts || {});
   const filtered = productsArr.filter(p => {
     if (!p) return false;
     const cat = p.category || "";
@@ -191,24 +195,26 @@ function renderProductGrid() {
   }
 
   filtered.forEach(product => {
-    const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-    const volConfig = getVolumeConfig(product, mainVol);
-    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, mainVol, volConfig.packagingCost);
-    const targetProfitVal = (volConfig.targetProfit !== undefined && volConfig.targetProfit !== null) ? volConfig.targetProfit : 70;
-    
-    const tyResult = PriceCalculator.calculateSystem1Channel({
-      wholesaleCost: unitCost,
-      targetProfit: targetProfitVal,
-      commission: volConfig.channels?.trendyol?.commission || 19,
-      discount: volConfig.channels?.trendyol?.discount || 0,
-      cargo: volConfig.channels?.trendyol?.cargo || 110
-    });
+    try {
+      const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+      const volConfig = getVolumeConfig(product, mainVol);
+      const packCost = volConfig?.packagingCost ?? (DEFAULT_PACKAGING_COSTS[mainVol] || 14.50);
+      const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg || 1000, mainVol, packCost);
+      const targetProfitVal = (volConfig?.targetProfit !== undefined && volConfig?.targetProfit !== null) ? volConfig.targetProfit : 70;
+      
+      const tyResult = PriceCalculator.calculateSystem1Channel({
+        wholesaleCost: unitCost,
+        targetProfit: targetProfitVal,
+        commission: volConfig?.channels?.trendyol?.commission || 19,
+        discount: volConfig?.channels?.trendyol?.discount || 0,
+        cargo: volConfig?.channels?.trendyol?.cargo || 110
+      });
 
-    const breakEvenTy = PriceCalculator.calculateBreakEvenPrice({
-      wholesaleCost: unitCost,
-      commission: volConfig.channels?.trendyol?.commission || 19,
-      cargo: volConfig.channels?.trendyol?.cargo || 110
-    });
+      const breakEvenTy = PriceCalculator.calculateBreakEvenPrice({
+        wholesaleCost: unitCost,
+        commission: volConfig?.channels?.trendyol?.commission || 19,
+        cargo: volConfig?.channels?.trendyol?.cargo || 110
+      });
 
     const isUcucu = product.category === "Uçucu Yağlar";
     const badgeClass = isUcucu 
@@ -336,6 +342,9 @@ function renderProductGrid() {
       `;
       container.insertAdjacentHTML("beforeend", cardHtml);
     }
+  } catch (err) {
+      console.error("Error rendering product card " + product?.id, err);
+  }
   });
 }
 

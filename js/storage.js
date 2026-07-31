@@ -8,7 +8,7 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v8", // Auto fail-safe reset v8
+  PRODUCTS: "canfiyat_products_v9", // Bulletproof Storage Key v9
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1"
 };
