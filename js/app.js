@@ -9,6 +9,14 @@ let viewMode = "rows"; // 'rows' | 'cards'
 let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4' | 'system5'
 let activeVolume = "250ml"; // Active bottle size sub-tab in modal
 
+// Global State Flags & Cache (Moved to top to prevent TDZ reference errors)
+let showRedLineFloor = false;
+let cardActiveVolumes = {};
+let expandedCards = {};
+let openLayer2Breakdowns = {};
+let lastSuggestedDipPrice = 0;
+let lastSuggestedTargetPrice = 0;
+
 const ALL_VOLUMES = [
   { key: "20ml", label: "20 ml", price: "6.00 ₺" },
   { key: "30ml", label: "30 ml", price: "6.75 ₺" },
@@ -898,8 +906,7 @@ function switchLayerMode(mode) {
   }
 }
 
-let cardActiveVolumes = {};
-let expandedCards = {};
+
 
 function updateCardVolume(productId, volKey) {
   cardActiveVolumes[productId] = volKey;
@@ -1285,7 +1292,6 @@ function saveFactoryOverheadModal() {
   showToast("Aylık Giderlerden 1KG Tesis Payı Otomatik Hesaplandı! 🏭✅");
 }
 
-let openLayer2Breakdowns = {};
 
 function toggleLayer2Breakdown(productId) {
   openLayer2Breakdowns[productId] = !openLayer2Breakdowns[productId];
@@ -1926,7 +1932,6 @@ async function updateLayer2ProductField(productId, field, value) {
 // 🔴 KIRMIZI ÇİZGİ DİP FİYAT VE 🎁 KOMBİN SET SİMS
 // ----------------------------------------------------
 
-let showRedLineFloor = false;
 
 function toggleRedLineFloor() {
   showRedLineFloor = !showRedLineFloor;
@@ -1989,8 +1994,6 @@ function closeBundleSimulatorModal() {
   if (modal) modal.classList.add("hidden");
 }
 
-let lastSuggestedDipPrice = 0;
-let lastSuggestedTargetPrice = 0;
 
 function applySuggestedBundlePrice(type) {
   const priceInput = document.getElementById("bundle-target-price");
