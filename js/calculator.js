@@ -81,7 +81,7 @@ class PriceCalculator {
     return parseFloat((rawOilCost + packCost).toFixed(2));
   }
 
-  // SYSTEM 1: Toptan Maliyet + Hedef Kâr -> Kanal Satış Fiyatları & Hakediş
+  // SYSTEM 1: Toptan Maliyet + Hedef Kâr -> Kanal Satış Fiyatları & Hakediş (100% Banka Hakediş Kuruş Hassasiyeti)
   static calculateSystem1Channel({ wholesaleCost, targetProfit, commission, discount, cargo }) {
     const maliyet = parseFloat(wholesaleCost) || 0;
     const kar = parseFloat(targetProfit) || 0;
@@ -96,20 +96,25 @@ class PriceCalculator {
     const commFactor = commDec >= 1 ? 0.99 : (1 - commDec);
     const discFactor = discDec >= 1 ? 0.99 : (1 - discDec);
 
-    const salePrice = (neededPayout + kargo) / commFactor;
-    const listPrice = salePrice / discFactor;
-    const commAmount = salePrice * commDec;
-    const payout = salePrice - commAmount - kargo;
-    const netProfit = payout - maliyet;
+    // 1. Pazaryerine Yansıyacak Gerçek Etiket Satış Fiyatı (Kuruş Yuvarlamalı)
+    const salePrice = parseFloat(((neededPayout + kargo) / commFactor).toFixed(2));
+    const listPrice = parseFloat((salePrice / discFactor).toFixed(2));
+    
+    // 2. Pazaryerinin Satış Fiyatı Üzerinden Kestiği Gerçek Komisyon Tutar (Kuruş Yuvarlamalı)
+    const commAmount = parseFloat((salePrice * commDec).toFixed(2));
+    
+    // 3. Banka Hesabınıza Yatan Gerçek Hakediş ve Net Kâr
+    const payout = parseFloat((salePrice - commAmount - kargo).toFixed(2));
+    const netProfit = parseFloat((payout - maliyet).toFixed(2));
 
     return {
-      listPrice: parseFloat(listPrice.toFixed(2)),
-      salePrice: parseFloat(salePrice.toFixed(2)),
-      commAmount: parseFloat(commAmount.toFixed(2)),
+      listPrice: listPrice,
+      salePrice: salePrice,
+      commAmount: commAmount,
       cargoFee: parseFloat(kargo.toFixed(2)),
-      payout: parseFloat(payout.toFixed(2)),
+      payout: payout,
       wholesaleCost: parseFloat(maliyet.toFixed(2)),
-      netProfit: parseFloat(netProfit.toFixed(2))
+      netProfit: netProfit
     };
   }
 
@@ -297,29 +302,30 @@ class PriceCalculator {
     const cargoFee = parseFloat(cargo) || 0;
 
     const commFactor = commDec >= 1 ? 0.99 : (1 - commDec);
-    const breakEvenPrice = (cost + cargoFee) / commFactor;
-    const commAmount = breakEvenPrice * commDec;
-    const payout = breakEvenPrice - commAmount - cargoFee;
+    const breakEvenPrice = parseFloat(((cost + cargoFee) / commFactor).toFixed(2));
+    const commAmount = parseFloat((breakEvenPrice * commDec).toFixed(2));
+    const payout = parseFloat((breakEvenPrice - commAmount - cargoFee).toFixed(2));
+    const netProfit = parseFloat((payout - cost).toFixed(2));
 
     return {
-      breakEvenPrice: parseFloat(breakEvenPrice.toFixed(2)),
-      commAmount: parseFloat(commAmount.toFixed(2)),
+      breakEvenPrice: breakEvenPrice,
+      commAmount: commAmount,
       cargoFee: cargoFee,
-      payout: parseFloat(payout.toFixed(2)),
-      netProfit: 0.00
+      payout: payout,
+      netProfit: netProfit
     };
   }
 
-  // Kombin / Set Paket Kârlılık Simülatörü
+  // Kombin / Set Paket Kârlılık Simülatörü (100% Banka Kuruş Hassasiyeti)
   static calculateBundleSim({ itemsCostList = [], bundlePrice = 0, commission = 19, cargo = 110 }) {
     const price = parseFloat(bundlePrice) || 0;
     const commDec = (parseFloat(commission) || 0) / 100;
     const singleCargoFee = parseFloat(cargo) || 0;
 
     const totalItemsWholesaleCost = itemsCostList.reduce((acc, c) => acc + (parseFloat(c) || 0), 0);
-    const commAmount = price * commDec;
-    const payout = price - commAmount - singleCargoFee;
-    const netProfit = payout - totalItemsWholesaleCost;
+    const commAmount = parseFloat((price * commDec).toFixed(2));
+    const payout = parseFloat((price - commAmount - singleCargoFee).toFixed(2));
+    const netProfit = parseFloat((payout - totalItemsWholesaleCost).toFixed(2));
 
     const itemCount = itemsCostList.length || 1;
     const savedCargoAmount = Math.max(0, (itemCount - 1) * singleCargoFee);
@@ -327,10 +333,10 @@ class PriceCalculator {
     return {
       bundlePrice: price,
       totalItemsWholesaleCost: parseFloat(totalItemsWholesaleCost.toFixed(2)),
-      commAmount: parseFloat(commAmount.toFixed(2)),
+      commAmount: commAmount,
       cargoFee: singleCargoFee,
-      payout: parseFloat(payout.toFixed(2)),
-      netProfit: parseFloat(netProfit.toFixed(2)),
+      payout: payout,
+      netProfit: netProfit,
       savedCargoAmount: parseFloat(savedCargoAmount.toFixed(2))
     };
   }
