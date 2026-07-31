@@ -2136,6 +2136,21 @@ function updateBundleSimulator() {
       </div>
     `;
 
+    function renderBundleProfitBadge(profit) {
+      const isLoss = profit < 0;
+      const badgeBg = isLoss ? "bg-rose-950/90 border-rose-500/50" : "bg-emerald-950/80 border-emerald-500/40";
+      const labelColor = isLoss ? "text-rose-300" : "text-emerald-400";
+      const valColor = isLoss ? "text-rose-200" : "text-emerald-300";
+      const valText = isLoss ? PriceCalculator.formatTL(profit) : `+${PriceCalculator.formatTL(profit)}`;
+
+      return `
+        <div class="${badgeBg} p-2.5 rounded-xl border mt-2 flex justify-between items-center font-bold text-xs shadow-inner">
+          <span class="${labelColor} uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
+          <span class="${valColor} font-black text-base">${valText}</span>
+        </div>
+      `;
+    }
+
     const resultsGrid = document.getElementById("bundle-results-grid");
     if (resultsGrid) {
       resultsGrid.innerHTML = `
@@ -2157,10 +2172,7 @@ function updateBundleSimulator() {
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
           </div>
-          <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
-            <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(tyRes.netProfit)}</span>
-          </div>
+          ${renderBundleProfitBadge(tyRes.netProfit)}
         </div>
 
         <!-- 2. İYZİCO (WEB SİTENİZ) KOMBİN KARTI -->
@@ -2181,10 +2193,7 @@ function updateBundleSimulator() {
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
           </div>
-          <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
-            <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(iyRes.netProfit)}</span>
-          </div>
+          ${renderBundleProfitBadge(iyRes.netProfit)}
         </div>
 
         <!-- 3. HEPSİBURADA KOMBİN KARTI -->
@@ -2205,10 +2214,7 @@ function updateBundleSimulator() {
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
           </div>
-          <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
-            <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(hbRes.netProfit)}</span>
-          </div>
+          ${renderBundleProfitBadge(hbRes.netProfit)}
         </div>
 
         <!-- 4. PERAKENDE FİZİKİ MAĞAZA KOMBİN KARTI -->
@@ -2229,10 +2235,7 @@ function updateBundleSimulator() {
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
           </div>
-          <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-[10px]">KOMBİN NET KÂR:</span>
-            <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(storeProfit)}</span>
-          </div>
+          ${renderBundleProfitBadge(storeProfit)}
         </div>
       `;
     }
