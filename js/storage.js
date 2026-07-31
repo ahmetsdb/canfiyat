@@ -8,7 +8,7 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v7", // Target profit set to 0 TL default
+  PRODUCTS: "canfiyat_products_v8", // Auto fail-safe reset v8
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1"
 };
@@ -36,11 +36,47 @@ class StorageManager {
   static getProducts() {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      if (!stored) {
+      let parsed = null;
+      if (stored) {
+        try {
+          parsed = JSON.parse(stored);
+        } catch (err) {
+          console.warn("Corrupted JSON in localStorage, resetting to default products.");
+        }
+      }
+
+      // FAIL-SAFE: If stored data is null, not an object, or has ZERO products, FORCE LOAD INITIAL_PRODUCTS (65 items)!
+      if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) {
         const initialMap = {};
+        if (typeof INITIAL_PRODUCTS !== 'undefined' && Array.isArray(INITIAL_PRODUCTS)) {
+          INITIAL_PRODUCTS.forEach(p => {
+            const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+
+            initialMap[p.id] = {
+              id: p.id,
+              sku: p.sku,
+              name: p.name,
+              category: p.category,
+              kdv: p.kdv,
+              unit: "1KG",
+              costPerKg: p.costPerKg,
+              activeVolume: defaultVol,
+              volumes: this.createDefaultVolumeConfigs(),
+              updatedAt: new Date().toISOString()
+            };
+          });
+        }
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
+        this.seedSupabaseDatabase(initialMap);
+        return initialMap;
+      }
+      return parsed;
+    } catch (e) {
+      console.error("Storage error:", e);
+      const initialMap = {};
+      if (typeof INITIAL_PRODUCTS !== 'undefined' && Array.isArray(INITIAL_PRODUCTS)) {
         INITIAL_PRODUCTS.forEach(p => {
           const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-
           initialMap[p.id] = {
             id: p.id,
             sku: p.sku,
@@ -54,14 +90,8 @@ class StorageManager {
             updatedAt: new Date().toISOString()
           };
         });
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
-        this.seedSupabaseDatabase(initialMap);
-        return initialMap;
       }
-      return JSON.parse(stored);
-    } catch (e) {
-      console.error("Storage error:", e);
-      return {};
+      return initialMap;
     }
   }
 
@@ -97,6 +127,7 @@ class StorageManager {
       } else {
         const localData = this.getProducts();
         this.seedSupabaseDatabase(localData);
+        if (onCompleteCallback) onCompleteCallback(localData);
       }
     } catch (e) {
       console.error("Supabase sync failed:", e);

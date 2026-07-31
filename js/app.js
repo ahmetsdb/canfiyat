@@ -33,11 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initApp() {
   currentProducts = StorageManager.getProducts();
+  
+  if (!currentProducts || typeof currentProducts !== 'object' || Object.keys(currentProducts).length === 0) {
+    if (typeof STORAGE_KEYS !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+    }
+    currentProducts = StorageManager.getProducts();
+  }
+
   renderStats();
   if (currentLayerMode === 1) {
     renderProductGrid();
-  } else {
+  } else if (currentLayerMode === 2) {
     renderLayer2Cards();
+  } else if (currentLayerMode === 3) {
+    renderLayer3Cards();
   }
   setupEventListeners();
 
@@ -45,18 +55,16 @@ function initApp() {
   StorageManager.fetchFromSupabase((cloudMap) => {
     if (cloudMap && Object.keys(cloudMap).length > 0) {
       currentProducts = cloudMap;
-    } else {
-      currentProducts = StorageManager.getProducts();
+      renderStats();
+      if (currentLayerMode === 1) {
+        renderProductGrid();
+      } else if (currentLayerMode === 2) {
+        renderLayer2Cards();
+      } else if (currentLayerMode === 3) {
+        renderLayer3Cards();
+      }
+      console.log("Synced latest product slot state from Supabase Cloud DB!");
     }
-    renderStats();
-    if (currentLayerMode === 1) {
-      renderProductGrid();
-    } else if (currentLayerMode === 2) {
-      renderLayer2Cards();
-    } else if (currentLayerMode === 3) {
-      renderLayer3Cards();
-    }
-    console.log("Synced latest product slot state from Supabase Cloud DB!");
   });
 }
 
