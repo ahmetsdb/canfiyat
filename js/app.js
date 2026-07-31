@@ -8,14 +8,7 @@ let selectedProductId = null;
 let viewMode = "rows"; // 'rows' | 'cards'
 let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4' | 'system5'
 let activeVolume = "250ml"; // Active bottle size sub-tab in modal
-
-// Global State Flags & Cache (Moved to top to prevent TDZ reference errors)
-let showRedLineFloor = false;
-let cardActiveVolumes = {};
-let expandedCards = {};
-let openLayer2Breakdowns = {};
-let lastSuggestedDipPrice = 0;
-let lastSuggestedTargetPrice = 0;
+let showRedLineFloor = false; // 🔴 Dip Fiyat Toplu Görünüm Anahtarı
 
 const ALL_VOLUMES = [
   { key: "20ml", label: "20 ml", price: "6.00 ₺" },
@@ -32,13 +25,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initApp() {
-  console.log("Initializing CanFiyat Portal v1.97...");
-  try {
-    currentProducts = StorageManager.getProducts();
-    if (!currentProducts || typeof currentProducts !== "object" || Object.keys(currentProducts).length === 0) {
-      currentProducts = StorageManager.resetToDefault() || {};
-    }
+  currentProducts = StorageManager.getProducts();
+  renderStats();
+  if (currentLayerMode === 1) {
+    renderProductGrid();
+  } else {
+    renderLayer2Cards();
+  }
+  setupEventListeners();
 
+  // Async sync with Supabase Cloud DB
+  StorageManager.fetchFromSupabase((cloudMap) => {
+    if (cloudMap && Object.keys(cloudMap).length > 0) {
+      currentProducts = cloudMap;
+    } else {
+      currentProducts = StorageManager.getProducts();
+    }
     renderStats();
     if (currentLayerMode === 1) {
       renderProductGrid();
@@ -47,25 +49,8 @@ function initApp() {
     } else if (currentLayerMode === 3) {
       renderLayer3Cards();
     }
-    setupEventListeners();
-
-    StorageManager.fetchFromSupabase((cloudMap) => {
-      if (cloudMap && Object.keys(cloudMap).length > 0) {
-        currentProducts = cloudMap;
-        renderStats();
-        if (currentLayerMode === 1) {
-          renderProductGrid();
-        } else if (currentLayerMode === 2) {
-          renderLayer2Cards();
-        } else if (currentLayerMode === 3) {
-          renderLayer3Cards();
-        }
-        console.log("Synced latest product slot state from Supabase Cloud DB!");
-      }
-    });
-  } catch (err) {
-    console.error("Critical error in initApp:", err);
-  }
+    console.log("Synced latest product slot state from Supabase Cloud DB!");
+  });
 }
 
 function setupEventListeners() {
@@ -137,7 +122,7 @@ function getVolumeConfig(product, volKey) {
   if (!product.volumes[volKey]) {
     product.volumes[volKey] = {
       packagingCost: DEFAULT_PACKAGING_COSTS[volKey] || 14.50,
-      targetProfit: 70,
+      targetProfit: 0,
       webSalePrice: null,
       retailPrice: null,
       s5: null,
@@ -158,20 +143,11 @@ function renderProductGrid() {
 
   container.innerHTML = "";
 
-  if (!currentProducts || Object.keys(currentProducts).length === 0) {
-    currentProducts = StorageManager.getProducts();
-  }
-
-  const productsArr = Object.values(currentProducts || {});
+  const productsArr = Object.values(currentProducts);
   const filtered = productsArr.filter(p => {
-    if (!p) return false;
-    const cat = p.category || "";
-    const name = p.name || "";
-    const sku = p.sku || "";
-    const matchesCat = (activeCategory === "all") || (cat === activeCategory);
-    const matchesSearch = (!searchQuery) || 
-                          (name.toLowerCase().includes(searchQuery)) || 
-                          (sku.toLowerCase().includes(searchQuery));
+    const matchesCat = (activeCategory === "all") || (p.category === activeCategory);
+    const matchesSearch = (p.name.toLowerCase().includes(searchQuery)) || 
+                          (p.sku.toLowerCase().includes(searchQuery));
     return matchesCat && matchesSearch;
   });
 
@@ -195,26 +171,23 @@ function renderProductGrid() {
   }
 
   filtered.forEach(product => {
-    try {
-      const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-      const volConfig = getVolumeConfig(product, mainVol);
-      const packCost = volConfig?.packagingCost ?? (DEFAULT_PACKAGING_COSTS[mainVol] || 14.50);
-      const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg || 1000, mainVol, packCost);
-      const targetProfitVal = (volConfig?.targetProfit !== undefined && volConfig?.targetProfit !== null) ? volConfig.targetProfit : 70;
-      
-      const tyResult = PriceCalculator.calculateSystem1Channel({
-        wholesaleCost: unitCost,
-        targetProfit: targetProfitVal,
-        commission: volConfig?.channels?.trendyol?.commission || 19,
-        discount: volConfig?.channels?.trendyol?.discount || 0,
-        cargo: volConfig?.channels?.trendyol?.cargo || 110
-      });
+    const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+    const volConfig = getVolumeConfig(product, mainVol);
+    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, mainVol, volConfig.packagingCost);
+    
+    const tyResult = PriceCalculator.calculateSystem1Channel({
+      wholesaleCost: unitCost,
+      targetProfit: volConfig.targetProfit ?? 0,
+      commission: volConfig.channels?.trendyol?.commission || 19,
+      discount: volConfig.channels?.trendyol?.discount || 0,
+      cargo: volConfig.channels?.trendyol?.cargo || 110
+    });
 
-      const breakEvenTy = PriceCalculator.calculateBreakEvenPrice({
-        wholesaleCost: unitCost,
-        commission: volConfig?.channels?.trendyol?.commission || 19,
-        cargo: volConfig?.channels?.trendyol?.cargo || 110
-      });
+    const breakEvenTy = PriceCalculator.calculateBreakEvenPrice({
+      wholesaleCost: unitCost,
+      commission: volConfig.channels?.trendyol?.commission || 19,
+      cargo: volConfig.channels?.trendyol?.cargo || 110
+    });
 
     const isUcucu = product.category === "Uçucu Yağlar";
     const badgeClass = isUcucu 
@@ -268,7 +241,7 @@ function renderProductGrid() {
             <span class="text-slate-400 block text-[9px] uppercase font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hedef Kâr
             </span>
-            <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(targetProfitVal)}</span>
+            <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 0)}</span>
           </div>
 
           <div class="min-w-[160px]">
@@ -327,7 +300,7 @@ function renderProductGrid() {
               </div>
               <div class="flex justify-between items-center text-slate-300">
                 <span class="flex items-center gap-1 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Net Kâr:</span>
-                <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(targetProfitVal)}</span>
+                <span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(volConfig.targetProfit ?? 0)}</span>
               </div>
             </div>
           </div>
@@ -342,9 +315,6 @@ function renderProductGrid() {
       `;
       container.insertAdjacentHTML("beforeend", cardHtml);
     }
-  } catch (err) {
-      console.error("Error rendering product card " + product?.id, err);
-  }
   });
 }
 
@@ -405,14 +375,9 @@ async function submitNewProduct() {
 // ==========================================
 // MODAL WORKSPACE & DROPDOWN VOLUME LOGIC
 // ==========================================
-function getSelectedProduct() {
-  if (!selectedProductId || !currentProducts) return null;
-  return currentProducts[selectedProductId] || Object.values(currentProducts).find(p => (p.id === selectedProductId || p.sku === selectedProductId)) || null;
-}
-
 function openProductSlot(productId) {
   selectedProductId = productId;
-  const product = getSelectedProduct();
+  const product = currentProducts[productId];
   if (!product) return;
 
   activeVolume = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
@@ -440,7 +405,7 @@ function selectModalVolumeDropdown(volKey) {
   saveInputsToCurrentVolumeConfig();
 
   activeVolume = volKey;
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (product) {
     product.activeVolume = volKey;
     syncModalVolumeDropdown(volKey);
@@ -453,7 +418,7 @@ function loadActiveVolumeConfig(product, volKey) {
   const config = getVolumeConfig(product, volKey);
 
   const packCost = config.packagingCost ?? (DEFAULT_PACKAGING_COSTS[volKey] || 14.50);
-  const targetProfit = (config.targetProfit !== undefined && config.targetProfit !== null) ? config.targetProfit : 70;
+  const targetProfit = config.targetProfit ?? 0;
   const tyChannel = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
 
   const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volKey, packCost);
@@ -508,7 +473,7 @@ function loadActiveVolumeConfig(product, volKey) {
 
 function saveInputsToCurrentVolumeConfig() {
   if (!selectedProductId) return;
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   const config = getVolumeConfig(product, activeVolume);
@@ -603,12 +568,12 @@ function calculateCurrentModal() {
 function getModalCostPerKg() {
   const inputVal = parseFloat(document.getElementById("slot-cost-per-kg").value);
   if (!isNaN(inputVal) && inputVal >= 0) return inputVal;
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   return product ? product.costPerKg : 1000;
 }
 
 function calculateSystem1Modal() {
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -675,7 +640,7 @@ function calculateSystem1Modal() {
 }
 
 function calculateSystem2Modal() {
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -702,7 +667,7 @@ function calculateSystem2Modal() {
 }
 
 function calculateSystem3Modal() {
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -728,7 +693,7 @@ function calculateSystem3Modal() {
 }
 
 function calculateSystem4Modal() {
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -752,7 +717,7 @@ function calculateSystem4Modal() {
 }
 
 function calculateSystem5Modal() {
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   // Update active volume badge text
@@ -835,7 +800,7 @@ async function saveCurrentProductSlot() {
 
   saveInputsToCurrentVolumeConfig();
 
-  const product = getSelectedProduct();
+  const product = currentProducts[selectedProductId];
   if (!product) return;
 
   product.activeVolume = activeVolume;
@@ -934,7 +899,8 @@ function switchLayerMode(mode) {
   }
 }
 
-
+let cardActiveVolumes = {};
+let expandedCards = {};
 
 function updateCardVolume(productId, volKey) {
   cardActiveVolumes[productId] = volKey;
@@ -1320,6 +1286,7 @@ function saveFactoryOverheadModal() {
   showToast("Aylık Giderlerden 1KG Tesis Payı Otomatik Hesaplandı! 🏭✅");
 }
 
+let openLayer2Breakdowns = {};
 
 function toggleLayer2Breakdown(productId) {
   openLayer2Breakdowns[productId] = !openLayer2Breakdowns[productId];
@@ -2022,6 +1989,8 @@ function closeBundleSimulatorModal() {
   if (modal) modal.classList.add("hidden");
 }
 
+let lastSuggestedDipPrice = 0;
+let lastSuggestedTargetPrice = 0;
 
 function applySuggestedBundlePrice(type) {
   const priceInput = document.getElementById("bundle-target-price");

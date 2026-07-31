@@ -8,7 +8,7 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v9", // Bulletproof Storage Key v9
+  PRODUCTS: "canfiyat_products_v7", // Target profit set to 0 TL default
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1"
 };
@@ -18,12 +18,11 @@ class StorageManager {
     const configs = {};
     const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
     volumes.forEach(vol => {
-      const packCost = (typeof DEFAULT_PACKAGING_COSTS !== 'undefined' && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
       configs[vol] = {
-        packagingCost: packCost,
-        targetProfit: 70,
-        webSalePrice: 500,
-        retailPrice: 650,
+        packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
+        targetProfit: 0,
+        webSalePrice: 500, // Her ürüne ve ambalaja özel İyzico fiyatı (Sistem 2)
+        retailPrice: 650,  // Her ürüne ve ambalaja özel Perakende Fiyatı (Sistem 4)
         channels: {
           trendyol: { commission: 19, discount: 0, cargo: 110 },
           hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -35,11 +34,13 @@ class StorageManager {
   }
 
   static getProducts() {
-    let initialMap = {};
     try {
-      if (typeof INITIAL_PRODUCTS !== 'undefined' && Array.isArray(INITIAL_PRODUCTS)) {
+      const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+      if (!stored) {
+        const initialMap = {};
         INITIAL_PRODUCTS.forEach(p => {
           const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+
           initialMap[p.id] = {
             id: p.id,
             sku: p.sku,
@@ -53,29 +54,14 @@ class StorageManager {
             updatedAt: new Date().toISOString()
           };
         });
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
+        this.seedSupabaseDatabase(initialMap);
+        return initialMap;
       }
-
-      const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-            Object.keys(parsed).forEach(k => {
-              if (parsed[k] && parsed[k].id) {
-                initialMap[k] = { ...initialMap[k], ...parsed[k] };
-              }
-            });
-          }
-        } catch (err) {
-          console.warn("Corrupted JSON in localStorage, using clean initialMap.");
-        }
-      }
-
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
-      return initialMap;
+      return JSON.parse(stored);
     } catch (e) {
       console.error("Storage error:", e);
-      return initialMap;
+      return {};
     }
   }
 
@@ -84,45 +70,34 @@ class StorageManager {
 
     try {
       const { data, error } = await supabaseClient.from("products").select("*");
-      if (error || !data || data.length === 0) {
-        console.warn("Supabase fetch empty or error, using local data.");
+      if (error) {
+        console.warn("Supabase fetch error, fallback to local storage:", error);
         return;
       }
 
-      const localMap = this.getProducts();
-      data.forEach(item => {
-        if (!item || (!item.id && !item.sku)) return;
-        const itemId = item.id || item.sku;
-        const defaultVol = item.selected_volume || item.active_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-        const costKg = parseFloat(item.cost_per_kg ?? item.costPerKg) || (localMap[itemId]?.costPerKg || 1200.00);
-
-        let volConfigs = item.volumes;
-        if (!volConfigs || typeof volConfigs !== 'object' || Object.keys(volConfigs).length === 0) {
-          volConfigs = this.createDefaultVolumeConfigs();
-        }
-
-        if (item.target_profit !== undefined && item.target_profit !== null) {
-          if (!volConfigs[defaultVol]) volConfigs[defaultVol] = {};
-          volConfigs[defaultVol].targetProfit = parseFloat(item.target_profit);
-        }
-
-        localMap[itemId] = {
-          ...localMap[itemId],
-          id: itemId,
-          sku: item.sku || itemId,
-          name: item.name || localMap[itemId]?.name || "İsimsiz Ürün",
-          category: item.category || localMap[itemId]?.category || "Sabit Yağlar",
-          kdv: item.kdv || localMap[itemId]?.kdv || 1,
-          unit: item.unit || "1KG",
-          costPerKg: costKg,
-          activeVolume: defaultVol,
-          volumes: volConfigs,
-          updatedAt: item.updated_at || new Date().toISOString()
-        };
-      });
-
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(localMap));
-      if (onCompleteCallback) onCompleteCallback(localMap);
+      if (data && data.length > 0) {
+        const cloudMap = {};
+        data.forEach(item => {
+          const defaultVol = item.active_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+          cloudMap[item.id] = {
+            id: item.id,
+            sku: item.sku,
+            name: item.name,
+            category: item.category,
+            kdv: item.kdv,
+            unit: item.unit,
+            costPerKg: item.cost_per_kg,
+            activeVolume: defaultVol,
+            volumes: item.volumes || this.createDefaultVolumeConfigs(),
+            updatedAt: item.updated_at
+          };
+        });
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(cloudMap));
+        if (onCompleteCallback) onCompleteCallback(cloudMap);
+      } else {
+        const localData = this.getProducts();
+        this.seedSupabaseDatabase(localData);
+      }
     } catch (e) {
       console.error("Supabase sync failed:", e);
     }
