@@ -46,7 +46,7 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.89 (💯 %100 Kuruş Hassasiyetli Finansal Matematik Motoru)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v1.90 (💡 Akıllı Otomatik Kombin Satış & Dip Fiyat Önericisi Aktif)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
@@ -906,24 +906,48 @@
                 </div>
             </div>
 
-            <!-- Set Satış Fiyatı & Kargo Avantaj Özeti -->
-            <div class="flex flex-wrap items-center justify-between bg-slate-950/80 p-3.5 rounded-xl border border-purple-500/40 gap-3">
-                <div class="flex items-center gap-3">
+            <!-- Set Satış Fiyatı, Akıllı Öneriler & Kargo Avantaj Özeti -->
+            <div class="flex flex-wrap items-center justify-between bg-slate-950/90 p-4 rounded-xl border border-purple-500/40 gap-4">
+                <div class="flex flex-wrap items-center gap-4">
                     <div>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Kombin Set Satış Fiyatınız (₺):</span>
-                        <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-32 bg-slate-900 border border-purple-500 text-purple-300 font-extrabold text-base px-3 py-1 rounded-xl text-center focus:outline-none">
+                        <span class="text-[10px] uppercase font-bold text-slate-300 block mb-1">Set Satış Fiyatınız (₺):</span>
+                        <input type="number" id="bundle-target-price" value="" placeholder="Örn: 350" step="5" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-36 bg-slate-900 border border-purple-500 text-purple-300 font-black text-lg px-3 py-1.5 rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-purple-400">
                     </div>
-                    <div class="border-l border-slate-800 pl-3">
+                    
+                    <div class="border-l border-slate-800 pl-3 space-y-0.5">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Katman 1 Maliyet Toplamı:</span>
                         <span id="bundle-total-cost" class="text-sm font-black text-amber-300">0,00 ₺</span>
                     </div>
                 </div>
 
-                <div class="bg-emerald-950/80 px-3.5 py-2 rounded-xl border border-emerald-500/50 flex items-center gap-2">
-                    <span class="text-xl">🚀</span>
-                    <div>
-                        <span class="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider">Tek Kargo Kâr Avantajı:</span>
-                        <span id="bundle-cargo-savings" class="text-sm font-black text-emerald-300">+110,00 ₺ Kargo Tasarrufu!</span>
+                <!-- AKILLI DİP & STANDART SATIŞ FİYATI ÖNERİLERİ -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="bg-rose-950/80 p-2.5 rounded-xl border border-rose-600/50 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[9px] uppercase font-extrabold text-rose-300">🔴 Önerilen Dip Fiyat (0 ₺ Kâr):</span>
+                            <span id="bundle-suggested-dip" class="text-xs font-black text-rose-200">0,00 ₺</span>
+                        </div>
+                        <button onclick="applySuggestedBundlePrice('dip')" class="w-full text-[9px] font-bold text-rose-200 bg-rose-900 hover:bg-rose-800 px-2 py-0.5 rounded border border-rose-700 transition-all">
+                            🔴 Dip Fiyatı Uygula
+                        </button>
+                    </div>
+
+                    <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-600/50 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[9px] uppercase font-extrabold text-emerald-300">🟢 Önerilen Standart Fiyat:</span>
+                            <span id="bundle-suggested-target" class="text-xs font-black text-emerald-200">0,00 ₺</span>
+                        </div>
+                        <button onclick="applySuggestedBundlePrice('target')" class="w-full text-[9px] font-bold text-emerald-200 bg-emerald-900 hover:bg-emerald-800 px-2 py-0.5 rounded border border-emerald-700 transition-all">
+                            🟢 Önerilen Fiyatı Uygula
+                        </button>
+                    </div>
+
+                    <div class="bg-purple-950/80 px-3.5 py-2 rounded-xl border border-purple-500/50 flex items-center gap-2">
+                        <span class="text-xl">🚀</span>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-purple-300 block tracking-wider">Tek Kargo Avantajı:</span>
+                            <span id="bundle-cargo-savings" class="text-xs font-black text-emerald-300">+110,00 ₺ Kargo Tasarrufu</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -939,11 +963,11 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=1.89"></script>
-    <script src="js/liveSiteData.js?v=1.89"></script>
-    <script src="js/storage.js?v=1.89"></script>
-    <script src="js/calculator.js?v=1.89"></script>
-    <script src="js/app.js?v=1.89"></script>
+    <script src="js/productsData.js?v=1.90"></script>
+    <script src="js/liveSiteData.js?v=1.90"></script>
+    <script src="js/storage.js?v=1.90"></script>
+    <script src="js/calculator.js?v=1.90"></script>
+    <script src="js/app.js?v=1.90"></script>
 </body>
 </html>
 
