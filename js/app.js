@@ -391,9 +391,14 @@ async function submitNewProduct() {
 // ==========================================
 // MODAL WORKSPACE & DROPDOWN VOLUME LOGIC
 // ==========================================
+function getSelectedProduct() {
+  if (!selectedProductId || !currentProducts) return null;
+  return currentProducts[selectedProductId] || Object.values(currentProducts).find(p => (p.id === selectedProductId || p.sku === selectedProductId)) || null;
+}
+
 function openProductSlot(productId) {
   selectedProductId = productId;
-  const product = currentProducts[productId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   activeVolume = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
@@ -421,7 +426,7 @@ function selectModalVolumeDropdown(volKey) {
   saveInputsToCurrentVolumeConfig();
 
   activeVolume = volKey;
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (product) {
     product.activeVolume = volKey;
     syncModalVolumeDropdown(volKey);
@@ -489,7 +494,7 @@ function loadActiveVolumeConfig(product, volKey) {
 
 function saveInputsToCurrentVolumeConfig() {
   if (!selectedProductId) return;
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   const config = getVolumeConfig(product, activeVolume);
@@ -584,12 +589,12 @@ function calculateCurrentModal() {
 function getModalCostPerKg() {
   const inputVal = parseFloat(document.getElementById("slot-cost-per-kg").value);
   if (!isNaN(inputVal) && inputVal >= 0) return inputVal;
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   return product ? product.costPerKg : 1000;
 }
 
 function calculateSystem1Modal() {
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -656,7 +661,7 @@ function calculateSystem1Modal() {
 }
 
 function calculateSystem2Modal() {
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -683,7 +688,7 @@ function calculateSystem2Modal() {
 }
 
 function calculateSystem3Modal() {
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -709,7 +714,7 @@ function calculateSystem3Modal() {
 }
 
 function calculateSystem4Modal() {
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   const costPerKg = getModalCostPerKg();
@@ -733,7 +738,7 @@ function calculateSystem4Modal() {
 }
 
 function calculateSystem5Modal() {
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   // Update active volume badge text
@@ -816,7 +821,7 @@ async function saveCurrentProductSlot() {
 
   saveInputsToCurrentVolumeConfig();
 
-  const product = currentProducts[selectedProductId];
+  const product = getSelectedProduct();
   if (!product) return;
 
   product.activeVolume = activeVolume;

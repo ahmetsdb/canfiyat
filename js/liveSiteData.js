@@ -1,4 +1,4 @@
-﻿// Official Bulletproof Live Site Data Mapped Directly from GOOGLE-MERCHANT.xml
+// Official Bulletproof Live Site Data Mapped Directly from GOOGLE-MERCHANT.xml
 const LIVE_SITE_SCRAPED_DATA = {
   "A.0200": { id: "A.0200", sku: "A.0200", name: "BUĞDAY YAĞI", url: "https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi", samplePrices: {"250ml": 200, "100ml": 400, "50ml": 300, "1000ml": 1300}, hasSitePrice: true },
   "T.0013": { id: "T.0013", sku: "T.0013", name: "BUĞDAY ÖZÜ YAĞI (ruşeym)", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
