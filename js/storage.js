@@ -18,11 +18,12 @@ class StorageManager {
     const configs = {};
     const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
     volumes.forEach(vol => {
+      const packCost = (typeof DEFAULT_PACKAGING_COSTS !== 'undefined' && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
       configs[vol] = {
-        packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
-        targetProfit: 0,
-        webSalePrice: 500, // Her ürüne ve ambalaja özel İyzico fiyatı (Sistem 2)
-        retailPrice: 650,  // Her ürüne ve ambalaja özel Perakende Fiyatı (Sistem 4)
+        packagingCost: packCost,
+        targetProfit: 70,
+        webSalePrice: 500,
+        retailPrice: 650,
         channels: {
           trendyol: { commission: 19, discount: 0, cargo: 110 },
           hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -45,14 +46,16 @@ class StorageManager {
         }
       }
 
-      // FAIL-SAFE: If stored data is null, not an object, or has ZERO products, FORCE LOAD INITIAL_PRODUCTS (65 items)!
-      if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) {
-        const initialMap = {};
-        if (typeof INITIAL_PRODUCTS !== 'undefined' && Array.isArray(INITIAL_PRODUCTS)) {
-          INITIAL_PRODUCTS.forEach(p => {
-            const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        parsed = {};
+      }
 
-            initialMap[p.id] = {
+      // FAIL-SAFE GUARANTEE: Always ensure all 65 INITIAL_PRODUCTS are present in the map!
+      if (typeof INITIAL_PRODUCTS !== 'undefined' && Array.isArray(INITIAL_PRODUCTS)) {
+        INITIAL_PRODUCTS.forEach(p => {
+          if (!parsed[p.id]) {
+            const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+            parsed[p.id] = {
               id: p.id,
               sku: p.sku,
               name: p.name,
@@ -64,12 +67,11 @@ class StorageManager {
               volumes: this.createDefaultVolumeConfigs(),
               updatedAt: new Date().toISOString()
             };
-          });
-        }
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
-        this.seedSupabaseDatabase(initialMap);
-        return initialMap;
+          }
+        });
       }
+
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(parsed));
       return parsed;
     } catch (e) {
       console.error("Storage error:", e);
@@ -108,20 +110,56 @@ class StorageManager {
       if (data && data.length > 0) {
         const cloudMap = {};
         data.forEach(item => {
-          const defaultVol = item.active_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-          cloudMap[item.id] = {
-            id: item.id,
-            sku: item.sku,
-            name: item.name,
-            category: item.category,
-            kdv: item.kdv,
-            unit: item.unit,
-            costPerKg: item.cost_per_kg,
+          if (!item || (!item.id && !item.sku)) return;
+          const itemId = item.id || item.sku;
+          const defaultVol = item.selected_volume || item.active_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+          const costKg = parseFloat(item.cost_per_kg ?? item.costPerKg) || 1200.00;
+
+          let volConfigs = item.volumes;
+          if (!volConfigs || typeof volConfigs !== 'object' || Object.keys(volConfigs).length === 0) {
+            volConfigs = this.createDefaultVolumeConfigs();
+          }
+
+          if (item.target_profit !== undefined && item.target_profit !== null) {
+            if (!volConfigs[defaultVol]) volConfigs[defaultVol] = {};
+            volConfigs[defaultVol].targetProfit = parseFloat(item.target_profit);
+          }
+
+          cloudMap[itemId] = {
+            id: itemId,
+            sku: item.sku || itemId,
+            name: item.name || "İsimsiz Ürün",
+            category: item.category || "Sabit Yağlar",
+            kdv: item.kdv || 1,
+            unit: item.unit || "1KG",
+            costPerKg: costKg,
             activeVolume: defaultVol,
-            volumes: item.volumes || this.createDefaultVolumeConfigs(),
-            updatedAt: item.updated_at
+            volumes: volConfigs,
+            updatedAt: item.updated_at || new Date().toISOString()
           };
         });
+
+        // MERGE missing INITIAL_PRODUCTS into cloudMap so cloudMap NEVER drops items!
+        if (typeof INITIAL_PRODUCTS !== 'undefined' && Array.isArray(INITIAL_PRODUCTS)) {
+          INITIAL_PRODUCTS.forEach(p => {
+            if (!cloudMap[p.id]) {
+              const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+              cloudMap[p.id] = {
+                id: p.id,
+                sku: p.sku,
+                name: p.name,
+                category: p.category,
+                kdv: p.kdv,
+                unit: "1KG",
+                costPerKg: p.costPerKg,
+                activeVolume: defaultVol,
+                volumes: this.createDefaultVolumeConfigs(),
+                updatedAt: new Date().toISOString()
+              };
+            }
+          });
+        }
+
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(cloudMap));
         if (onCompleteCallback) onCompleteCallback(cloudMap);
       } else {

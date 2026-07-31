@@ -160,9 +160,14 @@ function renderProductGrid() {
 
   const productsArr = Object.values(currentProducts);
   const filtered = productsArr.filter(p => {
-    const matchesCat = (activeCategory === "all") || (p.category === activeCategory);
-    const matchesSearch = (p.name.toLowerCase().includes(searchQuery)) || 
-                          (p.sku.toLowerCase().includes(searchQuery));
+    if (!p) return false;
+    const cat = p.category || "";
+    const name = p.name || "";
+    const sku = p.sku || "";
+    const matchesCat = (activeCategory === "all") || (cat === activeCategory);
+    const matchesSearch = (!searchQuery) || 
+                          (name.toLowerCase().includes(searchQuery)) || 
+                          (sku.toLowerCase().includes(searchQuery));
     return matchesCat && matchesSearch;
   });
 
