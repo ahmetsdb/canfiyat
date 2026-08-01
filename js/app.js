@@ -170,23 +170,26 @@ function renderProductGrid() {
   }
 
   filtered.forEach(product => {
-    const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-    const volConfig = getVolumeConfig(product, mainVol);
-    const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, mainVol, volConfig.packagingCost);
-    
-    const tyResult = PriceCalculator.calculateSystem1Channel({
-      wholesaleCost: unitCost,
-      targetProfit: volConfig.targetProfit ?? 0,
-      commission: volConfig.channels?.trendyol?.commission || 19,
-      discount: volConfig.channels?.trendyol?.discount || 0,
-      cargo: volConfig.channels?.trendyol?.cargo || 110
-    });
+    try {
+      const mainVol = product.activeVolume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+      const volConfig = getVolumeConfig(product, mainVol);
+      const packCost = volConfig?.packagingCost ?? (DEFAULT_PACKAGING_COSTS[mainVol] || 14.50);
+      const unitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg || 1200, mainVol, packCost);
+      const targetProfitVal = (volConfig?.targetProfit !== undefined && volConfig?.targetProfit !== null) ? volConfig.targetProfit : 70;
+      
+      const tyResult = PriceCalculator.calculateSystem1Channel({
+        wholesaleCost: unitCost,
+        targetProfit: targetProfitVal,
+        commission: volConfig?.channels?.trendyol?.commission || 19,
+        discount: volConfig?.channels?.trendyol?.discount || 0,
+        cargo: volConfig?.channels?.trendyol?.cargo || 110
+      });
 
-    const breakEvenTy = PriceCalculator.calculateBreakEvenPrice({
-      wholesaleCost: unitCost,
-      commission: volConfig.channels?.trendyol?.commission || 19,
-      cargo: volConfig.channels?.trendyol?.cargo || 110
-    });
+      const breakEvenTy = PriceCalculator.calculateBreakEvenPrice({
+        wholesaleCost: unitCost,
+        commission: volConfig?.channels?.trendyol?.commission || 19,
+        cargo: volConfig?.channels?.trendyol?.cargo || 110
+      });
 
     const isUcucu = product.category === "Uçucu Yağlar";
     const badgeClass = isUcucu 
@@ -314,6 +317,9 @@ function renderProductGrid() {
       `;
       container.insertAdjacentHTML("beforeend", cardHtml);
     }
+  } catch (err) {
+    console.error("Single product card render error:", product?.id, err);
+  }
   });
 }
 

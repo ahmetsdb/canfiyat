@@ -8,7 +8,7 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   : null;
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v7", // Target profit set to 0 TL default
+  PRODUCTS: "canfiyat_products_v10", // Bulletproof Storage Key v10 (Guaranteed 65 products merge)
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1"
 };
@@ -34,35 +34,43 @@ class StorageManager {
   }
 
   static getProducts() {
+    const baseMap = {};
+    INITIAL_PRODUCTS.forEach(p => {
+      const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+      baseMap[p.id] = {
+        id: p.id,
+        sku: p.sku,
+        name: p.name,
+        category: p.category,
+        kdv: p.kdv,
+        unit: "1KG",
+        costPerKg: p.costPerKg,
+        activeVolume: defaultVol,
+        volumes: this.createDefaultVolumeConfigs(),
+        updatedAt: new Date().toISOString()
+      };
+    });
+
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      if (!stored) {
-        const initialMap = {};
-        INITIAL_PRODUCTS.forEach(p => {
-          const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-
-          initialMap[p.id] = {
-            id: p.id,
-            sku: p.sku,
-            name: p.name,
-            category: p.category,
-            kdv: p.kdv,
-            unit: "1KG",
-            costPerKg: p.costPerKg,
-            activeVolume: defaultVol,
-            volumes: this.createDefaultVolumeConfigs(),
-            updatedAt: new Date().toISOString()
-          };
-        });
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialMap));
-        this.seedSupabaseDatabase(initialMap);
-        return initialMap;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
+          Object.keys(parsed).forEach(id => {
+            if (baseMap[id]) {
+              baseMap[id] = { ...baseMap[id], ...parsed[id] };
+            } else if (parsed[id] && parsed[id].name) {
+              baseMap[id] = parsed[id];
+            }
+          });
+        }
       }
-      return JSON.parse(stored);
     } catch (e) {
-      console.error("Storage error:", e);
-      return {};
+      console.error("Storage error, using base initial products:", e);
     }
+
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(baseMap));
+    return baseMap;
   }
 
   static async fetchFromSupabase(onCompleteCallback) {
@@ -76,24 +84,22 @@ class StorageManager {
       }
 
       if (data && data.length > 0) {
-        const cloudMap = {};
+        const currentLocal = this.getProducts();
         data.forEach(item => {
-          const defaultVol = item.active_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-          cloudMap[item.id] = {
-            id: item.id,
-            sku: item.sku,
-            name: item.name,
-            category: item.category,
-            kdv: item.kdv,
-            unit: item.unit,
-            costPerKg: item.cost_per_kg,
-            activeVolume: defaultVol,
-            volumes: item.volumes || this.createDefaultVolumeConfigs(),
-            updatedAt: item.updated_at
-          };
+          if (!item || !item.id) return;
+          const defaultVol = item.active_volume || item.selected_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+          if (currentLocal[item.id]) {
+            currentLocal[item.id] = {
+              ...currentLocal[item.id],
+              costPerKg: item.cost_per_kg ?? item.costPerKg ?? currentLocal[item.id].costPerKg,
+              activeVolume: defaultVol,
+              volumes: item.volumes || currentLocal[item.id].volumes || this.createDefaultVolumeConfigs(),
+              updatedAt: item.updated_at || new Date().toISOString()
+            };
+          }
         });
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(cloudMap));
-        if (onCompleteCallback) onCompleteCallback(cloudMap);
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(currentLocal));
+        if (onCompleteCallback) onCompleteCallback(currentLocal);
       } else {
         const localData = this.getProducts();
         this.seedSupabaseDatabase(localData);
