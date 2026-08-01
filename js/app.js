@@ -1348,20 +1348,43 @@ function renderLayer2Cards() {
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!product.layer2DrawerOpen;
 
+        const isMaceration = isMacerationOil(product);
         const ml = PriceCalculator.getVolumeMl(vol);
         const kg = ml / 1000;
 
-        // HAMMADDE TOHUM ALIŞ VEYA TOPTAN HAZIR ALIŞ HESAPLAMASI
-        const supplyType = product.supplyType || "press"; // 'press' | 'wholesale'
+        const supplyType = product.supplyType || "press"; // 'press' | 'wholesale' | 'hybrid'
+        const dipStatus = product.dipStatus || "none";
+        const dipPercent = (product.dipPercent !== undefined && product.dipPercent !== null) ? product.dipPercent : 0;
 
         const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
         const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
           ? product.seedCostPerKg
           : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
 
-        const costPerKg = (supplyType === "wholesale")
-          ? (product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : (product.costPerKg || 1950.00))
-          : ((yieldPct > 0) ? parseFloat((seedCost / (yieldPct / 100)).toFixed(2)) : (product.costPerKg || 1212.00));
+        const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
+        const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
+        const herbRatio = (product.herbRatioKg !== undefined && product.herbRatioKg !== null) ? product.herbRatioKg : 0.2;
+
+        const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
+          seedCostPerKg: seedCost,
+          yieldPercent: yieldPct,
+          wholesaleCostPerKg: product.wholesaleCostPerKg,
+          supplyType: supplyType,
+          dipStatus: dipStatus,
+          dipPercent: dipPercent,
+          fallbackCostPerKg: product.costPerKg || 1200
+        }) : null;
+
+        const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
+          herbCostPerKg: herbCost,
+          oliveOilCostPerKg: oliveOilCost,
+          herbRatioKg: herbRatio,
+          supplyType: supplyType,
+          wholesaleCostPerKg: product.wholesaleCostPerKg,
+          fallbackCostPerKg: product.costPerKg || 600
+        }) : null;
+
+        const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
 
         const rawOilCost = parseFloat(((costPerKg / 1000) * ml).toFixed(2));
         const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
@@ -1410,12 +1433,12 @@ function renderLayer2Cards() {
                   </div>
                 </div>
 
-                <!-- KOMPAKT TEDARİK TÜRÜ & HAMMADDE/TOPTAN KONTROL PANELİ -->
-                <div class="flex flex-wrap items-center gap-2.5 bg-slate-900/90 px-3 py-1.5 rounded-2xl border ${supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} shadow-inner">
-                  <!-- Yer Kaplamayan Sıkım / Toptan Seçici -->
+                <!-- ENDÜSTRİYEL TEDARİK TÜRÜ & HAMMADDE/MASERASYON/DİP KONTROL PANELİ (ROW VIEW) -->
+                <div class="flex flex-wrap items-center gap-2.5 bg-slate-900/90 px-3 py-1.5 rounded-2xl border ${isMaceration ? 'border-purple-500/40' : supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} shadow-inner">
+                  <!-- Yer Kaplamayan Sıkım / Maserasyon / Toptan Seçici -->
                   <div class="flex items-center p-0.5 bg-slate-950 rounded-xl border border-slate-800 shrink-0">
-                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${supplyType !== 'wholesale' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'}">
-                      🌾 Sıkım
+                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white shadow-sm' : 'bg-amber-500 text-slate-950 shadow-sm') : 'text-slate-400 hover:text-white'}">
+                      ${isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
                     </button>
                     <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
                       📦 Toptan
@@ -1424,36 +1447,71 @@ function renderLayer2Cards() {
 
                   <div class="h-4 w-px bg-slate-800"></div>
 
-                  ${supplyType === 'wholesale' ? `
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan Alış:</span>
-                      <div class="flex items-center gap-1">
-                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:border-blue-400">
+                  ${isMaceration ? `
+                    ${supplyType === 'wholesale' ? `
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan Alış:</span>
+                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
                       </div>
-                    </div>
+                    ` : `
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-purple-300">🌱 Bitki/Ot:</span>
+                        <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-[11px] font-bold text-purple-300">₺/KG</span>
+                      </div>
+                      <div class="h-4 w-px bg-slate-800"></div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-emerald-400">🫒 Z.Yağı:</span>
+                        <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-[11px] font-bold text-emerald-400">₺</span>
+                      </div>
+                      <div class="h-4 w-px bg-slate-800"></div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-amber-400">⚖️ Oran:</span>
+                        <input type="number" value="${herbRatio}" step="0.05" min="0.01" max="2" onchange="updateLayer2ProductField('${product.id}', 'herbRatioKg', this.value)" class="w-14 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-1 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-[11px] font-bold text-amber-400">KG</span>
+                      </div>
+                    `}
                   ` : `
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-bold text-amber-400 flex items-center gap-1">🌾 Tohum Alış:</span>
-                      <div class="flex items-center gap-1">
-                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:border-amber-400">
+                    ${supplyType === 'wholesale' ? `
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan Alış:</span>
+                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
+                      </div>
+                    ` : `
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1">🌾 Tohum Alış:</span>
+                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-amber-400">₺/KG</span>
                       </div>
-                    </div>
-                    <div class="h-4 w-px bg-slate-800"></div>
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">💧 Verim:</span>
-                      <div class="flex items-center gap-1">
-                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none focus:border-cyan-400">
+                      <div class="h-4 w-px bg-slate-800"></div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">💧 Verim:</span>
+                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-cyan-400">%</span>
                       </div>
+                    `}
+
+                    <div class="h-4 w-px bg-slate-800"></div>
+                    <!-- DİP/TORTU FIRE LOSS MODÜLÜ -->
+                    <div class="flex items-center gap-1.5">
+                      <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-slate-950 border border-rose-500/40 text-rose-300 font-bold text-[10px] px-1.5 py-1 rounded-lg focus:outline-none">
+                        <option value="none" ${dipStatus !== 'has_dip' ? 'selected' : ''}>Dip Yok (%0)</option>
+                        <option value="has_dip" ${dipStatus === 'has_dip' ? 'selected' : ''}>🔴 Dip Çıkıyor</option>
+                      </select>
+                      ${dipStatus === 'has_dip' ? `
+                        <input type="number" value="${dipPercent}" step="1" min="0" max="90" placeholder="Dip %" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-12 bg-slate-950 border border-rose-500 text-rose-300 font-extrabold text-xs px-1 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-[10px] font-bold text-rose-400">% Fire</span>
+                      ` : ''}
                     </div>
                   `}
 
                   <div class="h-4 w-px bg-slate-800"></div>
                   <div class="text-right">
-                    <span class="text-[9px] text-slate-400 font-semibold block uppercase tracking-wider">1KG Yağ Maliyeti</span>
-                    <span class="text-xs font-black ${supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
+                    <span class="text-[9px] text-slate-400 font-semibold block uppercase tracking-wider">1KG Saf Yağ Maliyeti</span>
+                    <span class="text-xs font-black ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
                 </div>
 
@@ -1888,35 +1946,77 @@ function toggleLayer2Drawer(productId) {
   renderLayer2Cards();
 }
 
+function isMacerationOil(product) {
+  if (!product) return false;
+  if (product.productionType === "maceration") return true;
+  if (product.productionType === "cold_press") return false;
+
+  const name = (product.name || "").toLowerCase();
+  return name.includes("maserasyon") ||
+         name.includes("kudret narı") ||
+         name.includes("sarı kantaron") ||
+         name.includes("aynısefa") ||
+         name.includes("havuç (maserasyon)") ||
+         name.includes("at kestanesi") ||
+         name.includes("sarımsak yağı") ||
+         name.includes("udi hindi");
+}
+
 async function updateLayer2ProductField(productId, field, value) {
-  const product = currentProducts[productId];
+  const product = currentProducts[productId] || Object.values(currentProducts).find(p => p.id === productId || p.sku === productId);
   if (!product) return;
 
+  if (field === "productionType") product.productionType = value;
   if (field === "supplyType") product.supplyType = value; // 'press' | 'wholesale'
   if (field === "wholesaleCostPerKg") {
     product.wholesaleCostPerKg = parseFloat(value) || 0;
-    product.costPerKg = product.wholesaleCostPerKg;
-  }
-
-  // Tohum Alış Fiyatını Sabit Çapa Olarak Kilitler (Verim Değişimlerinde Sürüklenme Olmaz)
-  if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {
-    product.seedCostPerKg = parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
   }
 
   if (field === "seedCostPerKg") product.seedCostPerKg = parseFloat(value) || 0;
   if (field === "yieldPercent") product.yieldPercent = parseFloat(value) || 25;
+  if (field === "dipStatus") product.dipStatus = value;
+  if (field === "dipPercent") product.dipPercent = parseFloat(value) || 0;
+
+  if (field === "herbCostPerKg") product.herbCostPerKg = parseFloat(value) || 0;
+  if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = parseFloat(value) || 454.50;
+  if (field === "herbRatioKg") product.herbRatioKg = parseFloat(value) || 0.2;
+
   if (field === "layer2Volume") product.layer2Volume = value;
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
 
-  // Sıkım vs Toptan Alış'a göre 1KG Saf Yağ Maliyetini Hesaplama
+  const isMaceration = isMacerationOil(product);
   const supplyType = product.supplyType || "press";
-  if (supplyType === "wholesale") {
-    product.costPerKg = product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : (product.costPerKg || 1950.00);
+
+  if (isMaceration) {
+    const macerationRes = PriceCalculator.calculateMacerationCost({
+      herbCostPerKg: product.herbCostPerKg || 0,
+      oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 454.50,
+      herbRatioKg: product.herbRatioKg !== undefined ? product.herbRatioKg : 0.2,
+      supplyType: supplyType,
+      wholesaleCostPerKg: product.wholesaleCostPerKg,
+      fallbackCostPerKg: product.costPerKg || 600
+    });
+    product.costPerKg = macerationRes.netCostPerKg;
   } else {
-    const seedCost = product.seedCostPerKg;
-    const yieldPct = (product.yieldPercent && product.yieldPercent > 0) ? product.yieldPercent : 25;
-    product.costPerKg = parseFloat((seedCost / (yieldPct / 100)).toFixed(2));
+    if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {
+      product.seedCostPerKg = parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+    }
+    const coldPressRes = PriceCalculator.calculateColdPressCost({
+      seedCostPerKg: product.seedCostPerKg,
+      yieldPercent: product.yieldPercent || 25,
+      wholesaleCostPerKg: product.wholesaleCostPerKg,
+      supplyType: supplyType,
+      dipStatus: product.dipStatus || "none",
+      dipPercent: product.dipPercent || 0,
+      fallbackCostPerKg: product.costPerKg || 1200
+    });
+    product.costPerKg = coldPressRes.netCostPerKg;
   }
+
+  await StorageManager.saveProduct(product);
+  renderLayer2Cards();
+  if (currentLayerMode === 1) renderProductGrid();
+}
 
   await StorageManager.saveProduct(product);
   renderLayer2Cards();

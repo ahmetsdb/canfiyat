@@ -50,6 +50,61 @@ class PriceCalculator {
     return parseFloat((linearVolumeOverhead + laborAssemblyFee).toFixed(2));
   }
 
+  // Endüstriyel Soğuk Sıkım Yağ Maliyeti (Tohum, Verim, Toptan ve Dip/Tortu Loss Hesabı)
+  static calculateColdPressCost({ seedCostPerKg = 0, yieldPercent = 25, wholesaleCostPerKg = 0, supplyType = "press", dipStatus = "none", dipPercent = 0, fallbackCostPerKg = 1200 }) {
+    let rawCostPerKg = 0;
+
+    if (supplyType === "wholesale") {
+      rawCostPerKg = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 1200;
+    } else {
+      const seedCost = parseFloat(seedCostPerKg) || 0;
+      const yieldPct = parseFloat(yieldPercent) || 0;
+      if (yieldPct > 0 && seedCost > 0) {
+        rawCostPerKg = parseFloat((seedCost / (yieldPct / 100)).toFixed(2));
+      } else {
+        rawCostPerKg = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 1200;
+      }
+    }
+
+    // Dip / Tortu Fire Loss Adjustment
+    let netCostPerKg = rawCostPerKg;
+    const dipPct = parseFloat(dipPercent) || 0;
+    if ((dipStatus === "has_dip" || dipStatus === "dip" || dipStatus === true) && dipPct > 0 && dipPct < 100) {
+      netCostPerKg = parseFloat((rawCostPerKg / (1 - (dipPct / 100))).toFixed(2));
+    }
+
+    return {
+      rawCostPerKg: rawCostPerKg,
+      dipLossPercent: dipPct,
+      netCostPerKg: netCostPerKg
+    };
+  }
+
+  // Endüstriyel Maserasyon Yağ Maliyeti (Ot/Bitki Maliyeti, Zeytinyağı Maliyeti ve Karışım Oranı Hesabı)
+  static calculateMacerationCost({ herbCostPerKg = 0, oliveOilCostPerKg = 450, herbRatioKg = 0.2, supplyType = "press", wholesaleCostPerKg = 0, fallbackCostPerKg = 600 }) {
+    if (supplyType === "wholesale") {
+      const net = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 600;
+      return {
+        herbCostComponent: 0,
+        oliveOilCostComponent: net,
+        netCostPerKg: net
+      };
+    }
+
+    const herbCost = parseFloat(herbCostPerKg) || 0;
+    const ooCost = parseFloat(oliveOilCostPerKg) || 450;
+    const ratio = parseFloat(herbRatioKg) || 0.2;
+
+    const herbComp = parseFloat((herbCost * ratio).toFixed(2));
+    const netCostPerKg = parseFloat((herbComp + ooCost).toFixed(2));
+
+    return {
+      herbCostComponent: herbComp,
+      oliveOilCostComponent: ooCost,
+      netCostPerKg: netCostPerKg
+    };
+  }
+
   // LAYER 2: Complete 3-Component Factory Cost Breakdown
   static calculateLayer2FullBreakdown({ costPerKg, volumeStr, packagingCost, overheadPerKg = 110.00 }) {
     const ml = this.getVolumeMl(volumeStr);
