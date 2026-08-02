@@ -20,18 +20,33 @@ const STORAGE_KEYS = {
 class StorageManager {
   static isAuthenticated() {
     try {
-      const session = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
-      return session === "authenticated_ahmet";
+      const stored = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+      if (!stored) return false;
+      if (stored === "authenticated_ahmet") return true; // Geriye dönük uyumluluk
+      const parsed = JSON.parse(stored);
+      if (parsed && parsed.status === "authenticated_ahmet" && parsed.user === "ahmet") {
+        if (!parsed.expiresAt || parsed.expiresAt > Date.now()) {
+          return true;
+        }
+      }
+      return false;
     } catch (e) {
       return false;
     }
   }
 
-  static login(username, password) {
+  static login(username, password, rememberLongTerm = true) {
     const u = (username || "").trim().toLowerCase();
     const p = (password || "").trim();
     if (u === DEFAULT_USER && p === DEFAULT_PASS) {
-      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, "authenticated_ahmet");
+      const days = rememberLongTerm ? 365 : 30;
+      const sessionData = {
+        status: "authenticated_ahmet",
+        user: "ahmet",
+        loginTime: new Date().toISOString(),
+        expiresAt: Date.now() + (days * 24 * 60 * 60 * 1000) // 1 Yıl (365 gün) Kesintisiz Hatırla
+      };
+      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(sessionData));
       return { success: true };
     }
     return { success: false, message: "Kullanıcı adı veya şifre hatalı!" };
