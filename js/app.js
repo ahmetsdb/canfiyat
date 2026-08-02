@@ -1433,6 +1433,8 @@ function renderLayer2Cards() {
         const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
         const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
         const herbRatio = (product.herbRatioKg !== undefined && product.herbRatioKg !== null) ? product.herbRatioKg : 0.2;
+        const herbKg = (product.herbKg !== undefined && product.herbKg !== null) ? product.herbKg : "";
+        const oilKg = (product.oilKg !== undefined && product.oilKg !== null) ? product.oilKg : "";
 
         const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
           seedCostPerKg: seedCost,
@@ -1448,6 +1450,8 @@ function renderLayer2Cards() {
           herbCostPerKg: herbCost,
           oliveOilCostPerKg: oliveOilCost,
           herbRatioKg: herbRatio,
+          herbKg: herbKg,
+          oilKg: oilKg,
           supplyType: supplyType,
           wholesaleCostPerKg: product.wholesaleCostPerKg,
           fallbackCostPerKg: product.costPerKg || 600
@@ -1524,22 +1528,46 @@ function renderLayer2Cards() {
                         <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
                       </div>
                     ` : `
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-purple-300">🌱 Bitki/Ot:</span>
-                        <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-purple-300">₺/KG</span>
+                      <!-- BÖLÜM 1: MALİYETLER (ALT ALTA) -->
+                      <div class="flex flex-col gap-1 py-0.5 pr-2 border-r border-slate-800/80">
+                        <div class="flex items-center justify-between gap-1.5">
+                          <span class="text-[10px] font-extrabold text-emerald-400 flex items-center gap-1">🫒 Z.Yağı Maliyeti:</span>
+                          <div class="flex items-center gap-1">
+                            <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
+                            <span class="text-[10px] font-bold text-emerald-400">₺/KG</span>
+                          </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-1.5">
+                          <span class="text-[10px] font-extrabold text-purple-300 flex items-center gap-1">🌱 Hammadde Maliyeti:</span>
+                          <div class="flex items-center gap-1">
+                            <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
+                            <span class="text-[10px] font-bold text-purple-300">₺/KG</span>
+                          </div>
+                        </div>
                       </div>
-                      <div class="h-4 w-px bg-slate-800"></div>
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-emerald-400">🫒 Z.Yağı:</span>
-                        <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-emerald-400">₺</span>
+
+                      <!-- BÖLÜM 2: MİKTARLAR (YAKIN VE AYRIK MİKTAR GİRDİLERİ) -->
+                      <div class="flex flex-col gap-1 py-0.5 pl-1 pr-2 border-r border-slate-800/80">
+                        <div class="flex items-center justify-between gap-1.5">
+                          <span class="text-[10px] font-extrabold text-amber-400 flex items-center gap-1">⚖️ Hammadde Miktarı:</span>
+                          <div class="flex items-center gap-1">
+                            <input type="number" value="${herbKg}" step="1" min="0" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'herbKg', this.value)" class="w-14 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-1 py-0.5 rounded-lg text-center focus:outline-none">
+                            <span class="text-[10px] font-bold text-amber-400">KG</span>
+                          </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-1.5">
+                          <span class="text-[10px] font-extrabold text-cyan-400 flex items-center gap-1">🛢️ Eklenen Z.Yağı:</span>
+                          <div class="flex items-center gap-1">
+                            <input type="number" value="${oilKg}" step="1" min="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'oilKg', this.value)" class="w-14 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1 py-0.5 rounded-lg text-center focus:outline-none">
+                            <span class="text-[10px] font-bold text-cyan-400">KG</span>
+                          </div>
+                        </div>
                       </div>
-                      <div class="h-4 w-px bg-slate-800"></div>
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-amber-400">⚖️ Oran:</span>
-                        <input type="number" value="${herbRatio}" step="0.05" min="0.01" max="2" onchange="updateLayer2ProductField('${product.id}', 'herbRatioKg', this.value)" class="w-14 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-1 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-amber-400">KG</span>
+
+                      <!-- BÖLÜM 3: OTOMATİK HESAPLANAN ORAN -->
+                      <div class="bg-purple-950/60 px-2 py-1 rounded-xl border border-purple-800/60 text-center">
+                        <span class="text-[9px] font-bold text-purple-300 block uppercase">Otomatik Oran</span>
+                        <span class="text-xs font-black text-amber-300">${macerationRes.calculatedRatio} KG Ot / 1 KG Yağ</span>
                       </div>
                     `}
                   ` : `
@@ -2049,6 +2077,8 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "herbCostPerKg") product.herbCostPerKg = parseFloat(value) || 0;
   if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = parseFloat(value) || 454.50;
   if (field === "herbRatioKg") product.herbRatioKg = parseFloat(value) || 0.2;
+  if (field === "herbKg") product.herbKg = value !== "" ? parseFloat(value) : null;
+  if (field === "oilKg") product.oilKg = value !== "" ? parseFloat(value) : null;
 
   if (field === "layer2Volume") product.layer2Volume = value;
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
@@ -2060,11 +2090,14 @@ async function updateLayer2ProductField(productId, field, value) {
     const macerationRes = PriceCalculator.calculateMacerationCost({
       herbCostPerKg: product.herbCostPerKg || 0,
       oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 454.50,
-      herbRatioKg: product.herbRatioKg !== undefined ? product.herbRatioKg : 0.2,
+      herbRatioKg: product.herbRatioKg,
+      herbKg: product.herbKg,
+      oilKg: product.oilKg,
       supplyType: supplyType,
       wholesaleCostPerKg: product.wholesaleCostPerKg,
       fallbackCostPerKg: product.costPerKg || 600
     });
+    product.herbRatioKg = macerationRes.calculatedRatio;
     product.costPerKg = macerationRes.netCostPerKg;
   } else {
     if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {

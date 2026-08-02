@@ -80,27 +80,38 @@ class PriceCalculator {
     };
   }
 
-  // Endüstriyel Maserasyon Yağ Maliyeti (Ot/Bitki Maliyeti, Zeytinyağı Maliyeti ve Karışım Oranı Hesabı)
-  static calculateMacerationCost({ herbCostPerKg = 0, oliveOilCostPerKg = 450, herbRatioKg = 0.2, supplyType = "press", wholesaleCostPerKg = 0, fallbackCostPerKg = 600 }) {
+  // Endüstriyel Maserasyon Yağ Maliyeti (Hammadde KG & Zeytinyağı KG Oranlı Otomatik Maliyet Motoru)
+  static calculateMacerationCost({ herbCostPerKg = 0, oliveOilCostPerKg = 454.50, herbRatioKg = null, herbKg = null, oilKg = null, supplyType = "press", wholesaleCostPerKg = 0, fallbackCostPerKg = 600 }) {
     if (supplyType === "wholesale") {
       const net = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 600;
       return {
         herbCostComponent: 0,
         oliveOilCostComponent: net,
+        calculatedRatio: 0,
         netCostPerKg: net
       };
     }
 
-    const herbCost = parseFloat(herbCostPerKg) || 0;
-    const ooCost = parseFloat(oliveOilCostPerKg) || 450;
-    const ratio = parseFloat(herbRatioKg) || 0.2;
+    const hCost = parseFloat(herbCostPerKg) || 0;
+    const ooCost = parseFloat(oliveOilCostPerKg) || 454.50;
+    
+    let ratio = 0.2;
+    const hKg = parseFloat(herbKg);
+    const oKg = parseFloat(oilKg);
 
-    const herbComp = parseFloat((herbCost * ratio).toFixed(2));
+    if (!isNaN(hKg) && !isNaN(oKg) && oKg > 0) {
+      ratio = hKg / oKg;
+    } else if (herbRatioKg !== null && !isNaN(parseFloat(herbRatioKg))) {
+      ratio = parseFloat(herbRatioKg);
+    }
+
+    const herbComp = parseFloat((hCost * ratio).toFixed(2));
     const netCostPerKg = parseFloat((herbComp + ooCost).toFixed(2));
 
     return {
       herbCostComponent: herbComp,
       oliveOilCostComponent: ooCost,
+      calculatedRatio: parseFloat(ratio.toFixed(4)),
       netCostPerKg: netCostPerKg
     };
   }
