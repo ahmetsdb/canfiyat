@@ -2024,10 +2024,6 @@ async function updateLayer2ProductField(productId, field, value) {
   if (currentLayerMode === 1) renderProductGrid();
 }
 
-  await StorageManager.saveProduct(product);
-  renderLayer2Cards();
-}
-
 // ----------------------------------------------------
 // 🔴 KIRMIZI ÇİZGİ DİP FİYAT VE 🎁 KOMBİN SET SİMS
 // ----------------------------------------------------
