@@ -1412,7 +1412,7 @@ function renderLayer2Cards() {
 
     productsList.forEach(product => {
       try {
-        const vol = product.layer2Volume || (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+        const vol = product.layer2Volume || "1000ml";
         const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!product.layer2DrawerOpen;
@@ -1606,24 +1606,24 @@ function renderLayer2Cards() {
                   `}
 
                   <div class="h-4 w-px bg-slate-800"></div>
-                  <div class="text-right">
-                    <span class="text-[9px] text-slate-400 font-semibold block uppercase tracking-wider">1KG Saf Yağ Maliyeti</span>
-                    <span class="text-xs font-black ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
+                  <div class="text-right shrink-0 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800/80 min-w-[125px]">
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider whitespace-nowrap">1KG Saf Yağ Maliyeti</span>
+                    <span class="text-xs font-black ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-amber-300'} whitespace-nowrap">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
                 </div>
 
                 <!-- Ambalaj Hacim Seçici (Cam/Şişe Mavi Teması) -->
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                   <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
                   <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
-                    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
-                    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
                     <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
-                    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
+                    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
+                    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
                     <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
                     <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
                     <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
                     <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
+                    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
                   </select>
                 </div>
 
@@ -1876,14 +1876,14 @@ function renderLayer2Cards() {
                 <div class="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
                   <label class="text-slate-200 text-xs font-bold">🧴 Ambalaj Boyutu:</label>
                   <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
-                    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
-                    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
                     <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
-                    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
+                    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
+                    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
                     <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
                     <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
                     <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
                     <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
+                    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
                   </select>
                 </div>
 
