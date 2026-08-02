@@ -7,13 +7,40 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
   ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
   : null;
 
+const DEFAULT_USER = "ahmet";
+const DEFAULT_PASS = "Ahmet123.";
+
 const STORAGE_KEYS = {
   PRODUCTS: "canfiyat_products_v10", // Bulletproof Storage Key v10 (Guaranteed 65 products merge)
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
-  SITE_OVERRIDES: "canfiyat_site_overrides_v1"
+  SITE_OVERRIDES: "canfiyat_site_overrides_v1",
+  AUTH_SESSION: "canfiyat_auth_session_v1"
 };
 
 class StorageManager {
+  static isAuthenticated() {
+    try {
+      const session = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+      return session === "authenticated_ahmet";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static login(username, password) {
+    const u = (username || "").trim().toLowerCase();
+    const p = (password || "").trim();
+    if (u === DEFAULT_USER && p === DEFAULT_PASS) {
+      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, "authenticated_ahmet");
+      return { success: true };
+    }
+    return { success: false, message: "Kullanıcı adı veya şifre hatalı!" };
+  }
+
+  static logout() {
+    localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+  }
+
   static createDefaultVolumeConfigs() {
     const configs = {};
     const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];

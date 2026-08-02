@@ -20,10 +20,71 @@ const ALL_VOLUMES = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-  initApp();
+  if (checkAuthSession()) {
+    initApp();
+  }
 });
 
+function checkAuthSession() {
+  const isAuth = StorageManager.isAuthenticated();
+  const loginModal = document.getElementById("login-modal");
+  const userHeaderBadge = document.getElementById("user-header-badge");
+
+  if (!isAuth) {
+    if (loginModal) {
+      loginModal.classList.remove("hidden");
+      loginModal.classList.add("flex");
+    }
+    if (userHeaderBadge) userHeaderBadge.classList.add("hidden");
+    return false;
+  } else {
+    if (loginModal) {
+      loginModal.classList.add("hidden");
+      loginModal.classList.remove("flex");
+    }
+    if (userHeaderBadge) userHeaderBadge.classList.remove("hidden");
+    return true;
+  }
+}
+
+function handleLoginSubmit(event) {
+  if (event) event.preventDefault();
+  const u = document.getElementById("login-username")?.value || "";
+  const p = document.getElementById("login-password")?.value || "";
+  const errorEl = document.getElementById("login-error-msg");
+
+  const res = StorageManager.login(u, p);
+  if (res.success) {
+    if (errorEl) errorEl.classList.add("hidden");
+    checkAuthSession();
+    initApp();
+    showToast("Ahmet Olarak Başarıyla Giriş Yapıldı! 🔒✅");
+  } else {
+    if (errorEl) {
+      errorEl.innerText = res.message || "Giriş Başarısız!";
+      errorEl.classList.remove("hidden");
+    }
+  }
+}
+
+function handleLogout() {
+  StorageManager.logout();
+  checkAuthSession();
+  showToast("Oturum Kapatıldı. Güvenli Çıkış Sağlandı. 🚪");
+}
+
+function togglePasswordVisibility() {
+  const input = document.getElementById("login-password");
+  if (!input) return;
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+}
+
 function initApp() {
+  if (!checkAuthSession()) return;
   currentProducts = StorageManager.getProducts();
   renderStats();
   if (currentLayerMode === 1) {
@@ -35,6 +96,7 @@ function initApp() {
 
   // Async sync with Supabase Cloud DB
   StorageManager.fetchFromSupabase((cloudMap) => {
+    if (!checkAuthSession()) return;
     if (cloudMap && Object.keys(cloudMap).length > 0) {
       currentProducts = cloudMap;
     } else {
