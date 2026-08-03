@@ -58,10 +58,10 @@ class StorageManager {
 
   static getWholesaleTiers() {
     const defaults = {
-      tier1: { minKg: 10, maxKg: 30, discount: 5, label: "10-30 KG" },
-      tier2: { minKg: 30, maxKg: 100, discount: 10, label: "30-100 KG" },
-      tier3: { minKg: 100, maxKg: 250, discount: 15, label: "100-250 KG" },
-      tier4: { minKg: 250, maxKg: 99999, discount: 20, label: "250 KG+" }
+      tier1: { minKg: 5, maxKg: 30, discount: 5, label: "5 - 30 KG Arası" },
+      tier2: { minKg: 30, maxKg: 100, discount: 10, label: "30 - 100 KG Arası" },
+      tier3: { minKg: 100, maxKg: 250, discount: 15, label: "100 - 250 KG Arası" },
+      tier4: { minKg: 250, maxKg: 99999, discount: 20, label: "250 KG ve Üzeri" }
     };
     try {
       const stored = localStorage.getItem("canfiyat_wholesale_tiers");

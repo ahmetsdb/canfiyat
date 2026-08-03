@@ -1475,7 +1475,7 @@ function setLayer2GroupMode(mode) {
   } else {
     if (btnRetail) btnRetail.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
     if (btnDrums) btnDrums.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-500/20 flex items-center gap-1.5";
-    if (modeHint) modeHint.innerHTML = "📦 Toptan Bidon Modu: 10KG (10₺), 25KG (25₺), 30KG (30₺) Bidon Maliyeti + Düşük Seri İşçilik Payı";
+    if (modeHint) modeHint.innerHTML = "📦 Toptan Sipariş KG Modu: Kutucuğa İstediğiniz Sipariş KG Miktarını Girin (Örn: 240 KG) -> Otomatik İskonto Hesaplasın";
   }
 
   renderLayer2Cards();
@@ -1554,24 +1554,29 @@ function renderLayer2Cards() {
 
     productsList.forEach(product => {
       try {
-        const validVolumes = (layer2GroupMode === "wholesale_drums")
-          ? ["10KG", "30KG", "100KG", "250KG"]
-          : ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
-
+        let kg = 1;
         let vol = product.layer2Volume;
-        if (!vol || !validVolumes.includes(vol)) {
-          vol = (layer2GroupMode === "wholesale_drums") ? "30KG" : (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+
+        if (layer2GroupMode === "wholesale_drums") {
+          const customKg = (product.layer2WholesaleKg !== undefined && product.layer2WholesaleKg !== null) ? parseFloat(product.layer2WholesaleKg) : 30;
+          kg = customKg > 0 ? customKg : 30;
+          vol = `${kg}KG`;
+        } else {
+          const validVolumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
+          if (!vol || !validVolumes.includes(vol)) {
+            vol = (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+          }
+          const ml = PriceCalculator.getVolumeMl(vol);
+          kg = ml / 1000;
         }
+
         const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!openLayer2Drawers[product.id];
 
         const isMaceration = isMacerationOil(product);
-        const ml = PriceCalculator.getVolumeMl(vol);
-        const kg = ml / 1000;
 
         const isEssentialOil = product.category === "Uçucu Yağlar";
-        // Uçucu yağlarda veya önceden kaydedilmemiş ürünlerde varsayılan 'wholesale' (Toptan Alış)
         let supplyType = product.supplyType;
         if (isEssentialOil && (!supplyType || supplyType === "press")) {
           supplyType = "wholesale";
@@ -1628,9 +1633,9 @@ function renderLayer2Cards() {
         const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
           herbCostPerKg: herbCost,
           oliveOilCostPerKg: oliveOilCost,
-          herbRatioKg: herbRatio,
-          herbKg: herbKg,
-          oilKg: oilKg,
+          herbRatioKg: product.herbRatioKg || 0.2,
+          herbKg: product.herbKg,
+          oilKg: product.oilKg,
           supplyType: supplyType,
           wholesaleCostPerKg: product.wholesaleCostPerKg,
           fallbackCostPerKg: product.costPerKg || 600
@@ -1638,22 +1643,12 @@ function renderLayer2Cards() {
 
         const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
 
-        const rawOilCost = parseFloat(((costPerKg / 1000) * ml).toFixed(2));
-        const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
-        
-        const linearOverhead = parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
-        
-        let laborAssemblyFee = 8.00;
-        if (vol === "1000ml" || vol === "1kg") laborAssemblyFee = 10.00;
-        else if (vol === "500ml") laborAssemblyFee = 9.00;
-        else if (vol === "250ml") laborAssemblyFee = 8.00;
-        else if (vol === "100ml") laborAssemblyFee = 7.50;
-        else if (vol === "50ml") laborAssemblyFee = 9.50;
-        else if (vol === "30ml") laborAssemblyFee = 14.70;
-        else if (vol === "20ml") laborAssemblyFee = 17.80;
-        else if (vol === "5000ml" || vol === "5kg") laborAssemblyFee = 15.00;
+        const rawOilCost = parseFloat((costPerKg * kg).toFixed(2));
+        const packCost = (layer2GroupMode === "wholesale_drums")
+          ? parseFloat((kg * 0.50).toFixed(2))
+          : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
 
-        const totalOverhead = parseFloat((linearOverhead + laborAssemblyFee).toFixed(2));
+        const totalOverhead = PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
         const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
         const tySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
@@ -1771,20 +1766,30 @@ function renderLayer2Cards() {
                   </div>
                 </div>
 
-                <!-- Ambalaj Hacim Seçici -->
-                <div class="flex items-center gap-2 shrink-0">
-                  <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
-                  <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
-                    ${getLayer2VolumeOptionsHtml(vol)}
-                  </select>
-                </div>
+                <!-- Ambalaj Seçici veya Toptan Elle KG Yazma Girişi -->
+                ${layer2GroupMode === "wholesale_drums" ? `
+                  <div class="flex items-center gap-1.5 bg-slate-950 border border-purple-500/60 px-3 py-1.5 rounded-2xl shadow-inner shrink-0">
+                    <span class="text-xs font-black text-purple-300 flex items-center gap-1">📦 Sipariş Miktarı:</span>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="${kg}" min="1" step="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-20 bg-slate-900 border border-purple-400/80 text-purple-200 font-black text-xs px-2 py-1 rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <span class="text-xs font-black text-purple-300">KG</span>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
+                    <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
+                      ${getLayer2VolumeOptionsHtml(vol)}
+                    </select>
+                  </div>
+                `}
 
                 <!-- Vurgulu Toptan 1 KG Birim Fiyatı & Paket Toplamı Rozeti -->
                 <div class="flex items-center gap-2.5">
                   <div class="bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 px-4 py-2 rounded-2xl border border-emerald-500/60 shadow-md text-right">
                     <span class="text-[9px] uppercase font-black text-emerald-400 block tracking-wider">MÜŞTERİYE 1 KG TOPTAN TEKLİF FİYATI:</span>
-                    <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(parseFloat(((netCost / kg) * (1 - ((PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).discount || 0) / 100))).toFixed(2)))} / KG</span>
-                    <span class="text-[9px] text-purple-300 font-bold block">${PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).label} (%${PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).discount || 0} İskonto)</span>
+                    <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} / KG</span>
+                    <span class="text-[9px] text-purple-300 font-bold block">${tierInfo.label} (%${discountPct} İskonto | ${kg} KG Toplamı: ${PriceCalculator.formatTL(totalOrderPrice)})</span>
                   </div>
                   <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-slate-200 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                     📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
@@ -2024,34 +2029,31 @@ function renderLayer2Cards() {
                       <div class="flex items-center gap-1">
                         <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-cyan-500/50 text-cyan-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-cyan-400">%</span>
-                        <!-- Birim 1KG Toptan Fiyatı Vurgulu Rozet (Card View) -->
-                        <div class="p-3 bg-gradient-to-r from-slate-950 via-teal-950/40 to-slate-950 rounded-xl border border-emerald-500/40 my-2">
-                          <div class="flex justify-between items-center text-xs">
-                            <span class="font-extrabold text-emerald-400 uppercase text-[10px] tracking-wider">TOPTAN 1 KG BİRİM MALİYETİ:</span>
-                            <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(parseFloat((netCost / kg).toFixed(2)))} / KG</span>
-                          </div>
-                          <div class="flex justify-between items-center text-[11px] text-slate-400 mt-1">
-                            <span>${vol} Paket Toplam Tutarı:</span>
-                            <span class="font-bold text-slate-200">${PriceCalculator.formatTL(netCost)}</span>
-                          </div>
-                        </div>
-                        ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
-                      </div>
-                    </div>
-                  `}
-
-                  <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold">1KG Yağ Maliyeti:</span>
-                    <span class="text-xs font-black ${supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
+                <!-- Birim 1KG Toptan Teklif Fiyatı Rozet (Card View) -->
+                <div class="p-3 bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 rounded-xl border border-emerald-500/60 my-2">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-extrabold text-emerald-400 uppercase text-[10px] tracking-wider">MÜŞTERİYE 1 KG TEKLİF:</span>
+                    <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} / KG</span>
+                  </div>
+                  <div class="flex justify-between items-center text-[10px] text-purple-300 font-bold mt-1">
+                    <span>${tierInfo.label} (%${discountPct} İskonto)</span>
+                    <span>${kg} KG Toplam: ${PriceCalculator.formatTL(totalOrderPrice)}</span>
                   </div>
                 </div>
 
-                <!-- Ambalaj Boyutu Seçici -->
+                <!-- Ambalaj Seçici veya Toptan Elle KG Yazma Girişi (Card View) -->
                 <div class="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
-                  <label class="text-slate-200 text-xs font-bold">${layer2GroupMode === 'wholesale_drums' ? '📦 Bidon Ambalajı:' : '🧴 Ambalaj Boyutu:'}</label>
-                  <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
-                    ${getLayer2VolumeOptionsHtml(vol)}
-                  </select>
+                  <label class="text-slate-200 text-xs font-bold">${layer2GroupMode === 'wholesale_drums' ? '📦 Sipariş Miktarı:' : '🧴 Ambalaj Boyutu:'}</label>
+                  ${layer2GroupMode === 'wholesale_drums' ? `
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="${kg}" min="1" step="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-20 bg-slate-900 border border-purple-400/80 text-purple-200 font-black text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <span class="text-xs font-black text-purple-300">KG</span>
+                    </div>
+                  ` : `
+                    <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
+                      ${getLayer2VolumeOptionsHtml(vol)}
+                    </select>
+                  `}
                 </div>
 
                 <!-- FATURA KESER GİBİ DETAYLI DÖKÜM BUTONU -->
@@ -2326,6 +2328,7 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "oilKg") product.oilKg = value !== "" ? parseFloat(value) : null;
 
   if (field === "layer2Volume") product.layer2Volume = value;
+  if (field === "layer2WholesaleKg") product.layer2WholesaleKg = parseFloat(value) || 30;
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
 
   const isMaceration = isMacerationOil(product);

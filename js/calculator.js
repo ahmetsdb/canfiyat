@@ -28,19 +28,24 @@ class PriceCalculator {
     return ml / 1000;
   }
 
-  static getWholesaleDiscountForKg(volumeStr, tiers) {
+  static getWholesaleDiscountForKg(volumeInput, tiers) {
     if (!tiers && typeof StorageManager !== "undefined") {
       tiers = StorageManager.getWholesaleTiers();
     }
     if (!tiers) return { discount: 0, label: "Standart" };
 
-    const ml = this.getVolumeMl(volumeStr);
-    const kg = ml / 1000;
+    let kg = 0;
+    if (typeof volumeInput === "number") {
+      kg = volumeInput;
+    } else {
+      const ml = this.getVolumeMl(volumeInput);
+      kg = ml / 1000;
+    }
 
     if (kg >= (tiers.tier4?.minKg || 250)) return tiers.tier4;
     if (kg >= (tiers.tier3?.minKg || 100)) return tiers.tier3;
     if (kg >= (tiers.tier2?.minKg || 30)) return tiers.tier2;
-    if (kg >= (tiers.tier1?.minKg || 10)) return tiers.tier1;
+    if (kg >= (tiers.tier1?.minKg || 5)) return tiers.tier1;
 
     return { discount: 0, label: "Perakende Hacim" };
   }
@@ -65,8 +70,10 @@ class PriceCalculator {
     else if (keyUpper === "30ML") laborAssemblyFee = 14.70; // pipette + box assembly
     else if (keyUpper === "20ML") laborAssemblyFee = 17.80; // roll-on / pipette assembly
     else if (keyUpper === "5000ML" || keyUpper === "5KG") laborAssemblyFee = 15.00;
-    // TOPTAN SANAYİ BİDONLARI (10KG, 25KG, 30KG) - Doldurmak, Kapaklamak & Etiketlemek Çok Daha Rahat
-    else if (keyUpper === "10KG") laborAssemblyFee = 12.00;
+    // TOPTAN DÖKME SİPARİŞLER (KG BAZLI DOLDURMA - Doldurmak, Kapaklamak & Etiketlemek Çok Rahat)
+    else if (kg >= 5) {
+      laborAssemblyFee = Math.min(kg * 0.80, 60.00);
+    } else if (keyUpper === "10KG") laborAssemblyFee = 12.00;
     else if (keyUpper === "25KG") laborAssemblyFee = 18.00;
     else if (keyUpper === "30KG") laborAssemblyFee = 20.00;
 
