@@ -53,7 +53,7 @@
                         </span>
                         
                         <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm">
-                            v2.26 (⚡ Giriş Butonu & Katman 1 Yükleme Kesin Çözüm)
+                            v2.27 (🔥 Söz Dizimi Hatası Kökten Çözüldü & Tam İşlevsel)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -782,107 +782,7 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- FACTORY OVERHEAD CONFIGURATION MODAL (L2)  -->
-    <!-- ========================================== -->
-    <div id="factory-overhead-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="glass-card max-w-xl w-full rounded-2xl border border-emerald-500/40 shadow-2xl overflow-hidden flex flex-col my-auto">
-            <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/30">
-                        🏭
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-white tracking-tight">Fabrika 1KG Sabit Gider Ayarları</h3>
-                        <p class="text-slate-400 text-[11px]">1KG saf yağa eklenecek doğrudan sabit tesis & işçilik payı</p>
-                    </div>
-                </div>
-                <button onclick="closeFactoryOverheadModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
 
-            <div class="p-5 space-y-4 text-xs bg-slate-900/90 max-h-[80vh] overflow-y-auto">
-                <!-- Itemized Factory Monthly Expenses -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                            👥 5 Personel Net Maaş Toplamı (₺/Ay):
-                        </label>
-                        <input type="number" id="overhead-salaries" value="200000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-emerald-400">
-                        <span class="text-[9.5px] text-slate-500 block">Ortalama 40.000 ₺/kişi net x 5 personel</span>
-                    </div>
-
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                            🛡️ 5 Personel SGK Primi & Vergiler (₺/Ay):
-                        </label>
-                        <input type="number" id="overhead-sgk" value="50000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-blue-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-blue-400">
-                        <span class="text-[9.5px] text-slate-500 block">5 Personel aylık SGK prim gideri payı</span>
-                    </div>
-
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                            ⚡ 20 Kafalı Makine + Tesis Elektrik (₺/Ay):
-                        </label>
-                        <input type="number" id="overhead-electricity" value="20000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-400">
-                        <span class="text-[9.5px] text-slate-500 block">Nisan faturasına göre (3.421 kWh/ay)</span>
-                    </div>
-
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                            🍱 Catering Yemek Gideri (₺/Ay):
-                        </label>
-                        <input type="number" id="overhead-catering" value="60000" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-cyan-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-400">
-                        <span class="text-[9.5px] text-slate-500 block">Gerçek faturalı yemek maliyeti (Düz 60.000 ₺/Ay)</span>
-                    </div>
-
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1 md:col-span-2">
-                        <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                            📦 Koli, Şrink & Tesis Sarf Gideri (₺/Ay):
-                        </label>
-                        <input type="number" id="overhead-rent-sarf" value="0" min="0" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-slate-700 text-purple-400 font-bold text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-purple-400">
-                        <span class="text-[9.5px] text-slate-500 block">Opsiyonel koli/şrink gideri (Şu an 0 ₺)</span>
-                    </div>
-                </div>
-
-                <!-- Monthly Production Capacity / Target Kilos (KG) -->
-                <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/40 space-y-2">
-                    <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                        ⚙️ Aylık Ortalama İmalat Hacmi / Hedef Üretim (KG/Ay):
-                    </label>
-                    <div class="flex items-center gap-2">
-                        <input type="number" id="overhead-capacity" value="3000" min="1" step="any" oninput="recalculateFactoryOverheadModal()" class="w-full bg-slate-900 border border-emerald-500/50 text-emerald-300 font-black text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400">
-                        <span class="font-bold text-slate-300 text-sm">KG</span>
-                    </div>
-                    <p class="text-[10.5px] text-slate-400">Aylık girdiğiniz tüm masraflar (Maaş, SGK, Elektrik, Yemek) bu üretim kilosuna bölünerek <strong>1KG Yağ Başına Tesis Payı OTOMATİK HESAPLANIR.</strong></p>
-                </div>
-
-                <!-- Calculation Summary Preview Banner -->
-                <div class="bg-gradient-to-r from-emerald-950 to-teal-950 p-3.5 rounded-xl border border-emerald-500/50 flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Aylık Toplam Masrafınız:</span>
-                        <span class="text-base font-black text-white" id="modal-overhead-total-monthly">305.000,00 ₺</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] uppercase font-bold text-emerald-400 block">Otomatik 1KG Yağ Payı:</span>
-                        <span class="text-lg font-black text-emerald-300" id="modal-overhead-total">35,00 ₺ / KG</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-5 py-3 border-t border-slate-800 flex items-center justify-between bg-slate-950">
-                <button onclick="closeFactoryOverheadModal()" class="text-xs font-semibold text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
-                    İptal
-                </button>
-                <button onclick="saveFactoryOverheadModal()" class="text-xs font-bold text-white px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/25 flex items-center gap-1.5 transition-all">
-                    GİDERİ KAYDET & UYGULA
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- 🎁 KOMBİN SET KÂRLILIK SİMÜLATÖRÜ MODAL (BODY SEVİYESİNDE BAĞIMSIZ MODAL) -->
     <div id="modal-bundle-simulator" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden animate-fade-in p-4">
@@ -1185,11 +1085,11 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=2.26"></script>
-    <script src="js/liveSiteData.js?v=2.26"></script>
-    <script src="js/storage.js?v=2.26"></script>
-    <script src="js/calculator.js?v=2.26"></script>
-    <script src="js/app.js?v=2.26"></script>
+    <script src="js/productsData.js?v=2.27"></script>
+    <script src="js/liveSiteData.js?v=2.27"></script>
+    <script src="js/storage.js?v=2.27"></script>
+    <script src="js/calculator.js?v=2.27"></script>
+    <script src="js/app.js?v=2.27"></script>
 </body>
 </html>
 

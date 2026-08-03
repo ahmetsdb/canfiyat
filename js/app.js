@@ -2039,6 +2039,17 @@ function renderLayer2Cards() {
                       <div class="flex items-center gap-1">
                         <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-cyan-500/50 text-cyan-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-cyan-400">%</span>
+                        ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      </div>
+                    </div>
+                  `}
+
+                  <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold">1KG Yağ Maliyeti:</span>
+                    <span class="text-xs font-black ${supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
+                  </div>
+                </div>
+
                 <!-- Birim 1KG Toptan Teklif Fiyatı Rozet (Card View) -->
                 <div class="p-3 bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 rounded-xl border border-emerald-500/60 my-2">
                   <div class="flex justify-between items-center text-xs">
