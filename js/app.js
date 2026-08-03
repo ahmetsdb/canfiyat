@@ -1661,6 +1661,13 @@ function renderLayer2Cards() {
         const totalOverhead = PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
         const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
+        const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
+        const discountPct = tierInfo.discount || 0;
+        const unDiscountedUnitCost = netCost / (kg > 0 ? kg : 1);
+        const discountedUnitCost = unDiscountedUnitCost * (1 - (discountPct / 100));
+        const finalWholesale1KgQuotePrice = parseFloat(discountedUnitCost.toFixed(2));
+        const totalOrderPrice = parseFloat((finalWholesale1KgQuotePrice * kg).toFixed(2));
+
         const tySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
         const hbSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
         const iySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
