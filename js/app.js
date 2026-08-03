@@ -1389,20 +1389,6 @@ function openWholesaleTiersModal() {
   if (document.getElementById("tier-discount-2")) document.getElementById("tier-discount-2").value = tiers.tier2?.discount ?? 10;
   if (document.getElementById("tier-discount-3")) document.getElementById("tier-discount-3").value = tiers.tier3?.discount ?? 15;
   if (document.getElementById("tier-discount-4")) document.getElementById("tier-discount-4").value = tiers.tier4?.discount ?? 20;
-
-  const modal = document.getElementById("wholesale-tiers-modal");
-  if (modal) {
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-  }
-}
-
-function closeWholesaleTiersModal() {
-  const modal = document.getElementById("wholesale-tiers-modal");
-  if (modal) {
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-  }
 }
 
 function saveWholesaleTiersModal() {
@@ -1419,9 +1405,51 @@ function saveWholesaleTiersModal() {
   };
 
   StorageManager.saveWholesaleTiers(tiers);
-  closeWholesaleTiersModal();
-  showToast("Toptan tonaj iskontoları başarıyla kaydedildi!", "success");
-  renderLayer2Cards();
+}
+
+function openOperatorSettingsModal() {
+  openFactoryOverheadModal();
+  openWholesaleTiersModal();
+
+  const modal = document.getElementById("operator-settings-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+}
+
+function closeOperatorSettingsModal() {
+  const modal = document.getElementById("operator-settings-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+function switchOperatorTab(tab) {
+  const tabOverhead = document.getElementById("operator-tab-overhead");
+  const tabTiers = document.getElementById("operator-tab-tiers");
+  const btnOverhead = document.getElementById("tab-btn-operator-overhead");
+  const btnTiers = document.getElementById("tab-btn-operator-tiers");
+
+  if (tab === "overhead") {
+    if (tabOverhead) tabOverhead.classList.remove("hidden");
+    if (tabTiers) tabTiers.classList.add("hidden");
+    if (btnOverhead) btnOverhead.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-teal-700 to-emerald-600 text-white shadow-md";
+    if (btnTiers) btnTiers.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white";
+  } else {
+    if (tabOverhead) tabOverhead.classList.add("hidden");
+    if (tabTiers) tabTiers.classList.remove("hidden");
+    if (btnOverhead) btnOverhead.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white";
+    if (btnTiers) btnTiers.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md";
+  }
+}
+
+function saveOperatorSettingsModal() {
+  saveFactoryOverheadModal();
+  saveWholesaleTiersModal();
+  closeOperatorSettingsModal();
+  showToast("Operatör ayarları ve toptan iskontolar başarıyla kaydedildi! ⚙️✅", "success");
 }
 
 let openLayer2Breakdowns = {};
@@ -1664,119 +1692,86 @@ function renderLayer2Cards() {
                   </div>
                 </div>
 
-                <!-- ENDÜSTRİYEL TEDARİK TÜRÜ & HAMMADDE/MASERASYON/DİP KONTROL PANELİ (ROW VIEW) -->
-                <div class="flex flex-wrap items-center gap-2.5 bg-slate-900/90 px-3 py-1.5 rounded-2xl border ${isMaceration ? 'border-purple-500/40' : supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} shadow-inner">
-                  <!-- Yer Kaplamayan Sıkım / Maserasyon / Toptan Seçici -->
-                  <div class="flex items-center p-0.5 bg-slate-950 rounded-xl border border-slate-800 shrink-0">
-                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white shadow-sm' : 'bg-amber-500 text-slate-950 shadow-sm') : 'text-slate-400 hover:text-white'}">
+                <!-- ENDÜSTRİYEL TEDARİK TÜRÜ & HAMMADDE/MASERASYON/DİP KONTROL PANELİ (ROW VIEW - FERAH YAPI) -->
+                <div class="flex flex-wrap items-center gap-3 bg-slate-900/90 px-3.5 py-2 rounded-2xl border ${isMaceration ? 'border-purple-500/40' : supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} shadow-inner">
+                  <!-- Sıkım / Maserasyon / Toptan Seçici -->
+                  <div class="flex items-center p-1 bg-slate-950 rounded-xl border border-slate-800 shrink-0">
+                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white shadow-sm' : 'bg-amber-500 text-slate-950 shadow-sm') : 'text-slate-400 hover:text-white'}">
                       ${isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
                     </button>
-                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
+                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
                       📦 Toptan
                     </button>
                   </div>
 
-                  <div class="h-4 w-px bg-slate-800"></div>
-
                   ${isMaceration ? `
                     ${supplyType === 'wholesale' ? `
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan (%${kdvRate} KDV Dahil):</span>
-                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${PriceCalculator.formatTL(initialCost)} (%${kdvRate} KDV Dahil | Liste KDV Hariç: ${PriceCalculator.formatTL(product.rawNetCostPerKg || initialCost)})" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
-                        ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${PriceCalculator.formatTL(initialCost)} %${kdvRate} KDV Dahil)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      <div class="flex items-center gap-2 px-2">
+                        <span class="text-xs font-bold text-blue-400">📦 Toptan Fiyat (%${kdvRate} KDV Dahil):</span>
+                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${PriceCalculator.formatTL(initialCost)}" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                        <span class="text-xs font-bold text-blue-400">₺/KG</span>
                       </div>
                     ` : `
-                      <!-- BÖLÜM 1: MALİYETLER (ALT ALTA) -->
-                      <div class="flex flex-col gap-1 py-0.5 pr-2 border-r border-slate-800/80">
-                        <div class="flex items-center justify-between gap-1.5">
-                          <span class="text-[10px] font-extrabold text-emerald-400 flex items-center gap-1">🫒 Z.Yağı Maliyeti:</span>
-                          <div class="flex items-center gap-1">
-                            <input type="number" value="${oliveOilCost}" step="10" title="Orijinal Varsayılan: ${initialOliveOilCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'oliveOilCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
-                            <span class="text-[10px] font-bold text-emerald-400">₺/KG</span>
-                            ${isOliveOilModified ? `<button onclick="resetProductField('${product.id}', 'oliveOilCostPerKg')" title="Varsayılana Dön (${initialOliveOilCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
-                          </div>
+                      <!-- MASERASYON GİRDİLERİ -->
+                      <div class="flex items-center gap-3 px-2">
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-xs font-extrabold text-emerald-400">🫒 Z.Yağı:</span>
+                          <input type="number" value="${oliveOilCost}" step="10" ondblclick="resetProductField('${product.id}', 'oliveOilCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                          <span class="text-xs font-bold text-emerald-400">₺</span>
                         </div>
-                        <div class="flex items-center justify-between gap-1.5">
-                          <span class="text-[10px] font-extrabold text-purple-300 flex items-center gap-1">🌱 Hammadde Maliyeti:</span>
-                          <div class="flex items-center gap-1">
-                            <input type="number" value="${herbCost}" step="10" title="Orijinal Varsayılan: ${initialHerbCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'herbCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
-                            <span class="text-[10px] font-bold text-purple-300">₺/KG</span>
-                            ${isHerbCostModified ? `<button onclick="resetProductField('${product.id}', 'herbCostPerKg')" title="Varsayılana Dön (${initialHerbCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
-                          </div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-xs font-extrabold text-purple-300">🌱 Ot:</span>
+                          <input type="number" value="${herbCost}" step="10" ondblclick="resetProductField('${product.id}', 'herbCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                          <span class="text-xs font-bold text-purple-300">₺</span>
                         </div>
-                      </div>
-
-                      <!-- BÖLÜM 2: MİKTARLAR (YAKIN VE AYRIK MİKTAR GİRDİLERİ) -->
-                      <div class="flex flex-col gap-1 py-0.5 pl-1 pr-2 border-r border-slate-800/80">
-                        <div class="flex items-center justify-between gap-1.5">
-                          <span class="text-[10px] font-extrabold text-amber-400 flex items-center gap-1">⚖️ Hammadde Miktarı:</span>
-                          <div class="flex items-center gap-1">
-                            <input type="number" value="${herbKg}" step="1" min="0" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'herbKg', this.value)" class="w-14 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-1 py-0.5 rounded-lg text-center focus:outline-none">
-                            <span class="text-[10px] font-bold text-amber-400">KG</span>
-                          </div>
+                        <div class="bg-purple-950/60 px-2.5 py-1 rounded-xl border border-purple-800/60 text-center">
+                          <span class="text-xs font-black text-amber-300">${macerationRes.calculatedRatio} KG Ot / 1 KG Yağ</span>
                         </div>
-                        <div class="flex items-center justify-between gap-1.5">
-                          <span class="text-[10px] font-extrabold text-cyan-400 flex items-center gap-1">🛢️ Eklenen Z.Yağı:</span>
-                          <div class="flex items-center gap-1">
-                            <input type="number" value="${oilKg}" step="1" min="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'oilKg', this.value)" class="w-14 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1 py-0.5 rounded-lg text-center focus:outline-none">
-                            <span class="text-[10px] font-bold text-cyan-400">KG</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- BÖLÜM 3: OTOMATİK HESAPLANAN ORAN -->
-                      <div class="bg-purple-950/60 px-2 py-1 rounded-xl border border-purple-800/60 text-center">
-                        <span class="text-[9px] font-bold text-purple-300 block uppercase">Otomatik Oran</span>
-                        <span class="text-xs font-black text-amber-300">${macerationRes.calculatedRatio} KG Ot / 1 KG Yağ</span>
                       </div>
                     `}
                   ` : `
                     ${supplyType === 'wholesale' ? `
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan (%${kdvRate} KDV Dahil):</span>
-                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${PriceCalculator.formatTL(initialCost)} (%${kdvRate} KDV Dahil | Liste KDV Hariç: ${PriceCalculator.formatTL(product.rawNetCostPerKg || initialCost)})" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
-                        ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${PriceCalculator.formatTL(initialCost)} %${kdvRate} KDV Dahil)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      <div class="flex items-center gap-2 px-2">
+                        <span class="text-xs font-bold text-blue-400">📦 Toptan Fiyat (%${kdvRate} KDV Dahil):</span>
+                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${PriceCalculator.formatTL(initialCost)}" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                        <span class="text-xs font-bold text-blue-400">₺/KG</span>
                       </div>
                     ` : `
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1">🌾 Tohum Alış:</span>
-                        <input type="number" value="${seedCost}" step="5" title="Orijinal Varsayılan: ${initialSeedCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'seedCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-amber-400">₺/KG</span>
-                        ${isSeedModified ? `<button onclick="resetProductField('${product.id}', 'seedCostPerKg')" title="Varsayılana Dön (${initialSeedCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
-                      </div>
-                      <div class="h-4 w-px bg-slate-800"></div>
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">💧 Verim:</span>
-                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[11px] font-bold text-cyan-400">%</span>
-                        ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      <!-- SIKIM GİRDİLERİ -->
+                      <div class="flex items-center gap-3 px-2">
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
+                          <input type="number" value="${seedCost}" step="5" ondblclick="resetProductField('${product.id}', 'seedCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                          <span class="text-xs font-bold text-amber-400">₺</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-xs font-bold text-cyan-400">💧 Verim:</span>
+                          <input type="number" value="${yieldPct}" step="1" min="1" max="100" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-14 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                          <span class="text-xs font-bold text-cyan-400">%</span>
+                        </div>
                       </div>
                     `}
 
-                    <div class="h-4 w-px bg-slate-800"></div>
-                    <!-- DİP/TORTU FIRE LOSS MODÜLÜ -->
-                    <div class="flex items-center gap-1.5">
-                      <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-slate-950 border border-rose-500/40 text-rose-300 font-bold text-[10px] px-1.5 py-1 rounded-lg focus:outline-none">
+                    <!-- DİP/TORTU FIRE MODÜLÜ -->
+                    <div class="flex items-center gap-1.5 px-1">
+                      <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-slate-950 border border-rose-500/40 text-rose-300 font-bold text-xs px-2 py-1 rounded-xl focus:outline-none">
                         <option value="none" ${dipStatus !== 'has_dip' ? 'selected' : ''}>Dip Yok (%0)</option>
-                        <option value="has_dip" ${dipStatus === 'has_dip' ? 'selected' : ''}>🔴 Dip Çıkıyor</option>
+                        <option value="has_dip" ${dipStatus === 'has_dip' ? 'selected' : ''}>🔴 Dip Var</option>
                       </select>
                       ${dipStatus === 'has_dip' ? `
-                        <input type="number" value="${dipPercent}" step="1" min="0" max="90" placeholder="Dip %" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-12 bg-slate-950 border border-rose-500 text-rose-300 font-extrabold text-xs px-1 py-1 rounded-lg text-center focus:outline-none">
-                        <span class="text-[10px] font-bold text-rose-400">% Fire</span>
+                        <input type="number" value="${dipPercent}" step="1" min="0" max="90" placeholder="Dip %" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-14 bg-slate-950 border border-rose-500 text-rose-300 font-extrabold text-xs px-2 py-1 rounded-xl text-center focus:outline-none">
+                        <span class="text-xs font-bold text-rose-400">% Fire</span>
                       ` : ''}
                     </div>
                   `}
 
-                  <div class="h-4 w-px bg-slate-800"></div>
-                  <div class="text-right shrink-0 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800/80 min-w-[125px]">
+                  <div class="text-right shrink-0 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800/80 min-w-[130px] ml-auto">
                     <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider whitespace-nowrap">1KG Saf Yağ Maliyeti</span>
                     <span class="text-xs font-black ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-amber-300'} whitespace-nowrap">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
                 </div>
 
-                <!-- Ambalaj Hacim Seçici (Cam/Şişe / Bidon Teması) -->
+                <!-- Ambalaj Hacim Seçici -->
                 <div class="flex items-center gap-2 shrink-0">
                   <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
                   <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
@@ -1786,7 +1781,7 @@ function renderLayer2Cards() {
 
                 <!-- Vurgulu Toptan 1 KG Birim Fiyatı & Paket Toplamı Rozeti -->
                 <div class="flex items-center gap-2.5">
-                  <div class="bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-emerald-500/60 shadow-md text-right">
+                  <div class="bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 px-4 py-2 rounded-2xl border border-emerald-500/60 shadow-md text-right">
                     <span class="text-[9px] uppercase font-black text-emerald-400 block tracking-wider">MÜŞTERİYE 1 KG TOPTAN TEKLİF FİYATI:</span>
                     <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(parseFloat(((netCost / kg) * (1 - ((PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).discount || 0) / 100))).toFixed(2)))} / KG</span>
                     <span class="text-[9px] text-purple-300 font-bold block">${PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).label} (%${PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).discount || 0} İskonto)</span>
