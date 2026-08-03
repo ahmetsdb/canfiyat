@@ -53,7 +53,7 @@
                         </span>
                         
                         <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm">
-                            v2.19 (🎯 Müşteriye Özel Toptan 1 KG Birim Fiyatı ₺/KG)
+                            v2.20 (🏭 B2B Tonaj Kademe İskontoları & Operatör Paneli)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -234,6 +234,9 @@
                     </div>
                     <button id="btn-factory-overhead" onclick="openFactoryOverheadModal()" class="bg-teal-700 hover:bg-teal-600 text-white font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center gap-1">
                         ⚙️ Gider Düzenle
+                    </button>
+                    <button id="btn-wholesale-tiers" onclick="openWholesaleTiersModal()" class="bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-700/60 font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center gap-1.5 text-xs">
+                        ⚙️ Toptan İskontoları
                     </button>
                 </div>
             <!-- Katman 2 Ambalaj Grubu Switcher (Perakende Şişe Grubu vs Toptan Sanayi Bidon Grubu) -->
@@ -1063,12 +1066,81 @@
         </div>
     </div>
 
+    <!-- Operator Wholesale Tier Settings Modal -->
+    <div id="wholesale-tiers-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 animate-slide-up">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                    ⚙️ Toptan Tonaj İskonto Kademeleri (Operatör Paneli)
+                </h3>
+                <button onclick="closeWholesaleTiersModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+            </div>
+
+            <p class="text-slate-400 text-xs">Müşterinin sipariş vereceği miktar/tonaja göre uygulanacak varsayılan fabrika iskonto oranlarını buradan düzenleyebilirsiniz.</p>
+
+            <div class="space-y-3">
+                <!-- Tier 1: 10-30 KG -->
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-bold text-slate-200 block">1. Kademe (10 KG - 30 KG)</span>
+                        <span class="text-[10px] text-slate-400">Küçük Toptan Siparişler</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="tier-discount-1" value="5" min="0" max="100" class="w-16 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-2 rounded-xl text-center">
+                        <span class="text-xs font-bold text-purple-400">% İskonto</span>
+                    </div>
+                </div>
+
+                <!-- Tier 2: 30-100 KG -->
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-bold text-slate-200 block">2. Kademe (30 KG - 100 KG)</span>
+                        <span class="text-[10px] text-slate-400">Orta Toptan Siparişler</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="tier-discount-2" value="10" min="0" max="100" class="w-16 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-2 rounded-xl text-center">
+                        <span class="text-xs font-bold text-purple-400">% İskonto</span>
+                    </div>
+                </div>
+
+                <!-- Tier 3: 100-250 KG -->
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-bold text-slate-200 block">3. Kademe (100 KG - 250 KG)</span>
+                        <span class="text-[10px] text-slate-400">Büyük Toptan Siparişler</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="tier-discount-3" value="15" min="0" max="100" class="w-16 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-2 rounded-xl text-center">
+                        <span class="text-xs font-bold text-purple-400">% İskonto</span>
+                    </div>
+                </div>
+
+                <!-- Tier 4: 250 KG+ -->
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-bold text-slate-200 block">4. Kademe (250 KG ve Üzeri)</span>
+                        <span class="text-[10px] text-slate-400">Sanayi Tonaj Siparişleri</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="tier-discount-4" value="20" min="0" max="100" class="w-16 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-2 rounded-xl text-center">
+                        <span class="text-xs font-bold text-purple-400">% İskonto</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                <button onclick="closeWholesaleTiersModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all">İptal</button>
+                <button onclick="saveWholesaleTiersModal()" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black rounded-xl shadow-lg shadow-purple-500/20 transition-all">💾 İskontoları Kaydet</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=2.19"></script>
-    <script src="js/liveSiteData.js?v=2.19"></script>
-    <script src="js/storage.js?v=2.19"></script>
-    <script src="js/calculator.js?v=2.19"></script>
-    <script src="js/app.js?v=2.19"></script>
+    <script src="js/productsData.js?v=2.20"></script>
+    <script src="js/liveSiteData.js?v=2.20"></script>
+    <script src="js/storage.js?v=2.20"></script>
+    <script src="js/calculator.js?v=2.20"></script>
+    <script src="js/app.js?v=2.20"></script>
 </body>
 </html>
 

@@ -1383,6 +1383,47 @@ function saveFactoryOverheadModal() {
   showToast("Aylık Giderlerden 1KG Tesis Payı Otomatik Hesaplandı! 🏭✅");
 }
 
+function openWholesaleTiersModal() {
+  const tiers = StorageManager.getWholesaleTiers();
+  if (document.getElementById("tier-discount-1")) document.getElementById("tier-discount-1").value = tiers.tier1?.discount ?? 5;
+  if (document.getElementById("tier-discount-2")) document.getElementById("tier-discount-2").value = tiers.tier2?.discount ?? 10;
+  if (document.getElementById("tier-discount-3")) document.getElementById("tier-discount-3").value = tiers.tier3?.discount ?? 15;
+  if (document.getElementById("tier-discount-4")) document.getElementById("tier-discount-4").value = tiers.tier4?.discount ?? 20;
+
+  const modal = document.getElementById("wholesale-tiers-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+}
+
+function closeWholesaleTiersModal() {
+  const modal = document.getElementById("wholesale-tiers-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+function saveWholesaleTiersModal() {
+  const t1 = parseFloat(document.getElementById("tier-discount-1")?.value) || 0;
+  const t2 = parseFloat(document.getElementById("tier-discount-2")?.value) || 0;
+  const t3 = parseFloat(document.getElementById("tier-discount-3")?.value) || 0;
+  const t4 = parseFloat(document.getElementById("tier-discount-4")?.value) || 0;
+
+  const tiers = {
+    tier1: { minKg: 10, maxKg: 30, discount: t1, label: "10-30 KG" },
+    tier2: { minKg: 30, maxKg: 100, discount: t2, label: "30-100 KG" },
+    tier3: { minKg: 100, maxKg: 250, discount: t3, label: "100-250 KG" },
+    tier4: { minKg: 250, maxKg: 99999, discount: t4, label: "250 KG+" }
+  };
+
+  StorageManager.saveWholesaleTiers(tiers);
+  closeWholesaleTiersModal();
+  showToast("Toptan tonaj iskontoları başarıyla kaydedildi!", "success");
+  renderLayer2Cards();
+}
+
 let openLayer2Breakdowns = {};
 let openLayer2Drawers = {};
 
@@ -1413,11 +1454,13 @@ function setLayer2GroupMode(mode) {
 }
 
 function getLayer2VolumeOptionsHtml(vol) {
+  const tiers = StorageManager.getWholesaleTiers();
   if (layer2GroupMode === "wholesale_drums") {
     return `
-      <option value="30KG" ${vol === "30KG" ? "selected" : ""}>30 KG Sanayi Bidonu (30 ₺)</option>
-      <option value="25KG" ${vol === "25KG" ? "selected" : ""}>25 KG Sanayi Bidonu (25 ₺)</option>
-      <option value="10KG" ${vol === "10KG" ? "selected" : ""}>10 KG Sanayi Bidonu (10 ₺)</option>
+      <option value="10KG" ${vol === "10KG" ? "selected" : ""}>10 KG Bidon (10 ₺ | %${tiers.tier1?.discount ?? 5} İsk.)</option>
+      <option value="30KG" ${vol === "30KG" ? "selected" : ""}>30 KG Bidon (30 ₺ | %${tiers.tier1?.discount ?? 5} İsk.)</option>
+      <option value="100KG" ${vol === "100KG" ? "selected" : ""}>100 KG Tonaj (35 ₺ | %${tiers.tier2?.discount ?? 10} İsk.)</option>
+      <option value="250KG" ${vol === "250KG" ? "selected" : ""}>250 KG+ Sanayi Tonajı (%${tiers.tier4?.discount ?? 20} İsk.)</option>
     `;
   }
   return `
@@ -1484,7 +1527,7 @@ function renderLayer2Cards() {
     productsList.forEach(product => {
       try {
         const validVolumes = (layer2GroupMode === "wholesale_drums")
-          ? ["10KG", "25KG", "30KG"]
+          ? ["10KG", "30KG", "100KG", "250KG"]
           : ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
 
         let vol = product.layer2Volume;
@@ -1744,9 +1787,9 @@ function renderLayer2Cards() {
                 <!-- Vurgulu Toptan 1 KG Birim Fiyatı & Paket Toplamı Rozeti -->
                 <div class="flex items-center gap-2.5">
                   <div class="bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-emerald-500/60 shadow-md text-right">
-                    <span class="text-[9px] uppercase font-black text-emerald-400 block tracking-wider">TOPTAN 1 KG BİRİM MALİYETİ:</span>
-                    <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(parseFloat((netCost / kg).toFixed(2)))} / KG</span>
-                    <span class="text-[9px] text-slate-400 font-medium block">(${vol} Paket Tutarı: ${PriceCalculator.formatTL(netCost)})</span>
+                    <span class="text-[9px] uppercase font-black text-emerald-400 block tracking-wider">MÜŞTERİYE 1 KG TOPTAN TEKLİF FİYATI:</span>
+                    <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(parseFloat(((netCost / kg) * (1 - ((PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).discount || 0) / 100))).toFixed(2)))} / KG</span>
+                    <span class="text-[9px] text-purple-300 font-bold block">${PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).label} (%${PriceCalculator.getWholesaleDiscountForKg(vol, StorageManager.getWholesaleTiers()).discount || 0} İskonto)</span>
                   </div>
                   <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-slate-200 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                     📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}

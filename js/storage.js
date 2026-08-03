@@ -56,6 +56,35 @@ class StorageManager {
     localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
   }
 
+  static getWholesaleTiers() {
+    const defaults = {
+      tier1: { minKg: 10, maxKg: 30, discount: 5, label: "10-30 KG" },
+      tier2: { minKg: 30, maxKg: 100, discount: 10, label: "30-100 KG" },
+      tier3: { minKg: 100, maxKg: 250, discount: 15, label: "100-250 KG" },
+      tier4: { minKg: 250, maxKg: 99999, discount: 20, label: "250 KG+" }
+    };
+    try {
+      const stored = localStorage.getItem("canfiyat_wholesale_tiers");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === "object") {
+          return { ...defaults, ...parsed };
+        }
+      }
+    } catch (e) {
+      console.error("Wholesale tiers storage error:", e);
+    }
+    return defaults;
+  }
+
+  static saveWholesaleTiers(tiers) {
+    try {
+      localStorage.setItem("canfiyat_wholesale_tiers", JSON.stringify(tiers));
+    } catch (e) {
+      console.error("Save wholesale tiers error:", e);
+    }
+  }
+
   static createDefaultVolumeConfigs() {
     const configs = {};
     const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml", "10KG", "25KG", "30KG"];

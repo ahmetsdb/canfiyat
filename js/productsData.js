@@ -91,7 +91,9 @@ const DEFAULT_PACKAGING_COSTS = {
   // Toptan Sanayi Bidon Grubu (Geçici Maliyetler)
   "10KG": 10.00,   // 10 KG Sanayi Bidonu (10 TL)
   "25KG": 25.00,   // 25 KG Sanayi Bidonu (25 TL)
-  "30KG": 30.00    // 30 KG Sanayi Bidonu (30 TL)
+  "30KG": 30.00,   // 30 KG Sanayi Bidonu (30 TL)
+  "100KG": 35.00,  // 100 KG Tonaj Ambalajı (35 TL)
+  "250KG": 60.00   // 250 KG Sanayi Varili (60 TL)
 };
 
 // Global default channel settings

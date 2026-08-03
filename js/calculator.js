@@ -28,6 +28,23 @@ class PriceCalculator {
     return ml / 1000;
   }
 
+  static getWholesaleDiscountForKg(volumeStr, tiers) {
+    if (!tiers && typeof StorageManager !== "undefined") {
+      tiers = StorageManager.getWholesaleTiers();
+    }
+    if (!tiers) return { discount: 0, label: "Standart" };
+
+    const ml = this.getVolumeMl(volumeStr);
+    const kg = ml / 1000;
+
+    if (kg >= (tiers.tier4?.minKg || 250)) return tiers.tier4;
+    if (kg >= (tiers.tier3?.minKg || 100)) return tiers.tier3;
+    if (kg >= (tiers.tier2?.minKg || 30)) return tiers.tier2;
+    if (kg >= (tiers.tier1?.minKg || 10)) return tiers.tier1;
+
+    return { discount: 0, label: "Perakende Hacim" };
+  }
+
   // Time & Labor Handling Overhead Matrix per Bottle / Drum Volume Size
   static getOverheadForVolume(volKey, overheadPerKg = 110.00) {
     const ml = this.getVolumeMl(volKey);
