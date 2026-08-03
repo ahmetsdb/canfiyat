@@ -79,6 +79,7 @@ class StorageManager {
     const baseMap = {};
     INITIAL_PRODUCTS.forEach(p => {
       const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+      const defaultSeedCost = parseFloat(((p.costPerKg || 1212.00) * 0.25).toFixed(2));
       baseMap[p.id] = {
         id: p.id,
         sku: p.sku,
@@ -87,6 +88,14 @@ class StorageManager {
         kdv: p.kdv,
         unit: "1KG",
         costPerKg: p.costPerKg,
+        initialCostPerKg: p.costPerKg,
+        initialSeedCostPerKg: defaultSeedCost,
+        initialYieldPercent: 25,
+        initialDipPercent: 0,
+        initialHerbCostPerKg: 0,
+        initialOliveOilCostPerKg: 454.50,
+        initialHerbRatioKg: 0.20,
+        initialTargetProfit: 70,
         activeVolume: defaultVol,
         volumes: this.createDefaultVolumeConfigs(),
         updatedAt: new Date().toISOString()

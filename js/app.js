@@ -1432,9 +1432,19 @@ function renderLayer2Cards() {
 
         const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
         const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
-        const herbRatio = (product.herbRatioKg !== undefined && product.herbRatioKg !== null) ? product.herbRatioKg : 0.2;
-        const herbKg = (product.herbKg !== undefined && product.herbKg !== null) ? product.herbKg : "";
-        const oilKg = (product.oilKg !== undefined && product.oilKg !== null) ? product.oilKg : "";
+        const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
+        const initialSeedCost = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
+        const initialYield = 25;
+        const initialHerbCost = 0;
+        const initialOliveOilCost = 454.50;
+
+        const isSeedModified = !isMaceration && seedCost !== initialSeedCost;
+        const isYieldModified = !isMaceration && yieldPct !== initialYield;
+        const isDipModified = !isMaceration && dipPercent !== 0;
+        const isHerbCostModified = isMaceration && herbCost !== initialHerbCost;
+        const isOliveOilModified = isMaceration && oliveOilCost !== initialOliveOilCost;
+        const isWholesaleModified = supplyType === "wholesale" && product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== initialCost;
+        const isAnyModified = isSeedModified || isYieldModified || isDipModified || isHerbCostModified || isOliveOilModified || isWholesaleModified;
 
         const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
           seedCostPerKg: seedCost,
@@ -1497,9 +1507,16 @@ function renderLayer2Cards() {
                     ${product.sku}
                   </span>
                   <div class="truncate">
-                    <h3 class="text-sm font-extrabold text-white truncate tracking-tight">
-                      ${product.name}
-                    </h3>
+                    <div class="flex items-center gap-1.5">
+                      <h3 class="text-sm font-extrabold text-white truncate tracking-tight">
+                        ${product.name}
+                      </h3>
+                      ${isAnyModified ? `
+                        <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-[10px] bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-2 py-0.5 rounded-lg border border-amber-800/80 transition-all flex items-center gap-1 shrink-0 shadow-sm">
+                          ↺ Varsayılana Dön
+                        </button>
+                      ` : ''}
+                    </div>
                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
                       ${product.category}
                     </span>
@@ -1533,15 +1550,17 @@ function renderLayer2Cards() {
                         <div class="flex items-center justify-between gap-1.5">
                           <span class="text-[10px] font-extrabold text-emerald-400 flex items-center gap-1">🫒 Z.Yağı Maliyeti:</span>
                           <div class="flex items-center gap-1">
-                            <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
+                            <input type="number" value="${oliveOilCost}" step="10" title="Orijinal Varsayılan: ${initialOliveOilCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'oliveOilCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-slate-950 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
                             <span class="text-[10px] font-bold text-emerald-400">₺/KG</span>
+                            ${isOliveOilModified ? `<button onclick="resetProductField('${product.id}', 'oliveOilCostPerKg')" title="Varsayılana Dön (${initialOliveOilCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                           </div>
                         </div>
                         <div class="flex items-center justify-between gap-1.5">
                           <span class="text-[10px] font-extrabold text-purple-300 flex items-center gap-1">🌱 Hammadde Maliyeti:</span>
                           <div class="flex items-center gap-1">
-                            <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
+                            <input type="number" value="${herbCost}" step="10" title="Orijinal Varsayılan: ${initialHerbCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'herbCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-xs px-1.5 py-0.5 rounded-lg text-center focus:outline-none">
                             <span class="text-[10px] font-bold text-purple-300">₺/KG</span>
+                            ${isHerbCostModified ? `<button onclick="resetProductField('${product.id}', 'herbCostPerKg')" title="Varsayılana Dön (${initialHerbCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                           </div>
                         </div>
                       </div>
@@ -1580,14 +1599,16 @@ function renderLayer2Cards() {
                     ` : `
                       <div class="flex items-center gap-1.5">
                         <span class="text-xs font-bold text-amber-400 flex items-center gap-1">🌾 Tohum Alış:</span>
-                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
+                        <input type="number" value="${seedCost}" step="5" title="Orijinal Varsayılan: ${initialSeedCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'seedCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-slate-950 border border-amber-500/60 text-amber-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-amber-400">₺/KG</span>
+                        ${isSeedModified ? `<button onclick="resetProductField('${product.id}', 'seedCostPerKg')" title="Varsayılana Dön (${initialSeedCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                       <div class="h-4 w-px bg-slate-800"></div>
                       <div class="flex items-center gap-1.5">
                         <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">💧 Verim:</span>
-                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
+                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-cyan-500/60 text-cyan-300 font-extrabold text-xs px-1.5 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-cyan-400">%</span>
+                        ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     `}
 
@@ -2035,6 +2056,76 @@ function renderLayer2Cards() {
       `;
     }
   }
+}
+
+async function resetProductField(productId, field) {
+  const product = currentProducts[productId] || Object.values(currentProducts).find(p => p.id === productId || p.sku === productId);
+  if (!product) return;
+
+  const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
+  const initialSeed = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
+
+  if (field === "seedCostPerKg") product.seedCostPerKg = initialSeed;
+  else if (field === "yieldPercent") product.yieldPercent = 25;
+  else if (field === "dipPercent") {
+    product.dipPercent = 0;
+    product.dipStatus = "none";
+  }
+  else if (field === "herbCostPerKg") product.herbCostPerKg = 0;
+  else if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = 454.50;
+  else if (field === "herbRatioKg") product.herbRatioKg = 0.20;
+  else if (field === "herbKg") product.herbKg = null;
+  else if (field === "oilKg") product.oilKg = null;
+  else if (field === "wholesaleCostPerKg") product.wholesaleCostPerKg = initialCost;
+  else if (field === "layer2Profit") product.layer2Profit = 70;
+  else if (field === "all") {
+    product.seedCostPerKg = initialSeed;
+    product.yieldPercent = 25;
+    product.dipPercent = 0;
+    product.dipStatus = "none";
+    product.herbCostPerKg = 0;
+    product.oliveOilCostPerKg = 454.50;
+    product.herbRatioKg = 0.20;
+    product.herbKg = null;
+    product.oilKg = null;
+    product.wholesaleCostPerKg = initialCost;
+    product.supplyType = "press";
+    product.layer2Profit = 70;
+  }
+
+  const isMaceration = isMacerationOil(product);
+  const supplyType = product.supplyType || "press";
+
+  if (isMaceration) {
+    const macerationRes = PriceCalculator.calculateMacerationCost({
+      herbCostPerKg: product.herbCostPerKg || 0,
+      oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 454.50,
+      herbRatioKg: product.herbRatioKg,
+      herbKg: product.herbKg,
+      oilKg: product.oilKg,
+      supplyType: supplyType,
+      wholesaleCostPerKg: product.wholesaleCostPerKg,
+      fallbackCostPerKg: initialCost
+    });
+    product.herbRatioKg = macerationRes.calculatedRatio;
+    product.costPerKg = macerationRes.netCostPerKg;
+  } else {
+    const coldPressRes = PriceCalculator.calculateColdPressCost({
+      seedCostPerKg: product.seedCostPerKg !== undefined ? product.seedCostPerKg : initialSeed,
+      yieldPercent: product.yieldPercent || 25,
+      wholesaleCostPerKg: product.wholesaleCostPerKg,
+      supplyType: supplyType,
+      dipStatus: product.dipStatus || "none",
+      dipPercent: product.dipPercent || 0,
+      fallbackCostPerKg: initialCost
+    });
+    product.costPerKg = coldPressRes.netCostPerKg;
+  }
+
+  await StorageManager.saveProduct(product);
+  renderLayer2Cards();
+  if (currentLayerMode === 1) renderProductGrid();
+  showToast(`Sıfırlandı: ${product.name} (${field === 'all' ? 'Tüm Girdiler' : field}) Orijinal Fiyata Döndü ↺`);
 }
 
 function toggleLayer2Drawer(productId) {
