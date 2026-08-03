@@ -924,15 +924,40 @@ function switchLayerMode(mode) {
   const btn1 = document.getElementById("layer-btn-1");
   const btn2 = document.getElementById("layer-btn-2");
   const btn3 = document.getElementById("layer-btn-3");
+
+  const dot1 = document.getElementById("dot-1");
+  const dot2 = document.getElementById("dot-2");
+  const dot3 = document.getElementById("dot-3");
+
+  const badge1 = document.getElementById("badge-1");
+  const badge2 = document.getElementById("badge-2");
+  const badge3 = document.getElementById("badge-3");
+
   const view1 = document.getElementById("layer1-main-view");
   const view2 = document.getElementById("layer2-main-view");
   const view3 = document.getElementById("layer3-main-view");
   const btnOverhead = document.getElementById("btn-factory-overhead");
 
+  const inactiveBtnClass = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800 hover:bg-slate-800/80 hover:text-white";
+  const inactiveDotClass = "w-3 h-3 rounded-full bg-slate-600 shrink-0";
+  const inactiveBadgeClass = "text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0";
+
+  if (btn1) btn1.className = inactiveBtnClass;
+  if (btn2) btn2.className = inactiveBtnClass;
+  if (btn3) btn3.className = inactiveBtnClass;
+
+  if (dot1) dot1.className = inactiveDotClass;
+  if (dot2) dot2.className = inactiveDotClass;
+  if (dot3) dot3.className = inactiveDotClass;
+
+  if (badge1) { badge1.className = inactiveBadgeClass; badge1.innerText = "KATMANA GEÇ"; }
+  if (badge2) { badge2.className = inactiveBadgeClass; badge2.innerText = "KATMANA GEÇ"; }
+  if (badge3) { badge3.className = inactiveBadgeClass; badge3.innerText = "KATMANA GEÇ"; }
+
   if (mode === 1) {
-    if (btn1) btn1.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/25";
-    if (btn2) btn2.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
-    if (btn3) btn3.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+    if (btn1) btn1.className = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/40 border-2 border-blue-400/90 ring-2 ring-blue-500/50 scale-[1.01]";
+    if (dot1) dot1.className = "w-3 h-3 rounded-full bg-blue-300 shadow-glow animate-ping shrink-0";
+    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0 shadow-sm"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.remove("hidden");
     if (view2) view2.classList.add("hidden");
@@ -941,9 +966,9 @@ function switchLayerMode(mode) {
 
     renderProductGrid();
   } else if (mode === 2) {
-    if (btn1) btn1.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
-    if (btn2) btn2.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-emerald-600 text-white shadow-lg shadow-emerald-500/25";
-    if (btn3) btn3.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
+    if (btn2) btn2.className = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-600/40 border-2 border-purple-400/90 ring-2 ring-purple-500/50 scale-[1.01]";
+    if (dot2) dot2.className = "w-3 h-3 rounded-full bg-purple-300 shadow-glow animate-ping shrink-0";
+    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-purple-950 text-purple-200 border border-purple-400/50 shrink-0 shadow-sm"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.remove("hidden");
@@ -956,9 +981,9 @@ function switchLayerMode(mode) {
     updateLayer2BannerStats();
     renderLayer2Cards();
   } else if (mode === 3) {
-    if (btn1) btn1.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
-    if (btn2) btn2.className = "layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white";
-    if (btn3) btn3.className = "layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-purple-600 text-white shadow-lg shadow-purple-500/25";
+    if (btn3) btn3.className = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white shadow-xl shadow-emerald-600/40 border-2 border-emerald-400/90 ring-2 ring-emerald-500/50 scale-[1.01]";
+    if (dot3) dot3.className = "w-3 h-3 rounded-full bg-emerald-300 shadow-glow animate-ping shrink-0";
+    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0 shadow-sm"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.add("hidden");

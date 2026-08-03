@@ -48,31 +48,18 @@
                         <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                             CanFiyat
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v2.13 (🎯 KDV Hariç Liste Fiyatlarından Otomatik KDV Dahil Hesaplama Engine)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v2.14 (Executive Control Dock)</span>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
                             </span>
                         </h1>
                         <p class="text-slate-400 text-xs font-medium">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
-                        
-                        <!-- Multi-Dashboard Header Switcher -->
-                        <div class="flex flex-wrap items-center gap-1.5 mt-2 bg-slate-950 p-1 rounded-xl border border-slate-800 w-fit">
-                            <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/25">
-                                🛡️ 1. Katman: Satış & Kârlılık Portalı
-                            </button>
-                            <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white">
-                                ⚔️ 2. Katman: Saf Üretim Maliyet Portalı
-                            </button>
-                            <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn inactive px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all text-slate-400 hover:text-white">
-                                🌐 3. Katman: Web Sitesi Canlı Karşılaştırma
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Header Action & Stats Bar -->
-            <div class="flex items-center gap-2.5">
+            <div class="flex flex-wrap items-center gap-2.5">
                 <button onclick="openBundleSimulatorModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-purple-500/25 flex items-center gap-1.5 transition-all border border-purple-400/30">
                     🎁 KOMBİN SET SİMS
                 </button>
@@ -110,6 +97,40 @@
                 </button>
             </div>
         </header>
+
+        <!-- Executive Segmented Control Dock Bar (Katman Seçici Navigation Bar) -->
+        <nav class="w-full bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90 shadow-2xl backdrop-blur-xl my-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                
+                <!-- Katman 1 Button -->
+                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/40 border-2 border-blue-400/90 ring-2 ring-blue-500/50 scale-[1.01]">
+                    <div class="flex items-center gap-2.5">
+                        <span id="dot-1" class="w-3 h-3 rounded-full bg-blue-300 shadow-glow animate-ping shrink-0"></span>
+                        <span class="tracking-tight text-left">1. KATMAN: Satış Kataloğu & Kasa</span>
+                    </div>
+                    <span id="badge-1" class="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0 shadow-sm">✓ SEÇİLİ KATMAN</span>
+                </button>
+
+                <!-- Katman 2 Button -->
+                <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800 hover:bg-slate-800/80 hover:text-white">
+                    <div class="flex items-center gap-2.5">
+                        <span id="dot-2" class="w-3 h-3 rounded-full bg-slate-600 shrink-0"></span>
+                        <span class="tracking-tight text-left">2. KATMAN: Saf Maliyet Simülatörü</span>
+                    </div>
+                    <span id="badge-2" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0">KATMANA GEÇ</span>
+                </button>
+
+                <!-- Katman 3 Button -->
+                <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800 hover:bg-slate-800/80 hover:text-white">
+                    <div class="flex items-center gap-2.5">
+                        <span id="dot-3" class="w-3 h-3 rounded-full bg-slate-600 shrink-0"></span>
+                        <span class="tracking-tight text-left">3. KATMAN: Hızlı Sipariş / Teklif</span>
+                    </div>
+                    <span id="badge-3" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0">KATMANA GEÇ</span>
+                </button>
+
+            </div>
+        </nav>
 
         <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
         <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-slate-900/60 p-3 rounded-2xl border border-slate-800/80">
