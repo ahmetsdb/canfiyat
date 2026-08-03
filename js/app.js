@@ -1355,6 +1355,7 @@ function saveFactoryOverheadModal() {
 }
 
 let openLayer2Breakdowns = {};
+let openLayer2Drawers = {};
 
 function toggleLayer2Breakdown(productId) {
   openLayer2Breakdowns[productId] = !openLayer2Breakdowns[productId];
@@ -1415,7 +1416,7 @@ function renderLayer2Cards() {
         const vol = product.layer2Volume || "1000ml";
         const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
-        const isDrawerOpen = !!product.layer2DrawerOpen;
+        const isDrawerOpen = !!openLayer2Drawers[product.id];
 
         const isMaceration = isMacerationOil(product);
         const ml = PriceCalculator.getVolumeMl(vol);
@@ -2130,8 +2131,7 @@ async function resetProductField(productId, field) {
 }
 
 function toggleLayer2Drawer(productId) {
-  if (!currentProducts[productId]) return;
-  currentProducts[productId].layer2DrawerOpen = !currentProducts[productId].layer2DrawerOpen;
+  openLayer2Drawers[productId] = !openLayer2Drawers[productId];
   renderLayer2Cards();
 }
 

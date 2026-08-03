@@ -197,6 +197,7 @@ class StorageManager {
       ...productData,
       updatedAt: new Date().toISOString()
     };
+    delete updated.layer2DrawerOpen;
     products[productData.id] = updated;
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
 
