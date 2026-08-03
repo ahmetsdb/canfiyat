@@ -1587,7 +1587,7 @@ function renderLayer2Cards() {
         } else {
           const validVolumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
           if (!vol || !validVolumes.includes(vol)) {
-            vol = (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+            vol = "1000ml";
           }
           const ml = PriceCalculator.getVolumeMl(vol);
           kg = ml / 1000;
@@ -1917,9 +1917,9 @@ function renderLayer2Cards() {
                           <p>• <strong>Toptan Alınan Yağlarda Tesis Payı:</strong> <strong>0,00 ₺</strong></p>
                           <p class="text-slate-300">Tedarikçiden hazır dökme yağ alındığı için fabrikanızın 20 kafalı pres makinesi çalıştırılmaz ve yüksek voltaj elektrik harcanmaz. Bu sebeple elektrik/tesis payı 0 ₺ eklenir.</p>
                         ` : `
-                          <p>• <strong>Aylık Toplam Tesis Masrafınız:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyExpenses)} ₺ (Maaşlar, SGK, Elektrik, Yemek)</p>
-                          <p>• <strong>Aylık Üretim Kapasitesi:</strong> ${overheadRes.capacityKg.toLocaleString('tr-TR')} KG / Ay</p>
-                          <p>• <strong>1 KG Yağ Payı:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyExpenses)} ÷ ${overheadRes.capacityKg} KG = ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} / KG</p>
+                          <p>• <strong>Aylık Toplam Tesis Masrafınız:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead || 330000)} ₺ (Maaşlar, SGK, Elektrik, Yemek)</p>
+                          <p>• <strong>Aylık Üretim Kapasitesi:</strong> ${(overheadRes.monthlyCapacityKg || 8714).toLocaleString('tr-TR')} KG / Ay</p>
+                          <p>• <strong>1 KG Yağ Payı:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead || 330000)} ÷ ${(overheadRes.monthlyCapacityKg || 8714)} KG = ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} / KG</p>
                           <p>• <strong>Bu Ürün İçin Pay (${kg} KG):</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)} ₺</strong></p>
                         `}
                       </div>
@@ -2617,7 +2617,7 @@ function onBundleItemProductChange(idx) {
   const pList = Object.values(currentProducts || {});
   const p = currentProducts[sel.value] || pList.find(item => item.id === sel.value || item.sku === sel.value);
   if (p) {
-    volSel.value = p.layer2Volume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+    volSel.value = p.layer2Volume || "1000ml";
   }
 }
 
