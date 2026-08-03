@@ -1422,8 +1422,17 @@ function renderLayer2Cards() {
         const ml = PriceCalculator.getVolumeMl(vol);
         const kg = ml / 1000;
 
-        const defaultSupplyType = product.category === "Uçucu Yağlar" ? "wholesale" : "press";
-        const supplyType = product.supplyType || defaultSupplyType; // Uçucu yağlarda varsayılan 'wholesale' (Toptan Alış)
+        const isEssentialOil = product.category === "Uçucu Yağlar";
+        // Uçucu yağlarda veya önceden kaydedilmemiş ürünlerde varsayılan 'wholesale' (Toptan Alış)
+        let supplyType = product.supplyType;
+        if (isEssentialOil && (!supplyType || supplyType === "press")) {
+          supplyType = "wholesale";
+          product.supplyType = "wholesale";
+        }
+        if (!supplyType) {
+          supplyType = isEssentialOil ? "wholesale" : "press";
+        }
+
         const dipStatus = product.dipStatus || "none";
         const dipPercent = (product.dipPercent !== undefined && product.dipPercent !== null) ? product.dipPercent : 0;
 
@@ -1838,9 +1847,16 @@ function renderLayer2Cards() {
             <div class="glass-card rounded-2xl p-4 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between relative overflow-hidden transition-all bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 shadow-xl">
               <div>
                 <div class="flex items-center justify-between gap-2 mb-2">
-                  <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
-                    ${product.category}
-                  </span>
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
+                      ${product.category}
+                    </span>
+                    ${isAnyModified ? `
+                      <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-[10px] bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-2 py-0.5 rounded-lg border border-amber-800/80 transition-all flex items-center gap-1 shrink-0 shadow-sm">
+                        ↺ Varsayılana Dön
+                      </button>
+                    ` : ''}
+                  </div>
                   <span class="font-mono text-xs font-semibold text-slate-300 bg-slate-950 px-2.5 py-0.5 rounded-full border border-slate-800">
                     ${product.sku}
                   </span>
@@ -1868,23 +1884,26 @@ function renderLayer2Cards() {
                     <div class="flex items-center justify-between">
                       <span class="text-xs font-bold text-blue-400">📦 Toptan Alış:</span>
                       <div class="flex items-center gap-1">
-                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${initialCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-blue-400">₺/KG</span>
+                        ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${initialCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     </div>
                   ` : `
                     <div class="flex items-center justify-between">
                       <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
                       <div class="flex items-center gap-1">
-                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <input type="number" value="${seedCost}" step="5" title="Orijinal Varsayılan: ${initialSeedCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'seedCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-amber-400">₺/KG</span>
+                        ${isSeedModified ? `<button onclick="resetProductField('${product.id}', 'seedCostPerKg')" title="Varsayılana Dön (${initialSeedCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     </div>
                     <div class="flex items-center justify-between">
                       <span class="text-xs font-bold text-cyan-400">💧 Pres Verimi:</span>
                       <div class="flex items-center gap-1">
-                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-cyan-500/50 text-cyan-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-cyan-500/50 text-cyan-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-cyan-400">%</span>
+                        ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     </div>
                   `}
@@ -2176,8 +2195,15 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
 
   const isMaceration = isMacerationOil(product);
-  const defaultSupplyType = product.category === "Uçucu Yağlar" ? "wholesale" : "press";
-  const supplyType = product.supplyType || defaultSupplyType;
+  const isEssentialOil = product.category === "Uçucu Yağlar";
+  let supplyType = product.supplyType;
+  if (isEssentialOil && (!supplyType || supplyType === "press")) {
+    supplyType = "wholesale";
+    product.supplyType = "wholesale";
+  }
+  if (!supplyType) {
+    supplyType = isEssentialOil ? "wholesale" : "press";
+  }
 
   if (isMaceration) {
     const macerationRes = PriceCalculator.calculateMacerationCost({
