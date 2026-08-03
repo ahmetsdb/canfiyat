@@ -1741,11 +1741,12 @@ function renderLayer2Cards() {
                   </select>
                 </div>
 
-                <!-- Vurgulu Saf Fabrika Maliyeti Rozeti & Aksiyon Butonları -->
+                <!-- Vurgulu Toptan 1 KG Birim Fiyatı & Paket Toplamı Rozeti -->
                 <div class="flex items-center gap-2.5">
-                  <div class="bg-gradient-to-r from-teal-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-teal-500/50 shadow-md">
-                    <span class="text-[9px] uppercase font-extrabold text-teal-400 block tracking-wider">SAF FABRİKA MALİYETİ:</span>
-                    <span class="text-base font-black text-teal-300">${PriceCalculator.formatTL(netCost)}</span>
+                  <div class="bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-slate-950 px-3.5 py-1.5 rounded-2xl border border-emerald-500/60 shadow-md text-right">
+                    <span class="text-[9px] uppercase font-black text-emerald-400 block tracking-wider">TOPTAN 1 KG BİRİM MALİYETİ:</span>
+                    <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(parseFloat((netCost / kg).toFixed(2)))} / KG</span>
+                    <span class="text-[9px] text-slate-400 font-medium block">(${vol} Paket Tutarı: ${PriceCalculator.formatTL(netCost)})</span>
                   </div>
                   <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-slate-200 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                     📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
@@ -1985,6 +1986,17 @@ function renderLayer2Cards() {
                       <div class="flex items-center gap-1">
                         <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-cyan-500/50 text-cyan-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-cyan-400">%</span>
+                        <!-- Birim 1KG Toptan Fiyatı Vurgulu Rozet (Card View) -->
+                        <div class="p-3 bg-gradient-to-r from-slate-950 via-teal-950/40 to-slate-950 rounded-xl border border-emerald-500/40 my-2">
+                          <div class="flex justify-between items-center text-xs">
+                            <span class="font-extrabold text-emerald-400 uppercase text-[10px] tracking-wider">TOPTAN 1 KG BİRİM MALİYETİ:</span>
+                            <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(parseFloat((netCost / kg).toFixed(2)))} / KG</span>
+                          </div>
+                          <div class="flex justify-between items-center text-[11px] text-slate-400 mt-1">
+                            <span>${vol} Paket Toplam Tutarı:</span>
+                            <span class="font-bold text-slate-200">${PriceCalculator.formatTL(netCost)}</span>
+                          </div>
+                        </div>
                         ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     </div>
