@@ -1421,7 +1421,8 @@ function renderLayer2Cards() {
         const ml = PriceCalculator.getVolumeMl(vol);
         const kg = ml / 1000;
 
-        const supplyType = product.supplyType || "press"; // 'press' | 'wholesale' | 'hybrid'
+        const defaultSupplyType = product.category === "Uçucu Yağlar" ? "wholesale" : "press";
+        const supplyType = product.supplyType || defaultSupplyType; // Uçucu yağlarda varsayılan 'wholesale' (Toptan Alış)
         const dipStatus = product.dipStatus || "none";
         const dipPercent = (product.dipPercent !== undefined && product.dipPercent !== null) ? product.dipPercent : 0;
 
@@ -2175,7 +2176,8 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
 
   const isMaceration = isMacerationOil(product);
-  const supplyType = product.supplyType || "press";
+  const defaultSupplyType = product.category === "Uçucu Yağlar" ? "wholesale" : "press";
+  const supplyType = product.supplyType || defaultSupplyType;
 
   if (isMaceration) {
     const macerationRes = PriceCalculator.calculateMacerationCost({
