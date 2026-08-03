@@ -1658,7 +1658,9 @@ function renderLayer2Cards() {
           ? parseFloat((kg * 0.50).toFixed(2))
           : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
 
+        const linearOverhead = parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
         const totalOverhead = PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
+        const laborAssemblyFee = parseFloat(Math.max(0, totalOverhead - linearOverhead).toFixed(2));
         const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
         const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
