@@ -938,8 +938,8 @@ function switchLayerMode(mode) {
   const view3 = document.getElementById("layer3-main-view");
   const btnOverhead = document.getElementById("btn-factory-overhead");
 
-  const inactiveBtnClass = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800 hover:bg-slate-800/80 hover:text-white";
-  const inactiveDotClass = "w-3 h-3 rounded-full bg-slate-600 shrink-0";
+  const inactiveBtnClass = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800/80 hover:bg-slate-800/80 hover:text-white";
+  const inactiveDotClass = "w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0";
   const inactiveBadgeClass = "text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0";
 
   if (btn1) btn1.className = inactiveBtnClass;
@@ -955,9 +955,9 @@ function switchLayerMode(mode) {
   if (badge3) { badge3.className = inactiveBadgeClass; badge3.innerText = "KATMANA GEÇ"; }
 
   if (mode === 1) {
-    if (btn1) btn1.className = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/40 border-2 border-blue-400/90 ring-2 ring-blue-500/50 scale-[1.01]";
-    if (dot1) dot1.className = "w-3 h-3 rounded-full bg-blue-300 shadow-glow animate-ping shrink-0";
-    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0 shadow-sm"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
+    if (btn1) btn1.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white border border-blue-400/60 shadow-md shadow-blue-500/15";
+    if (dot1) dot1.className = "w-2.5 h-2.5 rounded-full bg-blue-200 shrink-0";
+    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.remove("hidden");
     if (view2) view2.classList.add("hidden");
@@ -966,9 +966,10 @@ function switchLayerMode(mode) {
 
     renderProductGrid();
   } else if (mode === 2) {
-    if (btn2) btn2.className = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-600/40 border-2 border-purple-400/90 ring-2 ring-purple-500/50 scale-[1.01]";
-    if (dot2) dot2.className = "w-3 h-3 rounded-full bg-purple-300 shadow-glow animate-ping shrink-0";
-    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-purple-950 text-purple-200 border border-purple-400/50 shrink-0 shadow-sm"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
+    // 2. KATMAN: ZÜMRÜT YEŞİL TEMA
+    if (btn2) btn2.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-md shadow-emerald-500/15";
+    if (dot2) dot2.className = "w-2.5 h-2.5 rounded-full bg-emerald-200 shrink-0";
+    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.remove("hidden");
@@ -981,9 +982,10 @@ function switchLayerMode(mode) {
     updateLayer2BannerStats();
     renderLayer2Cards();
   } else if (mode === 3) {
-    if (btn3) btn3.className = "layer-tab-btn px-4 py-3 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white shadow-xl shadow-emerald-600/40 border-2 border-emerald-400/90 ring-2 ring-emerald-500/50 scale-[1.01]";
-    if (dot3) dot3.className = "w-3 h-3 rounded-full bg-emerald-300 shadow-glow animate-ping shrink-0";
-    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0 shadow-sm"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
+    // 3. KATMAN: ASİL MOR TEMA
+    if (btn3) btn3.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white border border-purple-400/60 shadow-md shadow-purple-500/15";
+    if (dot3) dot3.className = "w-2.5 h-2.5 rounded-full bg-purple-200 shrink-0";
+    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-purple-950 text-purple-200 border border-purple-400/50 shrink-0"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.add("hidden");
