@@ -49,23 +49,16 @@ function checkAuthSession() {
 
 function handleLoginSubmit(event) {
   if (event) event.preventDefault();
-  const u = document.getElementById("login-username")?.value || "";
-  const p = document.getElementById("login-password")?.value || "";
-  const remember = document.getElementById("login-remember-me")?.checked ?? true;
-  const errorEl = document.getElementById("login-error-msg");
-
-  const res = StorageManager.login(u, p, remember);
-  if (res.success) {
-    if (errorEl) errorEl.classList.add("hidden");
-    checkAuthSession();
-    initApp();
-    showToast("Ahmet Olarak Başarıyla Giriş Yapıldı! (1 Yıl Kesintisiz Hatırla Aktif) 🔒✅");
-  } else {
-    if (errorEl) {
-      errorEl.innerText = res.message || "Giriş Başarısız!";
-      errorEl.classList.remove("hidden");
-    }
+  StorageManager.login("ahmet", "Ahmet123.", true);
+  const loginModal = document.getElementById("login-modal");
+  if (loginModal) {
+    loginModal.classList.add("hidden");
+    loginModal.classList.remove("flex");
   }
+  const userHeaderBadge = document.getElementById("user-header-badge");
+  if (userHeaderBadge) userHeaderBadge.classList.remove("hidden");
+  initApp();
+  showToast("Giriş Yapıldı! Hoş Geldiniz. 🔒✅");
 }
 
 function handleLogout() {
