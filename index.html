@@ -38,63 +38,81 @@
     <div class="max-w-7xl mx-auto space-y-6">
         
         <!-- Header & Branding -->
-        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-            <div class="space-y-0.5">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-lg shadow-lg shadow-blue-500/20">
-                        💧
+        <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+            <!-- Left Side: Brand Logo, Title, Badges & Subtitle -->
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/25 border border-blue-400/30 shrink-0 mt-0.5">
+                    💧
+                </div>
+                <div class="space-y-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">CanFiyat</h1>
+                        
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-blue-950/80 text-blue-400 border border-blue-800/60 shadow-sm">
+                            Cansızzade Özel
+                        </span>
+                        
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm">
+                            v2.16 (Executive Visual Refinement)
+                        </span>
+
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            Bulut DB
+                        </span>
                     </div>
-                    <div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-                            CanFiyat
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/50">Cansızzade Özel</span>
-                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">v2.15 (🛡️ Resmî Fiş KDV Matrahı Doğrulaması & Birebir KDV Dahil Saf Maliyet Koruması)</span>
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Bulut DB
-                            </span>
-                        </h1>
-                        <p class="text-slate-400 text-xs font-medium">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
-                    </div>
+                    <p class="text-slate-400 text-xs font-medium tracking-wide">Uçucu ve Sabit Yağlar Çoklu Ürün Fiyat, Hakediş & Kâr Simülasyon Portalı</p>
                 </div>
             </div>
 
-            <!-- Header Action & Stats Bar -->
-            <div class="flex flex-wrap items-center gap-2.5">
-                <button onclick="openBundleSimulatorModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-purple-500/25 flex items-center gap-1.5 transition-all border border-purple-400/30">
+            <!-- Right Side: Action Buttons & Statistics Bar -->
+            <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                <!-- Action Buttons -->
+                <button onclick="openBundleSimulatorModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-purple-500/20 flex items-center gap-1.5 transition-all border border-purple-400/30">
                     🎁 KOMBİN SET SİMS
                 </button>
-                <button onclick="openAddProductModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-blue-500/25 flex items-center gap-1.5 transition-all border border-blue-400/30">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                <button onclick="openAddProductModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition-all border border-blue-400/30">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     + YENİ ÜRÜN EKLE
                 </button>
 
                 <!-- User Profile & Logout Badge -->
-                <div id="user-header-badge" class="hidden flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-800">
-                    <span class="text-xs font-bold text-slate-300 flex items-center gap-1">👤 Ahmet</span>
-                    <button onclick="handleLogout()" title="Çıkış Yap" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-lg transition-all">
+                <div id="user-header-badge" class="hidden flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 shadow-sm">
+                    <span class="text-xs font-bold text-slate-200 flex items-center gap-1">👤 Ahmet</span>
+                    <button onclick="handleLogout()" title="Çıkış Yap" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-md transition-all">
                         🚪 Çıkış
                     </button>
                 </div>
 
-                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 text-center rounded-xl">
-                    <span class="text-[9px] uppercase font-bold text-slate-400 block">Toplam Ürün</span>
-                    <span class="text-base font-black text-white" id="stat-total-count">0</span>
+                <!-- Clean Divider -->
+                <div class="hidden sm:block h-7 w-px bg-slate-800/80 mx-0.5"></div>
+
+                <!-- Quick Stats Pill Cards -->
+                <div class="flex items-center gap-1.5">
+                    <div class="bg-slate-950/80 border border-slate-800/80 px-3 py-1 text-center rounded-xl min-w-[70px]">
+                        <span class="text-[9px] uppercase font-extrabold text-slate-400 block tracking-wider">Toplam</span>
+                        <span class="text-sm font-black text-white" id="stat-total-count">0</span>
+                    </div>
+
+                    <div class="bg-purple-950/40 border border-purple-800/50 px-3 py-1 text-center rounded-xl min-w-[70px]">
+                        <span class="text-[9px] uppercase font-extrabold text-purple-300 block tracking-wider">Uçucu</span>
+                        <span class="text-sm font-black text-purple-300" id="stat-ucucu-count">0</span>
+                    </div>
+
+                    <div class="bg-emerald-950/40 border border-emerald-800/50 px-3 py-1 text-center rounded-xl min-w-[70px]">
+                        <span class="text-[9px] uppercase font-extrabold text-emerald-300 block tracking-wider">Sabit</span>
+                        <span class="text-sm font-black text-emerald-300" id="stat-sabit-count">0</span>
+                    </div>
+
+                    <button onclick="resetCatalog()" title="Fabrika Ayarlarına Sıfırla" class="bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white p-2 rounded-xl border border-slate-800 transition-all shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
                 </div>
-                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 text-center rounded-xl">
-                    <span class="text-[9px] uppercase font-bold text-purple-400 block">Uçucu Yağlar</span>
-                    <span class="text-base font-black text-purple-300" id="stat-ucucu-count">0</span>
-                </div>
-                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 text-center rounded-xl">
-                    <span class="text-[9px] uppercase font-bold text-emerald-400 block">Sabit Yağlar</span>
-                    <span class="text-base font-black text-emerald-300" id="stat-sabit-count">0</span>
-                </div>
-                <button onclick="resetCatalog()" title="Fabrika Ayarlarına Sıfırla" class="bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 p-2 rounded-xl border border-slate-800 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                </button>
             </div>
         </header>
 
