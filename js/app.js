@@ -1445,19 +1445,29 @@ function renderLayer2Cards() {
 
         const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
         const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
+        const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
         const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
         const initialSeedCost = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
         const initialYield = 25;
         const initialHerbCost = 0;
         const initialOliveOilCost = 454.50;
 
-        const isSeedModified = !isMaceration && seedCost !== initialSeedCost;
-        const isYieldModified = !isMaceration && yieldPct !== initialYield;
-        const isDipModified = !isMaceration && dipPercent !== 0;
-        const isHerbCostModified = isMaceration && herbCost !== initialHerbCost;
-        const isOliveOilModified = isMaceration && oliveOilCost !== initialOliveOilCost;
-        const isWholesaleModified = supplyType === "wholesale" && product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== initialCost;
-        const isAnyModified = isSeedModified || isYieldModified || isDipModified || isHerbCostModified || isOliveOilModified || isWholesaleModified;
+        const currentWholesale = (product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && product.wholesaleCostPerKg > 0)
+          ? parseFloat(product.wholesaleCostPerKg)
+          : parseFloat(initialCost);
+
+        const currentSeed = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null && product.seedCostPerKg > 0)
+          ? parseFloat(product.seedCostPerKg)
+          : parseFloat(initialSeedCost);
+
+        const isSeedModified = !isMaceration && supplyType !== "wholesale" && Math.abs(currentSeed - initialSeedCost) > 0.05;
+        const isYieldModified = !isMaceration && supplyType !== "wholesale" && Math.abs(yieldPct - initialYield) > 0.01;
+        const isDipModified = !isMaceration && supplyType !== "wholesale" && (dipStatus === "has_dip" || dipStatus === "dip") && dipPercent > 0;
+        const isWholesaleModified = supplyType === "wholesale" && product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && Math.abs(currentWholesale - initialCost) > 0.05;
+        const isHerbCostModified = isMaceration && supplyType !== "wholesale" && Math.abs(herbCost - initialHerbCost) > 0.05;
+        const isOliveOilModified = isMaceration && supplyType !== "wholesale" && Math.abs(oliveOilCost - initialOliveOilCost) > 0.05;
+
+        const isAnyModified = isSeedModified || isYieldModified || isDipModified || isWholesaleModified || isHerbCostModified || isOliveOilModified;
 
         const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
           seedCostPerKg: seedCost,
@@ -1553,9 +1563,10 @@ function renderLayer2Cards() {
                   ${isMaceration ? `
                     ${supplyType === 'wholesale' ? `
                       <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan Alış:</span>
-                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan (%${kdvRate} KDV Dahil):</span>
+                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${PriceCalculator.formatTL(initialCost)} (%${kdvRate} KDV Dahil - Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
+                        ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${PriceCalculator.formatTL(initialCost)} %${kdvRate} KDV Dahil)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     ` : `
                       <!-- BÖLÜM 1: MALİYETLER (ALT ALTA) -->
@@ -1605,9 +1616,10 @@ function renderLayer2Cards() {
                   ` : `
                     ${supplyType === 'wholesale' ? `
                       <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan Alış:</span>
-                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
+                        <span class="text-xs font-bold text-blue-400 flex items-center gap-1">📦 Toptan (%${kdvRate} KDV Dahil):</span>
+                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${PriceCalculator.formatTL(initialCost)} (%${kdvRate} KDV Dahil - Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-blue-500/60 text-blue-300 font-extrabold text-xs px-2 py-1 rounded-lg text-center focus:outline-none">
                         <span class="text-[11px] font-bold text-blue-400">₺/KG</span>
+                        ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${PriceCalculator.formatTL(initialCost)} %${kdvRate} KDV Dahil)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     ` : `
                       <div class="flex items-center gap-1.5">
@@ -2087,6 +2099,7 @@ async function resetProductField(productId, field) {
 
   const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
   const initialSeed = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
+  const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
 
   if (field === "seedCostPerKg") product.seedCostPerKg = initialSeed;
   else if (field === "yieldPercent") product.yieldPercent = 25;
@@ -2112,12 +2125,20 @@ async function resetProductField(productId, field) {
     product.herbKg = null;
     product.oilKg = null;
     product.wholesaleCostPerKg = initialCost;
-    product.supplyType = "press";
+    product.supplyType = product.category === "Uçucu Yağlar" ? "wholesale" : "press";
     product.layer2Profit = 70;
   }
 
   const isMaceration = isMacerationOil(product);
-  const supplyType = product.supplyType || "press";
+  const isEssentialOil = product.category === "Uçucu Yağlar";
+  let supplyType = product.supplyType;
+  if (isEssentialOil && (!supplyType || supplyType === "press")) {
+    supplyType = "wholesale";
+    product.supplyType = "wholesale";
+  }
+  if (!supplyType) {
+    supplyType = isEssentialOil ? "wholesale" : "press";
+  }
 
   if (isMaceration) {
     const macerationRes = PriceCalculator.calculateMacerationCost({
@@ -2148,7 +2169,7 @@ async function resetProductField(productId, field) {
   await StorageManager.saveProduct(product);
   renderLayer2Cards();
   if (currentLayerMode === 1) renderProductGrid();
-  showToast(`Sıfırlandı: ${product.name} (${field === 'all' ? 'Tüm Girdiler' : field}) Orijinal Fiyata Döndü ↺`);
+  showToast(`Sıfırlandı: ${product.name} (Orijinal %${kdvRate} KDV Dahil Fiyata Döndü ↺)`);
 }
 
 function toggleLayer2Drawer(productId) {
