@@ -28,7 +28,7 @@ class PriceCalculator {
     return ml / 1000;
   }
 
-  // Time & Labor Handling Overhead Matrix per Bottle Volume Size
+  // Time & Labor Handling Overhead Matrix per Bottle / Drum Volume Size
   static getOverheadForVolume(volKey, overheadPerKg = 110.00) {
     const ml = this.getVolumeMl(volKey);
     const kg = ml / 1000;
@@ -36,16 +36,22 @@ class PriceCalculator {
     // Base linear volume overhead (Elektrik / Enerji Payı)
     const linearVolumeOverhead = overheadPerKg * kg;
     
-    // Packaging Handling & Pipette/Labor Assembly Surcharge per Bottle
+    // Packaging Handling & Pipette/Labor Assembly Surcharge per Container
     let laborAssemblyFee = 8.00;
-    if (volKey === "1000ml" || volKey === "1kg") laborAssemblyFee = 10.00;
-    else if (volKey === "500ml") laborAssemblyFee = 9.00;
-    else if (volKey === "250ml") laborAssemblyFee = 8.00;
-    else if (volKey === "100ml") laborAssemblyFee = 7.50;
-    else if (volKey === "50ml") laborAssemblyFee = 9.50;  // dropper assembly
-    else if (volKey === "30ml") laborAssemblyFee = 14.70; // pipette + box assembly
-    else if (volKey === "20ml") laborAssemblyFee = 17.80; // roll-on / pipette assembly
-    else if (volKey === "5000ml" || volKey === "5kg") laborAssemblyFee = 15.00;
+    const keyUpper = String(volKey || "").toUpperCase().trim();
+
+    if (keyUpper === "1000ML" || keyUpper === "1KG") laborAssemblyFee = 10.00;
+    else if (keyUpper === "500ML") laborAssemblyFee = 9.00;
+    else if (keyUpper === "250ML") laborAssemblyFee = 8.00;
+    else if (keyUpper === "100ML") laborAssemblyFee = 7.50;
+    else if (keyUpper === "50ML") laborAssemblyFee = 9.50;  // dropper assembly
+    else if (keyUpper === "30ML") laborAssemblyFee = 14.70; // pipette + box assembly
+    else if (keyUpper === "20ML") laborAssemblyFee = 17.80; // roll-on / pipette assembly
+    else if (keyUpper === "5000ML" || keyUpper === "5KG") laborAssemblyFee = 15.00;
+    // TOPTAN SANAYİ BİDONLARI (10KG, 25KG, 30KG) - Doldurmak, Kapaklamak & Etiketlemek Çok Daha Rahat
+    else if (keyUpper === "10KG") laborAssemblyFee = 12.00;
+    else if (keyUpper === "25KG") laborAssemblyFee = 18.00;
+    else if (keyUpper === "30KG") laborAssemblyFee = 20.00;
 
     return parseFloat((linearVolumeOverhead + laborAssemblyFee).toFixed(2));
   }

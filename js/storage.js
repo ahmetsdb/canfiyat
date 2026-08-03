@@ -58,10 +58,15 @@ class StorageManager {
 
   static createDefaultVolumeConfigs() {
     const configs = {};
-    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
+    const volumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml", "10KG", "25KG", "30KG"];
     volumes.forEach(vol => {
+      let defaultPack = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
+      if (vol === "10KG") defaultPack = 10.00;
+      if (vol === "25KG") defaultPack = 25.00;
+      if (vol === "30KG") defaultPack = 30.00;
+
       configs[vol] = {
-        packagingCost: DEFAULT_PACKAGING_COSTS[vol] || 14.50,
+        packagingCost: defaultPack,
         targetProfit: 0,
         webSalePrice: 500, // Her ürüne ve ambalaja özel İyzico fiyatı (Sistem 2)
         retailPrice: 650,  // Her ürüne ve ambalaja özel Perakende Fiyatı (Sistem 4)

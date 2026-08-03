@@ -53,7 +53,7 @@
                         </span>
                         
                         <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm">
-                            v2.17 (🎨 Katman 2 Yeşil & Katman 3 Mor Renk Değişimi)
+                            v2.18 (📦 Toptan Sanayi Bidon Grubu: 10KG - 25KG - 30KG)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -235,6 +235,27 @@
                     <button id="btn-factory-overhead" onclick="openFactoryOverheadModal()" class="bg-teal-700 hover:bg-teal-600 text-white font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center gap-1">
                         ⚙️ Gider Düzenle
                     </button>
+                </div>
+            <!-- Katman 2 Ambalaj Grubu Switcher (Perakende Şişe Grubu vs Toptan Sanayi Bidon Grubu) -->
+            <div class="glass-card p-2 rounded-2xl border border-emerald-500/30 bg-slate-950/90 mb-4 flex items-center justify-between flex-wrap gap-2 shadow-lg">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xs font-black uppercase text-slate-300 tracking-wider flex items-center gap-1.5 px-2">
+                        🏷️ AMBALAJ MALİYET MODU:
+                    </span>
+                    <div class="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800">
+                        <button id="btn-layer2-group-retail" onclick="setLayer2GroupMode('retail')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1.5">
+                            🛍️ Perakende Şişe Grubu (20ml - 5 Litre)
+                        </button>
+                        <button id="btn-layer2-group-drums" onclick="setLayer2GroupMode('wholesale_drums')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
+                            📦 Toptan Sanayi Bidon Grubu (10KG - 25KG - 30KG)
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-[11px] font-medium text-slate-400 px-2">
+                    <span id="layer2-mode-hint" class="bg-emerald-950/80 text-emerald-300 border border-emerald-800/50 px-2.5 py-1 rounded-lg shadow-sm font-semibold">
+                        ℹ️ Perakende Modu: Küçük Şişelerde Yüksek İşçilik & Şişe/Damlalık Payı
+                    </span>
                 </div>
             </div>
 
@@ -1043,11 +1064,11 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=2.17"></script>
-    <script src="js/liveSiteData.js?v=2.17"></script>
-    <script src="js/storage.js?v=2.17"></script>
-    <script src="js/calculator.js?v=2.17"></script>
-    <script src="js/app.js?v=2.17"></script>
+    <script src="js/productsData.js?v=2.18"></script>
+    <script src="js/liveSiteData.js?v=2.18"></script>
+    <script src="js/storage.js?v=2.18"></script>
+    <script src="js/calculator.js?v=2.18"></script>
+    <script src="js/app.js?v=2.18"></script>
 </body>
 </html>
 

@@ -1391,6 +1391,47 @@ function toggleLayer2Breakdown(productId) {
   renderLayer2Cards();
 }
 
+let layer2GroupMode = "retail"; // "retail" or "wholesale_drums"
+
+function setLayer2GroupMode(mode) {
+  layer2GroupMode = mode;
+  const btnRetail = document.getElementById("btn-layer2-group-retail");
+  const btnDrums = document.getElementById("btn-layer2-group-drums");
+  const modeHint = document.getElementById("layer2-mode-hint");
+
+  if (mode === "retail") {
+    if (btnRetail) btnRetail.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1.5";
+    if (btnDrums) btnDrums.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+    if (modeHint) modeHint.innerHTML = "ℹ️ Perakende Modu: Küçük Şişelerde Yüksek İşçilik & Şişe/Damlalık Payı";
+  } else {
+    if (btnRetail) btnRetail.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+    if (btnDrums) btnDrums.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-500/20 flex items-center gap-1.5";
+    if (modeHint) modeHint.innerHTML = "📦 Toptan Bidon Modu: 10KG (10₺), 25KG (25₺), 30KG (30₺) Bidon Maliyeti + Düşük Seri İşçilik Payı";
+  }
+
+  renderLayer2Cards();
+}
+
+function getLayer2VolumeOptionsHtml(vol) {
+  if (layer2GroupMode === "wholesale_drums") {
+    return `
+      <option value="30KG" ${vol === "30KG" ? "selected" : ""}>30 KG Sanayi Bidonu (30 ₺)</option>
+      <option value="25KG" ${vol === "25KG" ? "selected" : ""}>25 KG Sanayi Bidonu (25 ₺)</option>
+      <option value="10KG" ${vol === "10KG" ? "selected" : ""}>10 KG Sanayi Bidonu (10 ₺)</option>
+    `;
+  }
+  return `
+    <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
+    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
+    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
+    <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
+    <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
+    <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
+    <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
+    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
+  `;
+}
+
 function renderLayer2Cards() {
   try {
     const containerGrid = document.getElementById("layer2-product-grid");
@@ -1442,7 +1483,14 @@ function renderLayer2Cards() {
 
     productsList.forEach(product => {
       try {
-        const vol = product.layer2Volume || "1000ml";
+        const validVolumes = (layer2GroupMode === "wholesale_drums")
+          ? ["10KG", "25KG", "30KG"]
+          : ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
+
+        let vol = product.layer2Volume;
+        if (!vol || !validVolumes.includes(vol)) {
+          vol = (layer2GroupMode === "wholesale_drums") ? "30KG" : (product.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+        }
         const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!openLayer2Drawers[product.id];
@@ -1685,18 +1733,11 @@ function renderLayer2Cards() {
                   </div>
                 </div>
 
-                <!-- Ambalaj Hacim Seçici (Cam/Şişe Mavi Teması) -->
+                <!-- Ambalaj Hacim Seçici (Cam/Şişe / Bidon Teması) -->
                 <div class="flex items-center gap-2 shrink-0">
                   <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
                   <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
-                    <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
-                    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
-                    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
-                    <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
-                    <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
-                    <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
-                    <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
-                    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
+                    ${getLayer2VolumeOptionsHtml(vol)}
                   </select>
                 </div>
 
@@ -1957,16 +1998,9 @@ function renderLayer2Cards() {
 
                 <!-- Ambalaj Boyutu Seçici -->
                 <div class="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
-                  <label class="text-slate-200 text-xs font-bold">🧴 Ambalaj Boyutu:</label>
+                  <label class="text-slate-200 text-xs font-bold">${layer2GroupMode === 'wholesale_drums' ? '📦 Bidon Ambalajı:' : '🧴 Ambalaj Boyutu:'}</label>
                   <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
-                    <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
-                    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
-                    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
-                    <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
-                    <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
-                    <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
-                    <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
-                    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
+                    ${getLayer2VolumeOptionsHtml(vol)}
                   </select>
                 </div>
 

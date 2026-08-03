@@ -78,7 +78,7 @@ const INITIAL_PRODUCTS = [
   { id: "A.0200", sku: "A.0200", name: "BUĞDAY YAĞI", category: "Sabit Yağlar", kdv: 1, unit: "1KG", costPerKg: 959.50, defaultVolume: "250ml" }
 ];
 
-// Exact Packaging Costs (Şişe + Kapak + Tıpa) from User Image
+// Exact Packaging Costs (Şişe + Kapak + Tıpa + Sanayi Bidonu)
 const DEFAULT_PACKAGING_COSTS = {
   "20ml": 6.00,    // 20ml tahmini
   "30ml": 6.75,    // Şişe: 2.50 TL + Kapak+Tıpa: 4.25 TL = 6.75 TL
@@ -87,7 +87,11 @@ const DEFAULT_PACKAGING_COSTS = {
   "250ml": 14.50,  // Toplam: 14.50 TL
   "500ml": 25.00,  // 500ml
   "1000ml": 35.00, // 1000ml (1 KG)
-  "5000ml": 45.00  // 5000ml (5 KG Bidon)
+  "5000ml": 45.00, // 5000ml (5 KG Bidon)
+  // Toptan Sanayi Bidon Grubu (Geçici Maliyetler)
+  "10KG": 10.00,   // 10 KG Sanayi Bidonu (10 TL)
+  "25KG": 25.00,   // 25 KG Sanayi Bidonu (25 TL)
+  "30KG": 30.00    // 30 KG Sanayi Bidonu (30 TL)
 };
 
 // Global default channel settings
