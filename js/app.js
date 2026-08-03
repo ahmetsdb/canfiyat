@@ -1658,8 +1658,15 @@ function renderLayer2Cards() {
           ? parseFloat((kg * 0.50).toFixed(2))
           : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
 
-        const linearOverhead = parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
-        const totalOverhead = PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
+        const isWholesaleSupply = (supplyType === "wholesale");
+        const linearOverhead = isWholesaleSupply
+          ? 0.00
+          : parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
+
+        const totalOverhead = isWholesaleSupply
+          ? PriceCalculator.getOverheadForVolume(vol, 0)
+          : PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
+
         const laborAssemblyFee = parseFloat(Math.max(0, totalOverhead - linearOverhead).toFixed(2));
         const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
@@ -1848,13 +1855,13 @@ function renderLayer2Cards() {
                   </div>
 
                   <div class="flex items-baseline justify-between text-slate-200">
-                    <span class="shrink-0 font-medium text-slate-300">3. ⚡ Hacimsel Tesis & Enerji Payı (${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG x ${kg} KG)</span>
+                    <span class="shrink-0 font-medium text-slate-300">3. ⚡ Tesis & Enerji Payı ${supplyType === 'wholesale' ? '(Toptan Alış - Tesis Çalıştırılmaz: 0 ₺)' : `(${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG x ${kg} KG)`}</span>
                     <span class="grow border-b border-dotted border-slate-800 mx-2"></span>
-                    <span class="font-bold text-purple-300 shrink-0 text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
+                    <span class="font-bold ${supplyType === 'wholesale' ? 'text-slate-400' : 'text-purple-300'} shrink-0 text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
                   </div>
 
                   <div class="flex items-baseline justify-between text-slate-200">
-                    <span class="shrink-0 font-medium text-slate-300">4. 🛠️ Pipet/Damlalık Montaj & Kutulama İşçilik Payı</span>
+                    <span class="shrink-0 font-medium text-slate-300">4. 🛠️ Dolum, Etiketleme & Paketleme İşçilik Payı</span>
                     <span class="grow border-b border-dotted border-slate-800 mx-2"></span>
                     <span class="font-bold text-indigo-300 shrink-0 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
                   </div>
@@ -2120,9 +2127,9 @@ function renderLayer2Cards() {
                     </div>
 
                     <div class="flex items-baseline justify-between text-slate-200">
-                      <span class="shrink-0 font-medium">3. ⚡ Tesis Payı</span>
+                      <span class="shrink-0 font-medium">3. ⚡ Tesis Payı ${supplyType === 'wholesale' ? '(0 ₺)' : ''}</span>
                       <span class="grow border-b border-dotted border-slate-700 mx-1.5"></span>
-                      <span class="font-bold text-purple-300 shrink-0 text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
+                      <span class="font-bold ${supplyType === 'wholesale' ? 'text-slate-400' : 'text-purple-300'} shrink-0 text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
                     </div>
 
                     <div class="flex items-baseline justify-between text-slate-200">
