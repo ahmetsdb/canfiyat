@@ -79,21 +79,28 @@ class StorageManager {
     const baseMap = {};
     INITIAL_PRODUCTS.forEach(p => {
       const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-      const defaultSeedCost = parseFloat(((p.costPerKg || 1212.00) * 0.25).toFixed(2));
+      const kdvRate = p.kdv || (p.category === "Uçucu Yağlar" ? 20 : 1);
+      const rawNetPrice = p.costPerKg || 1200.00;
+      // p.costPerKg in INITIAL_PRODUCTS is KDV HARİÇ (Net Price).
+      // Calculate true KDV Inclusive price: netPrice * (1 + kdv/100)
+      const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
+      const defaultSeedCostKdvDahil = parseFloat((costKdvDahil * 0.25).toFixed(2));
+
       baseMap[p.id] = {
         id: p.id,
         sku: p.sku,
         name: p.name,
         category: p.category,
-        kdv: p.kdv,
+        kdv: kdvRate,
         unit: "1KG",
-        costPerKg: p.costPerKg,
-        initialCostPerKg: p.costPerKg,
-        initialSeedCostPerKg: defaultSeedCost,
+        rawNetCostPerKg: rawNetPrice,               // Liste Fiyatı (KDV Hariç)
+        costPerKg: costKdvDahil,                   // KDV Dahil Yağ Maliyeti (1KG)
+        initialCostPerKg: costKdvDahil,            // Orijinal Varsayılan (KDV Dahil)
+        initialSeedCostPerKg: defaultSeedCostKdvDahil,
         initialYieldPercent: 25,
         initialDipPercent: 0,
         initialHerbCostPerKg: 0,
-        initialOliveOilCostPerKg: 454.50,
+        initialOliveOilCostPerKg: 459.05,          // 454.50 + %1 KDV = 459.05 TL KDV Dahil Zeytinyağı
         initialHerbRatioKg: 0.20,
         initialTargetProfit: 70,
         activeVolume: defaultVol,
@@ -109,7 +116,29 @@ class StorageManager {
         if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
           Object.keys(parsed).forEach(id => {
             if (baseMap[id]) {
-              baseMap[id] = { ...baseMap[id], ...parsed[id] };
+              delete parsed[id].layer2DrawerOpen;
+              const kdvRate = baseMap[id].kdv;
+              const rawNetPrice = baseMap[id].rawNetCostPerKg;
+              const costKdvDahil = baseMap[id].initialCostPerKg;
+              const defaultSeedCostKdvDahil = baseMap[id].initialSeedCostPerKg;
+
+              // Upgrade stored product: update initial values to KDV Dahil
+              baseMap[id] = {
+                ...baseMap[id],
+                ...parsed[id],
+                kdv: kdvRate,
+                rawNetCostPerKg: rawNetPrice,
+                initialCostPerKg: costKdvDahil,
+                initialSeedCostPerKg: defaultSeedCostKdvDahil
+              };
+
+              // If stored costPerKg or wholesaleCostPerKg was equal to rawNetPrice (old KDV Hariç value), upgrade to costKdvDahil
+              if (Math.abs(baseMap[id].costPerKg - rawNetPrice) < 0.05) {
+                baseMap[id].costPerKg = costKdvDahil;
+              }
+              if (baseMap[id].wholesaleCostPerKg && Math.abs(baseMap[id].wholesaleCostPerKg - rawNetPrice) < 0.05) {
+                baseMap[id].wholesaleCostPerKg = costKdvDahil;
+              }
             } else if (parsed[id] && parsed[id].name) {
               baseMap[id] = parsed[id];
             }
