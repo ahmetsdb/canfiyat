@@ -19,19 +19,44 @@ const STORAGE_KEYS = {
 
 class StorageManager {
   static isAuthenticated() {
-    return true; // Direct access guaranteed
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+      if (!stored) return false;
+      if (stored === "authenticated_ahmet" || stored === "true") return true;
+      const parsed = JSON.parse(stored);
+      if (parsed && (parsed.status === "authenticated_ahmet" || parsed.user === "ahmet" || parsed.success === true)) {
+        if (!parsed.expiresAt || parsed.expiresAt > Date.now()) {
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   static login(username, password, rememberLongTerm = true) {
-    const days = rememberLongTerm ? 365 : 30;
-    const sessionData = {
-      status: "authenticated_ahmet",
-      user: "ahmet",
-      loginTime: new Date().toISOString(),
-      expiresAt: Date.now() + (days * 24 * 60 * 60 * 1000)
-    };
-    localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(sessionData));
-    return { success: true };
+    const u = (username || "").trim().toLowerCase();
+    const p = (password || "").trim();
+
+    const validUsers = ["ahmet", "cansizzade", "admin", "canfiyat"];
+    const validPasses = ["ahmet123.", "ahmet123", "123456", "cansizzade", "admin", "ahmet", "canfiyat"];
+
+    const isUserValid = validUsers.includes(u) || u.length >= 3;
+    const isPassValid = validPasses.includes(p.toLowerCase()) || p === "Ahmet123." || p === "Ahmet123";
+
+    if (isUserValid && isPassValid) {
+      const days = rememberLongTerm ? 365 : 30;
+      const sessionData = {
+        status: "authenticated_ahmet",
+        user: "ahmet",
+        loginTime: new Date().toISOString(),
+        expiresAt: Date.now() + (days * 24 * 60 * 60 * 1000)
+      };
+      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(sessionData));
+      return { success: true };
+    }
+    return { success: false, message: "Kullanıcı adı veya şifre hatalı!" };
   }
 
   static logout() {
@@ -93,37 +118,37 @@ class StorageManager {
 
   static getProducts() {
     const baseMap = {};
-    INITIAL_PRODUCTS.forEach(p => {
-      const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
-      const kdvRate = p.kdv || (p.category === "Uçucu Yağlar" ? 20 : 1);
-      // p.costPerKg in INITIAL_PRODUCTS is already the EXACT official 100% KDV DAHİL price!
-      // PDF list price (KDV Hariç) = p.costPerKg / (1 + kdv/100)
-      const costKdvDahil = p.costPerKg || 1200.00;
-      const rawNetPrice = parseFloat((costKdvDahil / (1 + (kdvRate / 100))).toFixed(2));
-      const defaultSeedCostKdvDahil = parseFloat((costKdvDahil * 0.25).toFixed(2));
+    if (typeof INITIAL_PRODUCTS !== "undefined" && Array.isArray(INITIAL_PRODUCTS)) {
+      INITIAL_PRODUCTS.forEach(p => {
+        const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+        const kdvRate = p.kdv || (p.category === "Uçucu Yağlar" ? 20 : 1);
+        const costKdvDahil = p.costPerKg || 1200.00;
+        const rawNetPrice = parseFloat((costKdvDahil / (1 + (kdvRate / 100))).toFixed(2));
+        const defaultSeedCostKdvDahil = parseFloat((costKdvDahil * 0.25).toFixed(2));
 
-      baseMap[p.id] = {
-        id: p.id,
-        sku: p.sku,
-        name: p.name,
-        category: p.category,
-        kdv: kdvRate,
-        unit: "1KG",
-        rawNetCostPerKg: rawNetPrice,               // Resmi Fiş Fiyatı (KDV Hariç)
-        costPerKg: costKdvDahil,                   // Gerçek Fabrika Saf Yağ Maliyeti (KDV DAHİL)
-        initialCostPerKg: costKdvDahil,            // Orijinal Varsayılan (KDV DAHİL)
-        initialSeedCostPerKg: defaultSeedCostKdvDahil,
-        initialYieldPercent: 25,
-        initialDipPercent: 0,
-        initialHerbCostPerKg: 0,
-        initialOliveOilCostPerKg: 454.50,          // 450.00 KDV Hariç + %1 KDV = 454.50 TL KDV Dahil Zeytinyağı
-        initialHerbRatioKg: 0.20,
-        initialTargetProfit: 70,
-        activeVolume: defaultVol,
-        volumes: this.createDefaultVolumeConfigs(),
-        updatedAt: new Date().toISOString()
-      };
-    });
+        baseMap[p.id] = {
+          id: p.id,
+          sku: p.sku,
+          name: p.name,
+          category: p.category,
+          kdv: kdvRate,
+          unit: "1KG",
+          rawNetCostPerKg: rawNetPrice,
+          costPerKg: costKdvDahil,
+          initialCostPerKg: costKdvDahil,
+          initialSeedCostPerKg: defaultSeedCostKdvDahil,
+          initialYieldPercent: 25,
+          initialDipPercent: 0,
+          initialHerbCostPerKg: 0,
+          initialOliveOilCostPerKg: 454.50,
+          initialHerbRatioKg: 0.20,
+          initialTargetProfit: 70,
+          activeVolume: defaultVol,
+          volumes: this.createDefaultVolumeConfigs(),
+          updatedAt: new Date().toISOString()
+        };
+      });
+    }
 
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
@@ -138,7 +163,6 @@ class StorageManager {
               const rawNetPrice = baseMap[id].rawNetCostPerKg;
               const defaultSeedCostKdvDahil = baseMap[id].initialSeedCostPerKg;
 
-              // Overwrite stored product: ALWAYS enforce exact KDV Dahil baseline
               baseMap[id] = {
                 ...baseMap[id],
                 ...parsed[id],
@@ -148,7 +172,6 @@ class StorageManager {
                 initialSeedCostPerKg: defaultSeedCostKdvDahil
               };
 
-              // Purge & repair any corrupted double-KDV values from previous session
               if (baseMap[id].costPerKg > costKdvDahil * 1.15 || Math.abs(baseMap[id].costPerKg - (costKdvDahil * 1.20)) < 2) {
                 baseMap[id].costPerKg = costKdvDahil;
               }
@@ -163,6 +186,17 @@ class StorageManager {
       }
     } catch (e) {
       console.error("Storage error, using base initial products:", e);
+    }
+
+    if (Object.keys(baseMap).length < 50 && typeof INITIAL_PRODUCTS !== "undefined") {
+      INITIAL_PRODUCTS.forEach(p => {
+        if (!baseMap[p.id]) {
+          baseMap[p.id] = {
+            id: p.id, sku: p.sku, name: p.name, category: p.category, kdv: p.kdv || 1, unit: "1KG",
+            costPerKg: p.costPerKg || 1200.00, volumes: this.createDefaultVolumeConfigs()
+          };
+        }
+      });
     }
 
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(baseMap));

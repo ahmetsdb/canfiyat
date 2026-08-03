@@ -49,16 +49,34 @@ function checkAuthSession() {
 
 function handleLoginSubmit(event) {
   if (event) event.preventDefault();
-  StorageManager.login("ahmet", "Ahmet123.", true);
-  const loginModal = document.getElementById("login-modal");
-  if (loginModal) {
-    loginModal.classList.add("hidden");
-    loginModal.classList.remove("flex");
+  const u = document.getElementById("login-username")?.value || "";
+  const p = document.getElementById("login-password")?.value || "";
+  const remember = document.getElementById("login-remember-me")?.checked ?? true;
+  const errorEl = document.getElementById("login-error-msg");
+
+  const res = StorageManager.login(u, p, remember);
+  if (res.success) {
+    if (errorEl) errorEl.classList.add("hidden");
+    const loginModal = document.getElementById("login-modal");
+    if (loginModal) {
+      loginModal.classList.add("hidden");
+      loginModal.classList.remove("flex");
+    }
+    const userHeaderBadge = document.getElementById("user-header-badge");
+    if (userHeaderBadge) userHeaderBadge.classList.remove("hidden");
+
+    try {
+      initApp();
+    } catch (err) {
+      console.error("initApp error post-login:", err);
+    }
+    showToast("Ahmet Olarak Başarıyla Giriş Yapıldı! (1 Yıl Kesintisiz Hatırla Aktif) 🔒✅");
+  } else {
+    if (errorEl) {
+      errorEl.innerText = res.message || "Kullanıcı adı veya şifre hatalı!";
+      errorEl.classList.remove("hidden");
+    }
   }
-  const userHeaderBadge = document.getElementById("user-header-badge");
-  if (userHeaderBadge) userHeaderBadge.classList.remove("hidden");
-  initApp();
-  showToast("Giriş Yapıldı! Hoş Geldiniz. 🔒✅");
 }
 
 function handleLogout() {
@@ -80,32 +98,36 @@ function togglePasswordVisibility() {
 function initApp() {
   if (!checkAuthSession()) return;
   currentProducts = StorageManager.getProducts();
+  if (!currentProducts || typeof currentProducts !== "object" || Object.keys(currentProducts).length < 50) {
+    currentProducts = StorageManager.resetToDefault() || {};
+  }
   renderStats();
   if (currentLayerMode === 1) {
     renderProductGrid();
-  } else {
+  } else if (currentLayerMode === 2) {
     renderLayer2Cards();
+  } else if (currentLayerMode === 3) {
+    if (typeof renderLayer3Cards === "function") renderLayer3Cards();
   }
   setupEventListeners();
 
   // Async sync with Supabase Cloud DB
-  StorageManager.fetchFromSupabase((cloudMap) => {
-    if (!checkAuthSession()) return;
-    if (cloudMap && Object.keys(cloudMap).length > 0) {
-      currentProducts = cloudMap;
-    } else {
-      currentProducts = StorageManager.getProducts();
-    }
-    renderStats();
-    if (currentLayerMode === 1) {
-      renderProductGrid();
-    } else if (currentLayerMode === 2) {
-      renderLayer2Cards();
-    } else if (currentLayerMode === 3) {
-      renderLayer3Cards();
-    }
-    console.log("Synced latest product slot state from Supabase Cloud DB!");
-  });
+  if (typeof StorageManager.fetchFromSupabase === "function") {
+    StorageManager.fetchFromSupabase((cloudMap) => {
+      if (!checkAuthSession()) return;
+      if (cloudMap && typeof cloudMap === "object" && Object.keys(cloudMap).length >= 50) {
+        currentProducts = cloudMap;
+        renderStats();
+        if (currentLayerMode === 1) {
+          renderProductGrid();
+        } else if (currentLayerMode === 2) {
+          renderLayer2Cards();
+        } else if (currentLayerMode === 3) {
+          if (typeof renderLayer3Cards === "function") renderLayer3Cards();
+        }
+      }
+    });
+  }
 }
 
 function setupEventListeners() {
@@ -200,11 +222,17 @@ function renderProductGrid() {
 
   container.innerHTML = "";
 
-  const productsArr = Object.values(currentProducts);
+  if (!currentProducts || typeof currentProducts !== "object" || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+
+  const productsArr = Object.values(currentProducts || {});
   const filtered = productsArr.filter(p => {
+    if (!p || typeof p.name !== "string" || typeof p.sku !== "string") return false;
     const matchesCat = (activeCategory === "all") || (p.category === activeCategory);
-    const matchesSearch = (p.name.toLowerCase().includes(searchQuery)) || 
-                          (p.sku.toLowerCase().includes(searchQuery));
+    const pName = (p.name || "").toLowerCase();
+    const pSku = (p.sku || "").toLowerCase();
+    const matchesSearch = !searchQuery || pName.includes(searchQuery) || pSku.includes(searchQuery);
     return matchesCat && matchesSearch;
   });
 
