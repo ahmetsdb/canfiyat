@@ -2123,8 +2123,7 @@ async function resetProductField(productId, field) {
   if (!product) return;
 
   const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
-  const rawNetPrice = product.rawNetCostPerKg || product.costPerKg || 1200;
-  const initialCost = product.initialCostPerKg || parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
+  const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
   const initialSeed = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
 
   if (field === "seedCostPerKg") product.seedCostPerKg = initialSeed;
@@ -2134,7 +2133,7 @@ async function resetProductField(productId, field) {
     product.dipStatus = "none";
   }
   else if (field === "herbCostPerKg") product.herbCostPerKg = 0;
-  else if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = 459.05;
+  else if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = 454.50;
   else if (field === "herbRatioKg") product.herbRatioKg = 0.20;
   else if (field === "herbKg") product.herbKg = null;
   else if (field === "oilKg") product.oilKg = null;
@@ -2146,7 +2145,7 @@ async function resetProductField(productId, field) {
     product.dipPercent = 0;
     product.dipStatus = "none";
     product.herbCostPerKg = 0;
-    product.oliveOilCostPerKg = 459.05;
+    product.oliveOilCostPerKg = 454.50;
     product.herbRatioKg = 0.20;
     product.herbKg = null;
     product.oilKg = null;
