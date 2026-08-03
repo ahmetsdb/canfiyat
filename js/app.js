@@ -147,6 +147,8 @@ function setViewMode(mode) {
   }
 
   renderProductGrid();
+  renderLayer2Cards();
+  if (typeof renderLayer3Cards === "function") renderLayer3Cards();
 }
 
 function renderStats() {
