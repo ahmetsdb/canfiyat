@@ -2922,26 +2922,26 @@ function generateLayer2PdfReport() {
     </div>
 
     <div class="legend-banner">
-      <span><strong>Reçete Metodu:</strong> Soğuk Sıkım / Maserasyon / Toptan</span>
-      <span><strong>1. Hammadde:</strong> ${selectedVol} Yağ Tutarı</span>
+      <span><strong>Reçete & Tedarik Origin:</strong> Soğuk Sıkım (Tohum % Verim) / Maserasyon / Toptan Alış</span>
+      <span><strong>1. Tohum / Toptan Yağ:</strong> Tohum Alış Fiyatı (% Verim Sıkımı) veya KDV Dahil Toptan Geliş</span>
       <span><strong>2. Ambalaj:</strong> ${selectedVol} Şişe/Etiket</span>
-      <span><strong>3. Tesis Payı:</strong> Orantılı Gider Payı</span>
-      <span><strong>4. Dolum Montaj:</strong> Ambalaj İşçiliği</span>
+      <span><strong>3. Tesis Payı:</strong> Bizim Sıkımlara Tesis Gideri / Toptan Alışa 0₺</span>
+      <span><strong>4. Dolum Montaj:</strong> Ambalaj Montaj İşçiliği</span>
     </div>
 
-    <div class="cat-title">🌿 SABİT YAĞLAR DETAYLI 5 KALEM FATURA DÖKÜM TABLOSU (${selectedVol})</div>
+    <div class="cat-title">🌿 SABİT YAĞLAR DETAYLI REÇETE & 5 KALEM FATURA DÖKÜM TABLOSU (${selectedVol})</div>
 
     <table>
       <thead>
         <tr>
           <th style="width: 3%;">#</th>
           <th style="width: 7%;">SKU</th>
-          <th style="width: 20%;">Ürün Adı</th>
-          <th style="width: 19%;">Hesaplama Reçetesi & Origin</th>
-          <th style="width: 11%;" class="text-right">1. Hammadde Yağ</th>
+          <th style="width: 18%;">Ürün Adı</th>
+          <th style="width: 21%;">Hesaplama Reçetesi & Tedarik Türü</th>
+          <th style="width: 13%;" class="text-right">1. Tohum / Toptan Yağ Alış</th>
           <th style="width: 10%;" class="text-right">2. Şişe/Ambalaj</th>
-          <th style="width: 10%;" class="text-right">3. Tesis/Gider</th>
-          <th style="width: 10%;" class="text-right">4. Dolum Montaj</th>
+          <th style="width: 9%;" class="text-right">3. Tesis/Gider</th>
+          <th style="width: 9%;" class="text-right">4. Dolum Montaj</th>
           <th style="width: 10%;" class="text-right">5. TOPLAM SAF MALİYET</th>
         </tr>
       </thead>
@@ -2965,13 +2965,13 @@ function generateLayer2PdfReport() {
           if (isMaceration) {
             const herbRatio = p.herbRatioKg || 0.20;
             const ratioStr = `1:${Math.round(1 / herbRatio)}`;
-            recipeDesc = `<span class="text-purple font-bold">🌿 Bizim Üretim (Maserasyon)</span> <span class="text-slate">(${ratioStr} Z.Yağı)</span>`;
+            recipeDesc = `<span class="text-purple font-bold">🌿 Bizim Üretim (Maserasyon)</span> <span class="text-slate">(${ratioStr} Z.Yağı Oranı)</span>`;
           } else if (isWholesale) {
-            recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış</span> <span class="text-slate">(Dış Tedarik | Tesis 0₺)</span>`;
+            recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış (Hazır Tedarik)</span> <span class="text-slate">(Dış Geliş Faturası | Tesis 0₺)</span>`;
           } else {
             const yieldPct = p.yieldPercent || 25;
             const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((rawCostPerKg * 0.25).toFixed(2));
-            recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım (Soğuk Sıkım)</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct})</span>`;
+            recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım (Soğuk Sıkım)</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct} Verim)</span>`;
           }
 
           return `
@@ -2992,7 +2992,7 @@ function generateLayer2PdfReport() {
     </table>
 
     <div class="footer">
-      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.48</span>
+      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.53</span>
       <span>Sayfa 1 / 2 (Sabit Yağlar - ${selectedVol} Reçete & 5 Kalem Fatura Dökümü)</span>
     </div>
   </div>
@@ -3003,7 +3003,7 @@ function generateLayer2PdfReport() {
       <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
       <div class="header-info">
         <h1>KATMAN 2: UÇUCU YAĞLAR SAF MALİYET RAPORU (${selectedVol.toUpperCase()})</h1>
-        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>UÇUCU YAĞLAR FATURA & KDV DÖKÜMÜ</strong></p>
+        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>UÇUCU YAĞLAR TOPTAN TEDARİK DÖKÜMÜ</strong></p>
       </div>
     </div>
 
@@ -3017,8 +3017,8 @@ function generateLayer2PdfReport() {
     <div class="legend-banner">
       <span><strong>Faturadaki Net:</strong> ${selectedVol} KDV Hariç Alış Tutarı</span>
       <span><strong>Yasal KDV:</strong> %20 Katma Değer Vergisi</span>
-      <span><strong>Hammadde:</strong> KDV Dahil ${selectedVol} Alış</span>
-      <span><strong>Ambalaj:</strong> ${selectedVol} Şişe/Etiket</span>
+      <span><strong>1. Toptan Yağ Alış:</strong> KDV Dahil Net Geliş Maliyeti</span>
+      <span><strong>2. Ambalaj:</strong> ${selectedVol} Şişe/Etiket</span>
     </div>
 
     <div class="cat-title">🌸 UÇUCU YAĞLAR KDV DÖKÜMÜ & DETAYLI MALİYET TABLOSU (${selectedVol})</div>
@@ -3032,7 +3032,7 @@ function generateLayer2PdfReport() {
           <th style="width: 17%;">Tedarik & KDV Reçetesi</th>
           <th style="width: 11%;" class="text-right">Faturadaki Net</th>
           <th style="width: 10%;" class="text-right">Yasal KDV (%20)</th>
-          <th style="width: 10%;" class="text-right">1. Hammadde Yağ</th>
+          <th style="width: 10%;" class="text-right">1. Toptan Yağ Alış</th>
           <th style="width: 9%;" class="text-right">2. Ambalaj</th>
           <th style="width: 10%;" class="text-right">5. TOPLAM SAF MALİYET</th>
         </tr>
@@ -3057,7 +3057,7 @@ function generateLayer2PdfReport() {
               <td class="text-center font-bold">${idx + 1}</td>
               <td class="font-bold">${p.sku}</td>
               <td class="font-bold text-emerald">${p.name}</td>
-              <td><span class="text-purple font-bold">🌸 Toptan Distilasyon</span> <span class="text-slate">(%20 KDV Dahil)</span></td>
+              <td><span class="text-purple font-bold">🌸 Toptan Distilasyon</span> <span class="text-slate">(Dış Tedarik | %20 KDV Dahil)</span></td>
               <td class="text-right">${PriceCalculator.formatTL(rawCostKdvEx)}</td>
               <td class="text-right text-purple">${PriceCalculator.formatTL(kdvAmount)}</td>
               <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(rawCostKdvIn)}</td>
