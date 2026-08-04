@@ -3056,11 +3056,11 @@ function generateLayer2PdfReport() {
               <td class="font-bold">${p.sku}</td>
               <td class="font-bold text-emerald">${p.name}</td>
               <td><span class="text-purple font-bold">🌸 Toptan Distilasyon</span> <span class="text-slate">(%20 KDV Dahil)</span></td>
-              <td class="text-right">${PriceCalculator.formatTL(rawNet)}</td>
+              <td class="text-right">${PriceCalculator.formatTL(rawCostKdvEx)}</td>
               <td class="text-right text-purple">${PriceCalculator.formatTL(kdvAmount)}</td>
-              <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(hhammadde)}</td>
+              <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(rawCostKdvIn)}</td>
               <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
-              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalCost)}</td>
+              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalNetCost)}</td>
             </tr>
           `;
         }).join("")}
