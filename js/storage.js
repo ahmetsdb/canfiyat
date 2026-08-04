@@ -202,9 +202,10 @@ class StorageManager {
     if (!supabaseClient) return;
 
     try {
-      const { data, error } = await supabaseClient.from("products").select("*");
+      const { data, error } = await supabaseClient.from("products").select("id, sku, name, category, kdv, unit, cost_per_kg, updated_at");
       if (error) {
         console.warn("Supabase fetch error, fallback to local storage:", error);
+        if (onCompleteCallback) onCompleteCallback(this.getProducts());
         return;
       }
 
@@ -212,36 +213,33 @@ class StorageManager {
         const currentLocal = this.getProducts();
         data.forEach(item => {
           if (!item || !item.id) return;
-          const defaultVol = item.active_volume || item.selected_volume || "1000ml";
           if (currentLocal[item.id]) {
             const kdvRate = currentLocal[item.id].kdv;
             const rawNetPrice = currentLocal[item.id].listPriceKdvHaric;
             const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
 
-            const isUserEdited = item.is_user_edited || item.isUserEdited || currentLocal[item.id].isUserEdited;
-            const finalNetPrice = isUserEdited ? (item.list_price_kdv_haric || item.listPriceKdvHaric || rawNetPrice) : rawNetPrice;
-            const finalCostKdvDahil = isUserEdited ? parseFloat((finalNetPrice * (1 + (kdvRate / 100))).toFixed(2)) : costKdvDahil;
+            const isUserEdited = currentLocal[item.id].isUserEdited;
+            const finalNetPrice = isUserEdited ? currentLocal[item.id].listPriceKdvHaric : rawNetPrice;
+            const finalCostKdvDahil = isUserEdited ? currentLocal[item.id].costPerKg : costKdvDahil;
 
             currentLocal[item.id] = {
               ...currentLocal[item.id],
               listPriceKdvHaric: finalNetPrice,
               rawNetCostPerKg: finalNetPrice,
               costPerKg: finalCostKdvDahil,
-              activeVolume: defaultVol,
-              volumes: item.volumes || currentLocal[item.id].volumes || this.createDefaultVolumeConfigs(),
               updatedAt: item.updated_at || new Date().toISOString()
             };
           }
         });
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(currentLocal));
-        this.seedSupabaseDatabase(currentLocal);
         if (onCompleteCallback) onCompleteCallback(currentLocal);
       } else {
         const localData = this.getProducts();
-        this.seedSupabaseDatabase(localData);
+        if (onCompleteCallback) onCompleteCallback(localData);
       }
     } catch (e) {
       console.error("Supabase sync failed:", e);
+      if (onCompleteCallback) onCompleteCallback(this.getProducts());
     }
   }
 
@@ -257,8 +255,6 @@ class StorageManager {
         kdv: p.kdv,
         unit: p.unit,
         cost_per_kg: p.costPerKg,
-        active_volume: p.activeVolume || "250ml",
-        volumes: p.volumes || this.createDefaultVolumeConfigs(),
         updated_at: new Date().toISOString()
       }));
 
@@ -266,7 +262,7 @@ class StorageManager {
       if (error) {
         console.warn("Supabase seed warning:", error.message);
       } else {
-        console.log("Supabase database seeded with product-specific System 2 & 4 prices!");
+        console.log("Supabase database synced successfully!");
       }
     } catch (e) {
       console.error("Seed error:", e);
