@@ -347,12 +347,12 @@ class PriceCalculator {
     const salaries = (config && config.salaries !== undefined && !isNaN(config.salaries)) ? parseFloat(config.salaries) : 200000;
     const sgk = (config && config.sgk !== undefined && !isNaN(config.sgk)) ? parseFloat(config.sgk) : 50000;
     const electricity = (config && config.electricity !== undefined && !isNaN(config.electricity)) ? parseFloat(config.electricity) : 20000;
-    const catering = (config && config.catering !== undefined && !isNaN(config.catering)) ? parseFloat(config.catering) : 35000;
+    const catering = (config && config.catering !== undefined && !isNaN(config.catering)) ? parseFloat(config.catering) : 60000;
     const rentSarf = (config && config.rentSarf !== undefined && !isNaN(config.rentSarf)) ? parseFloat(config.rentSarf) : 0;
     const monthlyCapacityKg = (config && config.monthlyCapacityKg !== undefined && !isNaN(config.monthlyCapacityKg) && parseFloat(config.monthlyCapacityKg) > 0) ? parseFloat(config.monthlyCapacityKg) : 8714;
 
     const totalMonthlyOverhead = salaries + sgk + electricity + catering + rentSarf;
-    const calculatedOverheadPerKg = monthlyCapacityKg > 0 ? parseFloat((totalMonthlyOverhead / monthlyCapacityKg).toFixed(2)) : 35.00;
+    const calculatedOverheadPerKg = monthlyCapacityKg > 0 ? parseFloat((totalMonthlyOverhead / monthlyCapacityKg).toFixed(2)) : 0;
 
     return {
       salaries,
@@ -362,7 +362,7 @@ class PriceCalculator {
       rentSarf,
       monthlyCapacityKg,
       totalMonthlyOverhead,
-      overheadPerKg: calculatedOverheadPerKg || 35.00
+      overheadPerKg: calculatedOverheadPerKg
     };
   }
 

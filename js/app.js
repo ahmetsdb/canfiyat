@@ -2858,7 +2858,9 @@ function generateLayer2PdfReport() {
   const ucucuYaglar = productsArr.filter(p => p.category === "Uçucu Yağlar");
 
   const todayStr = new Date().toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
-  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg();
+  const factoryOverheadConfig = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(factoryOverheadConfig);
+  const dynamicOverheadPerKg = overheadRes.overheadPerKg;
 
   const logoUrl = "assets/cansizzade_logo.jpg";
 
@@ -2909,8 +2911,8 @@ function generateLayer2PdfReport() {
 
     <div class="meta-banner">
       <span>📅 <strong>Tarih:</strong> ${todayStr}</span>
-      <span>🏭 <strong>Aylık Tesis Gideri:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead)} (5 Maaş/SGK + Elektrik)</span>
-      <span>⚡ <strong>1KG Tesis Payı:</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG</span>
+      <span>🏭 <strong>Aylık Tesis Gideri:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead)} (Maaş: ${PriceCalculator.formatTL(overheadRes.salaries)}, Elektrik: ${PriceCalculator.formatTL(overheadRes.electricity)})</span>
+      <span>⚡ <strong>1KG Hesaplanan Tesis Payı:</strong> ${PriceCalculator.formatTL(dynamicOverheadPerKg)}/KG (${overheadRes.monthlyCapacityKg} KG/Ay Kapasite)</span>
       <span>📊 <strong>Ürün Sayısı:</strong> ${sabitYaglar.length} Sabit Yağ</span>
     </div>
 
@@ -2918,7 +2920,7 @@ function generateLayer2PdfReport() {
       <span><strong>Reçete Metodu:</strong> Soğuk Sıkım / Maserasyon / Toptan</span>
       <span><strong>1. Hammadde:</strong> Tohum veya Ham Yağ Tutarı</span>
       <span><strong>2. Ambalaj:</strong> 1KG Şişe/Etiket</span>
-      <span><strong>3. Tesis Payı:</strong> 35₺/KG</span>
+      <span><strong>3. Tesis Payı:</strong> ${PriceCalculator.formatTL(dynamicOverheadPerKg)}/KG</span>
       <span><strong>4. Dolum:</strong> 10₺ Montaj</span>
     </div>
 
@@ -2948,8 +2950,7 @@ function generateLayer2PdfReport() {
           const isWholesale = (p.supplyType === "wholesale");
           const isMaceration = isMacerationOil(p);
           
-          const perKgOverhead = (overheadRes && !isNaN(overheadRes.overheadPerKg) && overheadRes.overheadPerKg > 0) ? overheadRes.overheadPerKg : 35.00;
-          const tesisPayi = isWholesale ? 0.00 : (perKgOverhead * kg);
+          const tesisPayi = isWholesale ? 0.00 : (dynamicOverheadPerKg * kg);
           const montajPayi = isWholesale ? 0.00 : 10.00;
           const totalCost = parseFloat((hhammadde + packCost + tesisPayi + montajPayi).toFixed(2));
 
