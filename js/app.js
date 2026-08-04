@@ -2962,16 +2962,22 @@ function generateLayer2PdfReport() {
           const totalNetCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
           let recipeDesc = "";
-          if (isMaceration) {
+          let column1Detail = "";
+
+          if (isWholesale) {
+            recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış</span> <span class="text-slate">(Dış Tedarik)</span>`;
+            column1Detail = `<span class="font-bold">${PriceCalculator.formatTL(rawOilCost)}</span><br><span class="text-slate">(Net Geliş Faturası)</span>`;
+          } else if (isMaceration) {
             const herbRatio = p.herbRatioKg || 0.20;
             const ratioStr = `1:${Math.round(1 / herbRatio)}`;
-            recipeDesc = `<span class="text-purple font-bold">🌿 Bizim Üretim (Maserasyon)</span> <span class="text-slate">(${ratioStr} Z.Yağı Oranı)</span>`;
-          } else if (isWholesale) {
-            recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış (Hazır Tedarik)</span> <span class="text-slate">(Dış Geliş Faturası | Tesis 0₺)</span>`;
+            recipeDesc = `<span class="text-purple font-bold">🌿 Bizim Üretim</span> <span class="text-slate">(Maserasyon)</span>`;
+            column1Detail = `<span class="font-bold text-purple">${PriceCalculator.formatTL(rawOilCost)}</span><br><span class="text-slate">(${ratioStr} Z.Yağı Oranı)</span>`;
           } else {
             const yieldPct = p.yieldPercent || 25;
-            const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((rawCostPerKg * 0.25).toFixed(2));
-            recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım (Soğuk Sıkım)</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct} Verim)</span>`;
+            const seedCostPerKg = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((rawCostPerKg * 0.25).toFixed(2));
+            const seedCostForVol = parseFloat((seedCostPerKg * volInKg).toFixed(2));
+            recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım</span> <span class="text-slate">(Soğuk Sıkım)</span>`;
+            column1Detail = `<span class="font-bold text-emerald">${PriceCalculator.formatTL(rawOilCost)}</span><br><span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCostForVol)} | %${yieldPct})</span>`;
           }
 
           return `
@@ -2980,7 +2986,7 @@ function generateLayer2PdfReport() {
               <td class="font-bold">${p.sku}</td>
               <td class="font-bold text-emerald">${p.name}</td>
               <td>${recipeDesc}</td>
-              <td class="text-right font-bold">${PriceCalculator.formatTL(rawOilCost)}</td>
+              <td class="text-right">${column1Detail}</td>
               <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
               <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(linearOverhead)}</td>
               <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(laborAssemblyFee)}</td>
