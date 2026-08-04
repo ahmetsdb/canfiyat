@@ -54,32 +54,38 @@ class PriceCalculator {
     return { discount: 0, label: "Perakende Hacim" };
   }
 
+  // Time & Motion Labor Assembly Fee Matrix per Bottle/Container Volume
+  static getLaborAssemblyFee(volKey) {
+    const ml = this.getVolumeMl(volKey);
+    const kg = ml / 1000;
+    const keyUpper = String(volKey || "").toUpperCase().trim();
+
+    if (keyUpper === "20ML") return 18.50; // Micro-filling + Pipette/Roll-on assembly + individual box insert (75s)
+    if (keyUpper === "30ML") return 17.80; // Precision dropper + Pipette assembly + box insert (70s)
+    if (keyUpper === "50ML") return 12.50; // Dropper insert + Spray pump assembly + box insert (53s)
+    if (keyUpper === "100ML") return 9.50; // Plug insert + Liquid filling + labeling (37s)
+    if (keyUpper === "250ML") return 8.00; // Fast nozzle fill + screw cap + roll label (28s)
+    if (keyUpper === "500ML") return 9.00; // Fast nozzle fill + cap + label (31s)
+    if (keyUpper === "1000ML" || keyUpper === "1KG") return 10.00; // 1L hose fill + heavy cap + carton pack (40s)
+    if (keyUpper === "5000ML" || keyUpper === "5KG") return 15.00; // Bulk hose fill + safety cap + handle (65s)
+    if (keyUpper === "10KG") return 18.00; // Industrial scale fill + bung seal + drum label (120s)
+    if (keyUpper === "25KG") return 25.00; // Heavy drum scale fill + clamp ring + pallet wrap (140s)
+    if (keyUpper === "30KG") return 30.00; // Heavy drum scale fill + clamp ring + pallet wrap (150s)
+
+    if (kg >= 5) return Math.min(kg * 1.00, 60.00);
+    return 10.00;
+  }
+
   // Time & Labor Handling Overhead Matrix per Bottle / Drum Volume Size
   static getOverheadForVolume(volKey, overheadPerKg = 110.00) {
     const ml = this.getVolumeMl(volKey);
     const kg = ml / 1000;
     
-    // Base linear volume overhead (Elektrik / Enerji Payı)
+    // Base linear volume overhead (Elektrik / Enerji / SGK Payı)
     const linearVolumeOverhead = overheadPerKg * kg;
     
     // Packaging Handling & Pipette/Labor Assembly Surcharge per Container
-    let laborAssemblyFee = 8.00;
-    const keyUpper = String(volKey || "").toUpperCase().trim();
-
-    if (keyUpper === "1000ML" || keyUpper === "1KG") laborAssemblyFee = 10.00;
-    else if (keyUpper === "500ML") laborAssemblyFee = 9.00;
-    else if (keyUpper === "250ML") laborAssemblyFee = 8.00;
-    else if (keyUpper === "100ML") laborAssemblyFee = 7.50;
-    else if (keyUpper === "50ML") laborAssemblyFee = 9.50;  // dropper assembly
-    else if (keyUpper === "30ML") laborAssemblyFee = 14.70; // pipette + box assembly
-    else if (keyUpper === "20ML") laborAssemblyFee = 17.80; // roll-on / pipette assembly
-    else if (keyUpper === "5000ML" || keyUpper === "5KG") laborAssemblyFee = 15.00;
-    // TOPTAN DÖKME SİPARİŞLER (KG BAZLI DOLDURMA - Doldurmak, Kapaklamak & Etiketlemek Çok Rahat)
-    else if (kg >= 5) {
-      laborAssemblyFee = Math.min(kg * 0.80, 60.00);
-    } else if (keyUpper === "10KG") laborAssemblyFee = 12.00;
-    else if (keyUpper === "25KG") laborAssemblyFee = 18.00;
-    else if (keyUpper === "30KG") laborAssemblyFee = 20.00;
+    const laborAssemblyFee = this.getLaborAssemblyFee(volKey);
 
     return parseFloat((linearVolumeOverhead + laborAssemblyFee).toFixed(2));
   }

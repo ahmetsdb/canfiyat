@@ -2956,10 +2956,8 @@ function generateLayer2PdfReport() {
           const isWholesale = (p.supplyType === "wholesale");
           const isMaceration = isMacerationOil(p);
           
-          const fullOverhead = PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
-          const baseLinearOverhead = parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
-          const linearOverhead = isWholesale ? 0.00 : baseLinearOverhead;
-          const laborAssemblyFee = parseFloat(Math.max(0, fullOverhead - baseLinearOverhead).toFixed(2));
+          const linearOverhead = isWholesale ? 0.00 : parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
+          const laborAssemblyFee = PriceCalculator.getLaborAssemblyFee(selectedVol);
           const totalNetCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
 
           let recipeDesc = "";
@@ -3057,10 +3055,7 @@ function generateLayer2PdfReport() {
             ? DEFAULT_PACKAGING_COSTS[selectedVol]
             : 14.50;
           
-          const fullOverhead = PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
-          const baseLinearOverhead = parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
-          const ucucuLaborFee = parseFloat(Math.max(0, fullOverhead - baseLinearOverhead).toFixed(2));
-          
+          const ucucuLaborFee = PriceCalculator.getLaborAssemblyFee(selectedVol);
           const totalNetCost = parseFloat((rawCostKdvIn + packCost + ucucuLaborFee).toFixed(2));
 
           return `
