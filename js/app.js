@@ -2851,6 +2851,9 @@ function updateBundleSimulator() {
 // 📄 KATMAN 2 SAF FABRİKA MALİYETİ PDF RAPORU OLUŞTURUCU (REÇETE & DÖKÜM ENTEGRELİ)
 // ----------------------------------------------------
 function generateLayer2PdfReport() {
+  const selectedVol = document.getElementById("pdf-report-volume-select")?.value || "1000ml";
+  const volInKg = PriceCalculator.getVolumeInKg(selectedVol);
+
   const productsMap = StorageManager.getProducts();
   const productsArr = Object.values(productsMap);
 
@@ -2868,7 +2871,7 @@ function generateLayer2PdfReport() {
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Cansızzade - Katman 2 Fabrika Detaylı Reçete & Saf Maliyet Raporu</title>
+  <title>Cansızzade - Katman 2 Fabrika Detaylı Reçete & Saf Maliyet Raporu (${selectedVol})</title>
   <style>
     @page { size: A4 portrait; margin: 6mm 7mm; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.15; }
@@ -2877,7 +2880,7 @@ function generateLayer2PdfReport() {
     .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 5px; margin-bottom: 5px; }
     .header-logo { height: 46px; width: auto; }
     .header-info { text-align: right; }
-    .header-info h1 { margin: 0; font-size: 13.5px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+    .header-info h1 { margin: 0; font-size: 13px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
     .header-info p { margin: 1px 0 0 0; font-size: 8px; color: #475569; font-weight: 600; }
     .meta-banner { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 5px; padding: 4px 8px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 8px; font-weight: 600; color: #166534; }
     .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 6px; margin-bottom: 5px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
@@ -2904,27 +2907,27 @@ function generateLayer2PdfReport() {
     <div class="header">
       <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
       <div class="header-info">
-        <h1>KATMAN 2: DETAYLI REÇETE & SAF FABRİKA MALİYET RAPORU</h1>
-        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>SABİT YAĞLAR FABRİKA REÇETELERİ</strong></p>
+        <h1>KATMAN 2: SAF FABRİKA MALİYET RAPORU (${selectedVol.toUpperCase()})</h1>
+        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>SABİT YAĞLAR MALİYET DÖKÜMÜ</strong></p>
       </div>
     </div>
 
     <div class="meta-banner">
       <span>📅 <strong>Tarih:</strong> ${todayStr}</span>
-      <span>🏭 <strong>Aylık Tesis Gideri:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead)} (Maaş: ${PriceCalculator.formatTL(overheadRes.salaries)}, Elektrik: ${PriceCalculator.formatTL(overheadRes.electricity)})</span>
-      <span>⚡ <strong>1KG Hesaplanan Tesis Payı:</strong> ${PriceCalculator.formatTL(dynamicOverheadPerKg)}/KG (${overheadRes.monthlyCapacityKg} KG/Ay Kapasite)</span>
-      <span>📊 <strong>Ürün Sayısı:</strong> ${sabitYaglar.length} Sabit Yağ</span>
+      <span>📍 <strong>Rapor Hacmi:</strong> ${selectedVol} (${volInKg} KG Yağ)</span>
+      <span>🏭 <strong>Aylık Tesis Gideri:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead)}</span>
+      <span>⚡ <strong>1KG Tesis Payı:</strong> ${PriceCalculator.formatTL(dynamicOverheadPerKg)}/KG</span>
     </div>
 
     <div class="legend-banner">
       <span><strong>Reçete Metodu:</strong> Soğuk Sıkım / Maserasyon / Toptan</span>
-      <span><strong>1. Hammadde:</strong> Tohum veya Ham Yağ Tutarı</span>
-      <span><strong>2. Ambalaj:</strong> 1KG Şişe/Etiket</span>
-      <span><strong>3. Tesis Payı:</strong> ${PriceCalculator.formatTL(dynamicOverheadPerKg)}/KG</span>
-      <span><strong>4. Dolum:</strong> 10₺ Montaj</span>
+      <span><strong>1. Hammadde:</strong> ${selectedVol} Yağ Tutarı</span>
+      <span><strong>2. Ambalaj:</strong> ${selectedVol} Şişe/Etiket</span>
+      <span><strong>3. Tesis Payı:</strong> Orantılı Gider Payı</span>
+      <span><strong>4. Dolum Montaj:</strong> Ambalaj İşçiliği</span>
     </div>
 
-    <div class="cat-title">🌿 SABİT YAĞLAR REÇETE ORIGIN & DETAYLI 5 KALEM FATURA DÖKÜM TABLOSU</div>
+    <div class="cat-title">🌿 SABİT YAĞLAR DETAYLI 5 KALEM FATURA DÖKÜM TABLOSU (${selectedVol})</div>
 
     <table>
       <thead>
@@ -2942,17 +2945,19 @@ function generateLayer2PdfReport() {
       </thead>
       <tbody>
         ${sabitYaglar.map((p, idx) => {
-          const vol = "1000ml";
-          const kg = 1.0;
-          const hhammadde = (p.costPerKg || p.initialCostPerKg || 1000) * kg;
-          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 35.00;
+          const rawCostPerKg = (p.costPerKg || p.initialCostPerKg || 1000);
+          const rawOilCost = parseFloat((rawCostPerKg * volInKg).toFixed(2));
+          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[selectedVol] !== undefined)
+            ? DEFAULT_PACKAGING_COSTS[selectedVol]
+            : 14.50;
           
           const isWholesale = (p.supplyType === "wholesale");
           const isMaceration = isMacerationOil(p);
           
-          const tesisPayi = isWholesale ? 0.00 : (dynamicOverheadPerKg * kg);
-          const montajPayi = isWholesale ? 0.00 : 10.00;
-          const totalCost = parseFloat((hhammadde + packCost + tesisPayi + montajPayi).toFixed(2));
+          const linearOverhead = isWholesale ? 0.00 : parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
+          const totalOverhead = isWholesale ? PriceCalculator.getOverheadForVolume(selectedVol, 0) : PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
+          const laborAssemblyFee = parseFloat(Math.max(0, totalOverhead - linearOverhead).toFixed(2));
+          const totalNetCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
           let recipeDesc = "";
           if (isMaceration) {
@@ -2963,7 +2968,7 @@ function generateLayer2PdfReport() {
             recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış</span> <span class="text-slate">(Dış Tedarik | Tesis 0₺)</span>`;
           } else {
             const yieldPct = p.yieldPercent || 25;
-            const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((hhammadde * 0.25).toFixed(2));
+            const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((rawCostPerKg * 0.25).toFixed(2));
             recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım (Soğuk Sıkım)</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct})</span>`;
           }
 
@@ -2973,11 +2978,11 @@ function generateLayer2PdfReport() {
               <td class="font-bold">${p.sku}</td>
               <td class="font-bold text-emerald">${p.name}</td>
               <td>${recipeDesc}</td>
-              <td class="text-right font-bold">${PriceCalculator.formatTL(hhammadde)}</td>
+              <td class="text-right font-bold">${PriceCalculator.formatTL(rawOilCost)}</td>
               <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
-              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(tesisPayi)}</td>
-              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(montajPayi)}</td>
-              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalCost)}</td>
+              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(linearOverhead)}</td>
+              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(laborAssemblyFee)}</td>
+              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalNetCost)}</td>
             </tr>
           `;
         }).join("")}
@@ -2985,8 +2990,8 @@ function generateLayer2PdfReport() {
     </table>
 
     <div class="footer">
-      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.43</span>
-      <span>Sayfa 1 / 2 (Sabit Yağlar - Reçete Origin & 5 Kalem Fatura Dökümü)</span>
+      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.48</span>
+      <span>Sayfa 1 / 2 (Sabit Yağlar - ${selectedVol} Reçete & 5 Kalem Fatura Dökümü)</span>
     </div>
   </div>
 
@@ -2995,25 +3000,26 @@ function generateLayer2PdfReport() {
     <div class="header">
       <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
       <div class="header-info">
-        <h1>KATMAN 2: DETAYLI REÇETE & SAF FABRİKA MALİYET RAPORU</h1>
+        <h1>KATMAN 2: UÇUCU YAĞLAR SAF MALİYET RAPORU (${selectedVol.toUpperCase()})</h1>
         <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>UÇUCU YAĞLAR FATURA & KDV DÖKÜMÜ</strong></p>
       </div>
     </div>
 
     <div class="meta-banner">
       <span>📅 <strong>Tarih:</strong> ${todayStr}</span>
+      <span>📍 <strong>Rapor Hacmi:</strong> ${selectedVol} (${volInKg} KG Yağ)</span>
       <span>🏭 <strong>Tedarik Reçetesi:</strong> %20 Yasal KDV Dahil Saf Distilasyon Toptan Tedarik</span>
       <span>📊 <strong>Ürün Sayısı:</strong> ${ucucuYaglar.length} Uçucu Yağ</span>
     </div>
 
     <div class="legend-banner">
-      <span><strong>Faturadaki Net:</strong> KDV Hariç Alış Tutarı</span>
+      <span><strong>Faturadaki Net:</strong> ${selectedVol} KDV Hariç Alış Tutarı</span>
       <span><strong>Yasal KDV:</strong> %20 Katma Değer Vergisi</span>
-      <span><strong>Hammadde:</strong> KDV Dahil 1KG Alış</span>
-      <span><strong>Ambalaj:</strong> 1KG Şişe/Etiket</span>
+      <span><strong>Hammadde:</strong> KDV Dahil ${selectedVol} Alış</span>
+      <span><strong>Ambalaj:</strong> ${selectedVol} Şişe/Etiket</span>
     </div>
 
-    <div class="cat-title">🌸 UÇUCU YAĞLAR KDV DÖKÜMÜ & DETAYLI MALİYET TABLOSU (1KG FABRİKA DOLUM)</div>
+    <div class="cat-title">🌸 UÇUCU YAĞLAR KDV DÖKÜMÜ & DETAYLI MALİYET TABLOSU (${selectedVol})</div>
 
     <table>
       <thead>
@@ -3031,12 +3037,18 @@ function generateLayer2PdfReport() {
       </thead>
       <tbody>
         ${ucucuYaglar.map((p, idx) => {
-          const vol = "1000ml";
-          const hhammadde = p.costPerKg;
-          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
-          const rawNet = p.listPriceKdvHaric || (hhammadde / 1.20);
-          const kdvAmount = hhammadde - rawNet;
-          const totalCost = hhammadde + packCost;
+          const costKdvInPerKg = (p.costPerKg || p.initialCostPerKg || 1000);
+          const costKdvExPerKg = costKdvInPerKg / 1.20;
+
+          const rawCostKdvEx = parseFloat((costKdvExPerKg * volInKg).toFixed(2));
+          const kdvAmount = parseFloat(((costKdvInPerKg - costKdvExPerKg) * volInKg).toFixed(2));
+          const rawCostKdvIn = parseFloat((costKdvInPerKg * volInKg).toFixed(2));
+
+          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[selectedVol] !== undefined)
+            ? DEFAULT_PACKAGING_COSTS[selectedVol]
+            : 14.50;
+          
+          const totalNetCost = parseFloat((rawCostKdvIn + packCost).toFixed(2));
 
           return `
             <tr>
