@@ -11,7 +11,7 @@ const DEFAULT_USER = "ahmet";
 const DEFAULT_PASS = "Ahmet123.";
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v10", // Bulletproof Storage Key v10 (Guaranteed 65 products merge)
+  PRODUCTS: "canfiyat_products_v11", // Storage Key v11 (%100 KDV Dahil Otomatik Dönüşüm)
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1"
