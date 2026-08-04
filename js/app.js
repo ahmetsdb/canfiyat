@@ -2957,9 +2957,9 @@ function generateLayer2PdfReport() {
           const isMaceration = isMacerationOil(p);
           
           const linearOverhead = isWholesale ? 0.00 : parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
-          const totalOverhead = isWholesale ? PriceCalculator.getOverheadForVolume(selectedVol, 0) : PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
-          const laborAssemblyFee = parseFloat(Math.max(0, totalOverhead - linearOverhead).toFixed(2));
-          const totalNetCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
+          const fullOverhead = PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
+          const laborAssemblyFee = parseFloat(Math.max(0, fullOverhead - (isWholesale ? 0 : linearOverhead)).toFixed(2));
+          const totalNetCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
 
           let recipeDesc = "";
           let column1Detail = "";
@@ -2989,7 +2989,7 @@ function generateLayer2PdfReport() {
               <td class="text-right">${column1Detail}</td>
               <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
               <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(linearOverhead)}</td>
-              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(laborAssemblyFee)}</td>
+              <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(laborAssemblyFee)}</td>
               <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalNetCost)}</td>
             </tr>
           `;
