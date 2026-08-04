@@ -2414,7 +2414,7 @@ async function resetProductField(productId, field) {
       fallbackCostPerKg: initialCost
     });
     product.herbRatioKg = macerationRes.calculatedRatio;
-    product.costPerKg = macerationRes.netCostPerKg;
+    product.layer2NetCostPerKg = macerationRes.netCostPerKg;
   } else {
     const coldPressRes = PriceCalculator.calculateColdPressCost({
       seedCostPerKg: product.seedCostPerKg !== undefined ? product.seedCostPerKg : initialSeed,
@@ -2425,7 +2425,7 @@ async function resetProductField(productId, field) {
       dipPercent: product.dipPercent || 0,
       fallbackCostPerKg: initialCost
     });
-    product.costPerKg = coldPressRes.netCostPerKg;
+    product.layer2NetCostPerKg = coldPressRes.netCostPerKg;
   }
 
   await StorageManager.saveProduct(product);
@@ -2503,7 +2503,7 @@ async function updateLayer2ProductField(productId, field, value) {
       fallbackCostPerKg: product.costPerKg || 600
     });
     product.herbRatioKg = macerationRes.calculatedRatio;
-    product.costPerKg = macerationRes.netCostPerKg;
+    product.layer2NetCostPerKg = macerationRes.netCostPerKg;
   } else {
     if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {
       product.seedCostPerKg = parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
@@ -2517,7 +2517,7 @@ async function updateLayer2ProductField(productId, field, value) {
       dipPercent: product.dipPercent || 0,
       fallbackCostPerKg: product.costPerKg || 1200
     });
-    product.costPerKg = coldPressRes.netCostPerKg;
+    product.layer2NetCostPerKg = coldPressRes.netCostPerKg;
   }
 
   await StorageManager.saveProduct(product);

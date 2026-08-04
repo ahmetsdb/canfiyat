@@ -145,9 +145,9 @@ class StorageManager {
               const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
               const defaultSeedCostKdvDahil = baseMap[id].initialSeedCostPerKg;
 
-              if (parsed[id].isUserEdited) {
-                const userCostKdvDahil = parsed[id].costPerKg;
-                const userNetPrice = parsed[id].listPriceKdvHaric || parseFloat((userCostKdvDahil / (1 + (kdvRate / 100))).toFixed(2));
+              if (parsed[id].isUserEdited && parsed[id].costPerKg) {
+                const userCostKdvDahil = parseFloat((parsed[id].listPriceKdvHaric * (1 + (kdvRate / 100))).toFixed(2));
+                const userNetPrice = parsed[id].listPriceKdvHaric;
                 baseMap[id] = {
                   ...baseMap[id],
                   ...parsed[id],
