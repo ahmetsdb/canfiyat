@@ -902,16 +902,26 @@ async function saveCurrentProductSlot() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  const newCostPerKg = getModalCostPerKg();
+  const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
+
   product.activeVolume = activeVolume;
-  product.costPerKg = getModalCostPerKg();
+  product.costPerKg = newCostPerKg;
+  product.listPriceKdvHaric = parseFloat((newCostPerKg / (1 + (kdvRate / 100))).toFixed(2));
+  product.rawNetCostPerKg = product.listPriceKdvHaric;
+  product.isUserEdited = true;
 
   await StorageManager.saveProduct(product);
   currentProducts = StorageManager.getProducts();
   
   renderProductGrid();
   renderStats();
+  if (typeof renderLayer2Cards === "function" && currentLayerMode === "layer2") {
+    renderLayer2Cards();
+  }
 
-  showToast(`${product.name} İçin Tüm Ayarlar ve Trendyol Teklif Fiyatları Saklandı! ☁️✅`);
+  showToast(`✅ ${product.name} Katman 1 Fiyatı ve Ayarları Başarıyla Güncellendi!`);
+  closeProductSlot();
 }
 
 function resetCatalog() {

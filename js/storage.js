@@ -145,22 +145,29 @@ class StorageManager {
               const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
               const defaultSeedCostKdvDahil = baseMap[id].initialSeedCostPerKg;
 
-              baseMap[id] = {
-                ...baseMap[id],
-                ...parsed[id],
-                kdv: kdvRate,
-                listPriceKdvHaric: rawNetPrice,
-                rawNetCostPerKg: rawNetPrice,
-                costPerKg: costKdvDahil,
-                initialCostPerKg: costKdvDahil,
-                initialSeedCostPerKg: defaultSeedCostKdvDahil
-              };
-
-              if (baseMap[id].costPerKg > costKdvDahil * 1.15 || Math.abs(baseMap[id].costPerKg - (costKdvDahil * 1.20)) < 2) {
-                baseMap[id].costPerKg = costKdvDahil;
-              }
-              if (baseMap[id].wholesaleCostPerKg && (baseMap[id].wholesaleCostPerKg > costKdvDahil * 1.15 || Math.abs(baseMap[id].wholesaleCostPerKg - (costKdvDahil * 1.20)) < 2)) {
-                baseMap[id].wholesaleCostPerKg = costKdvDahil;
+              if (parsed[id].isUserEdited) {
+                const userCostKdvDahil = parsed[id].costPerKg;
+                const userNetPrice = parsed[id].listPriceKdvHaric || parseFloat((userCostKdvDahil / (1 + (kdvRate / 100))).toFixed(2));
+                baseMap[id] = {
+                  ...baseMap[id],
+                  ...parsed[id],
+                  kdv: kdvRate,
+                  listPriceKdvHaric: userNetPrice,
+                  rawNetCostPerKg: userNetPrice,
+                  costPerKg: userCostKdvDahil,
+                  initialCostPerKg: costKdvDahil
+                };
+              } else {
+                baseMap[id] = {
+                  ...baseMap[id],
+                  ...parsed[id],
+                  kdv: kdvRate,
+                  listPriceKdvHaric: rawNetPrice,
+                  rawNetCostPerKg: rawNetPrice,
+                  costPerKg: costKdvDahil,
+                  initialCostPerKg: costKdvDahil,
+                  initialSeedCostPerKg: defaultSeedCostKdvDahil
+                };
               }
             } else if (parsed[id] && parsed[id].name) {
               baseMap[id] = parsed[id];
