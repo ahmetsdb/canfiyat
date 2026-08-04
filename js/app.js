@@ -2942,13 +2942,16 @@ function generateLayer2PdfReport() {
         ${sabitYaglar.map((p, idx) => {
           const vol = "1000ml";
           const kg = 1.0;
-          const hhammadde = p.costPerKg * kg;
-          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
+          const hhammadde = (p.costPerKg || p.initialCostPerKg || 1000) * kg;
+          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 35.00;
+          
           const isWholesale = (p.supplyType === "wholesale");
           const isMaceration = isMacerationOil(p);
-          const tesisPayi = isWholesale ? 0.00 : overheadRes.overheadPerKg * kg;
+          
+          const perKgOverhead = (overheadRes && !isNaN(overheadRes.overheadPerKg) && overheadRes.overheadPerKg > 0) ? overheadRes.overheadPerKg : 35.00;
+          const tesisPayi = isWholesale ? 0.00 : (perKgOverhead * kg);
           const montajPayi = isWholesale ? 0.00 : 10.00;
-          const totalCost = hhammadde + packCost + tesisPayi + montajPayi;
+          const totalCost = parseFloat((hhammadde + packCost + tesisPayi + montajPayi).toFixed(2));
 
           let recipeDesc = "";
           if (isMaceration) {
@@ -2959,7 +2962,7 @@ function generateLayer2PdfReport() {
             recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış</span> <span class="text-slate">(Dış Tedarik | Tesis 0₺)</span>`;
           } else {
             const yieldPct = p.yieldPercent || 25;
-            const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((p.costPerKg * 0.25).toFixed(2));
+            const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((hhammadde * 0.25).toFixed(2));
             recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım (Soğuk Sıkım)</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct})</span>`;
           }
 
