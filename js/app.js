@@ -2956,9 +2956,10 @@ function generateLayer2PdfReport() {
           const isWholesale = (p.supplyType === "wholesale");
           const isMaceration = isMacerationOil(p);
           
-          const linearOverhead = isWholesale ? 0.00 : parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
           const fullOverhead = PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
-          const laborAssemblyFee = parseFloat(Math.max(0, fullOverhead - (isWholesale ? 0 : linearOverhead)).toFixed(2));
+          const baseLinearOverhead = parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
+          const linearOverhead = isWholesale ? 0.00 : baseLinearOverhead;
+          const laborAssemblyFee = parseFloat(Math.max(0, fullOverhead - baseLinearOverhead).toFixed(2));
           const totalNetCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
 
           let recipeDesc = "";
@@ -3056,7 +3057,11 @@ function generateLayer2PdfReport() {
             ? DEFAULT_PACKAGING_COSTS[selectedVol]
             : 14.50;
           
-          const totalNetCost = parseFloat((rawCostKdvIn + packCost).toFixed(2));
+          const fullOverhead = PriceCalculator.getOverheadForVolume(selectedVol, dynamicOverheadPerKg);
+          const baseLinearOverhead = parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
+          const ucucuLaborFee = parseFloat(Math.max(0, fullOverhead - baseLinearOverhead).toFixed(2));
+          
+          const totalNetCost = parseFloat((rawCostKdvIn + packCost + ucucuLaborFee).toFixed(2));
 
           return `
             <tr>
@@ -3067,7 +3072,7 @@ function generateLayer2PdfReport() {
               <td class="text-right">${PriceCalculator.formatTL(rawCostKdvEx)}</td>
               <td class="text-right text-purple">${PriceCalculator.formatTL(kdvAmount)}</td>
               <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(rawCostKdvIn)}</td>
-              <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
+              <td class="text-right">${PriceCalculator.formatTL(packCost)} + <span class="text-purple">${PriceCalculator.formatTL(ucucuLaborFee)}</span></td>
               <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalNetCost)}</td>
             </tr>
           `;
