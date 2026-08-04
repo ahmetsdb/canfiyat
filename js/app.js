@@ -2946,21 +2946,21 @@ function generateLayer2PdfReport() {
           const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
           const isWholesale = (p.supplyType === "wholesale");
           const isMaceration = isMacerationOil(p);
-          const tesisPayi = overheadRes.overheadPerKg * kg;
-          const montajPayi = 10.00;
+          const tesisPayi = isWholesale ? 0.00 : overheadRes.overheadPerKg * kg;
+          const montajPayi = isWholesale ? 0.00 : 10.00;
           const totalCost = hhammadde + packCost + tesisPayi + montajPayi;
 
           let recipeDesc = "";
           if (isMaceration) {
             const herbRatio = p.herbRatioKg || 0.20;
             const ratioStr = `1:${Math.round(1 / herbRatio)}`;
-            recipeDesc = `<span class="text-purple font-bold">🌿 Maserasyon</span> <span class="text-slate">(${ratioStr} Z.Yağı Oranı)</span>`;
+            recipeDesc = `<span class="text-purple font-bold">🌿 Bizim Üretim (Maserasyon)</span> <span class="text-slate">(${ratioStr} Z.Yağı)</span>`;
           } else if (isWholesale) {
-            recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış</span> <span class="text-slate">(Tedarik Yağ)</span>`;
+            recipeDesc = `<span class="text-slate font-bold">📦 Toptan Alış</span> <span class="text-slate">(Dış Tedarik | Tesis 0₺)</span>`;
           } else {
             const yieldPct = p.yieldPercent || 25;
             const seedCost = (p.seedCostPerKg !== undefined && p.seedCostPerKg !== null) ? p.seedCostPerKg : parseFloat((p.costPerKg * 0.25).toFixed(2));
-            recipeDesc = `<span class="text-emerald font-bold">🧴 Soğuk Sıkım</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct})</span>`;
+            recipeDesc = `<span class="text-emerald font-bold">🧴 Bizim Sıkım (Soğuk Sıkım)</span> <span class="text-slate">(Tohum: ${PriceCalculator.formatTL(seedCost)} | %${yieldPct})</span>`;
           }
 
           return `
@@ -2971,8 +2971,8 @@ function generateLayer2PdfReport() {
               <td>${recipeDesc}</td>
               <td class="text-right font-bold">${PriceCalculator.formatTL(hhammadde)}</td>
               <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
-              <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(tesisPayi)}</td>
-              <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(montajPayi)}</td>
+              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(tesisPayi)}</td>
+              <td class="text-right font-bold ${isWholesale ? 'text-slate' : 'text-purple'}">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(montajPayi)}</td>
               <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalCost)}</td>
             </tr>
           `;
