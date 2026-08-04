@@ -2848,7 +2848,7 @@ function updateBundleSimulator() {
 }
 
 // ----------------------------------------------------
-// 📄 KATMAN 2 SAF FABRİKA MALİYETİ PDF RAPORU OLUŞTURUCU
+// 📄 KATMAN 2 SAF FABRİKA MALİYETİ PDF RAPORU OLUŞTURUCU (5 KALEM FATURA DÖKÜMLÜ)
 // ----------------------------------------------------
 function generateLayer2PdfReport() {
   const productsMap = StorageManager.getProducts();
@@ -2866,29 +2866,31 @@ function generateLayer2PdfReport() {
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Cansızzade - Katman 2 Fabrika Saf Üretim Maliyet Raporu</title>
+  <title>Cansızzade - Katman 2 Fabrika 5 Kalem Fatura Dökümlü Saf Maliyet Raporu</title>
   <style>
-    @page { size: A4 portrait; margin: 8mm; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 9.5px; line-height: 1.2; }
-    .page { page-break-after: always; min-height: 275mm; box-sizing: border-box; padding-bottom: 10mm; position: relative; }
+    @page { size: A4 portrait; margin: 6mm 8mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 9px; line-height: 1.15; }
+    .page { page-break-after: always; min-height: 280mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
     .page:last-child { page-break-after: avoid; }
-    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 6px; margin-bottom: 8px; }
-    .header-logo { height: 52px; width: auto; }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 5px; margin-bottom: 6px; }
+    .header-logo { height: 48px; width: auto; }
     .header-info { text-align: right; }
-    .header-info h1 { margin: 0; font-size: 15px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
-    .header-info p { margin: 2px 0 0 0; font-size: 9px; color: #475569; font-weight: 600; }
-    .meta-banner { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 9px; font-weight: 600; color: #166534; }
-    .cat-title { background: #047857; color: #ffffff; font-weight: 800; font-size: 10.5px; padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    table { width: 100%; border-collapse: collapse; font-size: 8.5px; margin-bottom: 8px; }
-    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 4px 5px; border-bottom: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 8px; }
-    td { padding: 3px 5px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    .header-info h1 { margin: 0; font-size: 14px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+    .header-info p { margin: 1px 0 0 0; font-size: 8.5px; color: #475569; font-weight: 600; }
+    .meta-banner { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 5px; padding: 4px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 8.5px; font-weight: 600; color: #166534; }
+    .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 6px; margin-bottom: 6px; font-size: 8px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
+    .cat-title { background: #047857; color: #ffffff; font-weight: 800; font-size: 10px; padding: 3px 6px; border-radius: 3px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 8px; margin-bottom: 6px; }
+    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 3.5px 4px; border-bottom: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 7.5px; }
+    td { padding: 2.5px 4px; border-bottom: 1px solid #e2e8f0; color: #334155; }
     tr:nth-child(even) { background: #f8fafc; }
     .text-right { text-align: right; }
     .text-center { text-align: center; }
     .font-black { font-weight: 900; }
+    .font-bold { font-weight: 700; }
     .text-emerald { color: #047857; }
     .text-blue { color: #1d4ed8; }
-    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 8px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 4px; }
+    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 3px; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
 </head>
@@ -2898,7 +2900,7 @@ function generateLayer2PdfReport() {
     <div class="header">
       <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
       <div class="header-info">
-        <h1>KATMAN 2: SAF FABRİKA MALİYET RAPORU</h1>
+        <h1>KATMAN 2: 5 KALEM FATURA DÖKÜMLÜ MALİYET RAPORU</h1>
         <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>SABİT YAĞLAR LİSTESİ</strong></p>
       </div>
     </div>
@@ -2910,34 +2912,49 @@ function generateLayer2PdfReport() {
       <span>📊 <strong>Toplam Ürün:</strong> ${sabitYaglar.length} Sabit Yağ</span>
     </div>
 
-    <div class="cat-title">🌿 SABİT YAĞLAR FABRİKA SAF MALİYET TABLOSU</div>
+    <div class="legend-banner">
+      <span><strong>1. Hammadde:</strong> Saf Yağ/Tohum Maliyeti</span>
+      <span><strong>2. Ambalaj:</strong> Şişe/Damlalık/Etiket</span>
+      <span><strong>3. Tesis Payı:</strong> Elektrik/SGK/Maaş (35₺/KG)</span>
+      <span><strong>4. Dolum Payı:</strong> İşçilik/Montaj (10₺)</span>
+    </div>
+
+    <div class="cat-title">🌿 SABİT YAĞLAR DETAYLI MALİYET DÖKÜM TABLOSU (1KG FABRİKA DOLUM)</div>
 
     <table>
       <thead>
         <tr>
-          <th style="width: 4%;">#</th>
-          <th style="width: 10%;">SKU</th>
-          <th style="width: 26%;">Ürün Adı</th>
-          <th style="width: 16%;" class="text-right">1KG Toptan Alış / Hammadde</th>
-          <th style="width: 14%;" class="text-center">Tedarik Tipi</th>
-          <th style="width: 15%;" class="text-right">Tesis & İşçilik Payı (1KG)</th>
-          <th style="width: 15%;" class="text-right">1KG SAF FABRİKA MALİYETİ</th>
+          <th style="width: 3%;">#</th>
+          <th style="width: 8%;">SKU</th>
+          <th style="width: 24%;">Ürün Adı</th>
+          <th style="width: 13%;" class="text-right">1. Hammadde Yağ</th>
+          <th style="width: 12%;" class="text-right">2. Şişe/Ambalaj</th>
+          <th style="width: 13%;" class="text-right">3. Tesis/Gider</th>
+          <th style="width: 13%;" class="text-right">4. Dolum Montaj</th>
+          <th style="width: 14%;" class="text-right">5. TOPLAM SAF MALİYET</th>
         </tr>
       </thead>
       <tbody>
         ${sabitYaglar.map((p, idx) => {
-          const isWholesale = p.supplyType === "wholesale";
-          const overhead = isWholesale ? 0 : overheadRes.overheadPerKg;
-          const total1KgCost = p.costPerKg + overhead;
+          const vol = "1000ml";
+          const kg = 1.0;
+          const hhammadde = p.costPerKg * kg;
+          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
+          const isWholesale = (p.supplyType === "wholesale");
+          const tesisPayi = isWholesale ? 0.00 : overheadRes.overheadPerKg * kg;
+          const montajPayi = isWholesale ? 0.00 : 10.00;
+          const totalCost = hhammadde + packCost + tesisPayi + montajPayi;
+
           return `
             <tr>
               <td class="text-center font-bold">${idx + 1}</td>
               <td class="font-bold">${p.sku}</td>
               <td class="font-bold text-emerald">${p.name}</td>
-              <td class="text-right font-bold">${PriceCalculator.formatTL(p.costPerKg)}</td>
-              <td class="text-center">${isWholesale ? '📦 Toptan Alış' : '🧴 Soğuk Sıkım'}</td>
-              <td class="text-right">${isWholesale ? '0,00 ₺ (Tesis 0₺)' : PriceCalculator.formatTL(overhead)}</td>
-              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(total1KgCost)}</td>
+              <td class="text-right font-bold">${PriceCalculator.formatTL(hhammadde)}</td>
+              <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
+              <td class="text-right">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(tesisPayi)}</td>
+              <td class="text-right">${isWholesale ? '0,00 ₺' : PriceCalculator.formatTL(montajPayi)}</td>
+              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalCost)}</td>
             </tr>
           `;
         }).join("")}
@@ -2945,8 +2962,8 @@ function generateLayer2PdfReport() {
     </table>
 
     <div class="footer">
-      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.41</span>
-      <span>Sayfa 1 / 2 (Sabit Yağlar)</span>
+      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.42</span>
+      <span>Sayfa 1 / 2 (Sabit Yağlar - 5 Kalem Fatura Dökümü)</span>
     </div>
   </div>
 
@@ -2955,42 +2972,58 @@ function generateLayer2PdfReport() {
     <div class="header">
       <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
       <div class="header-info">
-        <h1>KATMAN 2: SAF FABRİKA MALİYET RAPORU</h1>
+        <h1>KATMAN 2: 5 KALEM FATURA DÖKÜMLÜ MALİYET RAPORU</h1>
         <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>UÇUCU YAĞLAR LİSTESİ</strong></p>
       </div>
     </div>
 
     <div class="meta-banner">
       <span>📅 <strong>Rapor Tarihi:</strong> ${todayStr}</span>
-      <span>🏭 <strong>Tesis Modu:</strong> Toptan Alış (Tesis Elektriği 0 ₺)</span>
-      <span>📊 <strong>Toplam Ürün:</strong> ${ucucuYaglar.length} Uçucu Yağ (%20 KDV)</span>
+      <span>🏭 <strong>Tesis Modu:</strong> Toptan Alış (%20 KDV Dahil)</span>
+      <span>📊 <strong>Toplam Ürün:</strong> ${ucucuYaglar.length} Uçucu Yağ</span>
     </div>
 
-    <div class="cat-title">🌸 UÇUCU YAĞLAR FABRİKA SAF MALİYET TABLOSU</div>
+    <div class="legend-banner">
+      <span><strong>1. Hammadde:</strong> %20 KDV Dahil Toptan Yağ</span>
+      <span><strong>2. Ambalaj:</strong> Damlalıklı Şişe/Etiket</span>
+      <span><strong>3. Tesis Payı:</strong> 0,00 ₺ (Toptan Tedarik)</span>
+      <span><strong>4. Dolum Payı:</strong> 0,00 ₺</span>
+    </div>
+
+    <div class="cat-title">🌸 UÇUCU YAĞLAR DETAYLI MALİYET DÖKÜM TABLOSU (1KG FABRİKA DOLUM)</div>
 
     <table>
       <thead>
         <tr>
-          <th style="width: 4%;">#</th>
-          <th style="width: 10%;">SKU</th>
-          <th style="width: 26%;">Ürün Adı</th>
-          <th style="width: 18%;" class="text-right">1KG Toptan Alış (KDV Dahil)</th>
-          <th style="width: 12%;" class="text-center">KDV Oranı</th>
-          <th style="width: 15%;" class="text-right">Faturadaki Net</th>
-          <th style="width: 15%;" class="text-right">1KG SAF FABRİKA MALİYETİ</th>
+          <th style="width: 3%;">#</th>
+          <th style="width: 8%;">SKU</th>
+          <th style="width: 24%;">Ürün Adı</th>
+          <th style="width: 14%;" class="text-right">1. Hammadde Yağ (%20 KDV)</th>
+          <th style="width: 12%;" class="text-right">2. Şişe/Ambalaj</th>
+          <th style="width: 12%;" class="text-right">Faturadaki Net</th>
+          <th style="width: 13%;" class="text-right">KDV Tutarı</th>
+          <th style="width: 14%;" class="text-right">5. TOPLAM SAF MALİYET</th>
         </tr>
       </thead>
       <tbody>
         ${ucucuYaglar.map((p, idx) => {
+          const vol = "1000ml";
+          const hhammadde = p.costPerKg;
+          const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
+          const rawNet = p.listPriceKdvHaric || (hhammadde / 1.20);
+          const kdvAmount = hhammadde - rawNet;
+          const totalCost = hhammadde + packCost;
+
           return `
             <tr>
               <td class="text-center font-bold">${idx + 1}</td>
               <td class="font-bold">${p.sku}</td>
               <td class="font-bold text-emerald">${p.name}</td>
-              <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(p.costPerKg)}</td>
-              <td class="text-center font-bold">%20 KDV</td>
-              <td class="text-right">${PriceCalculator.formatTL(p.listPriceKdvHaric || (p.costPerKg / 1.20))}</td>
-              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(p.costPerKg)}</td>
+              <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(hhammadde)}</td>
+              <td class="text-right">${PriceCalculator.formatTL(packCost)}</td>
+              <td class="text-right">${PriceCalculator.formatTL(rawNet)}</td>
+              <td class="text-right">${PriceCalculator.formatTL(kdvAmount)}</td>
+              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(totalCost)}</td>
             </tr>
           `;
         }).join("")}
@@ -2998,8 +3031,8 @@ function generateLayer2PdfReport() {
     </table>
 
     <div class="footer">
-      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.41</span>
-      <span>Sayfa 2 / 2 (Uçucu Yağlar)</span>
+      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.42</span>
+      <span>Sayfa 2 / 2 (Uçucu Yağlar - 5 Kalem Fatura Dökümü)</span>
     </div>
   </div>
 
