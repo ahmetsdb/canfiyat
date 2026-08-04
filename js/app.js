@@ -2846,3 +2846,174 @@ function updateBundleSimulator() {
     console.error("Update Bundle Error:", err);
   }
 }
+
+// ----------------------------------------------------
+// 📄 KATMAN 2 SAF FABRİKA MALİYETİ PDF RAPORU OLUŞTURUCU
+// ----------------------------------------------------
+function generateLayer2PdfReport() {
+  const productsMap = StorageManager.getProducts();
+  const productsArr = Object.values(productsMap);
+
+  const sabitYaglar = productsArr.filter(p => p.category === "Sabit Yağlar");
+  const ucucuYaglar = productsArr.filter(p => p.category === "Uçucu Yağlar");
+
+  const todayStr = new Date().toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg();
+
+  const logoUrl = "assets/cansizzade_logo.jpg";
+
+  let reportHtml = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Cansızzade - Katman 2 Fabrika Saf Üretim Maliyet Raporu</title>
+  <style>
+    @page { size: A4 portrait; margin: 8mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 9.5px; line-height: 1.2; }
+    .page { page-break-after: always; min-height: 275mm; box-sizing: border-box; padding-bottom: 10mm; position: relative; }
+    .page:last-child { page-break-after: avoid; }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 6px; margin-bottom: 8px; }
+    .header-logo { height: 52px; width: auto; }
+    .header-info { text-align: right; }
+    .header-info h1 { margin: 0; font-size: 15px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+    .header-info p { margin: 2px 0 0 0; font-size: 9px; color: #475569; font-weight: 600; }
+    .meta-banner { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 9px; font-weight: 600; color: #166534; }
+    .cat-title { background: #047857; color: #ffffff; font-weight: 800; font-size: 10.5px; padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 8.5px; margin-bottom: 8px; }
+    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 4px 5px; border-bottom: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 8px; }
+    td { padding: 3px 5px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    tr:nth-child(even) { background: #f8fafc; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .font-black { font-weight: 900; }
+    .text-emerald { color: #047857; }
+    .text-blue { color: #1d4ed8; }
+    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 8px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 4px; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  <!-- SAYFA 1: SABİT YAĞLAR -->
+  <div class="page">
+    <div class="header">
+      <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
+      <div class="header-info">
+        <h1>KATMAN 2: SAF FABRİKA MALİYET RAPORU</h1>
+        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>SABİT YAĞLAR LİSTESİ</strong></p>
+      </div>
+    </div>
+
+    <div class="meta-banner">
+      <span>📅 <strong>Rapor Tarihi:</strong> ${todayStr}</span>
+      <span>🏭 <strong>Aylık Tesis Gideri:</strong> ${PriceCalculator.formatTL(overheadRes.totalMonthlyOverhead)}</span>
+      <span>⚡ <strong>1KG Yağ Payı:</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)}/KG</span>
+      <span>📊 <strong>Toplam Ürün:</strong> ${sabitYaglar.length} Sabit Yağ</span>
+    </div>
+
+    <div class="cat-title">🌿 SABİT YAĞLAR FABRİKA SAF MALİYET TABLOSU</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 4%;">#</th>
+          <th style="width: 10%;">SKU</th>
+          <th style="width: 26%;">Ürün Adı</th>
+          <th style="width: 16%;" class="text-right">1KG Toptan Alış / Hammadde</th>
+          <th style="width: 14%;" class="text-center">Tedarik Tipi</th>
+          <th style="width: 15%;" class="text-right">Tesis & İşçilik Payı (1KG)</th>
+          <th style="width: 15%;" class="text-right">1KG SAF FABRİKA MALİYETİ</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sabitYaglar.map((p, idx) => {
+          const isWholesale = p.supplyType === "wholesale";
+          const overhead = isWholesale ? 0 : overheadRes.overheadPerKg;
+          const total1KgCost = p.costPerKg + overhead;
+          return `
+            <tr>
+              <td class="text-center font-bold">${idx + 1}</td>
+              <td class="font-bold">${p.sku}</td>
+              <td class="font-bold text-emerald">${p.name}</td>
+              <td class="text-right font-bold">${PriceCalculator.formatTL(p.costPerKg)}</td>
+              <td class="text-center">${isWholesale ? '📦 Toptan Alış' : '🧴 Soğuk Sıkım'}</td>
+              <td class="text-right">${isWholesale ? '0,00 ₺ (Tesis 0₺)' : PriceCalculator.formatTL(overhead)}</td>
+              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(total1KgCost)}</td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.41</span>
+      <span>Sayfa 1 / 2 (Sabit Yağlar)</span>
+    </div>
+  </div>
+
+  <!-- SAYFA 2: UÇUCU YAĞLAR -->
+  <div class="page">
+    <div class="header">
+      <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
+      <div class="header-info">
+        <h1>KATMAN 2: SAF FABRİKA MALİYET RAPORU</h1>
+        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>UÇUCU YAĞLAR LİSTESİ</strong></p>
+      </div>
+    </div>
+
+    <div class="meta-banner">
+      <span>📅 <strong>Rapor Tarihi:</strong> ${todayStr}</span>
+      <span>🏭 <strong>Tesis Modu:</strong> Toptan Alış (Tesis Elektriği 0 ₺)</span>
+      <span>📊 <strong>Toplam Ürün:</strong> ${ucucuYaglar.length} Uçucu Yağ (%20 KDV)</span>
+    </div>
+
+    <div class="cat-title">🌸 UÇUCU YAĞLAR FABRİKA SAF MALİYET TABLOSU</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 4%;">#</th>
+          <th style="width: 10%;">SKU</th>
+          <th style="width: 26%;">Ürün Adı</th>
+          <th style="width: 18%;" class="text-right">1KG Toptan Alış (KDV Dahil)</th>
+          <th style="width: 12%;" class="text-center">KDV Oranı</th>
+          <th style="width: 15%;" class="text-right">Faturadaki Net</th>
+          <th style="width: 15%;" class="text-right">1KG SAF FABRİKA MALİYETİ</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${ucucuYaglar.map((p, idx) => {
+          return `
+            <tr>
+              <td class="text-center font-bold">${idx + 1}</td>
+              <td class="font-bold">${p.sku}</td>
+              <td class="font-bold text-emerald">${p.name}</td>
+              <td class="text-right font-bold text-blue">${PriceCalculator.formatTL(p.costPerKg)}</td>
+              <td class="text-center font-bold">%20 KDV</td>
+              <td class="text-right">${PriceCalculator.formatTL(p.listPriceKdvHaric || (p.costPerKg / 1.20))}</td>
+              <td class="text-right font-black text-blue">${PriceCalculator.formatTL(p.costPerKg)}</td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>Cansızzade Yönetim & Maliyet Analiz Sistemi v2.41</span>
+      <span>Sayfa 2 / 2 (Uçucu Yağlar)</span>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    };
+  </script>
+</body>
+</html>`;
+
+  const printWindow = window.open("", "_blank");
+  printWindow.document.write(reportHtml);
+  printWindow.document.close();
+}
