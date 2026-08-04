@@ -301,9 +301,13 @@ function renderProductGrid() {
             </div>
           </div>
 
-          <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[120px]">
-            <span class="text-slate-400 block text-[9px] uppercase font-semibold">1KG Toptan</span>
-            <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(product.costPerKg)}</span>
+          <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
+            <span class="text-slate-400 block text-[9px] uppercase font-bold flex items-center justify-between">
+              <span>1KG Toptan</span>
+              <span class="text-emerald-400 font-extrabold">%${product.kdv || (isUcucu ? 20 : 1)} KDV DAHİL</span>
+            </span>
+            <span class="font-black text-emerald-300 text-xs">${PriceCalculator.formatTL(product.costPerKg)}</span>
+            <span class="text-[9px] text-slate-500 block">Faturada Net: ${PriceCalculator.formatTL(product.rawNetCostPerKg || parseFloat((product.costPerKg / (1 + ((product.kdv || (isUcucu ? 20 : 1)) / 100))).toFixed(2)))}</span>
           </div>
 
           <div class="bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/80 text-xs min-w-[140px]">
@@ -362,14 +366,16 @@ function renderProductGrid() {
               ${product.name}
             </h3>
 
-            <div class="grid grid-cols-2 gap-2 my-2 text-xs bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
+            <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 col-span-2 flex items-center justify-between">
               <div>
-                <span class="text-slate-400 block text-[9px] uppercase font-semibold">1KG Toptan</span>
-                <span class="font-bold text-slate-200 text-xs">${PriceCalculator.formatTL(product.costPerKg)}</span>
+                <span class="text-slate-400 block text-[9px] uppercase font-bold">1KG Toptan Satış Fiyatı</span>
+                <span class="font-black text-emerald-300 text-sm">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
-              <div>
-                <span class="text-slate-400 block text-[9px] uppercase font-semibold">ml Maliyeti</span>
-                <span class="font-bold text-blue-400 text-xs">${mainVol} (${PriceCalculator.formatTL(unitCost)})</span>
+              <div class="text-right">
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60 block">
+                  ✓ %${product.kdv || (isUcucu ? 20 : 1)} KDV DAHİL
+                </span>
+                <span class="text-[9px] text-slate-500 block mt-0.5">Faturada Net: ${PriceCalculator.formatTL(product.rawNetCostPerKg || parseFloat((product.costPerKg / (1 + ((product.kdv || (isUcucu ? 20 : 1)) / 100))).toFixed(2)))}</span>
               </div>
             </div>
 
