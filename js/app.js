@@ -1495,16 +1495,13 @@ function setLayer2GroupMode(mode) {
   layer2GroupMode = mode;
   const btnRetail = document.getElementById("btn-layer2-group-retail");
   const btnDrums = document.getElementById("btn-layer2-group-drums");
-  const modeHint = document.getElementById("layer2-mode-hint");
 
   if (mode === "retail") {
-    if (btnRetail) btnRetail.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1.5";
-    if (btnDrums) btnDrums.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
-    if (modeHint) modeHint.innerHTML = "ℹ️ Perakende Modu: Küçük Şişelerde Yüksek İşçilik & Şişe/Damlalık Payı";
+    if (btnRetail) btnRetail.className = "px-4 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1.5";
+    if (btnDrums) btnDrums.className = "px-4 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
   } else {
-    if (btnRetail) btnRetail.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
-    if (btnDrums) btnDrums.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-500/20 flex items-center gap-1.5";
-    if (modeHint) modeHint.innerHTML = "📦 Toptan Sipariş KG Modu: Kutucuğa İstediğiniz Sipariş KG Miktarını Girin (Örn: 240 KG) -> Otomatik İskonto Hesaplasın";
+    if (btnRetail) btnRetail.className = "px-4 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+    if (btnDrums) btnDrums.className = "px-4 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-500/20 flex items-center gap-1.5";
   }
 
   renderLayer2Cards();
