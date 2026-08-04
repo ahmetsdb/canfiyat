@@ -11,7 +11,7 @@ const DEFAULT_USER = "ahmet";
 const DEFAULT_PASS = "Ahmet123.";
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v15", // Storage Key v15 (Kesin KDV Dahil 1920 TL Argan Entegrasyonu)
+  PRODUCTS: "canfiyat_products_v16", // Storage Key v16 (Supabase Cloud Sync Fix & Enforced KDV Dahil)
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1"
@@ -212,11 +212,21 @@ class StorageManager {
         const currentLocal = this.getProducts();
         data.forEach(item => {
           if (!item || !item.id) return;
-          const defaultVol = item.active_volume || item.selected_volume || (item.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+          const defaultVol = item.active_volume || item.selected_volume || "1000ml";
           if (currentLocal[item.id]) {
+            const kdvRate = currentLocal[item.id].kdv;
+            const rawNetPrice = currentLocal[item.id].listPriceKdvHaric;
+            const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
+
+            const isUserEdited = item.is_user_edited || item.isUserEdited || currentLocal[item.id].isUserEdited;
+            const finalNetPrice = isUserEdited ? (item.list_price_kdv_haric || item.listPriceKdvHaric || rawNetPrice) : rawNetPrice;
+            const finalCostKdvDahil = isUserEdited ? parseFloat((finalNetPrice * (1 + (kdvRate / 100))).toFixed(2)) : costKdvDahil;
+
             currentLocal[item.id] = {
               ...currentLocal[item.id],
-              costPerKg: item.cost_per_kg ?? item.costPerKg ?? currentLocal[item.id].costPerKg,
+              listPriceKdvHaric: finalNetPrice,
+              rawNetCostPerKg: finalNetPrice,
+              costPerKg: finalCostKdvDahil,
               activeVolume: defaultVol,
               volumes: item.volumes || currentLocal[item.id].volumes || this.createDefaultVolumeConfigs(),
               updatedAt: item.updated_at || new Date().toISOString()
@@ -224,6 +234,7 @@ class StorageManager {
           }
         });
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(currentLocal));
+        this.seedSupabaseDatabase(currentLocal);
         if (onCompleteCallback) onCompleteCallback(currentLocal);
       } else {
         const localData = this.getProducts();
