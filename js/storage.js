@@ -11,7 +11,7 @@ const DEFAULT_USER = "ahmet";
 const DEFAULT_PASS = "Ahmet123.";
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v11", // Storage Key v11 (%100 KDV Dahil Otomatik Dönüşüm)
+  PRODUCTS: "canfiyat_products_v15", // Storage Key v15 (Kesin KDV Dahil 1920 TL Argan Entegrasyonu)
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1"
@@ -85,8 +85,8 @@ class StorageManager {
       configs[vol] = {
         packagingCost: defaultPack,
         targetProfit: 0,
-        webSalePrice: 500, // Her ürüne ve ambalaja özel İyzico fiyatı (Sistem 2)
-        retailPrice: 650,  // Her ürüne ve ambalaja özel Perakende Fiyatı (Sistem 4)
+        webSalePrice: 500,
+        retailPrice: 650,
         channels: {
           trendyol: { commission: 19, discount: 0, cargo: 110 },
           hepsiburada: { commission: 17, discount: 0, cargo: 110 },
@@ -98,6 +98,12 @@ class StorageManager {
   }
 
   static getProducts() {
+    try {
+      ["canfiyat_products_v1", "canfiyat_products_v2", "canfiyat_products_v10", "canfiyat_products_v11", "canfiyat_products_v12", "canfiyat_products_v13"].forEach(oldKey => {
+        localStorage.removeItem(oldKey);
+      });
+    } catch(e) {}
+
     const baseMap = {};
     if (typeof INITIAL_PRODUCTS !== "undefined" && Array.isArray(INITIAL_PRODUCTS)) {
       INITIAL_PRODUCTS.forEach(p => {
@@ -141,32 +147,30 @@ class StorageManager {
             if (baseMap[id]) {
               delete parsed[id].layer2DrawerOpen;
               const kdvRate = baseMap[id].kdv;
-              const rawNetPrice = baseMap[id].listPriceKdvHaric;
-              const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
-              const defaultSeedCostKdvDahil = baseMap[id].initialSeedCostPerKg;
+              const defaultNet = baseMap[id].listPriceKdvHaric;
+              const defaultKdvDahil = baseMap[id].initialCostPerKg;
 
-              if (parsed[id].isUserEdited && parsed[id].costPerKg) {
-                const userCostKdvDahil = parseFloat((parsed[id].listPriceKdvHaric * (1 + (kdvRate / 100))).toFixed(2));
-                const userNetPrice = parsed[id].listPriceKdvHaric;
+              if (parsed[id].isUserEdited && parsed[id].listPriceKdvHaric) {
+                const userNet = parsed[id].listPriceKdvHaric;
+                const userKdvDahil = parseFloat((userNet * (1 + (kdvRate / 100))).toFixed(2));
                 baseMap[id] = {
                   ...baseMap[id],
                   ...parsed[id],
                   kdv: kdvRate,
-                  listPriceKdvHaric: userNetPrice,
-                  rawNetCostPerKg: userNetPrice,
-                  costPerKg: userCostKdvDahil,
-                  initialCostPerKg: costKdvDahil
+                  listPriceKdvHaric: userNet,
+                  rawNetCostPerKg: userNet,
+                  costPerKg: userKdvDahil,
+                  initialCostPerKg: defaultKdvDahil
                 };
               } else {
                 baseMap[id] = {
                   ...baseMap[id],
                   ...parsed[id],
                   kdv: kdvRate,
-                  listPriceKdvHaric: rawNetPrice,
-                  rawNetCostPerKg: rawNetPrice,
-                  costPerKg: costKdvDahil,
-                  initialCostPerKg: costKdvDahil,
-                  initialSeedCostPerKg: defaultSeedCostKdvDahil
+                  listPriceKdvHaric: defaultNet,
+                  rawNetCostPerKg: defaultNet,
+                  costPerKg: defaultKdvDahil,
+                  initialCostPerKg: defaultKdvDahil
                 };
               }
             } else if (parsed[id] && parsed[id].name) {
