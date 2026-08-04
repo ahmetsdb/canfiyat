@@ -101,10 +101,10 @@ class StorageManager {
     const baseMap = {};
     if (typeof INITIAL_PRODUCTS !== "undefined" && Array.isArray(INITIAL_PRODUCTS)) {
       INITIAL_PRODUCTS.forEach(p => {
-        const defaultVol = p.defaultVolume || (p.category === "Uçucu Yağlar" ? "50ml" : "250ml");
+        const defaultVol = p.defaultVolume || "1000ml";
         const kdvRate = p.kdv || (p.category === "Uçucu Yağlar" ? 20 : 1);
-        const costKdvDahil = p.costPerKg || 1200.00;
-        const rawNetPrice = parseFloat((costKdvDahil / (1 + (kdvRate / 100))).toFixed(2));
+        const rawNetPrice = p.listPriceKdvHaric || 1000.00;
+        const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
         const defaultSeedCostKdvDahil = parseFloat((costKdvDahil * 0.25).toFixed(2));
 
         baseMap[p.id] = {
@@ -114,6 +114,7 @@ class StorageManager {
           category: p.category,
           kdv: kdvRate,
           unit: "1KG",
+          listPriceKdvHaric: rawNetPrice,
           rawNetCostPerKg: rawNetPrice,
           costPerKg: costKdvDahil,
           initialCostPerKg: costKdvDahil,
@@ -140,15 +141,17 @@ class StorageManager {
             if (baseMap[id]) {
               delete parsed[id].layer2DrawerOpen;
               const kdvRate = baseMap[id].kdv;
-              const costKdvDahil = baseMap[id].initialCostPerKg;
-              const rawNetPrice = baseMap[id].rawNetCostPerKg;
+              const rawNetPrice = baseMap[id].listPriceKdvHaric;
+              const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
               const defaultSeedCostKdvDahil = baseMap[id].initialSeedCostPerKg;
 
               baseMap[id] = {
                 ...baseMap[id],
                 ...parsed[id],
                 kdv: kdvRate,
+                listPriceKdvHaric: rawNetPrice,
                 rawNetCostPerKg: rawNetPrice,
+                costPerKg: costKdvDahil,
                 initialCostPerKg: costKdvDahil,
                 initialSeedCostPerKg: defaultSeedCostKdvDahil
               };
