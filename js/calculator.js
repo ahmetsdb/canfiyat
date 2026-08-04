@@ -28,6 +28,10 @@ class PriceCalculator {
     return ml / 1000;
   }
 
+  static getVolumeInKg(volumeStr) {
+    return this.getVolumeKgRatio(volumeStr);
+  }
+
   static getWholesaleDiscountForKg(volumeInput, tiers) {
     if (!tiers && typeof StorageManager !== "undefined") {
       tiers = StorageManager.getWholesaleTiers();

@@ -2852,7 +2852,9 @@ function updateBundleSimulator() {
 // ----------------------------------------------------
 function generateLayer2PdfReport() {
   const selectedVol = document.getElementById("pdf-report-volume-select")?.value || "1000ml";
-  const volInKg = PriceCalculator.getVolumeInKg(selectedVol);
+  const volInKg = (typeof PriceCalculator.getVolumeInKg === "function")
+    ? PriceCalculator.getVolumeInKg(selectedVol)
+    : (PriceCalculator.getVolumeKgRatio ? PriceCalculator.getVolumeKgRatio(selectedVol) : (PriceCalculator.getVolumeMl(selectedVol) / 1000));
 
   const productsMap = StorageManager.getProducts();
   const productsArr = Object.values(productsMap);
