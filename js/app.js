@@ -1123,19 +1123,46 @@ function saveTrendyolPastedData() {
   }
 }
 
+function normalizeTr(str) {
+  if (!str) return "";
+  return str.toLowerCase()
+    .replace(/[ğĞ]/g, "g")
+    .replace(/[ıİI]/g, "i")
+    .replace(/[öÖ]/g, "o")
+    .replace(/[üÜ]/g, "u")
+    .replace(/[şŞ]/g, "s")
+    .replace(/[çÇ]/g, "c")
+    .replace(/yagyi|yagi|yayi|yağ|yag/g, "yag")
+    .trim();
+}
+
 function findTrendyolProduct(productName, volKey) {
   if (typeof TRENDYOL_PRODUCTS_DATA === "undefined" || !Array.isArray(TRENDYOL_PRODUCTS_DATA)) return null;
   const storedCustom = StorageManager.getTrendyolCustomProducts();
   const catalog = (storedCustom && storedCustom.length > 0) ? storedCustom : TRENDYOL_PRODUCTS_DATA;
 
-  const normName = (productName || "").toLowerCase().replace(/yağı|yagı|yağ|yag/g, "").trim();
+  const normProdName = normalizeTr(productName).replace("yag", "").trim();
   const normVol = (volKey || "").toLowerCase();
 
   return catalog.find(item => {
-    const itemTitle = (item.title || "").toLowerCase();
-    const nameParts = normName.split(" ");
-    const hasName = nameParts.some(part => part.length > 3 && itemTitle.includes(part));
-    const hasVol = itemTitle.includes(normVol) || (normVol === "1000ml" && (itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000 ml")));
+    const itemTitle = normalizeTr(item.title);
+    
+    let hasName = false;
+    if (normProdName.includes(" ")) {
+      const parts = normProdName.split(" ");
+      hasName = parts.every(p => p.length <= 2 || itemTitle.includes(p));
+    } else {
+      hasName = itemTitle.includes(normProdName);
+    }
+
+    let hasVol = itemTitle.includes(normVol);
+    if (!hasVol) {
+      if (normVol === "1000ml" && (itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000 ml") || itemTitle.includes("1000ml"))) hasVol = true;
+      if (normVol === "5000ml" && (itemTitle.includes("5kg") || itemTitle.includes("5 kg") || itemTitle.includes("5000 ml") || itemTitle.includes("5000ml"))) hasVol = true;
+      if (normVol === "250ml" && (itemTitle.includes("250 g") || itemTitle.includes("250g") || itemTitle.includes("250 ml") || itemTitle.includes("250ml"))) hasVol = true;
+      if (normVol === "500ml" && (itemTitle.includes("500 g") || itemTitle.includes("500g") || itemTitle.includes("500 ml") || itemTitle.includes("500ml"))) hasVol = true;
+    }
+
     return hasName && hasVol;
   }) || null;
 }
@@ -1156,6 +1183,53 @@ function renderLayer3Cards() {
   let productsArr = Object.values(currentProducts || {});
   if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
     productsArr = INITIAL_PRODUCTS;
+  }
+
+  // User Directive: Render unmatched Trendyol products card at top if Trendyol is selected
+  if (currentLayer3Channel === "trendyol" && typeof TRENDYOL_PRODUCTS_DATA !== "undefined") {
+    const storedCustom = StorageManager.getTrendyolCustomProducts();
+    const catalog = (storedCustom && storedCustom.length > 0) ? storedCustom : TRENDYOL_PRODUCTS_DATA;
+
+    const matchedBarcodes = new Set();
+    productsArr.forEach(prod => {
+      ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
+        const m = findTrendyolProduct(prod.name, vk);
+        if (m && m.barcode) matchedBarcodes.add(m.barcode);
+      });
+    });
+
+    const unmatchedList = catalog.filter(item => item.barcode && !matchedBarcodes.has(item.barcode));
+    
+    if (unmatchedList.length > 0) {
+      let unmatchedCardsHtml = unmatchedList.slice(0, 15).map(item => `
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-orange-500/30 flex items-center justify-between text-xs">
+          <div class="truncate max-w-[70%]">
+            <span class="font-mono text-[9px] text-orange-400 font-bold block">${item.barcode}</span>
+            <span class="text-slate-200 font-semibold truncate block">${item.title}</span>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-extrabold text-orange-300 text-sm block">${PriceCalculator.formatTL(item.price)}</span>
+            <span class="text-[9px] text-amber-400 font-bold bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800/60">+ Sistemde Yok</span>
+          </div>
+        </div>
+      `).join("");
+
+      const bannerHtml = `
+        <div class="glass-card rounded-2xl p-4 border border-orange-500/40 bg-gradient-to-r from-slate-950 via-orange-950/20 to-slate-950 shadow-xl mb-4">
+          <div class="flex items-center justify-between border-b border-orange-500/30 pb-2 mb-3">
+            <h4 class="text-xs font-black text-orange-300 flex items-center gap-2">
+              📦 Trendyol'da Satılan Ama Sisteminizde Henüz Tanımlı Olmayan Ürünler (${unmatchedList.length} Adet)
+            </h4>
+            <span class="text-[10px] text-slate-400 font-bold">Örn: Shea Yağı, Aynısefa, Havuç Tohumu, Tartı...</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            ${unmatchedCardsHtml}
+          </div>
+          ${unmatchedList.length > 15 ? `<p class="text-[10px] text-slate-500 mt-2 text-center font-bold">+ ${unmatchedList.length - 15} adet daha ek ürün Trendyol Excel dosyanızda mevcut.</p>` : ''}
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", bannerHtml);
+    }
   }
 
   productsArr.forEach(product => {
@@ -1208,6 +1282,11 @@ function renderLayer3Cards() {
     }
 
     const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
+    
+    // User Directive: Only list products that exist on the selected channel!
+    if (!hasVolPrice) {
+      return; // Skip products not present on this channel!
+    }
     
     let liveSitePriceHtml = `
       <div class="flex items-center gap-1">
