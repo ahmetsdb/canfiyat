@@ -169,14 +169,27 @@ function setViewMode(mode) {
 }
 
 function renderStats() {
-  const productsArr = Object.values(currentProducts);
+  let productsArr = Object.values(currentProducts || {});
+  if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
+    productsArr = INITIAL_PRODUCTS;
+  }
   const totalCount = productsArr.length;
-  const ucucuCount = productsArr.filter(p => p.category === "Uçucu Yağlar").length;
-  const sabitCount = productsArr.filter(p => p.category === "Sabit Yağlar").length;
+  const ucucuCount = productsArr.filter(p => p && p.category === "Uçucu Yağlar").length;
+  const sabitCount = productsArr.filter(p => p && p.category === "Sabit Yağlar").length;
 
-  document.getElementById("stat-total-count").innerText = totalCount;
-  document.getElementById("stat-ucucu-count").innerText = ucucuCount;
-  document.getElementById("stat-sabit-count").innerText = sabitCount;
+  if (document.getElementById("stat-total-count")) document.getElementById("stat-total-count").innerText = totalCount;
+  if (document.getElementById("stat-ucucu-count")) document.getElementById("stat-ucucu-count").innerText = ucucuCount;
+  if (document.getElementById("stat-sabit-count")) document.getElementById("stat-sabit-count").innerText = sabitCount;
+
+  // Dynamically update category filter tab buttons
+  const btnAll = document.getElementById("cat-tab-all");
+  if (btnAll) btnAll.innerHTML = `Tüm Ürünler (${totalCount})`;
+
+  const btnUcucu = document.getElementById("cat-tab-Uçucu Yağlar");
+  if (btnUcucu) btnUcucu.innerHTML = `🌿 Uçucu Yağlar (${ucucuCount})`;
+
+  const btnSabit = document.getElementById("cat-tab-Sabit Yağlar");
+  if (btnSabit) btnSabit.innerHTML = `🌻 Sabit Yağlar (${sabitCount})`;
 }
 
 function filterCategory(cat) {
@@ -1272,6 +1285,34 @@ function renderLayer3Cards() {
   if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
     productsArr = INITIAL_PRODUCTS;
   }
+
+  // Calculate dynamic channel product counts
+  let tyMatchCount = 0;
+  let iyzicoMatchCount = 0;
+
+  productsArr.forEach(prod => {
+    if (!prod || !prod.name) return;
+    const hasTy = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+      const m = findTrendyolProduct(prod.name, vk);
+      return m && m.price > 0;
+    });
+    if (hasTy) tyMatchCount++;
+
+    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
+    const hasIyzico = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+      const ov = StorageManager.getSiteOverride(prod.id, vk);
+      if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
+      if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
+      return false;
+    });
+    if (hasIyzico) iyzicoMatchCount++;
+  });
+
+  const btnIyzico = document.getElementById("btn-l3-channel-iyzico");
+  if (btnIyzico) btnIyzico.innerHTML = `🌐 iyzico (${iyzicoMatchCount} Ürün)`;
+
+  const btnTrendyol = document.getElementById("btn-l3-channel-trendyol");
+  if (btnTrendyol) btnTrendyol.innerHTML = `🧡 Trendyol (${tyMatchCount} Ürün)`;
 
   // Build Unified Products List for Katman 3
   let displayList = [];
