@@ -231,6 +231,20 @@ function getVolumeConfig(product, volKey) {
 }
 
 
+function sortProductsByCategoryAndName(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.slice().sort((a, b) => {
+    const catOrder = { "Uçucu Yağlar": 1, "Sabit Yağlar": 2 };
+    const orderA = catOrder[a.category] || 3;
+    const orderB = catOrder[b.category] || 3;
+
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    return (a.name || "").localeCompare(b.name || "", "tr");
+  });
+}
+
 function renderProductGrid() {
   const container = document.getElementById("product-grid");
   if (!container) return;
@@ -242,7 +256,7 @@ function renderProductGrid() {
   }
 
   const productsArr = Object.values(currentProducts || {});
-  const filtered = productsArr.filter(p => {
+  const filteredRaw = productsArr.filter(p => {
     if (!p || typeof p.name !== "string" || typeof p.sku !== "string") return false;
     const matchesCat = (activeCategory === "all") || (p.category === activeCategory);
     const pName = (p.name || "").toLowerCase();
@@ -250,6 +264,8 @@ function renderProductGrid() {
     const matchesSearch = !searchQuery || pName.includes(searchQuery) || pSku.includes(searchQuery);
     return matchesCat && matchesSearch;
   });
+
+  const filtered = sortProductsByCategoryAndName(filteredRaw);
 
   if (filtered.length === 0) {
     container.innerHTML = `
@@ -1364,7 +1380,9 @@ function renderLayer3Cards() {
     });
   }
 
-  displayList.forEach(product => {
+  const sortedDisplayList = sortProductsByCategoryAndName(displayList);
+
+  sortedDisplayList.forEach(product => {
     // Process regular matched products
     const allVols = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
     const availableVols = allVols.filter(vk => {
@@ -1883,7 +1901,7 @@ function renderLayer2Cards() {
     const currentCat = (typeof activeCategory !== "undefined" && activeCategory) ? activeCategory : "all";
     const currentSearch = (typeof searchQuery !== "undefined" && searchQuery) ? searchQuery.toLowerCase() : "";
 
-    const productsList = Object.values(productsMap).filter(p => {
+    const productsListRaw = Object.values(productsMap).filter(p => {
       if (!p || typeof p.name !== "string" || typeof p.sku !== "string") return false;
       const matchesCat = (currentCat === "all" || currentCat === "ALL") || (p.category === currentCat);
       const pName = (p.name || "").toLowerCase();
@@ -1891,6 +1909,8 @@ function renderLayer2Cards() {
       const matchesSearch = !currentSearch || pName.includes(currentSearch) || pSku.includes(currentSearch);
       return matchesCat && matchesSearch;
     });
+
+    const productsList = sortProductsByCategoryAndName(productsListRaw);
 
     if (productsList.length === 0) {
       const emptyHtml = `<div class="col-span-full py-12 text-center text-slate-400 font-medium bg-slate-900/50 rounded-2xl border border-slate-800">Aramanıza veya seçtiğiniz kategoriye uygun ürün bulunamadı.</div>`;
