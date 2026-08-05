@@ -1185,7 +1185,10 @@ function renderLayer3Cards() {
 
     const canFiyatBaseCost = sys1Result.salePrice; // Katman 1 / Sistem 1 İyzico Fiyatı
 
-    // Fetch channel price: Trendyol or iyzico
+    // Fetch site data & overrides
+    const overridePrice = StorageManager.getSiteOverride(product.id, volKey);
+    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
+
     let activeLivePrice = null;
     let siteUrl = `https://www.cansizzadeyag.com/`;
 
@@ -1196,8 +1199,6 @@ function renderLayer3Cards() {
         if (tyMatch.url) siteUrl = tyMatch.url;
       }
     } else {
-      const overridePrice = StorageManager.getSiteOverride(product.id, volKey);
-      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
       if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
         activeLivePrice = parseFloat(overridePrice);
       } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0) {
