@@ -1514,13 +1514,14 @@ function renderLayer3Cards() {
     }
 
     const cardTheme = currentLayer3Channel === "trendyol" 
-      ? "border-orange-500/40 hover:border-orange-400/80 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"
-      : "border-slate-800/80 hover:border-purple-500/50 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950";
+      ? "border-orange-500/40 hover:border-orange-400/80 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 shadow-orange-950/10"
+      : "border-slate-800/80 hover:border-purple-500/50 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 shadow-purple-950/10";
 
     const cardHtml = `
-      <div class="glass-card rounded-2xl p-4 border ${cardTheme} flex flex-col justify-between relative overflow-hidden transition-all shadow-xl">
+      <div class="glass-card rounded-2xl p-4 border ${cardTheme} flex flex-col justify-between relative overflow-hidden transition-all shadow-xl group">
         <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
+          <!-- Top Action Bar: Category Badge + SKU + Prominent "Tüm Boyutlar" Button -->
+          <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800/60">
             <div class="flex items-center gap-1.5 truncate">
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${catBadge}">
                 ${product.category}
@@ -1530,37 +1531,50 @@ function renderLayer3Cards() {
                   🧡 TRENDYOL
                 </span>
               ` : ''}
+              <span class="font-mono text-[10px] font-semibold text-slate-300 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                ${product.sku}
+              </span>
             </div>
-            <span class="font-mono text-xs font-semibold text-slate-300 bg-slate-950 px-2.5 py-0.5 rounded-full border border-slate-800">
-              ${product.sku}
-            </span>
+
+            <!-- PROMINENT TOP ACCORDION BUTTON -->
+            <button onclick="toggleCardAccordion('${product.id}')" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer shadow-sm flex items-center gap-1.5 ${isExpanded ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950 text-orange-300 border border-orange-700/80' : 'bg-purple-950 text-purple-300 border border-purple-700/80') : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700'}">
+              <span>📊 ${isExpanded ? 'Tabloyu Kapat ▲' : 'Tüm Boyutlar Tablosu ▼'}</span>
+            </button>
           </div>
 
-          <h3 class="text-sm font-extrabold text-white tracking-tight mb-2 truncate">
+          <!-- Product Title -->
+          <h3 class="text-sm font-extrabold text-white tracking-tight mb-2.5 truncate group-hover:text-amber-300 transition-colors">
             ${product.name}
           </h3>
 
-          <!-- Available Volumes Selector -->
-          <div class="flex items-center gap-1.5 my-3 flex-wrap">
-            <span class="text-[10px] font-bold text-slate-400 uppercase mr-1">Satışta Olan Boyutlar:</span>
+          <!-- Available Volumes Quick Selector Pills -->
+          <div class="flex items-center gap-1.5 my-2.5 flex-wrap">
+            <span class="text-[10px] font-bold text-slate-400 uppercase mr-1 flex items-center gap-1">
+              <span>📏</span> Ambalaj:
+            </span>
             ${volButtonsHtml}
           </div>
 
-          <!-- Price & Profit Comparison Box -->
-          <div class="my-3 bg-slate-950/90 p-3 rounded-xl border border-slate-800/80 space-y-2">
+          <!-- Price & Net Margin Metrics Highlight Box -->
+          <div class="my-3 bg-slate-950/95 p-3.5 rounded-xl border border-slate-800/90 space-y-2.5 shadow-inner">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-slate-400">${currentLayer3Channel === 'trendyol' ? 'Trendyol Canlı Satış Fiyatı:' : 'Web Canlı Satış Fiyatı:'}</span>
-              <span class="text-base font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${PriceCalculator.formatTL(activeLivePrice)}</span>
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <span>${currentLayer3Channel === 'trendyol' ? '🧡' : '🌐'}</span>
+                ${currentLayer3Channel === 'trendyol' ? 'Trendyol Canlı Fiyatı:' : 'Web Canlı Fiyatı:'}
+              </span>
+              <span class="text-lg font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'} tracking-tight">${PriceCalculator.formatTL(activeLivePrice)}</span>
             </div>
 
-            <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
-              <span class="text-xs font-semibold text-slate-400">Saf Fabrika Maliyeti:</span>
-              <span class="text-xs font-bold text-slate-200">${PriceCalculator.formatTL(wholesaleUnitCost)}</span>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/70">
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <span>🏭</span> Saf Fabrika Maliyeti:
+              </span>
+              <span class="text-xs font-bold text-slate-200 font-mono">${PriceCalculator.formatTL(wholesaleUnitCost)}</span>
             </div>
 
-            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800/90">
               <div class="flex items-center gap-1.5">
-                <span class="text-xs font-extrabold text-white">Net Tahmini Kâr:</span>
+                <span class="text-xs font-extrabold text-white">💰 Net Tahmini Marj:</span>
                 <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${marginBadge}">${statusText}</span>
               </div>
               ${netProfitMarginHtml}
@@ -1568,12 +1582,10 @@ function renderLayer3Cards() {
           </div>
         </div>
 
-        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-xs">
-          <button onclick="toggleCardAccordion('${product.id}')" class="text-slate-400 hover:text-white font-bold transition-all flex items-center gap-1 cursor-pointer">
-            <span>${isExpanded ? '▲ Gizle' : '▼ Tüm Satış Boyutları'}</span>
-          </button>
-          <a href="${siteUrl}" target="_blank" class="text-xs font-extrabold ${currentLayer3Channel === 'trendyol' ? 'text-orange-400 hover:text-orange-300' : 'text-purple-400 hover:text-purple-300'} flex items-center gap-1">
-            <span>Ürüne Git ↗</span>
+        <!-- Footer Link to Live Product Page -->
+        <div class="flex items-center justify-end pt-2 border-t border-slate-800/80 text-xs">
+          <a href="${siteUrl}" target="_blank" class="text-xs font-extrabold ${currentLayer3Channel === 'trendyol' ? 'bg-orange-950/80 hover:bg-orange-900 text-orange-300 border border-orange-800/60' : 'bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-800/60'} px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
+            <span>${currentLayer3Channel === 'trendyol' ? 'Trendyol Sayfasına Git' : 'Sitede İncele'} ↗</span>
           </a>
         </div>
 
