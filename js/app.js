@@ -1155,44 +1155,78 @@ function findTrendyolProduct(productName, volKey) {
   const catalog = getTrendyolFilteredCatalog();
   if (catalog.length === 0) return null;
 
-  let normProd = normalizeTr(productName)
-    .replace(/\(.*?\)/g, "")
-    .replace(/sabit|ucucu|yaglar|yagi|yag/g, "")
-    .replace(/soguk|sikim|gida|gidaya|uygun|gimdes|helal|ruseym|posasiz|suzme|meyveli|refined|bittim|angustifolia|intermedia|peppermint/g, "")
-    .trim();
-
-  if (normProd.includes("hindistan")) normProd = "hindistan";
-  else if (normProd.includes("tatli badem")) normProd = "tatli badem";
-  else if (normProd.includes("aci badem")) normProd = "aci badem";
-  else if (normProd.includes("corek")) normProd = "corek";
-  else if (normProd.includes("kabak")) normProd = "kabak";
-  else if (normProd.includes("kayisi")) normProd = "kayisi";
-  else if (normProd.includes("kusburnu")) normProd = "kusburnu";
-  else if (normProd.includes("incir")) normProd = "incir";
-  else if (normProd.includes("nar")) normProd = "nar";
-  else if (normProd.includes("deve dikeni")) normProd = "deve dikeni";
-  else if (normProd.includes("at kestanesi")) normProd = "at kestanesi";
-  else if (normProd.includes("bugday")) normProd = "bugday";
-  else if (normProd.includes("kantaron")) normProd = "kantaron";
-  else if (normProd.includes("isirgan")) normProd = "isirgan";
-  else if (normProd.includes("gliserin")) normProd = "gliserin";
-  else if (normProd.includes("skualen") || normProd.includes("squalene")) normProd = "skualen";
-
   const normVol = (volKey || "").toLowerCase().trim();
-  const keywords = normProd.split(" ").filter(k => k.length >= 3);
+  const normProdName = normalizeTr(productName);
 
   return catalog.find(item => {
     const itemTitle = normalizeTr(item.title);
 
+    // 1. Core Oil Identity Match
     let nameMatch = false;
-    if (keywords.length > 0) {
-      nameMatch = keywords.every(kw => itemTitle.includes(kw));
-    } else {
-      nameMatch = itemTitle.includes(normProd);
-    }
+
+    if (normProdName.includes("badem")) nameMatch = itemTitle.includes("badem");
+    else if (normProdName.includes("findik")) nameMatch = itemTitle.includes("findik");
+    else if (normProdName.includes("ceviz")) nameMatch = itemTitle.includes("ceviz");
+    else if (normProdName.includes("hint") && !normProdName.includes("hindistan")) nameMatch = itemTitle.includes("hint") && !itemTitle.includes("hindistan") && !itemTitle.includes("udi hindi");
+    else if (normProdName.includes("hindistan")) nameMatch = itemTitle.includes("hindistan");
+    else if (normProdName.includes("udi hindi")) nameMatch = itemTitle.includes("udi hindi") || itemTitle.includes("udi");
+    else if (normProdName.includes("nioli")) nameMatch = itemTitle.includes("nioli");
+    else if (normProdName.includes("incir")) nameMatch = itemTitle.includes("incir");
+    else if (normProdName.includes("defne")) nameMatch = itemTitle.includes("defne");
+    else if (normProdName.includes("kantaron")) nameMatch = itemTitle.includes("kantaron");
+    else if (normProdName.includes("biberiye")) nameMatch = itemTitle.includes("biberiye");
+    else if (normProdName.includes("lavanta")) nameMatch = itemTitle.includes("lavanta");
+    else if (normProdName.includes("nane")) nameMatch = itemTitle.includes("nane");
+    else if (normProdName.includes("okaliptus")) nameMatch = itemTitle.includes("okaliptus");
+    else if (normProdName.includes("kekik")) nameMatch = itemTitle.includes("kekik");
+    else if (normProdName.includes("karanfil")) nameMatch = itemTitle.includes("karanfil");
+    else if (normProdName.includes("kayisi")) nameMatch = itemTitle.includes("kayisi");
+    else if (normProdName.includes("kusburnu")) nameMatch = itemTitle.includes("kusburnu");
+    else if (normProdName.includes("nar") && !normProdName.includes("kudret")) nameMatch = itemTitle.includes("nar") && !itemTitle.includes("kudret");
+    else if (normProdName.includes("kudret")) nameMatch = itemTitle.includes("kudret");
+    else if (normProdName.includes("kabak")) nameMatch = itemTitle.includes("kabak");
+    else if (normProdName.includes("corek")) nameMatch = itemTitle.includes("corek");
+    else if (normProdName.includes("susam")) nameMatch = itemTitle.includes("susam");
+    else if (normProdName.includes("uzum")) nameMatch = itemTitle.includes("uzum");
+    else if (normProdName.includes("at kestanesi")) nameMatch = itemTitle.includes("at kestanesi");
+    else if (normProdName.includes("jojoba")) nameMatch = itemTitle.includes("jojoba");
+    else if (normProdName.includes("chia")) nameMatch = itemTitle.includes("chia");
+    else if (normProdName.includes("aynisefa")) nameMatch = itemTitle.includes("aynisefa") || itemTitle.includes("calendula");
+    else if (normProdName.includes("kenevir")) nameMatch = itemTitle.includes("kenevir") || itemTitle.includes("kendir");
+    else if (normProdName.includes("menengic")) nameMatch = itemTitle.includes("menengic") || itemTitle.includes("bittim");
+    else if (normProdName.includes("hashas")) nameMatch = itemTitle.includes("hashas");
+    else if (normProdName.includes("kakao")) nameMatch = itemTitle.includes("kakao");
+    else if (normProdName.includes("argan")) nameMatch = itemTitle.includes("argan");
+    else if (normProdName.includes("avokado")) nameMatch = itemTitle.includes("avokado");
+    else if (normProdName.includes("sarimsak")) nameMatch = itemTitle.includes("sarimsak");
+    else if (normProdName.includes("bamya")) nameMatch = itemTitle.includes("bamya");
+    else if (normProdName.includes("deve dikeni")) nameMatch = itemTitle.includes("deve dikeni") || itemTitle.includes("de dikeni");
+    else if (normProdName.includes("isirgan")) nameMatch = itemTitle.includes("isirgan");
+    else if (normProdName.includes("bugday")) nameMatch = itemTitle.includes("bugday");
+    else if (normProdName.includes("aspir")) nameMatch = itemTitle.includes("aspir");
+    else if (normProdName.includes("uzerlik")) nameMatch = itemTitle.includes("uzerlik") || itemTitle.includes("ozerlik");
+    else if (normProdName.includes("aloe")) nameMatch = itemTitle.includes("aloe") || itemTitle.includes("aloevera");
+    else if (normProdName.includes("gliserin")) nameMatch = itemTitle.includes("gliserin") || itemTitle.includes("glycerol");
+    else if (normProdName.includes("skualen") || normProdName.includes("squalene")) nameMatch = itemTitle.includes("skualen") || itemTitle.includes("squalene");
+    else if (normProdName.includes("limon") && !normProdName.includes("limon otu")) nameMatch = itemTitle.includes("limon") && !itemTitle.includes("limon otu");
+    else if (normProdName.includes("portakal")) nameMatch = itemTitle.includes("portakal");
+    else if (normProdName.includes("bergamot")) nameMatch = itemTitle.includes("bergamot");
+    else if (normProdName.includes("greyfurt")) nameMatch = itemTitle.includes("greyfurt");
+    else if (normProdName.includes("zencefil")) nameMatch = itemTitle.includes("zencefil");
+    else if (normProdName.includes("tarcin")) nameMatch = itemTitle.includes("tarcin");
+    else if (normProdName.includes("havuc")) nameMatch = itemTitle.includes("havuc");
+    else if (normProdName.includes("paculi")) nameMatch = itemTitle.includes("paculi");
+    else if (normProdName.includes("palmarosa")) nameMatch = itemTitle.includes("palmarosa");
+    else if (normProdName.includes("vanilya")) nameMatch = itemTitle.includes("vanilya");
+    else if (normProdName.includes("citronella")) nameMatch = itemTitle.includes("citronella");
+    else if (normProdName.includes("sedir")) nameMatch = itemTitle.includes("sedir");
+    else if (normProdName.includes("cay agaci")) nameMatch = itemTitle.includes("cay agaci");
+    else if (normProdName.includes("yasemin")) nameMatch = itemTitle.includes("yasemin");
+    else if (normProdName.includes("mandalina")) nameMatch = itemTitle.includes("mandalina");
 
     if (!nameMatch) return false;
 
+    // 2. Volume Match
     let volMatch = false;
     if (normVol === "1000ml") {
       volMatch = itemTitle.includes("1000ml") || itemTitle.includes("1000 ml") || itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000g") || itemTitle.includes("1000 gr");
@@ -1254,14 +1288,14 @@ function renderLayer3Cards() {
         if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
       }
 
-      // Check if product has any matching volume in Trendyol
-      const hasAnyTyMatch = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+      // Check if product has any matching volume in Trendyol and register ALL matched barcodes!
+      let hasAnyTyMatch = false;
+      ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
         const m = findTrendyolProduct(prod.name, vk);
         if (m && m.barcode) {
           matchedBarcodes.add(m.barcode);
-          return true;
+          hasAnyTyMatch = true;
         }
-        return false;
       });
 
       if (hasAnyTyMatch) {
