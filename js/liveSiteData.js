@@ -54,7 +54,7 @@ const LIVE_SITE_SCRAPED_DATA = {
   "U.0199": { id: "U.0199", sku: "U.0199", name: "NANE UÇUCU YAĞI peppermint", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
   "U.0235": { id: "U.0235", sku: "U.0235", name: "BİBERİYE YAĞI", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
   "U.0248": { id: "U.0248", sku: "U.0248", name: "OKALİPTUS YAĞI", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
-  "U.0259": { id: "U.0259", sku: "U.0259", name: "NİOLİ UÇUCU YAĞI", url: "https://www.cansizzadeyag.com/urun/nioli-ucucu-yagi-10ml", samplePrices: {"10ml": 250, "1000ml": 2200}, hasSitePrice: true },
+  "U.0259": { id: "U.0259", sku: "U.0259", name: "NİOLİ UÇUCU YAĞI", url: "https://www.cansizzadeyag.com/urun/nioli-ucucu-yagi-10ml", samplePrices: {"10ml": 250}, hasSitePrice: true },
   "U.0271": { id: "U.0271", sku: "U.0271", name: "YASEMİN YAĞI", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
   "U.0308": { id: "U.0308", sku: "U.0308", name: "MANDALİNA YAĞI-YEŞİL", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
   "U.0313": { id: "U.0313", sku: "U.0313", name: "Citronella Yağı", url: "https://www.cansizzadeyag.com/", samplePrices: {}, hasSitePrice: false },
