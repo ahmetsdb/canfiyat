@@ -2880,7 +2880,7 @@ function generateLayer2PdfReport() {
     .page { page-break-after: always; min-height: 280mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
     .page:last-child { page-break-after: avoid; }
     .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 5px; margin-bottom: 5px; }
-    .header-logo { height: 46px; width: auto; }
+    .header-logo { height: 54px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08)); }
     .header-info { text-align: right; }
     .header-info h1 { margin: 0; font-size: 13px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
     .header-info p { margin: 1px 0 0 0; font-size: 8px; color: #475569; font-weight: 600; }
