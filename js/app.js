@@ -1565,8 +1565,8 @@ function renderLayer3Cards() {
               <span>📊 Tüm Boyutlar ${isExpanded ? '▲' : '▼'}</span>
             </button>
 
-            <a href="${siteUrl}" target="_blank" class="p-1.5 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 transition-all text-xs" title="Ürün Sayfasına Git ↗">
-              ↗
+            <a href="${siteUrl}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-700/60 transition-all text-xs flex items-center justify-center gap-1 shadow-sm font-bold" title="Ürün Bağlantısı (Canlı Mağaza Sayfası)">
+              <span>📎</span>
             </a>
           </div>
 
