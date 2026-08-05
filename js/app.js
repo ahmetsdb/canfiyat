@@ -1155,13 +1155,31 @@ function findTrendyolProduct(productName, volKey) {
   const catalog = getTrendyolFilteredCatalog();
   if (catalog.length === 0) return null;
 
-  const normProd = normalizeTr(productName)
+  let normProd = normalizeTr(productName)
     .replace(/\(.*?\)/g, "")
     .replace(/sabit|ucucu|yaglar|yagi|yag/g, "")
+    .replace(/soguk|sikim|gida|gidaya|uygun|gimdes|helal|ruseym|posasiz|suzme|meyveli|refined|bittim|angustifolia|intermedia|peppermint/g, "")
     .trim();
 
+  if (normProd.includes("hindistan")) normProd = "hindistan";
+  else if (normProd.includes("tatli badem")) normProd = "tatli badem";
+  else if (normProd.includes("aci badem")) normProd = "aci badem";
+  else if (normProd.includes("corek")) normProd = "corek";
+  else if (normProd.includes("kabak")) normProd = "kabak";
+  else if (normProd.includes("kayisi")) normProd = "kayisi";
+  else if (normProd.includes("kusburnu")) normProd = "kusburnu";
+  else if (normProd.includes("incir")) normProd = "incir";
+  else if (normProd.includes("nar")) normProd = "nar";
+  else if (normProd.includes("deve dikeni")) normProd = "deve dikeni";
+  else if (normProd.includes("at kestanesi")) normProd = "at kestanesi";
+  else if (normProd.includes("bugday")) normProd = "bugday";
+  else if (normProd.includes("kantaron")) normProd = "kantaron";
+  else if (normProd.includes("isirgan")) normProd = "isirgan";
+  else if (normProd.includes("gliserin")) normProd = "gliserin";
+  else if (normProd.includes("skualen") || normProd.includes("squalene")) normProd = "skualen";
+
   const normVol = (volKey || "").toLowerCase().trim();
-  const keywords = normProd.split(" ").filter(k => k.length > 2);
+  const keywords = normProd.split(" ").filter(k => k.length >= 3);
 
   return catalog.find(item => {
     const itemTitle = normalizeTr(item.title);
@@ -1187,9 +1205,9 @@ function findTrendyolProduct(productName, volKey) {
     } else if (normVol === "150ml") {
       volMatch = itemTitle.includes("150ml") || itemTitle.includes("150 ml") || itemTitle.includes("150g") || itemTitle.includes("150 g");
     } else if (normVol === "100ml") {
-      volMatch = itemTitle.includes("100ml") || itemTitle.includes("100 ml") || itemTitle.includes("100g") || itemTitle.includes("100 g");
+      volMatch = itemTitle.includes("100ml") || itemTitle.includes("100 ml") || itemTitle.includes("100g") || itemTitle.includes("100 g") || itemTitle.includes("100gr");
     } else if (normVol === "50ml") {
-      volMatch = itemTitle.includes("50ml") || itemTitle.includes("50 ml") || itemTitle.includes("50g") || itemTitle.includes("50 g");
+      volMatch = itemTitle.includes("50ml") || itemTitle.includes("50 ml") || itemTitle.includes("50g") || itemTitle.includes("50 g") || itemTitle.includes("50gr");
     } else if (normVol === "30ml") {
       volMatch = itemTitle.includes("30ml") || itemTitle.includes("30 ml");
     } else if (normVol === "20ml") {

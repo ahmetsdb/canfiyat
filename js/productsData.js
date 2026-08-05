@@ -78,7 +78,14 @@ const INITIAL_PRODUCTS = [
   { id: "A.0200", sku: "A.0200", name: "BUĞDAY YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 950.00, costPerKg: 959.50, defaultVolume: "1000ml" },
   { id: "T.0079", sku: "T.0079", name: "FINDIK YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 400.00, costPerKg: 404.00, defaultVolume: "1000ml" },
   { id: "T.0356", sku: "T.0356", name: "HAVUÇ TOHUMU YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 750.00, costPerKg: 757.50, defaultVolume: "1000ml" },
-  { id: "T.0087", sku: "T.0087", name: "CEVİZ YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 500.00, costPerKg: 505.00, defaultVolume: "1000ml" }
+  { id: "T.0087", sku: "T.0087", name: "CEVİZ YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 500.00, costPerKg: 505.00, defaultVolume: "1000ml" },
+  { id: "T.0358", sku: "T.0358", name: "ASPİR YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 350.00, costPerKg: 353.50, defaultVolume: "1000ml" },
+  { id: "T.0359", sku: "T.0359", name: "ACI BADEM YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 600.00, costPerKg: 606.00, defaultVolume: "1000ml" },
+  { id: "T.0360", sku: "T.0360", name: "ÜZERLİK TOHUMU YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 800.00, costPerKg: 808.00, defaultVolume: "1000ml" },
+  { id: "T.0361", sku: "T.0361", name: "ALOE VERA YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 550.00, costPerKg: 555.50, defaultVolume: "1000ml" },
+  { id: "A.0300", sku: "A.0300", name: "BİTKİSEL GLİSERİN", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 180.00, costPerKg: 181.80, defaultVolume: "1000ml" },
+  { id: "A.0301", sku: "A.0301", name: "SKUALEN (SQUALENE)", category: "Sabit Yağlar", kdv: 20, listPriceKdvHaric: 2200.00, costPerKg: 2640.00, defaultVolume: "1000ml" },
+  { id: "U.0280", sku: "U.0280", name: "LİMON UÇUCU YAĞI", category: "Uçucu Yağlar", kdv: 20, listPriceKdvHaric: 1800.00, costPerKg: 2160.00, defaultVolume: "1000ml" }
 ];
 
 // Exact Packaging Costs (Şişe + Kapak + Tıpa + Sanayi Bidonu)
