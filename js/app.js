@@ -1052,24 +1052,31 @@ let currentLayer3Channel = "iyzico"; // "iyzico" or "trendyol"
 
 function setLayer3Channel(channel) {
   currentLayer3Channel = channel;
+  const banner = document.getElementById("l3-summary-banner");
   const badge = document.getElementById("l3-active-channel-badge");
   const btnIyzico = document.getElementById("btn-l3-channel-iyzico");
   const btnTrendyol = document.getElementById("btn-l3-channel-trendyol");
 
   if (channel === "trendyol") {
-    if (badge) {
-      badge.innerHTML = "🧡 Trendyol Canlı Mağazada (117 Ürün)";
-      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-950 text-orange-300 border border-orange-800/50";
+    if (banner) {
+      banner.className = "glass-card rounded-2xl p-4 border border-orange-500/60 bg-gradient-to-r from-orange-950/80 via-slate-900 to-amber-950/80 flex flex-wrap items-center justify-between gap-4 shadow-2xl transition-all";
     }
-    if (btnIyzico) btnIyzico.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
-    if (btnTrendyol) btnTrendyol.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-600/20 flex items-center gap-1.5 cursor-pointer";
+    if (badge) {
+      badge.innerHTML = "🧡 Trendyol Canlı Mağaza Modu";
+      badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-950 text-orange-300 border border-orange-800/80 shadow-md";
+    }
+    if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+    if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-lg shadow-orange-600/30 border border-orange-300/40 flex items-center gap-1.5 cursor-pointer";
   } else {
+    if (banner) {
+      banner.className = "glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-wrap items-center justify-between gap-4 shadow-xl transition-all";
+    }
     if (badge) {
       badge.innerHTML = "🌐 iyzico Canlı Sitede";
-      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50";
+      badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50";
     }
-    if (btnIyzico) btnIyzico.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer";
-    if (btnTrendyol) btnTrendyol.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+    if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer";
+    if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
   }
   renderLayer3Cards();
 }
@@ -1107,7 +1114,7 @@ function saveTrendyolPastedData() {
       const title = parts[1] ? parts[1].trim() : "";
       const priceStr = parts[2] ? parts[2].trim().replace(",", ".") : "0";
       const price = parseFloat(priceStr);
-      if (title && !isNaN(price) && price > 0) {
+      if (title && !isNaN(price) && price > 0 && !title.toLowerCase().includes("endora")) {
         parsedItems.push({ barcode, title, price, commissionPercent: 19.0 });
       }
     }
@@ -1136,10 +1143,17 @@ function normalizeTr(str) {
     .trim();
 }
 
-function findTrendyolProduct(productName, volKey) {
-  if (typeof TRENDYOL_PRODUCTS_DATA === "undefined" || !Array.isArray(TRENDYOL_PRODUCTS_DATA)) return null;
+function getTrendyolFilteredCatalog() {
+  if (typeof TRENDYOL_PRODUCTS_DATA === "undefined" || !Array.isArray(TRENDYOL_PRODUCTS_DATA)) return [];
   const storedCustom = StorageManager.getTrendyolCustomProducts();
   const catalog = (storedCustom && storedCustom.length > 0) ? storedCustom : TRENDYOL_PRODUCTS_DATA;
+  // User Directive: Exclude Endora products
+  return catalog.filter(item => item && item.title && !item.title.toLowerCase().includes("endora"));
+}
+
+function findTrendyolProduct(productName, volKey) {
+  const catalog = getTrendyolFilteredCatalog();
+  if (catalog.length === 0) return null;
 
   const normProdName = normalizeTr(productName).replace("yag", "").trim();
   const normVol = (volKey || "").toLowerCase();
@@ -1185,69 +1199,134 @@ function renderLayer3Cards() {
     productsArr = INITIAL_PRODUCTS;
   }
 
-  // User Directive: Render unmatched Trendyol products card at top if Trendyol is selected
-  if (currentLayer3Channel === "trendyol" && typeof TRENDYOL_PRODUCTS_DATA !== "undefined") {
-    const storedCustom = StorageManager.getTrendyolCustomProducts();
-    const catalog = (storedCustom && storedCustom.length > 0) ? storedCustom : TRENDYOL_PRODUCTS_DATA;
+  // Build Unified Products List for Katman 3
+  let displayList = [];
 
+  if (currentLayer3Channel === "trendyol") {
+    const catalog = getTrendyolFilteredCatalog();
     const matchedBarcodes = new Set();
+
+    // 1. Process internal products matched to Trendyol
     productsArr.forEach(prod => {
-      ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
+      if (!prod || !prod.name) return;
+      if (activeCategory !== "all" && prod.category !== activeCategory) return;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
+      }
+
+      // Check if product has any matching volume in Trendyol
+      const hasAnyTyMatch = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
         const m = findTrendyolProduct(prod.name, vk);
-        if (m && m.barcode) matchedBarcodes.add(m.barcode);
+        if (m && m.barcode) {
+          matchedBarcodes.add(m.barcode);
+          return true;
+        }
+        return false;
       });
+
+      if (hasAnyTyMatch) {
+        displayList.push(prod);
+      }
     });
 
-    const unmatchedList = catalog.filter(item => item.barcode && !matchedBarcodes.has(item.barcode));
-    
-    if (unmatchedList.length > 0) {
-      let unmatchedCardsHtml = unmatchedList.slice(0, 15).map(item => `
-        <div class="bg-slate-950 p-2.5 rounded-xl border border-orange-500/30 flex items-center justify-between text-xs">
-          <div class="truncate max-w-[70%]">
-            <span class="font-mono text-[9px] text-orange-400 font-bold block">${item.barcode}</span>
-            <span class="text-slate-200 font-semibold truncate block">${item.title}</span>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="font-extrabold text-orange-300 text-sm block">${PriceCalculator.formatTL(item.price)}</span>
-            <span class="text-[9px] text-amber-400 font-bold bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800/60">+ Sistemde Yok</span>
-          </div>
-        </div>
-      `).join("");
+    // 2. User Directive: Include unmatched Trendyol products directly in the main grid!
+    catalog.forEach(item => {
+      if (!item.barcode || matchedBarcodes.has(item.barcode)) return;
+      if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase()) && !item.barcode.includes(searchQuery)) return;
 
-      const bannerHtml = `
-        <div class="glass-card rounded-2xl p-4 border border-orange-500/40 bg-gradient-to-r from-slate-950 via-orange-950/20 to-slate-950 shadow-xl mb-4">
-          <div class="flex items-center justify-between border-b border-orange-500/30 pb-2 mb-3">
-            <h4 class="text-xs font-black text-orange-300 flex items-center gap-2">
-              📦 Trendyol'da Satılan Ama Sisteminizde Henüz Tanımlı Olmayan Ürünler (${unmatchedList.length} Adet)
-            </h4>
-            <span class="text-[10px] text-slate-400 font-bold">Örn: Shea Yağı, Aynısefa, Havuç Tohumu, Tartı...</span>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            ${unmatchedCardsHtml}
-          </div>
-          ${unmatchedList.length > 15 ? `<p class="text-[10px] text-slate-500 mt-2 text-center font-bold">+ ${unmatchedList.length - 15} adet daha ek ürün Trendyol Excel dosyanızda mevcut.</p>` : ''}
-        </div>
-      `;
-      container.insertAdjacentHTML("beforeend", bannerHtml);
-    }
+      displayList.push({
+        id: "ty_unmatched_" + item.barcode,
+        name: item.title,
+        sku: item.barcode,
+        category: "Trendyol Özel",
+        costPerKg: 0,
+        isUnmatched: true,
+        unmatchedPrice: item.price,
+        unmatchedUrl: item.url
+      });
+    });
+  } else {
+    // iyzico channel: only list internal products that have site prices
+    productsArr.forEach(prod => {
+      if (!prod || !prod.name) return;
+      if (activeCategory !== "all" && prod.category !== activeCategory) return;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
+      }
+
+      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
+      const hasAnyVolPrice = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+        const ov = StorageManager.getSiteOverride(prod.id, vk);
+        if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
+        if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
+        return false;
+      });
+
+      if (hasAnyVolPrice) {
+        displayList.push(prod);
+      }
+    });
   }
 
-  productsArr.forEach(product => {
-    if (!product || !product.name) return;
-    if (activeCategory !== "all" && product.category !== activeCategory) return;
+  displayList.forEach(product => {
+    // If unmatched Trendyol product, render clean unmatched card
+    if (product.isUnmatched) {
+      totalScrapedMatchCount++;
+      const unmatchedCardHtml = `
+        <div class="glass-card rounded-2xl p-4 border border-orange-500/50 bg-gradient-to-r from-slate-950 via-orange-950/20 to-slate-950 shadow-xl flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-black text-lg border border-orange-500/30">
+              📦
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800/60">${product.sku}</span>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800/60">+ Trendyol Satışta (Sistemde Yok)</span>
+              </div>
+              <h3 class="text-sm font-extrabold text-white tracking-tight">${product.name}</h3>
+            </div>
+          </div>
 
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchName = (product.name || "").toLowerCase().includes(q);
-      const matchSku = (product.sku || "").toLowerCase().includes(q);
-      if (!matchName && !matchSku) return;
+          <div class="flex items-center gap-4 text-xs">
+            <div class="bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-orange-500/40 text-right">
+              <span class="text-[9px] uppercase font-bold text-slate-400 block">Trendyol Satış Fiyatı</span>
+              <span class="text-base font-black text-orange-300">${PriceCalculator.formatTL(product.unmatchedPrice)}</span>
+            </div>
+            <div class="bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-slate-800 text-right">
+              <span class="text-[9px] uppercase font-bold text-slate-400 block">Saf Maliyet</span>
+              <span class="text-xs font-bold text-amber-400">⚠️ Sistemde Yok</span>
+            </div>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", unmatchedCardHtml);
+      return;
     }
 
-    const volKey = cardActiveVolumes[product.id] || selectedGlobalVol;
-    const volConfig = getVolumeConfig(product, volKey);
-    const wholesaleUnitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, volKey, volConfig.packagingCost);
+    // Process regular matched products
+    // User Directive: Find only available volume keys for this product on active channel!
+    const allVols = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
+    const availableVols = allVols.filter(vk => {
+      if (currentLayer3Channel === "trendyol") {
+        const tyMatch = findTrendyolProduct(product.name, vk);
+        return tyMatch && tyMatch.price > 0;
+      } else {
+        const ov = StorageManager.getSiteOverride(product.id, vk);
+        if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
+        const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
+        if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
+        return false;
+      }
+    });
 
-    // Calculate Katman 1 / Sistem 1 İyzico Web Sale Price as baseline cost comparison
+    const activeVolKey = availableVols.includes(selectedGlobalVol) ? selectedGlobalVol : (availableVols[0] || "250ml");
+    cardActiveVolumes[product.id] = activeVolKey;
+
+    const volConfig = getVolumeConfig(product, activeVolKey);
+    const wholesaleUnitCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, activeVolKey, volConfig.packagingCost);
+
     const iyzicoConfig = (volConfig && volConfig.channels && volConfig.channels.iyzico) ? volConfig.channels.iyzico : { commission: 4, discount: 0, cargo: 82.50 };
     const sys1Result = PriceCalculator.calculateSystem1Channel({
       wholesaleCost: wholesaleUnitCost,
@@ -1257,17 +1336,15 @@ function renderLayer3Cards() {
       cargo: iyzicoConfig.cargo || 82.50
     });
 
-    const canFiyatBaseCost = sys1Result.salePrice; // Katman 1 / Sistem 1 İyzico Fiyatı
-
-    // Fetch site data & overrides
-    const overridePrice = StorageManager.getSiteOverride(product.id, volKey);
+    const canFiyatBaseCost = sys1Result.salePrice;
+    const overridePrice = StorageManager.getSiteOverride(product.id, activeVolKey);
     const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
 
     let activeLivePrice = null;
     let siteUrl = `https://www.cansizzadeyag.com/`;
 
     if (currentLayer3Channel === "trendyol") {
-      const tyMatch = findTrendyolProduct(product.name, volKey);
+      const tyMatch = findTrendyolProduct(product.name, activeVolKey);
       if (tyMatch && tyMatch.price > 0) {
         activeLivePrice = tyMatch.price;
         if (tyMatch.url) siteUrl = tyMatch.url;
@@ -1275,18 +1352,243 @@ function renderLayer3Cards() {
     } else {
       if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
         activeLivePrice = parseFloat(overridePrice);
-      } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0) {
-        activeLivePrice = siteData.samplePrices[volKey];
+      } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[activeVolKey] === "number") && siteData.samplePrices[activeVolKey] > 0) {
+        activeLivePrice = siteData.samplePrices[activeVolKey];
       }
       if (siteData && siteData.url) siteUrl = siteData.url;
     }
 
     const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
-    
-    // User Directive: Only list products that exist on the selected channel!
-    if (!hasVolPrice) {
-      return; // Skip products not present on this channel!
+    if (hasVolPrice) totalScrapedMatchCount++;
+
+    let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
+    let marginBadge = `bg-slate-900/80 text-slate-400 border-slate-800`;
+    let statusText = `⚪ ${currentLayer3Channel === 'trendyol' ? 'Trendyol\'da Yok' : 'Sitede Satılmıyor'}`;
+
+    if (hasVolPrice) {
+      const livePrice = activeLivePrice;
+      let netProfitMargin = 0;
+      let profitRatio = 0;
+
+      if (currentLayer3Channel === "trendyol") {
+        const commRate = 0.19; // Trendyol 19% commission
+        const cargoFee = 82.50; // Trendyol baremli cargo
+        const payout = livePrice * (1 - commRate) - cargoFee;
+        netProfitMargin = parseFloat((payout - wholesaleUnitCost).toFixed(2));
+        profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
+      } else {
+        netProfitMargin = parseFloat((livePrice - canFiyatBaseCost).toFixed(2));
+        profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
+      }
+
+      if (netProfitMargin >= 0) {
+        netProfitMarginHtml = `<span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+      } else {
+        netProfitMarginHtml = `<span class="font-black text-red-400 text-xs">${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+      }
+
+      marginBadge = `bg-emerald-950/60 text-emerald-400 border-emerald-800/40`;
+      statusText = `🟢 Yüksek Kârlı`;
+      if (profitRatio < 15) {
+        marginBadge = `bg-red-950/60 text-red-400 border-red-800/40`;
+        statusText = `🔴 Düşük Marjlı`;
+      } else if (profitRatio < 30) {
+        marginBadge = `bg-amber-950/60 text-amber-300 border-amber-800/40`;
+        statusText = `🟡 Dengeli Fiyat`;
+      }
     }
+
+    const isUcucu = product.category === "Uçucu Yağlar";
+    const catBadge = isUcucu 
+      ? "bg-purple-950/60 text-purple-300 border-purple-800/40" 
+      : "bg-emerald-950/60 text-emerald-300 border-emerald-800/40";
+
+    const isExpanded = expandedCards[product.id] || false;
+
+    // Build Volume Filter Buttons for ONLY Available Volumes on This Channel!
+    let volButtonsHtml = availableVols.map(vk => `
+      <button onclick="setCardActiveVolume('${product.id}', '${vk}')" class="px-2.5 py-1 rounded-md text-[10.5px] font-extrabold transition-all cursor-pointer ${vk === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md' : 'bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md') : 'bg-slate-900 text-slate-400 hover:text-white'}">
+        ${vk}
+      </button>
+    `).join("");
+
+    // Accordion Table HTML for ONLY Available Volumes
+    let accordionHtml = "";
+    if (isExpanded) {
+      let rowsHtml = "";
+      availableVols.forEach(vKey => {
+        const vConfig = getVolumeConfig(product, vKey);
+        const vWholesaleCost = PriceCalculator.calculateUnitWholesaleCost(product.costPerKg, vKey, vConfig.packagingCost);
+        const vIyzicoConfig = (vConfig && vConfig.channels && vConfig.channels.iyzico) ? vConfig.channels.iyzico : { commission: 4, discount: 0, cargo: 82.50 };
+        const vSys1 = PriceCalculator.calculateSystem1Channel({
+          wholesaleCost: vWholesaleCost,
+          targetProfit: (vConfig && vConfig.targetProfit) ? vConfig.targetProfit : 0,
+          commission: vIyzicoConfig.commission || 4,
+          discount: vIyzicoConfig.discount || 0,
+          cargo: vIyzicoConfig.cargo || 82.50
+        });
+        const vBaseCost = vSys1.salePrice;
+
+        let vLivePrice = null;
+        if (currentLayer3Channel === "trendyol") {
+          const tyM = findTrendyolProduct(product.name, vKey);
+          if (tyM && tyM.price > 0) vLivePrice = tyM.price;
+        } else {
+          const vOverride = StorageManager.getSiteOverride(product.id, vKey);
+          if (vOverride !== null && !isNaN(parseFloat(vOverride))) {
+            vLivePrice = parseFloat(vOverride);
+          } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vKey] === "number" && siteData.samplePrices[vKey] > 0) {
+            vLivePrice = siteData.samplePrices[vKey];
+          }
+        }
+
+        const vHasPrice = vLivePrice !== null && vLivePrice > 0;
+        let vNetMarginHtml = `<span class="text-slate-500 font-bold">N/A</span>`;
+        let vBadge = `bg-slate-900 text-slate-400 border-slate-800`;
+        let vStatus = `⚪ Yok`;
+
+        if (vHasPrice) {
+          let vMargin = 0;
+          let vRatio = 0;
+          if (currentLayer3Channel === "trendyol") {
+            const payout = vLivePrice * (1 - 0.19) - 82.50;
+            vMargin = parseFloat((payout - vWholesaleCost).toFixed(2));
+            vRatio = Math.round((vMargin / vLivePrice) * 100);
+          } else {
+            vMargin = parseFloat((vLivePrice - vBaseCost).toFixed(2));
+            vRatio = Math.round((vMargin / vLivePrice) * 100);
+          }
+
+          if (vMargin >= 0) {
+            vNetMarginHtml = `<span class="text-emerald-400 font-black">+${PriceCalculator.formatTL(vMargin)}</span>`;
+          } else {
+            vNetMarginHtml = `<span class="text-red-400 font-black">${PriceCalculator.formatTL(vMargin)}</span>`;
+          }
+          vBadge = `bg-emerald-950/60 text-emerald-400 border-emerald-800/40`;
+          vStatus = `🟢 Yüksek Kârlı`;
+          if (vRatio < 15) {
+            vBadge = `bg-red-950/60 text-red-400 border-red-800/40`;
+            vStatus = `🔴 Düşük Marjlı`;
+          } else if (vRatio < 30) {
+            vBadge = `bg-amber-950/60 text-amber-300 border-amber-800/40`;
+            vStatus = `🟡 Dengeli Fiyat`;
+          }
+        }
+
+        rowsHtml += `
+          <tr class="hover:bg-slate-900/60 transition-colors ${vKey === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950/30 font-bold' : 'bg-purple-950/30 font-bold') : ''}">
+            <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Seçili)' : ''}</td>
+            <td class="p-2 border-b border-slate-800/50 font-black text-amber-300 text-sm">${PriceCalculator.formatTL(vLivePrice)}</td>
+            <td class="p-2 text-slate-400 font-semibold border-b border-slate-800/50">${PriceCalculator.formatTL(vWholesaleCost)}</td>
+            <td class="p-2 border-b border-slate-800/50">${vNetMarginHtml}</td>
+            <td class="p-2 border-b border-slate-800/50">
+              <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${vBadge}">${vStatus}</span>
+            </td>
+          </tr>
+        `;
+      });
+
+      accordionHtml = `
+        <div class="mt-3 pt-3 border-t border-slate-800/80 bg-slate-950/90 rounded-xl p-3 animate-fadeIn">
+          <div class="text-xs font-bold text-slate-200 mb-2 flex items-center justify-between flex-wrap gap-2">
+            <span class="flex items-center gap-1.5">📊 <span class="text-white font-extrabold">${product.name}</span> - Sattığınız Ambalaj Boyutları (${currentLayer3Channel.toUpperCase()})</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-[10px] font-bold uppercase text-slate-400 bg-slate-900/90">
+                  <th class="p-2">Satılan Ambalaj</th>
+                  <th class="p-2">${currentLayer3Channel === 'trendyol' ? 'Trendyol Satış Fiyatı' : 'Web Canlı Fiyat'}</th>
+                  <th class="p-2">Saf Maliyet</th>
+                  <th class="p-2">Net Kâr / Fark</th>
+                  <th class="p-2">Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    const cardTheme = currentLayer3Channel === "trendyol" 
+      ? "border-orange-500/40 hover:border-orange-400/80 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"
+      : "border-slate-800/80 hover:border-purple-500/50 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950";
+
+    const cardHtml = `
+      <div class="glass-card rounded-2xl p-4 border ${cardTheme} flex flex-col justify-between relative overflow-hidden transition-all shadow-xl">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${catBadge}">
+                ${product.category}
+              </span>
+              ${currentLayer3Channel === "trendyol" ? `
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-950 text-orange-300 border border-orange-800/60 shadow-sm">
+                  🧡 TRENDYOL
+                </span>
+              ` : ''}
+            </div>
+            <span class="font-mono text-xs font-semibold text-slate-300 bg-slate-950 px-2.5 py-0.5 rounded-full border border-slate-800">
+              ${product.sku}
+            </span>
+          </div>
+
+          <h3 class="text-sm font-extrabold text-white tracking-tight mb-2 truncate">
+            ${product.name}
+          </h3>
+
+          <!-- Available Volumes Selector -->
+          <div class="flex items-center gap-1.5 my-3 flex-wrap">
+            <span class="text-[10px] font-bold text-slate-400 uppercase mr-1">Satışta Olan Boyutlar:</span>
+            ${volButtonsHtml}
+          </div>
+
+          <!-- Price & Profit Comparison Box -->
+          <div class="my-3 bg-slate-950/90 p-3 rounded-xl border border-slate-800/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400">${currentLayer3Channel === 'trendyol' ? 'Trendyol Canlı Satış Fiyatı:' : 'Web Canlı Satış Fiyatı:'}</span>
+              <span class="text-base font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${PriceCalculator.formatTL(activeLivePrice)}</span>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
+              <span class="text-xs font-semibold text-slate-400">Saf Fabrika Maliyeti:</span>
+              <span class="text-xs font-bold text-slate-200">${PriceCalculator.formatTL(wholesaleUnitCost)}</span>
+            </div>
+
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold text-white">Net Tahmini Kâr:</span>
+                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${marginBadge}">${statusText}</span>
+              </div>
+              ${netProfitMarginHtml}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-xs">
+          <button onclick="toggleCardAccordion('${product.id}')" class="text-slate-400 hover:text-white font-bold transition-all flex items-center gap-1 cursor-pointer">
+            <span>${isExpanded ? '▲ Gizle' : '▼ Tüm Satış Boyutları'}</span>
+          </button>
+          <a href="${siteUrl}" target="_blank" class="text-xs font-extrabold ${currentLayer3Channel === 'trendyol' ? 'text-orange-400 hover:text-orange-300' : 'text-purple-400 hover:text-purple-300'} flex items-center gap-1">
+            <span>Ürüne Git ↗</span>
+          </a>
+        </div>
+
+        ${accordionHtml}
+      </div>
+    `;
+
+    container.insertAdjacentHTML("beforeend", cardHtml);
+  });
+
+  const scrapedBadge = document.getElementById("l3-stat-total-scraped");
+  if (scrapedBadge) {
+    scrapedBadge.innerText = `${totalScrapedMatchCount} Ürün Bulundu`;
+  }
+}
     
     let liveSitePriceHtml = `
       <div class="flex items-center gap-1">
