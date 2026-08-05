@@ -1223,6 +1223,7 @@ function findTrendyolProduct(productName, volKey) {
     else if (normProdName.includes("cay agaci")) nameMatch = itemTitle.includes("cay agaci");
     else if (normProdName.includes("yasemin")) nameMatch = itemTitle.includes("yasemin");
     else if (normProdName.includes("mandalina")) nameMatch = itemTitle.includes("mandalina");
+    else if (normProdName.includes("papatya")) nameMatch = itemTitle.includes("papatya");
 
     if (!nameMatch) return false;
 
@@ -1276,10 +1277,7 @@ function renderLayer3Cards() {
   let displayList = [];
 
   if (currentLayer3Channel === "trendyol") {
-    const catalog = getTrendyolFilteredCatalog();
-    const matchedBarcodes = new Set();
-
-    // 1. Process internal products matched to Trendyol
+    // Process internal products matched to Trendyol
     productsArr.forEach(prod => {
       if (!prod || !prod.name) return;
       if (activeCategory !== "all" && prod.category !== activeCategory) return;
@@ -1288,12 +1286,11 @@ function renderLayer3Cards() {
         if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
       }
 
-      // Check if product has any matching volume in Trendyol and register ALL matched barcodes!
+      // Check if product has any matching volume in Trendyol
       let hasAnyTyMatch = false;
       ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
         const m = findTrendyolProduct(prod.name, vk);
-        if (m && m.barcode) {
-          matchedBarcodes.add(m.barcode);
+        if (m && m.price > 0) {
           hasAnyTyMatch = true;
         }
       });
@@ -1301,23 +1298,6 @@ function renderLayer3Cards() {
       if (hasAnyTyMatch) {
         displayList.push(prod);
       }
-    });
-
-    // 2. User Directive: Include unmatched Trendyol products directly in the main grid!
-    catalog.forEach(item => {
-      if (!item.barcode || matchedBarcodes.has(item.barcode)) return;
-      if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase()) && !item.barcode.includes(searchQuery)) return;
-
-      displayList.push({
-        id: "ty_unmatched_" + item.barcode,
-        name: item.title,
-        sku: item.barcode,
-        category: "Trendyol Özel",
-        costPerKg: 0,
-        isUnmatched: true,
-        unmatchedPrice: item.price,
-        unmatchedUrl: item.url
-      });
     });
   } else {
     // iyzico channel: only list internal products that have site prices
@@ -1344,42 +1324,7 @@ function renderLayer3Cards() {
   }
 
   displayList.forEach(product => {
-    // If unmatched Trendyol product, render clean unmatched card
-    if (product.isUnmatched) {
-      totalScrapedMatchCount++;
-      const unmatchedCardHtml = `
-        <div class="glass-card rounded-2xl p-4 border border-orange-500/50 bg-gradient-to-r from-slate-950 via-orange-950/20 to-slate-950 shadow-xl flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-black text-lg border border-orange-500/30">
-              📦
-            </div>
-            <div>
-              <div class="flex items-center gap-2 mb-0.5">
-                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800/60">${product.sku}</span>
-                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800/60">+ Trendyol Satışta (Sistemde Yok)</span>
-              </div>
-              <h3 class="text-sm font-extrabold text-white tracking-tight">${product.name}</h3>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4 text-xs">
-            <div class="bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-orange-500/40 text-right">
-              <span class="text-[9px] uppercase font-bold text-slate-400 block">Trendyol Satış Fiyatı</span>
-              <span class="text-base font-black text-orange-300">${PriceCalculator.formatTL(product.unmatchedPrice)}</span>
-            </div>
-            <div class="bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-slate-800 text-right">
-              <span class="text-[9px] uppercase font-bold text-slate-400 block">Saf Maliyet</span>
-              <span class="text-xs font-bold text-amber-400">⚠️ Sistemde Yok</span>
-            </div>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML("beforeend", unmatchedCardHtml);
-      return;
-    }
-
     // Process regular matched products
-    // User Directive: Find only available volume keys for this product on active channel!
     const allVols = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
     const availableVols = allVols.filter(vk => {
       if (currentLayer3Channel === "trendyol") {
