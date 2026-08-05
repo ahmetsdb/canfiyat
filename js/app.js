@@ -1307,7 +1307,7 @@ function renderLayer3Cards() {
 
     // Process regular matched products
     // User Directive: Find only available volume keys for this product on active channel!
-    const allVols = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
+    const allVols = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
     const availableVols = allVols.filter(vk => {
       if (currentLayer3Channel === "trendyol") {
         const tyMatch = findTrendyolProduct(product.name, vk);
@@ -1321,7 +1321,18 @@ function renderLayer3Cards() {
       }
     });
 
-    const activeVolKey = availableVols.includes(selectedGlobalVol) ? selectedGlobalVol : (availableVols[0] || "250ml");
+    // User Directive: Default to 1000ml / 1KG, if not available select the highest volume size!
+    let defaultVolKey = "1000ml";
+    if (availableVols.length > 0) {
+      if (availableVols.includes("1000ml")) {
+        defaultVolKey = "1000ml";
+      } else {
+        const priorityOrder = ["1000ml", "5000ml", "500ml", "250ml", "150ml", "100ml", "50ml", "30ml", "20ml", "10ml"];
+        defaultVolKey = priorityOrder.find(v => availableVols.includes(v)) || availableVols[0];
+      }
+    }
+
+    const activeVolKey = cardActiveVolumes[product.id] || defaultVolKey;
     cardActiveVolumes[product.id] = activeVolKey;
 
     const volConfig = getVolumeConfig(product, activeVolKey);
@@ -1405,13 +1416,6 @@ function renderLayer3Cards() {
 
     const isExpanded = expandedCards[product.id] || false;
 
-    // Build Volume Filter Buttons for ONLY Available Volumes on This Channel!
-    let volButtonsHtml = availableVols.map(vk => `
-      <button onclick="setCardActiveVolume('${product.id}', '${vk}')" class="px-2.5 py-1 rounded-md text-[10.5px] font-extrabold transition-all cursor-pointer ${vk === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md' : 'bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md') : 'bg-slate-900 text-slate-400 hover:text-white'}">
-        ${vk}
-      </button>
-    `).join("");
-
     // Accordion Table HTML for ONLY Available Volumes
     let accordionHtml = "";
     if (isExpanded) {
@@ -1477,7 +1481,7 @@ function renderLayer3Cards() {
 
         rowsHtml += `
           <tr class="hover:bg-slate-900/60 transition-colors ${vKey === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950/30 font-bold' : 'bg-purple-950/30 font-bold') : ''}">
-            <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Seçili)' : ''}</td>
+            <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Ön İzlenen)' : ''}</td>
             <td class="p-2 border-b border-slate-800/50 font-black text-amber-300 text-sm">${PriceCalculator.formatTL(vLivePrice)}</td>
             <td class="p-2 text-slate-400 font-semibold border-b border-slate-800/50">${PriceCalculator.formatTL(vWholesaleCost)}</td>
             <td class="p-2 border-b border-slate-800/50">${vNetMarginHtml}</td>
@@ -1491,7 +1495,7 @@ function renderLayer3Cards() {
       accordionHtml = `
         <div class="mt-3 pt-3 border-t border-slate-800/80 bg-slate-950/90 rounded-xl p-3 animate-fadeIn">
           <div class="text-xs font-bold text-slate-200 mb-2 flex items-center justify-between flex-wrap gap-2">
-            <span class="flex items-center gap-1.5">📊 <span class="text-white font-extrabold">${product.name}</span> - Sattığınız Ambalaj Boyutları (${currentLayer3Channel.toUpperCase()})</span>
+            <span class="flex items-center gap-1.5">📊 <span class="text-white font-extrabold">${product.name}</span> - Sattığınız Tüm Ambalaj Boyutları (${currentLayer3Channel.toUpperCase()})</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
@@ -1535,7 +1539,7 @@ function renderLayer3Cards() {
                   ${product.category}
                 </span>
                 <span class="text-[9px] font-extrabold text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
-                  📌 Seçili Ambalaj: <span class="text-amber-300 font-bold">${activeVolKey}</span>
+                  📌 Varsayılan Ambalaj: <span class="text-amber-300 font-bold">${activeVolKey}</span>
                 </span>
               </div>
             </div>
@@ -1559,14 +1563,16 @@ function renderLayer3Cards() {
             </div>
           </div>
 
-          <!-- 3. Far Right Action Buttons: Prominent "Tüm Boyutlar" & Link -->
+          <!-- 3. Far Right Action Buttons: Prominent "Tüm Boyutlar" & Vector Chain Link -->
           <div class="flex items-center gap-2 shrink-0">
             <button onclick="toggleCardAccordion('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isExpanded ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950 text-orange-300 border border-orange-700/80' : 'bg-purple-950 text-purple-300 border border-purple-700/80') : 'bg-slate-900 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700'}">
               <span>📊 Tüm Boyutlar ${isExpanded ? '▲' : '▼'}</span>
             </button>
 
-            <a href="${siteUrl}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-700/60 transition-all text-xs flex items-center justify-center gap-1 shadow-sm font-bold" title="Ürün Bağlantısı (Canlı Mağaza Sayfası)">
-              <span>📎</span>
+            <a href="${siteUrl}" target="_blank" class="p-2 rounded-lg bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-700/60 transition-all text-xs flex items-center justify-center shadow-sm" title="Mağaza Bağlantısı 🔗">
+              <svg class="w-4 h-4 text-amber-400 hover:text-amber-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+              </svg>
             </a>
           </div>
 
