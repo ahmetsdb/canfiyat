@@ -1193,8 +1193,11 @@ function findTrendyolProduct(productName, volKey) {
     // 1. Core Oil Identity Match
     let nameMatch = false;
 
-    if (normProdName.includes("badem")) nameMatch = itemTitle.includes("badem");
-    else if (normProdName.includes("findik")) nameMatch = itemTitle.includes("findik");
+    if (normProdName.includes("aci badem") || (normProdName.includes("aci") && normProdName.includes("badem"))) {
+      nameMatch = itemTitle.includes("aci") && itemTitle.includes("badem");
+    } else if (normProdName.includes("badem")) {
+      nameMatch = itemTitle.includes("badem") && !itemTitle.includes("aci");
+    } else if (normProdName.includes("findik")) nameMatch = itemTitle.includes("findik");
     else if (normProdName.includes("ceviz")) nameMatch = itemTitle.includes("ceviz");
     else if (normProdName.includes("hint") && !normProdName.includes("hindistan")) nameMatch = itemTitle.includes("hint") && !itemTitle.includes("hindistan") && !itemTitle.includes("udi hindi");
     else if (normProdName.includes("hindistan")) nameMatch = itemTitle.includes("hindistan");
@@ -1511,9 +1514,13 @@ function renderLayer3Cards() {
         const vBaseCost = vSys1.salePrice;
 
         let vLivePrice = null;
+        let vRowUrl = siteUrl;
         if (currentLayer3Channel === "trendyol") {
           const tyM = findTrendyolProduct(product.name, vKey);
-          if (tyM && tyM.price > 0) vLivePrice = tyM.price;
+          if (tyM && tyM.price > 0) {
+            vLivePrice = tyM.price;
+            if (tyM.url) vRowUrl = tyM.url;
+          }
         } else {
           const vOverride = StorageManager.getSiteOverride(product.id, vKey);
           if (vOverride !== null && !isNaN(parseFloat(vOverride))) {
@@ -1521,6 +1528,7 @@ function renderLayer3Cards() {
           } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vKey] === "number" && siteData.samplePrices[vKey] > 0) {
             vLivePrice = siteData.samplePrices[vKey];
           }
+          if (siteData && siteData.url) vRowUrl = siteData.url;
         }
 
         const vHasPrice = vLivePrice !== null && vLivePrice > 0;
@@ -1559,7 +1567,16 @@ function renderLayer3Cards() {
         rowsHtml += `
           <tr class="hover:bg-slate-900/60 transition-colors ${vKey === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950/30 font-bold' : 'bg-purple-950/30 font-bold') : ''}">
             <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Ön İzlenen)' : ''}</td>
-            <td class="p-2 border-b border-slate-800/50 font-black text-amber-300 text-sm">${PriceCalculator.formatTL(vLivePrice)}</td>
+            <td class="p-2 border-b border-slate-800/50 font-black text-amber-300 text-sm">
+              <div class="flex items-center gap-2">
+                <span>${PriceCalculator.formatTL(vLivePrice)}</span>
+                <a href="${vRowUrl}" target="_blank" rel="noopener noreferrer" class="p-1 rounded bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-600/60 transition-all text-xs inline-flex items-center justify-center shadow-sm" title="${vKey} Canlı Mağaza Bağlantısına Git">
+                  <svg class="w-3.5 h-3.5 text-amber-400 hover:text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                  </svg>
+                </a>
+              </div>
+            </td>
             <td class="p-2 text-slate-400 font-semibold border-b border-slate-800/50">${PriceCalculator.formatTL(vWholesaleCost)}</td>
             <td class="p-2 border-b border-slate-800/50">${vNetMarginHtml}</td>
             <td class="p-2 border-b border-slate-800/50">
