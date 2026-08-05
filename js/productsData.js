@@ -75,7 +75,9 @@ const INITIAL_PRODUCTS = [
   { id: "T.0125", sku: "T.0125", name: "KUDRET NARI YAĞI (Meyveli)", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 600.00, costPerKg: 606.00, defaultVolume: "1000ml" },
   { id: "T.0221", sku: "T.0221", name: "KUDRET NARI YAĞI (Süzülmüş)", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 600.00, costPerKg: 606.00, defaultVolume: "1000ml" },
   { id: "T.0389", sku: "T.0389", name: "ZEYTİNYAĞI (Soğuk Sıkım)", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 450.00, costPerKg: 454.50, defaultVolume: "1000ml" },
-  { id: "A.0200", sku: "A.0200", name: "BUĞDAY YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 950.00, costPerKg: 959.50, defaultVolume: "1000ml" }
+  { id: "A.0200", sku: "A.0200", name: "BUĞDAY YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 950.00, costPerKg: 959.50, defaultVolume: "1000ml" },
+  { id: "T.0079", sku: "T.0079", name: "FINDIK YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 400.00, costPerKg: 404.00, defaultVolume: "1000ml" },
+  { id: "T.0356", sku: "T.0356", name: "HAVUÇ TOHUMU YAĞI", category: "Sabit Yağlar", kdv: 1, listPriceKdvHaric: 750.00, costPerKg: 757.50, defaultVolume: "1000ml" }
 ];
 
 // Exact Packaging Costs (Şişe + Kapak + Tıpa + Sanayi Bidonu)

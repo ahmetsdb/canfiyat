@@ -1155,7 +1155,24 @@ function findTrendyolProduct(productName, volKey) {
   const catalog = getTrendyolFilteredCatalog();
   if (catalog.length === 0) return null;
 
-  const normProdName = normalizeTr(productName).replace("yag", "").trim();
+  const normProdName = normalizeTr(productName)
+    .replace("yag", "")
+    .replace("ucucu", "")
+    .replace("sabit", "")
+    .replace("soguk sikim", "")
+    .replace("gida", "")
+    .replace("gimdes", "")
+    .replace("helal", "")
+    .replace("ruseym", "")
+    .replace("posasiz", "")
+    .replace("suzme", "")
+    .replace("meyveli", "")
+    .replace("refined", "")
+    .replace("bittim", "")
+    .replace("angustifolia", "")
+    .replace("intermedia", "")
+    .replace("peppermint", "")
+    .trim();
   const normVol = (volKey || "").toLowerCase();
 
   return catalog.find(item => {
@@ -1163,18 +1180,20 @@ function findTrendyolProduct(productName, volKey) {
     
     let hasName = false;
     if (normProdName.includes(" ")) {
-      const parts = normProdName.split(" ");
-      hasName = parts.every(p => p.length <= 2 || itemTitle.includes(p));
+      const parts = normProdName.split(" ").filter(p => p.length > 2);
+      hasName = parts.length > 0 && parts.every(p => itemTitle.includes(p));
     } else {
       hasName = itemTitle.includes(normProdName);
     }
 
     let hasVol = itemTitle.includes(normVol);
     if (!hasVol) {
-      if (normVol === "1000ml" && (itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000 ml") || itemTitle.includes("1000ml"))) hasVol = true;
-      if (normVol === "5000ml" && (itemTitle.includes("5kg") || itemTitle.includes("5 kg") || itemTitle.includes("5000 ml") || itemTitle.includes("5000ml"))) hasVol = true;
-      if (normVol === "250ml" && (itemTitle.includes("250 g") || itemTitle.includes("250g") || itemTitle.includes("250 ml") || itemTitle.includes("250ml"))) hasVol = true;
-      if (normVol === "500ml" && (itemTitle.includes("500 g") || itemTitle.includes("500g") || itemTitle.includes("500 ml") || itemTitle.includes("500ml"))) hasVol = true;
+      if (normVol === "1000ml" && (itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000 ml") || itemTitle.includes("1000ml") || itemTitle.includes("1000g") || itemTitle.includes("1000 gr"))) hasVol = true;
+      if (normVol === "5000ml" && (itemTitle.includes("5kg") || itemTitle.includes("5 kg") || itemTitle.includes("5000 ml") || itemTitle.includes("5000ml") || itemTitle.includes("5000g") || itemTitle.includes("5000 gr"))) hasVol = true;
+      if (normVol === "250ml" && (itemTitle.includes("250 g") || itemTitle.includes("250g") || itemTitle.includes("250 ml") || itemTitle.includes("250ml") || itemTitle.includes("250gr"))) hasVol = true;
+      if (normVol === "500ml" && (itemTitle.includes("500 g") || itemTitle.includes("500g") || itemTitle.includes("500 ml") || itemTitle.includes("500ml") || itemTitle.includes("500gr"))) hasVol = true;
+      if (normVol === "100ml" && (itemTitle.includes("100 g") || itemTitle.includes("100g") || itemTitle.includes("100 ml") || itemTitle.includes("100ml") || itemTitle.includes("100gr"))) hasVol = true;
+      if (normVol === "50ml" && (itemTitle.includes("50 g") || itemTitle.includes("50g") || itemTitle.includes("50 ml") || itemTitle.includes("50ml") || itemTitle.includes("50gr"))) hasVol = true;
     }
 
     return hasName && hasVol;
