@@ -14,6 +14,7 @@ const STORAGE_KEYS = {
   PRODUCTS: "canfiyat_products_v16", // Storage Key v16 (Supabase Cloud Sync Fix & Enforced KDV Dahil)
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1",
+  TRENDYOL_CUSTOM: "canfiyat_trendyol_custom_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1"
 };
 
@@ -382,5 +383,22 @@ class StorageManager {
       }
       localStorage.setItem(STORAGE_KEYS.SITE_OVERRIDES, JSON.stringify(map));
     } catch(e) {}
+  }
+
+  static getTrendyolCustomProducts() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.TRENDYOL_CUSTOM);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static saveTrendyolCustomProducts(items) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.TRENDYOL_CUSTOM, JSON.stringify(items));
+    } catch (e) {
+      console.error("Save Trendyol custom products error:", e);
+    }
   }
 }

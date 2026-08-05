@@ -292,30 +292,36 @@
             </div>
         </main>
 
-        <!-- Layer 3: Live Website Comparison Workspace (cansizzadeyag.com) -->
+        <!-- Layer 3: Live Retail Channel Price Comparison Workspace -->
         <main id="layer3-main-view" class="hidden space-y-4">
-            <!-- Summary Live Site Scraper Banner -->
+            <!-- Summary Multi-Channel Comparison Banner -->
             <div class="glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-xl border border-purple-500/30 shadow-lg shadow-purple-500/10">
-                        🌐
+                        📊
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            cansizzadeyag.com Canlı Web Sitesi Karşılaştırma Portalı
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">Ideasoft Canlı Altyapı</span>
+                            Çoklu Perakende Satış Karşılaştırma Portalı
+                            <span id="l3-active-channel-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">🌐 iyzico Canlı Sitede</span>
                         </h3>
-                        <p class="text-slate-400 text-xs">Sitenizdeki perakende satış fiyatları ile CanFiyat saf üretim maliyetlerinin birebir kârlılık karşılaştırması</p>
+                        <p class="text-slate-400 text-xs mt-0.5">Pazar yeri canlı satış fiyatları ile CanFiyat saf maliyetlerinin birebir kârlılık kıyaslaması</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4 text-xs">
-                    <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
-                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Taranan Ürün</span>
-                        <span id="l3-stat-total-scraped" class="text-xs font-black text-purple-400">62 Ürün</span>
+                <div class="flex flex-wrap items-center gap-3 text-xs">
+                    <!-- Channel Switcher Buttons -->
+                    <div class="inline-flex p-1 rounded-xl bg-slate-950 border border-slate-800 shadow-inner">
+                        <button id="btn-l3-channel-iyzico" onclick="setLayer3Channel('iyzico')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer">
+                            🌐 iyzico (Sitemiz)
+                        </button>
+                        <button id="btn-l3-channel-trendyol" onclick="setLayer3Channel('trendyol')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                            🧡 Trendyol (117 Ürün)
+                        </button>
                     </div>
+
                     <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
-                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Aktif Seçili Ambalaj</span>
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Seçili Ambalaj</span>
                         <select id="l3-global-vol-filter" onchange="renderLayer3Cards()" class="bg-slate-900 border border-purple-800 text-purple-300 text-xs font-bold rounded-lg px-2 py-0.5 focus:outline-none">
                             <option value="250ml" selected>250 ml</option>
                             <option value="500ml">500 ml</option>
@@ -327,12 +333,11 @@
                             <option value="20ml">20 ml</option>
                         </select>
                     </div>
-                    <a href="https://www.cansizzadeyag.com/" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-lg shadow-purple-500/25">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                        </svg>
-                        SİTEYE GİT
-                    </a>
+
+                    <!-- Upload Excel Button -->
+                    <button onclick="openTrendyolExcelModal()" class="bg-gradient-to-r from-orange-700 to-amber-600 hover:from-orange-600 hover:to-amber-500 text-white font-extrabold px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-orange-400/30 cursor-pointer">
+                        📥 TRENDYOL EXCEL YÜKLE
+                    </button>
                 </div>
             </div>
 
@@ -1108,12 +1113,54 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- TRENDYOL EXCEL IMPORT MODAL                -->
+    <!-- ========================================== -->
+    <div id="trendyol-excel-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+        <div class="bg-slate-900 border border-orange-500/40 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
+            <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-black text-base border border-orange-500/30">🧡</span>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white tracking-tight">Trendyol Ürün Fiyat Listesi Yükle</h2>
+                        <p class="text-[10.5px] text-slate-400">Trendyol Satıcı Paneli (ürünleriniz.xlsx) çıktısını yapıştırın veya yükleyin</p>
+                    </div>
+                </div>
+                <button onclick="closeTrendyolExcelModal()" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <div class="bg-orange-950/30 border border-orange-500/30 p-3 rounded-xl text-[11px] text-orange-200">
+                    💡 <strong>İpucu:</strong> Trendyol Satıcı Paneli'nden indirdiğiniz <code>ürünleriniz.xlsx</code> dosyasını açıp tümünü kopyalayarak <code>(Ctrl+A, Ctrl+C)</code> aşağıdaki kutuya doğrudan yapıştırabilirsiniz <code>(Ctrl+V)</code>.
+                </div>
+
+                <div class="input-group">
+                    <label class="font-bold text-slate-300">Excel / Kopyalanan Tablo Verisi</label>
+                    <textarea id="trendyol-paste-area" rows="6" placeholder="Excel tablosunu buraya yapıştırın..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 font-mono text-[11px] outline-none focus:border-orange-500"></textarea>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                    <span class="text-[10px] text-slate-500">Mevcut Yüklü: <strong>117 Trendyol Ürünü</strong></span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="closeTrendyolExcelModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all cursor-pointer">İptal</button>
+                        <button onclick="saveTrendyolPastedData()" class="px-5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-500 text-white text-xs font-black rounded-xl shadow-lg shadow-orange-600/20 transition-all cursor-pointer">⚡ Fiyatları Aktar & Güncelle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=2.59"></script>
-    <script src="js/liveSiteData.js?v=2.59"></script>
-    <script src="js/storage.js?v=2.59"></script>
-    <script src="js/calculator.js?v=2.59"></script>
-    <script src="js/app.js?v=2.59"></script>
+    <script src="js/productsData.js?v=2.60"></script>
+    <script src="js/liveSiteData.js?v=2.60"></script>
+    <script src="js/trendyolData.js?v=2.60"></script>
+    <script src="js/storage.js?v=2.60"></script>
+    <script src="js/calculator.js?v=2.60"></script>
+    <script src="js/app.js?v=2.60"></script>
 </body>
 </html>
 

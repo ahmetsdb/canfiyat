@@ -1048,6 +1048,98 @@ function toggleCardAccordion(productId) {
   renderLayer3Cards();
 }
 
+let currentLayer3Channel = "iyzico"; // "iyzico" or "trendyol"
+
+function setLayer3Channel(channel) {
+  currentLayer3Channel = channel;
+  const badge = document.getElementById("l3-active-channel-badge");
+  const btnIyzico = document.getElementById("btn-l3-channel-iyzico");
+  const btnTrendyol = document.getElementById("btn-l3-channel-trendyol");
+
+  if (channel === "trendyol") {
+    if (badge) {
+      badge.innerHTML = "🧡 Trendyol Canlı Mağazada (117 Ürün)";
+      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-950 text-orange-300 border border-orange-800/50";
+    }
+    if (btnIyzico) btnIyzico.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+    if (btnTrendyol) btnTrendyol.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-600/20 flex items-center gap-1.5 cursor-pointer";
+  } else {
+    if (badge) {
+      badge.innerHTML = "🌐 iyzico Canlı Sitede";
+      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50";
+    }
+    if (btnIyzico) btnIyzico.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer";
+    if (btnTrendyol) btnTrendyol.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+  }
+  renderLayer3Cards();
+}
+
+function openTrendyolExcelModal() {
+  const modal = document.getElementById("trendyol-excel-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+}
+
+function closeTrendyolExcelModal() {
+  const modal = document.getElementById("trendyol-excel-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+function saveTrendyolPastedData() {
+  const area = document.getElementById("trendyol-paste-area");
+  const rawText = area ? area.value : "";
+  if (!rawText.trim()) {
+    alert("Lütfen Excel'den kopyaladığınız tablo verilerini yapıştırın.");
+    return;
+  }
+
+  const lines = rawText.split("\n");
+  const parsedItems = [];
+  lines.forEach(line => {
+    const parts = line.split("\t");
+    if (parts.length >= 3) {
+      const barcode = parts[0] ? parts[0].trim() : "";
+      const title = parts[1] ? parts[1].trim() : "";
+      const priceStr = parts[2] ? parts[2].trim().replace(",", ".") : "0";
+      const price = parseFloat(priceStr);
+      if (title && !isNaN(price) && price > 0) {
+        parsedItems.push({ barcode, title, price, commissionPercent: 19.0 });
+      }
+    }
+  });
+
+  if (parsedItems.length > 0) {
+    StorageManager.saveTrendyolCustomProducts(parsedItems);
+    alert(`Tebrikler! ${parsedItems.length} adet Trendyol ürün fiyatı sisteme aktarıldı ve güncellendi.`);
+    closeTrendyolExcelModal();
+    setLayer3Channel("trendyol");
+  } else {
+    alert("Geçerli ürün verisi tespit edilemedi. Lütfen kopyaladığınız Excel sütunlarını kontrol edin.");
+  }
+}
+
+function findTrendyolProduct(productName, volKey) {
+  if (typeof TRENDYOL_PRODUCTS_DATA === "undefined" || !Array.isArray(TRENDYOL_PRODUCTS_DATA)) return null;
+  const storedCustom = StorageManager.getTrendyolCustomProducts();
+  const catalog = (storedCustom && storedCustom.length > 0) ? storedCustom : TRENDYOL_PRODUCTS_DATA;
+
+  const normName = (productName || "").toLowerCase().replace(/yağı|yagı|yağ|yag/g, "").trim();
+  const normVol = (volKey || "").toLowerCase();
+
+  return catalog.find(item => {
+    const itemTitle = (item.title || "").toLowerCase();
+    const nameParts = normName.split(" ");
+    const hasName = nameParts.some(part => part.length > 3 && itemTitle.includes(part));
+    const hasVol = itemTitle.includes(normVol) || (normVol === "1000ml" && (itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000 ml")));
+    return hasName && hasVol;
+  }) || null;
+}
+
 function updateLiveSitePriceOverride(productId, volKey, newPrice) {
   StorageManager.setSiteOverride(productId, volKey, newPrice);
   renderLayer3Cards();
@@ -1093,15 +1185,25 @@ function renderLayer3Cards() {
 
     const canFiyatBaseCost = sys1Result.salePrice; // Katman 1 / Sistem 1 İyzico Fiyatı
 
-    // Fetch site data from LIVE_SITE_SCRAPED_DATA or StorageManager site overrides
-    const overridePrice = StorageManager.getSiteOverride(product.id, volKey);
-    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-    
+    // Fetch channel price: Trendyol or iyzico
     let activeLivePrice = null;
-    if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
-      activeLivePrice = parseFloat(overridePrice);
-    } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0) {
-      activeLivePrice = siteData.samplePrices[volKey];
+    let siteUrl = `https://www.cansizzadeyag.com/`;
+
+    if (currentLayer3Channel === "trendyol") {
+      const tyMatch = findTrendyolProduct(product.name, volKey);
+      if (tyMatch && tyMatch.price > 0) {
+        activeLivePrice = tyMatch.price;
+        if (tyMatch.url) siteUrl = tyMatch.url;
+      }
+    } else {
+      const overridePrice = StorageManager.getSiteOverride(product.id, volKey);
+      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
+      if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
+        activeLivePrice = parseFloat(overridePrice);
+      } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[volKey] === "number") && siteData.samplePrices[volKey] > 0) {
+        activeLivePrice = siteData.samplePrices[volKey];
+      }
+      if (siteData && siteData.url) siteUrl = siteData.url;
     }
 
     const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
@@ -1114,14 +1216,25 @@ function renderLayer3Cards() {
     `;
     let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
     let marginBadge = `bg-slate-900/80 text-slate-400 border-slate-800`;
-    let statusText = `⚪ Sitede Satılmıyor`;
-    let siteUrl = (siteData && siteData.url) ? siteData.url : `https://www.cansizzadeyag.com/`;
+    let statusText = `⚪ ${currentLayer3Channel === 'trendyol' ? 'Trendyol\'da Yok' : 'Sitede Satılmıyor'}`;
 
     if (hasVolPrice) {
       totalScrapedMatchCount++;
       const livePrice = activeLivePrice;
-      const netProfitMargin = parseFloat((livePrice - canFiyatBaseCost).toFixed(2));
-      const profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
+
+      let netProfitMargin = 0;
+      let profitRatio = 0;
+
+      if (currentLayer3Channel === "trendyol") {
+        const commRate = 0.19; // Trendyol 19% commission
+        const cargoFee = 82.50; // Trendyol baremli cargo
+        const payout = livePrice * (1 - commRate) - cargoFee;
+        netProfitMargin = parseFloat((payout - wholesaleUnitCost).toFixed(2));
+        profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
+      } else {
+        netProfitMargin = parseFloat((livePrice - canFiyatBaseCost).toFixed(2));
+        profitRatio = livePrice > 0 ? Math.round((netProfitMargin / livePrice) * 100) : 0;
+      }
 
       if (netProfitMargin >= 0) {
         netProfitMarginHtml = `<span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
