@@ -1089,26 +1089,32 @@ function setLayer3Channel(channel) {
 
   if (channel === "trendyol") {
     if (banner) {
-      banner.className = "glass-card rounded-2xl p-4 border border-orange-500/60 bg-gradient-to-r from-orange-950/80 via-slate-900 to-amber-950/80 flex flex-wrap items-center justify-between gap-4 shadow-2xl transition-all";
+      banner.className = "glass-card rounded-2xl p-4 border border-orange-500/60 bg-gradient-to-r from-orange-950/80 via-slate-900 to-amber-950/80 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-2xl transition-all";
     }
     if (badge) {
       badge.innerHTML = "🧡 Trendyol Canlı Mağaza Modu";
       badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-950 text-orange-300 border border-orange-800/80 shadow-md";
     }
-    if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
-    if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-lg shadow-orange-600/30 border border-orange-300/40 flex items-center gap-1.5 cursor-pointer";
-    if (btnPdf) btnPdf.innerHTML = "📄 TRENDYOL KARŞILAŞTIRMA PDF AL";
+    if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+    if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-lg shadow-orange-600/30 border border-orange-300/40 flex items-center gap-1.5 cursor-pointer";
+    if (btnPdf) {
+      btnPdf.innerHTML = "📄 TRENDYOL KARŞILAŞTIRMA PDF AL";
+      btnPdf.className = "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-400 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-lg flex items-center gap-1.5 text-xs border border-orange-300/50 cursor-pointer";
+    }
   } else {
     if (banner) {
-      banner.className = "glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-wrap items-center justify-between gap-4 shadow-xl transition-all";
+      banner.className = "glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-xl transition-all";
     }
     if (badge) {
       badge.innerHTML = "🌐 iyzico Canlı Sitede";
       badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50";
     }
-    if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer";
-    if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
-    if (btnPdf) btnPdf.innerHTML = "📄 İYZİCO KARŞILAŞTIRMA PDF AL";
+    if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer";
+    if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+    if (btnPdf) {
+      btnPdf.innerHTML = "📄 İYZİCO KARŞILAŞTIRMA PDF AL";
+      btnPdf.className = "bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-500 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-lg flex items-center gap-1.5 text-xs border border-purple-400/40 cursor-pointer";
+    }
   }
   renderLayer3Cards();
 }
