@@ -1085,6 +1085,7 @@ function setLayer3Channel(channel) {
   const badge = document.getElementById("l3-active-channel-badge");
   const btnIyzico = document.getElementById("btn-l3-channel-iyzico");
   const btnTrendyol = document.getElementById("btn-l3-channel-trendyol");
+  const btnPdf = document.getElementById("btn-l3-pdf-report");
 
   if (channel === "trendyol") {
     if (banner) {
@@ -1096,6 +1097,7 @@ function setLayer3Channel(channel) {
     }
     if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
     if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-lg shadow-orange-600/30 border border-orange-300/40 flex items-center gap-1.5 cursor-pointer";
+    if (btnPdf) btnPdf.innerHTML = "📄 TRENDYOL KARŞILAŞTIRMA PDF AL";
   } else {
     if (banner) {
       banner.className = "glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-wrap items-center justify-between gap-4 shadow-xl transition-all";
@@ -1106,6 +1108,7 @@ function setLayer3Channel(channel) {
     }
     if (btnIyzico) btnIyzico.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer";
     if (btnTrendyol) btnTrendyol.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer";
+    if (btnPdf) btnPdf.innerHTML = "📄 İYZİCO KARŞILAŞTIRMA PDF AL";
   }
   renderLayer3Cards();
 }
