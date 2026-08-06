@@ -2560,7 +2560,7 @@ function renderLayer2Cards() {
                     </div>
                   </div>
                 </div>
-              ` : ""}
+              `) : ""}
             </div>
           `;
 
