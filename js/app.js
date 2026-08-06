@@ -3644,37 +3644,13 @@ function updateBundleSimulator() {
     const costsList = itemEntries.map((entry, index) => {
       const product = entry.product;
       const vol = entry.vol;
-      const ml = PriceCalculator.getVolumeMl(vol);
-      const kg = ml / 1000;
-
-      const supplyType = product.supplyType || "press";
-      const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
-      const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
-        ? product.seedCostPerKg
-        : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
-
-      const costPerKg = (supplyType === "wholesale")
-        ? (product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : (product.costPerKg || 1950.00))
-        : ((yieldPct > 0) ? parseFloat((seedCost / (yieldPct / 100)).toFixed(2)) : (product.costPerKg || 1212.00));
-
-      const rawOilCost = parseFloat(((costPerKg / 1000) * ml).toFixed(2));
-      const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50;
-      const linearOverhead = parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
-
-      let laborAssemblyFee = 8.00;
-      if (vol === "1000ml" || vol === "1kg") laborAssemblyFee = 10.00;
-      else if (vol === "500ml") laborAssemblyFee = 9.00;
-      else if (vol === "250ml") laborAssemblyFee = 8.00;
-      else if (vol === "100ml") laborAssemblyFee = 7.50;
-      else if (vol === "50ml") laborAssemblyFee = 9.50;
-      else if (vol === "30ml") laborAssemblyFee = 14.70;
-      else if (vol === "20ml") laborAssemblyFee = 17.80;
-      else if (vol === "5000ml" || vol === "5kg") laborAssemblyFee = 15.00;
-
-      const itemNetCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
+      
+      // Connect directly to Katman 2 Live Cost Engine for exact production & tax protection cost
+      const calc = getLayer2EffectiveCostForVolume(product, vol, overheadRes.overheadPerKg);
+      const itemNetCost = calc.effectiveNetCost;
 
       const costBadge = document.getElementById(`bundle-item-cost-${entry.idx}`);
-      if (costBadge) costBadge.textContent = PriceCalculator.formatTL(itemNetCost);
+      if (costBadge) costBadge.textContent = PriceCalculator.formatTL(itemNetCost) + " ₺";
 
       return itemNetCost;
     });
