@@ -1533,7 +1533,11 @@ function renderLayer3Cards() {
       }
     }
 
-    const activeVolKey = cardActiveVolumes[product.id] || defaultVolKey;
+    // Force active volume to be one of the available volumes if currently set volume is not available!
+    let activeVolKey = cardActiveVolumes[product.id];
+    if (!activeVolKey || !availableVols.includes(activeVolKey)) {
+      activeVolKey = defaultVolKey;
+    }
     cardActiveVolumes[product.id] = activeVolKey;
 
     // --- Dynamic Katman 1 Recommended Price & Effective Net Cost Calculation ---
