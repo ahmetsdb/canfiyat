@@ -2061,10 +2061,27 @@ function renderLayer2Cards() {
           ? PriceCalculator.getOverheadForVolume(vol, 0)
           : PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
 
+        const inputVatRate = (product.inputVatRate !== undefined && product.inputVatRate !== null)
+          ? parseFloat(product.inputVatRate)
+          : (parseFloat(product.kdv) || 1);
+        const salesVatRate = parseFloat(product.kdv) || 1;
+
         const laborAssemblyFee = parseFloat(Math.max(0, totalOverhead - linearOverhead).toFixed(2));
         const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
-        const unitNetCost = netCost / (kg > 0 ? kg : 1);
+        // 🛡️ İki Yönlü KDV Koruma Motoru (VAT Rate Mismatch Tax Neutralization Engine)
+        const taxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost({
+          netCost: netCost,
+          inputVatRate: inputVatRate,
+          salesVatRate: salesVatRate,
+          rawOilCost: rawOilCost,
+          packCost: packCost,
+          linearOverhead: linearOverhead,
+          laborAssemblyFee: laborAssemblyFee
+        });
+
+        const effectiveNetCost = taxProtection.taxNeutralBreakEvenCost;
+        const unitNetCost = effectiveNetCost / (kg > 0 ? kg : 1);
         const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
         const discountPct = tierInfo.discount || 0;
 
@@ -2105,11 +2122,12 @@ function renderLayer2Cards() {
         const b2bTier4ProfitPerKg = parseFloat((b2bTier4Price - unitNetCost).toFixed(2));
         const b2bTier4IsProfit = b2bTier4ProfitPerKg >= 0;
 
-        const tySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
-        const hbSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
-        const iySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
+        // Katman 1 Pazaryeri Simülatörüne KDV Korumalı Dip Maliyeti Aktar
+        const tySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
+        const hbSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
+        const iySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
 
-        const storePrice = netCost + targetProfitInput;
+        const storePrice = effectiveNetCost + targetProfitInput;
 
         const badgeClass = product.category === "Uçucu Yağlar"
           ? "bg-purple-950/80 text-purple-300 border-purple-800/60"
@@ -2389,8 +2407,8 @@ function renderLayer2Cards() {
                     ` : ''}
                   </div>
 
-                  <!-- KALEM 5: SAF FABRİKA HAM MALİYETİ (NET TOPLAM) -->
-                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item5')" class="cursor-pointer hover:bg-slate-900/80 p-2.5 rounded-xl transition-all border border-amber-500/40 bg-amber-950/20">
+                  <!-- KALEM 5: SAF FABRİKA HAM MALİYETİ & KDV KORUMA DENGELİ MALİYET -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item5')" class="cursor-pointer hover:bg-slate-900/80 p-2.5 rounded-xl transition-all border ${taxProtection.hasMismatch ? 'border-emerald-500/80 bg-emerald-950/20' : 'border-amber-500/40 bg-amber-950/20'} space-y-1">
                     <div class="flex items-center justify-between font-extrabold text-xs">
                       <span class="text-amber-300 flex items-center gap-1.5">
                         🏁 SAF FABRİKA ÜRETİM MALİYETİ (KÂRSIZ NET GİDER)
@@ -2398,14 +2416,30 @@ function renderLayer2Cards() {
                       </span>
                       <span class="text-amber-300 text-sm shrink-0 font-black">${PriceCalculator.formatTL(netCost)} ₺</span>
                     </div>
+                    ${taxProtection.hasMismatch ? `
+                      <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-800/80">
+                        <span class="text-emerald-400 font-bold flex items-center gap-1">
+                          🛡️ KDV KORUMALI DİP SATIŞ MALİYETİ (Alış %${inputVatRate} ➔ Satış %${salesVatRate}):
+                        </span>
+                        <span class="font-extrabold text-emerald-300 text-sm">${PriceCalculator.formatTL(effectiveNetCost)} ₺</span>
+                      </div>
+                    ` : ''}
                     ${openLayer2BreakdownInfos[product.id]?.item5 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-amber-500/50 text-xs text-amber-200 space-y-1.5 animate-slide-up">
                         <div class="font-bold text-amber-300 border-b border-slate-800 pb-1">💡 NET ÜRETİM MALİYETİ AÇIKLAMASI</div>
                         <p>• 1. Yağ: ${PriceCalculator.formatTL(rawOilCost)} ₺ | 2. Ambalaj: ${PriceCalculator.formatTL(packCost)} ₺ | 3. Tesis: ${PriceCalculator.formatTL(linearOverhead)} ₺ | 4. İşçilik: ${PriceCalculator.formatTL(laborAssemblyFee)} ₺</p>
                         <p class="font-bold text-amber-300 border-t border-slate-800 pt-1 text-xs">
-                          = 1 ADET AMBALAJLI FABRİKA MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
+                          = FABRİKA NAKİT MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
                         </p>
-                        <p class="text-rose-300 font-semibold text-[11px]">⚠️ Bu tutar fabrikanızın cebinden çıkan kârsız ham giderdir. Perakende satış fiyatınız Katman 1 Pazaryeri Simülatöründe kâr marjınız eklenerek oluşturulur.</p>
+                        ${taxProtection.hasMismatch ? `
+                          <div class="p-2 bg-emerald-950/80 rounded-lg border border-emerald-700/80 text-emerald-200 text-xs space-y-1 mt-1">
+                            <div class="font-extrabold text-emerald-300">🛡️ KDV ORAN FARKI KORUMA MOTORU AKTİF</div>
+                            <p>• <strong>Alış KDV Oranınız:</strong> %${inputVatRate} | <strong>Satış Fatura KDV'niz:</strong> %${salesVatRate}</p>
+                            <p>• <strong>Eklenen Vergi Dengesi:</strong> +${PriceCalculator.formatTL(taxProtection.taxDiffSurcharge)} ₺</p>
+                            <p>• <strong>Zararsız Dip Satış Maliyeti:</strong> <strong>${PriceCalculator.formatTL(effectiveNetCost)} ₺</strong></p>
+                            <p class="text-[11px] text-emerald-100">💡 Bu koruma sayesinde ürünü satarken devlete aradaki KDV farkını cebinizden ödemezsiniz, kârınız tam net kalır!</p>
+                          </div>
+                        ` : ''}
                       </div>
                     ` : ''}
                   </div>

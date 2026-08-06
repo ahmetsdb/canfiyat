@@ -220,6 +220,50 @@ class PriceCalculator {
     };
   }
 
+  // 🛡️ İki Yönlü KDV Koruma Motoru (VAT Rate Mismatch Tax Neutralization Engine)
+  // Alış KDV (%1 veya %20) ile Satış KDV (%1 veya %20) oranlarını karşılaştırır.
+  // Alış KDV %1, Satış KDV %20 ise devlete cebinizden KDV farkı ödenmemesi adına maliyeti netleştirip Satış KDV'si ile zararsız dip fiyata sabitler.
+  static calculateTaxNeutralBreakEvenCost({
+    netCost = 0,             // KDV Dahil Girdi Maliyetler Toplamı (Yağ + Ambalaj + Tesis + İşçilik)
+    inputVatRate = 1,        // Alış KDV Oranı (%1 veya %20)
+    salesVatRate = 1,        // Satış KDV Oranı (%1 veya %20)
+    rawOilCost = 0,          // KDV Dahil Yağ Payı
+    packCost = 0,            // KDV Dahil Ambalaj Payı
+    linearOverhead = 0,      // Tesis Masraf Payı
+    laborAssemblyFee = 0     // İşçilik Hizmet Payı
+  }) {
+    const inVat = parseFloat(inputVatRate) || 1;
+    const outVat = parseFloat(salesVatRate) || 1;
+
+    // KDV oranları eşitse (örneğin %1 -> %1 veya %20 -> %20) hiçbir vergi farkı doğmaz
+    if (inVat === outVat) {
+      return {
+        taxNeutralBreakEvenCost: parseFloat(netCost.toFixed(2)),
+        taxDiffSurcharge: 0,
+        hasMismatch: false,
+        inputVatRate: inVat,
+        salesVatRate: outVat
+      };
+    }
+
+    // Alış KDV ve Ambalaj KDV (%20) süzülerek yalın KDV HARIÇ maliyet bulunur
+    const rawOilExclVat = rawOilCost / (1 + (inVat / 100));
+    const packExclVat = packCost / (1 + 0.20);
+    const totalExclVat = rawOilExclVat + packExclVat + linearOverhead + laborAssemblyFee;
+
+    // Satış KDV'si (%20) uygulanarak vergi farkından doğacak zararı %100 sıfırlayan GERÇEK DİP SATIŞ FİYATI hesaplanır
+    const taxNeutralBreakEvenCost = parseFloat((totalExclVat * (1 + (outVat / 100))).toFixed(2));
+    const taxDiffSurcharge = parseFloat(Math.max(0, taxNeutralBreakEvenCost - netCost).toFixed(2));
+
+    return {
+      taxNeutralBreakEvenCost: taxNeutralBreakEvenCost,
+      taxDiffSurcharge: taxDiffSurcharge,
+      hasMismatch: true,
+      inputVatRate: inVat,
+      salesVatRate: outVat
+    };
+  }
+
   // LAYER 2: Complete 3-Component Factory Cost Breakdown
   static calculateLayer2FullBreakdown({ costPerKg, volumeStr, packagingCost, overheadPerKg = 110.00 }) {
     const ml = this.getVolumeMl(volumeStr);
