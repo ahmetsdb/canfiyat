@@ -2183,11 +2183,14 @@ function renderLayer2Cards() {
 
                 <!-- Ambalaj Seçici veya Toptan Elle KG Yazma Girişi -->
                 ${layer2GroupMode === "wholesale_drums" ? `
-                  <div class="flex items-center gap-1.5 bg-slate-950 border border-purple-500/60 px-3 py-1.5 rounded-2xl shadow-inner shrink-0">
-                    <span class="text-xs font-black text-purple-300 flex items-center gap-1">📦 Sipariş Miktarı:</span>
-                    <div class="flex items-center gap-1">
-                      <input type="number" value="${kg}" min="1" step="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-20 bg-slate-900 border border-purple-400/80 text-purple-200 font-black text-xs px-2 py-1 rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <div class="flex flex-col gap-1 bg-slate-950 border border-purple-500/50 px-3 py-1.5 rounded-xl shadow-inner shrink-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[11px] font-bold text-slate-300">Sipariş:</span>
+                      <input type="number" value="${kg}" min="1" step="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-16 bg-slate-900 border border-purple-400/80 text-purple-300 font-black text-xs px-2 py-0.5 rounded-lg text-center focus:outline-none focus:ring-1 focus:ring-purple-500">
                       <span class="text-xs font-black text-purple-300">KG</span>
+                    </div>
+                    <div class="text-[9px] font-mono text-purple-200 truncate max-w-[140px]" title="${wholesalePack?.breakdownText || ''}">
+                      📦 ${wholesalePack?.breakdownText || (kg + ' KG')}
                     </div>
                   </div>
                 ` : `
@@ -2199,39 +2202,31 @@ function renderLayer2Cards() {
                   </div>
                 `}
 
-                <!-- Vurgulu Toptan 1 KG Birim Fiyatı & Paket Toplamı Rozeti (Row View) -->
-                <div class="flex items-center gap-2.5">
-                  <div class="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 p-3 rounded-2xl border-2 ${layer2GroupMode === 'wholesale_drums' ? 'border-emerald-400 shadow-lg shadow-emerald-500/20' : 'border-emerald-500/60'} text-right">
-                    <div class="flex items-center justify-end gap-1.5">
-                      <span class="text-[9px] uppercase font-black text-emerald-400 tracking-wider">📢 MÜŞTERİYE 1 KG TOPTAN TEKLİF FİYATI:</span>
-                      <span class="text-[10px] text-emerald-300 font-bold bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">%${kdvRate} KDV Dahil</span>
+                <!-- Minimalist & Vurgulu 1 KG Teklif Fiyatı Rozeti (Row View) -->
+                <div class="flex items-center gap-2 shrink-0">
+                  <div class="bg-gradient-to-r from-emerald-950/90 to-slate-950 px-3.5 py-1.5 rounded-xl border border-emerald-500/60 shadow-md text-right min-w-[170px]">
+                    <div class="flex items-center justify-end gap-1">
+                      <span class="text-[9px] font-black uppercase text-emerald-400 tracking-wider">1 KG TEKLİF:</span>
+                      <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950/90 px-1 py-0.2 rounded border border-emerald-800/80">%${kdvRate} KDV</span>
                     </div>
-                    <div class="text-lg font-black text-emerald-300 tracking-tight my-0.5">
-                      ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-xs font-bold text-emerald-400">/ KG</span>
+                    <div class="text-base font-black text-emerald-300 tracking-tight leading-tight">
+                      ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-[10px] font-bold text-emerald-400">/ KG</span>
                     </div>
-                    <div class="text-[10px] text-purple-300 font-bold flex items-center justify-end gap-2">
-                      <span>${tierInfo.label} (%${discountPct} İsk.)</span>
+                    <div class="text-[9px] font-bold text-purple-300 flex items-center justify-end gap-1">
+                      <span>%${discountPct} İsk.</span>
                       <span>•</span>
-                      <span class="text-slate-200">Sipariş Toplamı: <strong class="text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</strong></span>
+                      <span class="text-slate-300">Toplam: <strong class="text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</strong></span>
                     </div>
-                    ${layer2GroupMode === 'wholesale_drums' ? `
-                      <div class="text-[9px] text-slate-300 font-mono mt-1 border-t border-emerald-900/60 pt-1">
-                        📦 ${wholesalePack?.breakdownText || (kg + ' KG Bidon')}
-                      </div>
-                    ` : ''}
                   </div>
 
-                  <div class="flex flex-col gap-1.5">
+                  <div class="flex flex-col gap-1 shrink-0">
                     ${layer2GroupMode === 'wholesale_drums' ? `
-                      <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1">
+                      <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" title="Müşteri Teklif Metnini Kopyala" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[11px] rounded-lg shadow-sm transition-all flex items-center justify-center gap-1 whitespace-nowrap">
                         📋 Teklif Kopyala
                       </button>
                     ` : ''}
-                    <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs text-slate-200 hover:text-white font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
-                      📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
-                    </button>
-                    <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs text-purple-300 hover:text-white font-bold bg-purple-950 hover:bg-purple-900 border border-purple-800/80 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
-                      ${layer2GroupMode === 'wholesale_drums' ? (isDrawerOpen ? "🏢 B2B Cetvelini Gizle" : "🏢 B2B Cetveli") : (isDrawerOpen ? "⚡ Sistem 1'i Gizle" : "⚡ Pazaryeri Simülatörü")}
+                    <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-800/60 font-bold text-[11px] rounded-lg transition-all flex items-center justify-center gap-1 whitespace-nowrap">
+                      ${layer2GroupMode === 'wholesale_drums' ? (isDrawerOpen ? "📊 Detay Gizle" : "📊 B2B Cetveli") : (isDrawerOpen ? "⚡ Sistem 1 Gizle" : "⚡ Pazaryeri Sim")}
                     </button>
                   </div>
                 </div>
@@ -2664,30 +2659,20 @@ function renderLayer2Cards() {
                   </div>
                 </div>
 
-                <!-- Birim 1KG Toptan Teklif Fiyatı Vurgulu Rozet (Card View) -->
-                <div class="p-3.5 bg-gradient-to-br from-emerald-950/95 via-teal-950/90 to-slate-950 rounded-2xl border-2 ${layer2GroupMode === 'wholesale_drums' ? 'border-emerald-400 shadow-lg shadow-emerald-500/20' : 'border-emerald-500/60'} my-2 space-y-1.5">
+                <!-- Minimalist & Vurgulu 1 KG Teklif Fiyatı Rozet (Card View) -->
+                <div class="p-3 bg-gradient-to-br from-emerald-950/90 to-slate-950 rounded-xl border border-emerald-500/60 my-2 space-y-1">
                   <div class="flex justify-between items-center text-xs">
-                    <span class="font-extrabold text-emerald-400 uppercase text-[10px] tracking-wider flex items-center gap-1">
-                      📢 MÜŞTERİYE 1 KG TEKLİF:
-                    </span>
-                    <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">%${kdvRate} KDV Dahil</span>
+                    <span class="font-extrabold text-emerald-400 uppercase text-[10px] tracking-wider">1 KG TEKLİF FİYATI:</span>
+                    <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-800/80">%${kdvRate} KDV</span>
                   </div>
                   <div class="flex justify-between items-baseline">
-                    <span class="font-black text-emerald-300 text-xl tracking-tight">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-xs text-emerald-400">/ KG</span></span>
-                    <span class="text-xs font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">${tierInfo.label} (%${discountPct} İsk.)</span>
+                    <span class="font-black text-emerald-300 text-lg tracking-tight">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-xs text-emerald-400">/ KG</span></span>
+                    <span class="text-[10px] font-bold text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800">%${discountPct} İsk.</span>
                   </div>
                   <div class="flex justify-between items-center text-[10px] text-slate-300 font-bold border-t border-emerald-900/60 pt-1">
                     <span>Sipariş Toplamı: <strong class="text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</strong></span>
                     <span>(${kg} KG)</span>
                   </div>
-                  ${layer2GroupMode === 'wholesale_drums' ? `
-                    <div class="text-[9px] font-mono text-purple-200 bg-slate-950/80 p-1.5 rounded-lg border border-purple-900/50 mt-1 flex justify-between items-center">
-                      <span class="truncate">📦 ${wholesalePack?.breakdownText || (kg + ' KG Bidon')}</span>
-                      <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" class="px-2 py-0.5 bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-[10px] rounded transition-all shrink-0">
-                        📋 Kopyala
-                      </button>
-                    </div>
-                  ` : ''}
                 </div>
 
                 <!-- Ambalaj Seçici veya Toptan Elle KG Yazma Girişi (Card View) -->
