@@ -1297,6 +1297,10 @@ function renderLayer3Cards() {
   if (!container) return;
   container.innerHTML = "";
 
+  const factoryOverheadConfig = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(factoryOverheadConfig);
+  const dynamicOverheadPerKg = overheadRes.overheadPerKg;
+
   const selectedGlobalVol = document.getElementById("l3-global-vol-filter") ? document.getElementById("l3-global-vol-filter").value : "250ml";
   let totalScrapedMatchCount = 0;
 
