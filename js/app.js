@@ -1078,6 +1078,22 @@ function toggleCardAccordion(productId) {
 }
 
 let currentLayer3Channel = "iyzico"; // "iyzico" or "trendyol"
+let isLayer3DipFiyatMode = false; // Toggle for 0 TL Break-even Dip Price Mode
+
+function toggleLayer3DipFiyatMode() {
+  isLayer3DipFiyatMode = !isLayer3DipFiyatMode;
+  const btnDip = document.getElementById("btn-l3-dip-fiyat");
+  if (btnDip) {
+    if (isLayer3DipFiyatMode) {
+      btnDip.className = "bg-gradient-to-r from-rose-600 via-red-600 to-rose-500 text-white font-black px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-rose-600/30 flex items-center gap-1.5 text-xs border border-rose-300 ring-2 ring-rose-500/50 cursor-pointer animate-pulse";
+      btnDip.innerHTML = "🔥 DİP FİYAT MODU AKTİF (0 ₺ KÂR)";
+    } else {
+      btnDip.className = "bg-slate-900 hover:bg-slate-800 text-rose-300 font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-rose-500/40 cursor-pointer";
+      btnDip.innerHTML = "🏁 DİP FİYAT (0 ₺ KÂR)";
+    }
+  }
+  renderLayer3Cards();
+}
 
 function setLayer3Channel(channel) {
   currentLayer3Channel = channel;
@@ -1086,6 +1102,7 @@ function setLayer3Channel(channel) {
   const btnIyzico = document.getElementById("btn-l3-channel-iyzico");
   const btnTrendyol = document.getElementById("btn-l3-channel-trendyol");
   const btnPdf = document.getElementById("btn-l3-pdf-report");
+  const btnExcel = document.getElementById("btn-l3-excel-upload");
 
   if (channel === "trendyol") {
     if (banner) {
@@ -1101,6 +1118,7 @@ function setLayer3Channel(channel) {
       btnPdf.innerHTML = "📄 TRENDYOL KARŞILAŞTIRMA PDF AL";
       btnPdf.className = "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-400 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-lg flex items-center gap-1.5 text-xs border border-orange-300/50 cursor-pointer";
     }
+    if (btnExcel) btnExcel.classList.remove("hidden");
   } else {
     if (banner) {
       banner.className = "glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-xl transition-all";
@@ -1115,6 +1133,7 @@ function setLayer3Channel(channel) {
       btnPdf.innerHTML = "📄 İYZİCO KARŞILAŞTIRMA PDF AL";
       btnPdf.className = "bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-500 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-lg flex items-center gap-1.5 text-xs border border-purple-400/40 cursor-pointer";
     }
+    if (btnExcel) btnExcel.classList.add("hidden");
   }
   renderLayer3Cards();
 }
@@ -1552,7 +1571,7 @@ function renderLayer3Cards() {
     // --- Dynamic Katman 1 Recommended Price & Effective Net Cost Calculation ---
     const activeCalc = getLayer2EffectiveCostForVolume(product, activeVolKey, dynamicOverheadPerKg);
     const activeEffectiveNetCost = activeCalc.effectiveNetCost;
-    const activeTargetProfit = activeCalc.targetProfit;
+    const activeTargetProfit = isLayer3DipFiyatMode ? 0 : activeCalc.targetProfit;
 
     let systemRecommendedPrice = 0;
     if (currentLayer3Channel === "trendyol") {
@@ -1632,7 +1651,7 @@ function renderLayer3Cards() {
       availableVols.forEach(vKey => {
         const vCalc = getLayer2EffectiveCostForVolume(product, vKey, dynamicOverheadPerKg);
         const vEffectiveNetCost = vCalc.effectiveNetCost;
-        const vTargetProfit = vCalc.targetProfit;
+        const vTargetProfit = isLayer3DipFiyatMode ? 0 : vCalc.targetProfit;
 
         let vRecommendedPrice = 0;
         if (currentLayer3Channel === "trendyol") {
@@ -1734,7 +1753,7 @@ function renderLayer3Cards() {
               <thead>
                 <tr class="border-b border-slate-800 text-[10px] font-bold uppercase text-slate-400 bg-slate-900/90">
                   <th class="p-2">Satılan Ambalaj</th>
-                  <th class="p-2 text-amber-300">🎯 Katman 1 Önerilen Fiyat</th>
+                  <th class="p-2 ${isLayer3DipFiyatMode ? 'text-rose-300 font-extrabold' : 'text-amber-300'}">${isLayer3DipFiyatMode ? '🏁 Katman 1 Dip Fiyat (0 ₺ Kâr)' : '🎯 Katman 1 Önerilen Fiyat'}</th>
                   <th class="p-2 ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">🛒 ${currentLayer3Channel === 'trendyol' ? 'Trendyol Canlı Fiyatı' : 'iyzico Canlı Fiyatı'}</th>
                   <th class="p-2 text-slate-300">🏁 Saf Maliyet</th>
                   <th class="p-2 text-emerald-400">💰 Net Kâr</th>
@@ -1781,8 +1800,8 @@ function renderLayer3Cards() {
           <!-- 2. Center: Side-by-Side Metrics Preview (Önerilen Fiyat, Canlı Fiyat, Saf Maliyet, Net Kâr) -->
           <div class="grid grid-cols-4 gap-1.5 w-full md:w-6/12 items-center bg-slate-950/90 p-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
             <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[9px] uppercase font-bold text-amber-400 block tracking-tight">🎯 Önerilen</span>
-              <span class="font-extrabold text-amber-300 text-xs">${PriceCalculator.formatTL(systemRecommendedPrice)} ₺</span>
+              <span class="text-[9px] uppercase font-bold ${isLayer3DipFiyatMode ? 'text-rose-400 font-black' : 'text-amber-400'} block tracking-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
+              <span class="font-extrabold ${isLayer3DipFiyatMode ? 'text-rose-300' : 'text-amber-300'} text-xs">${PriceCalculator.formatTL(systemRecommendedPrice)} ₺</span>
             </div>
 
             <div class="text-center border-r border-slate-800/80 pr-1">
@@ -4117,8 +4136,9 @@ function generateLayer3PdfReport() {
         const calc = getLayer2EffectiveCostForVolume(prod, vk, dynamicOverheadPerKg);
         const netCost = calc.effectiveNetCost;
 
-        // Katman 1 Recommended Sale Price (Target Profit = 70 TL)
-        const recSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: 70, commission: commRate, cargo: cargoFee });
+        // Katman 1 Recommended Sale Price (Target Profit = 70 TL or 0 TL in Dip Fiyat Mode)
+        const targetProfitForReport = isLayer3DipFiyatMode ? 0 : 70;
+        const recSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitForReport, commission: commRate, cargo: cargoFee });
         const recPrice = recSim.salePrice;
 
         // Realized Net Profit at Live Listing Price
@@ -4155,7 +4175,7 @@ function generateLayer3PdfReport() {
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Cansızzade - Katman 3 Canlı Mağaza vs Önerilen Fiyat Karşılaştırma Raporu (${channelName})</title>
+  <title>Cansızzade - Katman 3 ${isLayer3DipFiyatMode ? 'Dip Fiyat (0 ₺ Kâr)' : 'Önerilen Fiyat'} Karşılaştırma Raporu (${channelName})</title>
   <style>
     @page { size: A4 portrait; margin: 6mm 7mm; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.15; }
@@ -4193,7 +4213,7 @@ function generateLayer3PdfReport() {
     <div class="header">
       <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
       <div class="header-info">
-        <h1>KATMAN 3: CANLI MAĞAZA VE ÖNERİLEN FİYAT ANALİZİ</h1>
+        <h1>KATMAN 3: CANLI MAĞAZA VE ${isLayer3DipFiyatMode ? 'DİP FİYAT (0 ₺ KÂR)' : 'ÖNERİLEN FİYAT'} ANALİZİ</h1>
         <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>${channelName.toUpperCase()} KARŞILAŞTIRMA RAPORU</strong></p>
       </div>
     </div>
@@ -4201,18 +4221,18 @@ function generateLayer3PdfReport() {
     <div class="meta-banner">
       <span>📅 <strong>Tarih:</strong> ${todayStr}</span>
       <span>📊 <strong>İncelenen Kanal:</strong> ${channelName} (%${commRate} Kom. + ${PriceCalculator.formatTL(cargoFee)} ₺ Kargo)</span>
-      <span>🟢 <strong>Önerilen Üstünde:</strong> ${totalAboveCount} Ambalaj</span>
-      <span>🔴 <strong>Önerilenden Düşük:</strong> ${totalBelowCount} Ambalaj</span>
+      <span>🟢 <strong>${isLayer3DipFiyatMode ? 'Dip Üstünde' : 'Önerilen Üstünde'}:</strong> ${totalAboveCount} Ambalaj</span>
+      <span>🔴 <strong>${isLayer3DipFiyatMode ? 'Dip Altında' : 'Önerilenden Düşük'}:</strong> ${totalBelowCount} Ambalaj</span>
     </div>
 
     <div class="legend-banner">
       <span><strong>1. Katman 2 Saf Maliyet:</strong> KDV Korumalı Dip Üretim Maliyeti</span>
-      <span><strong>2. Katman 1 Önerilen Fiyat:</strong> +70 ₺ Hedef Kâr Eklenmiş Fiyat</span>
+      <span><strong>2. Katman 1 Fiyatı:</strong> ${isLayer3DipFiyatMode ? '0 ₺ Kâr (Başa Baş Dip Fiyatı)' : '+70 ₺ Hedef Kâr Eklenmiş Fiyat'}</span>
       <span><strong>3. Canlı Mağaza Fiyatı:</strong> ${channelName} Canlı İlan Fiyatınız</span>
       <span><strong>4. Net Kâr:</strong> Canlı Satış Hakedişinden Saf Maliyet Çıkarılmış Tutar</span>
     </div>
 
-    <div class="cat-title">🌿 SABİT YAĞLAR — CANLI SATIŞ VE ÖNERİLEN FİYAT KARŞILAŞTIRMA CETVELİ</div>
+    <div class="cat-title">🌿 SABİT YAĞLAR — CANLI SATIŞ VE ${isLayer3DipFiyatMode ? 'DİP FİYAT (0 ₺ KÂR)' : 'ÖNERİLEN FİYAT'} KARŞILAŞTIRMA CETVELİ</div>
 
     <table>
       <thead>
@@ -4222,7 +4242,7 @@ function generateLayer3PdfReport() {
           <th style="width: 20%;">Ürün Adı</th>
           <th style="width: 8%;" class="text-center">Ambalaj</th>
           <th style="width: 12%;" class="text-right">Saf Maliyet (Katman 2)</th>
-          <th style="width: 13%;" class="text-right">🎯 Önerilen Fiyat (Katman 1)</th>
+          <th style="width: 13%;" class="text-right">${isLayer3DipFiyatMode ? '🏁 Dip Fiyat (0 ₺ Kâr)' : '🎯 Önerilen Fiyat (Katman 1)'}</th>
           <th style="width: 13%;" class="text-right">🛒 Canlı Mağaza Fiyatı</th>
           <th style="width: 11%;" class="text-right">💰 Canlı Net Kâr</th>
           <th style="width: 13%;" class="text-center">🏁 Karşılaştırma Durumu</th>
