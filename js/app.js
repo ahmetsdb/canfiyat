@@ -1870,10 +1870,10 @@ function getLayer2VolumeOptionsHtml(vol) {
   const tiers = StorageManager.getWholesaleTiers();
   if (layer2GroupMode === "wholesale_drums") {
     return `
-      <option value="10KG" ${vol === "10KG" ? "selected" : ""}>10 KG Bidon (10 ₺ | %${tiers.tier1?.discount ?? 5} İsk.)</option>
-      <option value="30KG" ${vol === "30KG" ? "selected" : ""}>30 KG Bidon (30 ₺ | %${tiers.tier1?.discount ?? 5} İsk.)</option>
-      <option value="100KG" ${vol === "100KG" ? "selected" : ""}>100 KG Tonaj (35 ₺ | %${tiers.tier2?.discount ?? 10} İsk.)</option>
-      <option value="250KG" ${vol === "250KG" ? "selected" : ""}>250 KG+ Sanayi Tonajı (%${tiers.tier4?.discount ?? 20} İsk.)</option>
+      <option value="10KG" ${vol === "10KG" ? "selected" : ""}>10 KG (2 Adet 5 KG Bidon | %${tiers.tier1?.discount ?? 5} İsk.)</option>
+      <option value="30KG" ${vol === "30KG" ? "selected" : ""}>30 KG (1 Adet 25 KG + 1 Adet 5 KG Bidon | %${tiers.tier1?.discount ?? 5} İsk.)</option>
+      <option value="100KG" ${vol === "100KG" ? "selected" : ""}>100 KG (4 Adet 25 KG Sanayi Bidonu | %${tiers.tier2?.discount ?? 10} İsk.)</option>
+      <option value="250KG" ${vol === "250KG" ? "selected" : ""}>250 KG (10 Adet 25 KG Sanayi Bidonu | %${tiers.tier4?.discount ?? 20} İsk.)</option>
     `;
   }
   return `
@@ -2039,8 +2039,12 @@ function renderLayer2Cards() {
         const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
 
         const rawOilCost = parseFloat((costPerKg * kg).toFixed(2));
+        const wholesalePack = (layer2GroupMode === "wholesale_drums")
+          ? PriceCalculator.calculateWholesalePackagingBreakdown(kg)
+          : null;
+
         const packCost = (layer2GroupMode === "wholesale_drums")
-          ? parseFloat((kg * 0.50).toFixed(2))
+          ? wholesalePack.totalPackCost
           : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
 
         const isWholesaleSupply = (supplyType === "wholesale");
@@ -2265,9 +2269,9 @@ function renderLayer2Cards() {
                     ${openLayer2BreakdownInfos[product.id]?.item2 ? `
                       <div class="mt-2 p-3 bg-slate-900/90 rounded-xl border border-sky-500/40 text-[11px] text-sky-200 space-y-1.5 animate-slide-up">
                         <div class="font-extrabold text-sky-400 border-b border-slate-800 pb-1">💡 2. KALEM NASIL HESAPLANDI?</div>
-                        <p>• <strong>Seçilen Ambalaj Boyutu:</strong> ${vol}</p>
-                        <p>• <strong>Birim Ambalaj Maliyeti:</strong> <strong>${PriceCalculator.formatTL(packCost)} ₺</strong></p>
-                        <p class="text-slate-400 text-[10px]">${layer2GroupMode === 'wholesale_drums' ? 'Büyük boy sanayi dökme bidon / varil paketleme payı.' : 'Cam şişe, dropper damlalık / pipet, kapak, tıpa, ürün kutusu ve etiket maliyetinin toplamıdır.'}</p>
+                        <p>• <strong>Seçilen Ambalaj:</strong> ${layer2GroupMode === 'wholesale_drums' ? (wholesalePack?.breakdownText || `${kg} KG Bidon`) : vol}</p>
+                        <p>• <strong>Toplam Ambalaj Maliyeti:</strong> <strong>${PriceCalculator.formatTL(packCost)} ₺</strong></p>
+                        <p class="text-slate-400 text-[10px]">${layer2GroupMode === 'wholesale_drums' ? `Özel Sanayi Bidon Dağılımı: ${wholesalePack?.breakdownText} (Toplam ${wholesalePack?.totalContainerCount || 1} Adet Sanayi/Toptan Bidon Payı).` : 'Cam şişe, dropper damlalık / pipet, kapak, tıpa, ürün kutusu ve etiket maliyetinin toplamıdır.'}</p>
                       </div>
                     ` : ''}
                   </div>
@@ -2392,8 +2396,8 @@ function renderLayer2Cards() {
                           <span class="font-black text-blue-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.90 + targetProfitInput)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>30 KG Varil Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.90 + targetProfitInput) * 30)} ₺</span></div>
-                          <div class="flex justify-between items-center text-slate-400"><span>Saf Varil Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 30)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>30 KG (1x25 + 1x5 KG) Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.90 + targetProfitInput) * 30)} ₺</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>Saf Bidon Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 30)} ₺</span></div>
                         </div>
                       </div>
                     </div>
@@ -2410,7 +2414,7 @@ function renderLayer2Cards() {
                           <span class="font-black text-indigo-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.85 + targetProfitInput)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>100 KG Tonaj Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.85 + targetProfitInput) * 100)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>100 KG (4x25 KG Bidon) Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.85 + targetProfitInput) * 100)} ₺</span></div>
                           <div class="flex justify-between items-center text-slate-400"><span>Saf Tonaj Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 100)} ₺</span></div>
                         </div>
                       </div>
@@ -2428,7 +2432,7 @@ function renderLayer2Cards() {
                           <span class="font-black text-amber-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.80 + targetProfitInput)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>250 KG Sanayi Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.80 + targetProfitInput) * 250)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>250 KG (10x25 KG Bidon) Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.80 + targetProfitInput) * 250)} ₺</span></div>
                           <div class="flex justify-between items-center text-slate-400"><span>Saf Sanayi Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 250)} ₺</span></div>
                         </div>
                       </div>
@@ -2440,7 +2444,7 @@ function renderLayer2Cards() {
                     <div class="flex items-center gap-2 truncate">
                       <span class="text-base">📋</span>
                       <span class="font-bold text-purple-200 shrink-0">B2B Müşteri Fiyat Teklifi:</span>
-                      <span class="font-mono text-xs text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${kg} KG Bidon | Birim: ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺/KG (%${kdvRate} KDV Dahil) | Toplam: ${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
+                      <span class="font-mono text-xs text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${wholesalePack?.breakdownText || (kg + ' KG Bidon')} | Birim: ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺/KG (%${kdvRate} KDV Dahil) | Toplam: ${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
                     </div>
                     <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0">
                       📋 Teklif Metnini Kopyala
@@ -3011,16 +3015,19 @@ function copyWholesaleProposal(productId, kg, unitPrice, totalPrice, kdvRate) {
   const productName = product.name || "Bitkisel Yağ";
   const sku = product.sku || productId;
 
-  const text = `Cansızzade Bitkisel Yağlar - B2B Toptan Satış Teklifi\n----------------------------------------------------\nÜrün: ${productName} (SKU: ${sku})\nAmbalaj: ${kg} KG Sanayi Bidonu / Dökme\n1 KG Birim Satış Fiyatı: ${PriceCalculator.formatTL(unitPrice)} ₺ / KG (%${kdvRate} KDV Dahil)\nSipariş Toplam Tutarı: ${PriceCalculator.formatTL(totalPrice)} ₺\nTeslimat: Tesis Çıkışlı / Ambar Kargo\n----------------------------------------------------`;
+  const wholesalePack = PriceCalculator.calculateWholesalePackagingBreakdown(kg);
+  const containerText = wholesalePack.breakdownText || `${kg} KG Bidon`;
+
+  const text = `Cansızzade Bitkisel Yağlar - B2B Toptan Satış Teklifi\n----------------------------------------------------\nÜrün: ${productName} (SKU: ${sku})\nAmbalaj Dağılımı: ${containerText} (Toplam ${kg} KG)\n1 KG Birim Satış Fiyatı: ${PriceCalculator.formatTL(unitPrice)} ₺ / KG (%${kdvRate} KDV Dahil)\nSipariş Toplam Tutarı: ${PriceCalculator.formatTL(totalPrice)} ₺\nTeslimat: Tesis Çıkışlı / Ambar Kargo\n----------------------------------------------------`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast(`📋 ${productName} B2B Toptan Teklif Metni Kopyalandı!`);
+      showToast(`📋 ${productName} (${containerText}) B2B Teklif Metni Kopyalandı!`);
     }).catch(() => {
-      showToast(`📋 ${productName} B2B Toptan Teklif Metni Hazırlandı!`);
+      showToast(`📋 ${productName} B2B Teklif Metni Hazırlandı!`);
     });
   } else {
-    showToast(`📋 ${productName} B2B Toptan Teklif Metni Hazırlandı!`);
+    showToast(`📋 ${productName} B2B Teklif Metni Hazırlandı!`);
   }
 }
 

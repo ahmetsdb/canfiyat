@@ -90,6 +90,70 @@ class PriceCalculator {
     return parseFloat((linearVolumeOverhead + laborAssemblyFee).toFixed(2));
   }
 
+  // 🏢 B2B Toptan Sanayi Bidon Optimum Paketleme Dağılımı ve Ambalaj Maliyet Hesabı (25 KG Sanayi + 10 KG + 5 KG + 1 KG Remainder)
+  static calculateWholesalePackagingBreakdown(totalKg) {
+    let remaining = Math.max(0, Math.round(parseFloat(totalKg) || 0));
+    if (remaining === 0) {
+      return {
+        totalKg: 0,
+        breakdownText: "0 KG",
+        containers: [],
+        totalPackCost: 0,
+        totalContainerCount: 0
+      };
+    }
+
+    const b25 = Math.floor(remaining / 25);
+    remaining %= 25;
+
+    const b10 = Math.floor(remaining / 10);
+    remaining %= 10;
+
+    const b5 = Math.floor(remaining / 5);
+    remaining %= 5;
+
+    const b1 = remaining;
+
+    const containers = [];
+    let totalPackCost = 0;
+    let totalContainerCount = 0;
+
+    if (b25 > 0) {
+      const cost = b25 * 25.00;
+      containers.push({ count: b25, sizeKg: 25, unitPackCost: 25.00, totalCost: cost, label: `${b25} Adet 25 KG Sanayi Bidonu` });
+      totalPackCost += cost;
+      totalContainerCount += b25;
+    }
+    if (b10 > 0) {
+      const cost = b10 * 10.00;
+      containers.push({ count: b10, sizeKg: 10, unitPackCost: 10.00, totalCost: cost, label: `${b10} Adet 10 KG Bidon` });
+      totalPackCost += cost;
+      totalContainerCount += b10;
+    }
+    if (b5 > 0) {
+      const cost = b5 * 28.00;
+      containers.push({ count: b5, sizeKg: 5, unitPackCost: 28.00, totalCost: cost, label: `${b5} Adet 5 KG Bidon` });
+      totalPackCost += cost;
+      totalContainerCount += b5;
+    }
+    if (b1 > 0) {
+      const cost = b1 * 14.50;
+      containers.push({ count: b1, sizeKg: 1, unitPackCost: 14.50, totalCost: cost, label: `${b1} Adet 1 KG Ambalaj` });
+      totalPackCost += cost;
+      totalContainerCount += b1;
+    }
+
+    const breakdownText = containers.map(c => c.label).join(" + ");
+
+    return {
+      totalKg: Math.round(totalKg),
+      breakdownText: breakdownText || `${totalKg} KG`,
+      containers: containers,
+      totalPackCost: parseFloat(totalPackCost.toFixed(2)),
+      totalContainerCount: totalContainerCount
+    };
+  }
+
   // Endüstriyel Soğuk Sıkım Yağ Maliyeti (Tohum, Verim, Toptan ve Dip/Tortu Loss Hesabı)
   static calculateColdPressCost({ seedCostPerKg = 0, yieldPercent = 25, wholesaleCostPerKg = 0, supplyType = "press", dipStatus = "none", dipPercent = 0, fallbackCostPerKg = 1200 }) {
     let rawCostPerKg = 0;
