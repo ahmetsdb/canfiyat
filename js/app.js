@@ -2088,6 +2088,23 @@ function renderLayer2Cards() {
         const totalProfitOrLoss = parseFloat((profitPerKg * kg).toFixed(2));
         const isProfit = profitPerKg >= 0;
 
+        // B2B Wholesale Tier Calculations (based on baseSellingUnitCost and unitNetCost)
+        const b2bTier1Price = parseFloat((baseSellingUnitCost * 0.95).toFixed(2));
+        const b2bTier1ProfitPerKg = parseFloat((b2bTier1Price - unitNetCost).toFixed(2));
+        const b2bTier1IsProfit = b2bTier1ProfitPerKg >= 0;
+
+        const b2bTier2Price = parseFloat((baseSellingUnitCost * 0.90).toFixed(2));
+        const b2bTier2ProfitPerKg = parseFloat((b2bTier2Price - unitNetCost).toFixed(2));
+        const b2bTier2IsProfit = b2bTier2ProfitPerKg >= 0;
+
+        const b2bTier3Price = parseFloat((baseSellingUnitCost * 0.85).toFixed(2));
+        const b2bTier3ProfitPerKg = parseFloat((b2bTier3Price - unitNetCost).toFixed(2));
+        const b2bTier3IsProfit = b2bTier3ProfitPerKg >= 0;
+
+        const b2bTier4Price = parseFloat((baseSellingUnitCost * 0.80).toFixed(2));
+        const b2bTier4ProfitPerKg = parseFloat((b2bTier4Price - unitNetCost).toFixed(2));
+        const b2bTier4IsProfit = b2bTier4ProfitPerKg >= 0;
+
         const tySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
         const hbSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
         const iySim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
@@ -2359,9 +2376,17 @@ function renderLayer2Cards() {
                     <div class="flex items-center justify-between text-slate-100 font-semibold">
                       <span class="flex items-center gap-1.5 text-xs text-slate-200">
                         4. 🛠️ Dolum & Paketleme İşçilik Payı
+                        <span class="text-[10px] text-indigo-400 bg-indigo-950 px-1.5 py-0.2 rounded border border-indigo-800/80">ℹ️ Formül / Detay</span>
                       </span>
                       <span class="font-extrabold text-indigo-300 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)} ₺</span>
                     </div>
+                    ${openLayer2BreakdownInfos[product.id]?.item4 ? `
+                      <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-indigo-500/40 text-xs text-indigo-200 space-y-1.5 animate-slide-up">
+                        <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1">💡 4. KALEM (İŞÇİLİK HİZMETİ) NASIL HESAPLANDI?</div>
+                        <p>• <strong>Dolum & Paketleme İşçiliği:</strong> Ambalaj tipine göre kapak sıkma, etiketleme, bidon dolumu ve paletleme işçilik payıdır.</p>
+                        <p>• <strong>Bu Sipariş İçin Toplam İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)} ₺</strong></p>
+                      </div>
+                    ` : ''}
                   </div>
 
                   <!-- KALEM 5: KÂRSIZ HAM MALİYET (NET AÇIKLAMALI) -->
@@ -2369,9 +2394,20 @@ function renderLayer2Cards() {
                     <div class="flex items-center justify-between font-extrabold text-xs">
                       <span class="text-amber-300 flex items-center gap-1.5">
                         🏁 SAF FABRİKA HAM MALİYETİ (KÂRSIZ HAM GİDER)
+                        <span class="text-[10px] text-amber-200 bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800/80">ℹ️ Detay</span>
                       </span>
                       <span class="text-amber-300 text-xs shrink-0">${PriceCalculator.formatTL(netCost)} ₺</span>
                     </div>
+                    ${openLayer2BreakdownInfos[product.id]?.item5 ? `
+                      <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-amber-500/50 text-xs text-amber-200 space-y-1.5 animate-slide-up">
+                        <div class="font-bold text-amber-300 border-b border-slate-800 pb-1">💡 SAF HAM MALİYET NEDİR?</div>
+                        <p>• 1. Yağ: ${PriceCalculator.formatTL(rawOilCost)} ₺ | 2. Ambalaj: ${PriceCalculator.formatTL(packCost)} ₺ | 3. Tesis: ${PriceCalculator.formatTL(linearOverhead)} ₺ | 4. İşçilik: ${PriceCalculator.formatTL(laborAssemblyFee)} ₺</p>
+                        <p class="font-bold text-amber-300 border-t border-slate-800 pt-1 text-xs">
+                          = SAF HAM MALİYET: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong> (${PriceCalculator.formatTL(unitNetCost)} ₺/KG)
+                        </p>
+                        <p class="text-rose-300 font-semibold text-[11px]">⚠️ Bu tutar fabrikanızın cebinden çıkan kârsız ham giderdir. Müşteriye bu tutarın üzerine kâr koyarak teklif verilir.</p>
+                      </div>
+                    ` : ''}
                   </div>
 
                   <!-- KALEM 6: MÜŞTERİYE VERİLECEK GERÇEK SATIŞ FİYATI (VURGULU & BERRAK) -->
@@ -2406,72 +2442,92 @@ function renderLayer2Cards() {
 
               <!-- SİSTEM 1 KANAL SATIŞ SİMÜLATÖRÜ VEYA B2B TOPTAN BİDON CETVELİ -->
               ${isDrawerOpen ? (layer2GroupMode === "wholesale_drums" ? `
-                <div class="bg-slate-950 p-4 rounded-xl border border-purple-800/60 space-y-3.5 animate-slide-up">
-                  <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-3">
+                <div class="bg-slate-950/95 p-4 rounded-2xl border border-purple-800/80 space-y-3 animate-slide-up shadow-xl">
+                  <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-2">
                     <div class="flex items-center gap-2">
-                      <span class="text-sm font-extrabold text-purple-300 flex items-center gap-1.5">🏢 B2B TOPTAN SANAYİ BİDON FİYAT & İSKONTO CETVELİ</span>
-                      <span class="text-xs text-slate-400">(Tesis Çıkışlı Dökme & Tonaj Hesaplayıcı)</span>
+                      <span class="text-sm font-extrabold text-purple-300 flex items-center gap-1.5">🏢 B2B TOPTAN SANAYİ İSKONTO & KÂRLILIK CETVELİ</span>
+                      <span class="text-xs text-slate-400">(Tüm Kademeler İçin Otomatik Kâr/Zarar Hesabı)</span>
                     </div>
                     <div class="flex items-center gap-2">
-                      <label class="text-xs font-bold text-slate-200">Hedef Toptan Kâr (₺/KG):</label>
-                      <input type="number" value="${targetProfitInput}" min="0" step="10" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-24 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-sm px-3 py-1 rounded-lg text-center focus:outline-none">
-                      <span class="text-xs font-bold text-purple-400">₺ / KG</span>
+                      <span class="text-xs font-bold text-slate-300">Saf Net Maliyetiniz:</span>
+                      <span class="text-xs font-black text-amber-300 bg-amber-950 px-2.5 py-1 rounded-lg border border-amber-800">${PriceCalculator.formatTL(unitNetCost)} ₺ / KG</span>
                     </div>
                   </div>
 
                   <!-- B2B KADEMELİ İSKONTO & TEKLİF MİMARİSİ GRID -->
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
-                    <!-- Kademe 1: 5-30 KG -->
+                    <!-- Kademe 1: 5-29 KG -->
                     <div class="bg-slate-900/90 p-3.5 rounded-xl border border-teal-800/50 space-y-2 flex flex-col justify-between shadow-lg">
                       <div>
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                          <span class="font-extrabold text-teal-400 text-xs">📦 KADEME 1 (5 - 30 KG)</span>
+                          <span class="font-extrabold text-teal-400 text-xs">📦 KADEME 1 (5 - 29 KG)</span>
                           <span class="text-xs font-bold text-teal-300 bg-teal-950 px-2 py-0.5 rounded border border-teal-800">%5 İskonto</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
                           <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                          <span class="font-black text-teal-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.95 + targetProfitInput)} / KG</span>
+                          <span class="font-black text-teal-300 text-base">${PriceCalculator.formatTL(b2bTier1Price)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>10 KG Bidon Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.95 + targetProfitInput) * 10)} ₺</span></div>
-                          <div class="flex justify-between items-center text-slate-400"><span>Saf Bidon Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 10)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>10 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier1Price * 10)} ₺</span></div>
                         </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${b2bTier1IsProfit ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier1ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier1ProfitPerKg)}₺/KG)</span>
+                        `}
                       </div>
                     </div>
 
-                    <!-- Kademe 2: 30-100 KG -->
+                    <!-- Kademe 2: 30-99 KG -->
                     <div class="bg-slate-900/90 p-3.5 rounded-xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
                       <div>
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                          <span class="font-extrabold text-blue-400 text-xs">🛢️ KADEME 2 (30 - 100 KG)</span>
+                          <span class="font-extrabold text-blue-400 text-xs">🛢️ KADEME 2 (30 - 99 KG)</span>
                           <span class="text-xs font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">%10 İskonto</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
                           <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                          <span class="font-black text-blue-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.90 + targetProfitInput)} / KG</span>
+                          <span class="font-black text-blue-300 text-base">${PriceCalculator.formatTL(b2bTier2Price)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>30 KG (1x25 + 1x5 KG) Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.90 + targetProfitInput) * 30)} ₺</span></div>
-                          <div class="flex justify-between items-center text-slate-400"><span>Saf Bidon Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 30)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>30 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier2Price * 30)} ₺</span></div>
                         </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${b2bTier2IsProfit ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier2ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier2ProfitPerKg)}₺/KG)</span>
+                        `}
                       </div>
                     </div>
 
-                    <!-- Kademe 3: 100-250 KG -->
+                    <!-- Kademe 3: 100-249 KG -->
                     <div class="bg-slate-900/90 p-3.5 rounded-xl border border-indigo-800/50 space-y-2 flex flex-col justify-between shadow-lg">
                       <div>
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                          <span class="font-extrabold text-indigo-400 text-xs">🚚 KADEME 3 (100 - 250 KG)</span>
+                          <span class="font-extrabold text-indigo-400 text-xs">🚚 KADEME 3 (100 - 249 KG)</span>
                           <span class="text-xs font-bold text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">%15 İskonto</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
                           <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                          <span class="font-black text-indigo-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.85 + targetProfitInput)} / KG</span>
+                          <span class="font-black text-indigo-300 text-base">${PriceCalculator.formatTL(b2bTier3Price)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>100 KG (4x25 KG Bidon) Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.85 + targetProfitInput) * 100)} ₺</span></div>
-                          <div class="flex justify-between items-center text-slate-400"><span>Saf Tonaj Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 100)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>100 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier3Price * 100)} ₺</span></div>
                         </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${b2bTier3IsProfit ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier3ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier3ProfitPerKg)}₺/KG)</span>
+                        `}
                       </div>
                     </div>
 
@@ -2484,12 +2540,19 @@ function renderLayer2Cards() {
                         </div>
                         <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
                           <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                          <span class="font-black text-amber-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.80 + targetProfitInput)} / KG</span>
+                          <span class="font-black text-amber-300 text-base">${PriceCalculator.formatTL(b2bTier4Price)} / KG</span>
                         </div>
                         <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
-                          <div class="flex justify-between items-center"><span>250 KG (10x25 KG Bidon) Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.80 + targetProfitInput) * 250)} ₺</span></div>
-                          <div class="flex justify-between items-center text-slate-400"><span>Saf Sanayi Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 250)} ₺</span></div>
+                          <div class="flex justify-between items-center"><span>250 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier4Price * 250)} ₺</span></div>
                         </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${b2bTier4IsProfit ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier4ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier4ProfitPerKg)}₺/KG)</span>
+                        `}
                       </div>
                     </div>
                   </div>
