@@ -2206,7 +2206,7 @@ function renderLayer2Cards() {
                     📋 ${isBreakdownOpen ? "Faturayı Kapat" : "Fatura Dökümü"}
                   </button>
                   <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs text-purple-300 hover:text-white font-bold bg-purple-950 hover:bg-purple-900 border border-purple-800/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
-                    ⚡ ${isDrawerOpen ? "Sistem 1'i Gizle" : "Sistem 1 Simülatörü"}
+                    ${layer2GroupMode === 'wholesale_drums' ? (isDrawerOpen ? "🏢 B2B Cetvelini Gizle" : "🏢 B2B Toptan Fiyat Cetveli") : (isDrawerOpen ? "⚡ Sistem 1'i Gizle" : "⚡ Pazaryeri Simülatörü")}
                   </button>
                 </div>
               </div>
@@ -2345,8 +2345,109 @@ function renderLayer2Cards() {
                 </div>
               ` : ""}
 
-              <!-- SİSTEM 1 KANAL SATIŞ SİMÜLATÖRÜ (KATMAN 1 STİLİ TAM KARTLAR) -->
-              ${isDrawerOpen ? `
+              <!-- SİSTEM 1 KANAL SATIŞ SİMÜLATÖRÜ VEYA B2B TOPTAN BİDON CETVELİ -->
+              ${isDrawerOpen ? (layer2GroupMode === "wholesale_drums" ? `
+                <div class="bg-slate-950 p-4 rounded-xl border border-purple-800/60 space-y-3.5 animate-slide-up">
+                  <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-extrabold text-purple-300 flex items-center gap-1.5">🏢 B2B TOPTAN SANAYİ BİDON FİYAT & İSKONTO CETVELİ</span>
+                      <span class="text-xs text-slate-400">(Tesis Çıkışlı Dökme & Tonaj Hesaplayıcı)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs font-bold text-slate-200">Hedef Toptan Kâr (₺/KG):</label>
+                      <input type="number" value="${targetProfitInput}" min="0" step="10" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-24 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-sm px-3 py-1 rounded-lg text-center focus:outline-none">
+                      <span class="text-xs font-bold text-purple-400">₺ / KG</span>
+                    </div>
+                  </div>
+
+                  <!-- B2B KADEMELİ İSKONTO & TEKLİF MİMARİSİ GRID -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                    <!-- Kademe 1: 5-30 KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-teal-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-teal-400 text-xs">📦 KADEME 1 (5 - 30 KG)</span>
+                          <span class="text-xs font-bold text-teal-300 bg-teal-950 px-2 py-0.5 rounded border border-teal-800">%5 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-teal-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.95 + targetProfitInput)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>10 KG Bidon Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.95 + targetProfitInput) * 10)} ₺</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>Saf Bidon Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 10)} ₺</span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Kademe 2: 30-100 KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-blue-400 text-xs">🛢️ KADEME 2 (30 - 100 KG)</span>
+                          <span class="text-xs font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">%10 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-blue-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.90 + targetProfitInput)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>30 KG Varil Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.90 + targetProfitInput) * 30)} ₺</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>Saf Varil Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 30)} ₺</span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Kademe 3: 100-250 KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-indigo-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-indigo-400 text-xs">🚚 KADEME 3 (100 - 250 KG)</span>
+                          <span class="text-xs font-bold text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">%15 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-indigo-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.85 + targetProfitInput)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>100 KG Tonaj Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.85 + targetProfitInput) * 100)} ₺</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>Saf Tonaj Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 100)} ₺</span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Kademe 4: 250+ KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-amber-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-amber-400 text-xs">🏭 KADEME 4 (250+ KG SANAYİ)</span>
+                          <span class="text-xs font-bold text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">%20 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-amber-300 text-base">${PriceCalculator.formatTL((netCost / (kg || 1)) * 0.80 + targetProfitInput)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>250 KG Sanayi Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(((netCost / (kg || 1)) * 0.80 + targetProfitInput) * 250)} ₺</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>Saf Sanayi Maliyeti:</span><span class="text-slate-300 font-semibold">${PriceCalculator.formatTL(netCost * 250)} ₺</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- B2B TEKLİF METNİ VE HIZLI KOPYALAMA BUTONU -->
+                  <div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-purple-500/40 text-xs flex-wrap gap-2">
+                    <div class="flex items-center gap-2 truncate">
+                      <span class="text-base">📋</span>
+                      <span class="font-bold text-purple-200 shrink-0">B2B Müşteri Fiyat Teklifi:</span>
+                      <span class="font-mono text-xs text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${kg} KG Bidon | Birim: ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺/KG (%${kdvRate} KDV Dahil) | Toplam: ${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
+                    </div>
+                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0">
+                      📋 Teklif Metnini Kopyala
+                    </button>
+                  </div>
+                </div>
+              ` : `
                 <div class="bg-slate-950 p-4 rounded-xl border border-purple-800/60 space-y-3.5 animate-slide-up">
                   <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-3">
                     <div class="flex items-center gap-2">
@@ -2902,6 +3003,25 @@ async function updateLayer2ProductField(productId, field, value) {
   });
 
   renderLayer2Cards();
+}
+
+function copyWholesaleProposal(productId, kg, unitPrice, totalPrice, kdvRate) {
+  let productsMap = (typeof currentProducts !== "undefined" && currentProducts) ? currentProducts : StorageManager.getProducts();
+  const product = productsMap[productId] || {};
+  const productName = product.name || "Bitkisel Yağ";
+  const sku = product.sku || productId;
+
+  const text = `Cansızzade Bitkisel Yağlar - B2B Toptan Satış Teklifi\n----------------------------------------------------\nÜrün: ${productName} (SKU: ${sku})\nAmbalaj: ${kg} KG Sanayi Bidonu / Dökme\n1 KG Birim Satış Fiyatı: ${PriceCalculator.formatTL(unitPrice)} ₺ / KG (%${kdvRate} KDV Dahil)\nSipariş Toplam Tutarı: ${PriceCalculator.formatTL(totalPrice)} ₺\nTeslimat: Tesis Çıkışlı / Ambar Kargo\n----------------------------------------------------`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`📋 ${productName} B2B Toptan Teklif Metni Kopyalandı!`);
+    }).catch(() => {
+      showToast(`📋 ${productName} B2B Toptan Teklif Metni Hazırlandı!`);
+    });
+  } else {
+    showToast(`📋 ${productName} B2B Toptan Teklif Metni Hazırlandı!`);
+  }
 }
 
 // ----------------------------------------------------
