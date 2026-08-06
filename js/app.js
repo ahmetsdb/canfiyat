@@ -2429,17 +2429,53 @@ function renderLayer2Cards() {
                         <div class="font-bold text-amber-300 border-b border-slate-800 pb-1">💡 NET ÜRETİM MALİYETİ AÇIKLAMASI</div>
                         <p>• 1. Yağ: ${PriceCalculator.formatTL(rawOilCost)} ₺ | 2. Ambalaj: ${PriceCalculator.formatTL(packCost)} ₺ | 3. Tesis: ${PriceCalculator.formatTL(linearOverhead)} ₺ | 4. İşçilik: ${PriceCalculator.formatTL(laborAssemblyFee)} ₺</p>
                         <p class="font-bold text-amber-300 border-t border-slate-800 pt-1 text-xs">
-                          = FABRİKA NAKİT MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
+                          = FABRİKA NAKİT GİDERİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
                         </p>
-                        ${taxProtection.hasMismatch ? `
-                          <div class="p-2 bg-emerald-950/80 rounded-lg border border-emerald-700/80 text-emerald-200 text-xs space-y-1 mt-1">
-                            <div class="font-extrabold text-emerald-300">🛡️ KDV ORAN FARKI KORUMA MOTORU AKTİF</div>
-                            <p>• <strong>Alış KDV Oranınız:</strong> %${inputVatRate} | <strong>Satış Fatura KDV'niz:</strong> %${salesVatRate}</p>
-                            <p>• <strong>Eklenen Vergi Dengesi:</strong> +${PriceCalculator.formatTL(taxProtection.taxDiffSurcharge)} ₺</p>
-                            <p>• <strong>Zararsız Dip Satış Maliyeti:</strong> <strong>${PriceCalculator.formatTL(effectiveNetCost)} ₺</strong></p>
-                            <p class="text-[11px] text-emerald-100">💡 Bu koruma sayesinde ürünü satarken devlete aradaki KDV farkını cebinizden ödemezsiniz, kârınız tam net kalır!</p>
+
+                        <!-- 🛡️ 4 FARKLI KDV SENARYOSUNUN RESMİ AÇIKLAMA KUTUSU -->
+                        ${inputVatRate === 1 && salesVatRate === 20 ? `
+                          <div class="p-2.5 bg-amber-950/90 rounded-xl border border-amber-700/80 text-amber-200 text-xs space-y-1 mt-1.5 shadow-md">
+                            <div class="font-extrabold text-amber-300 flex items-center gap-1">🛡️ KDV ANALİZİ: VERGİ ORAN FARKI KORUMASI AKTİF (%1 Alış ➔ %20 Satış)</div>
+                            <p>• <strong>Girdi Alış KDV Oranınız:</strong> %1 (Tohum / Ham Yağ)</p>
+                            <p>• <strong>Fatura Satış KDV Oranınız:</strong> %20 (Kozmetik / Şişeli Yağ)</p>
+                            <p>• <strong>Eklenen Vergi Koruma Dengesi:</strong> +${PriceCalculator.formatTL(taxProtection.taxDiffSurcharge)} ₺</p>
+                            <p class="font-extrabold text-amber-200 border-t border-amber-800/80 pt-1 text-xs">
+                              = ZARARSIZ DİP SATIŞ MALİYETİ: <strong>${PriceCalculator.formatTL(effectiveNetCost)} ₺</strong>
+                            </p>
+                            <p class="text-[11px] text-amber-100">💡 Tohum KDV'niz (%1) Satış KDV'nizden (%20) düşük olduğu için devlete cebinizden vergi ödememeniz adına vergi dengesi eklenmiştir.</p>
                           </div>
-                        ` : ''}
+                        ` : inputVatRate === 20 && salesVatRate === 1 ? `
+                          <div class="p-2.5 bg-blue-950/90 rounded-xl border border-blue-700/80 text-blue-200 text-xs space-y-1 mt-1.5 shadow-md">
+                            <div class="font-extrabold text-blue-300 flex items-center gap-1">🛡️ KDV ANALİZİ: VERGİ İADESİ / DEVRİ SENARYOSU (%20 Alış ➔ %1 Satış)</div>
+                            <p>• <strong>Girdi Alış KDV Oranınız:</strong> %20 (Ambalaj / Hizmet / Dökme Yağ)</p>
+                            <p>• <strong>Fatura Satış KDV Oranınız:</strong> %1 (Sıkım Gıda Yağı)</p>
+                            <p>• <strong>Vergi Riski Durumu:</strong> Yok (Alış KDV'si Satış KDV'sinden yüksek).</p>
+                            <p class="font-extrabold text-blue-200 border-t border-blue-800/80 pt-1 text-xs">
+                              = ZARARSIZ DİP SATIŞ MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
+                            </p>
+                            <p class="text-[11px] text-blue-100">💡 Alış KDV'niz (%20) Satış KDV'nizden (%1) yüksek olduğu için devlete ekstra KDV çıkmaz. Şirketinizde Devreden KDV birikir.</p>
+                          </div>
+                        ` : inputVatRate === 20 && salesVatRate === 20 ? `
+                          <div class="p-2.5 bg-purple-950/90 rounded-xl border border-purple-700/80 text-purple-200 text-xs space-y-1 mt-1.5 shadow-md">
+                            <div class="font-extrabold text-purple-300 flex items-center gap-1">🛡️ KDV ANALİZİ: TAM DENGELİ STANDART SENARYO (%20 Alış ➔ %20 Satış)</div>
+                            <p>• <strong>Girdi Alış KDV Oranınız:</strong> %20 | <strong>Fatura Satış KDV Oranınız:</strong> %20</p>
+                            <p>• <strong>Vergi Riski Durumu:</strong> Birebir Dengeli (%20 ➔ %20).</p>
+                            <p class="font-extrabold text-purple-200 border-t border-purple-800/80 pt-1 text-xs">
+                              = ZARARSIZ DİP SATIŞ MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
+                            </p>
+                            <p class="text-[11px] text-purple-100">💡 Alış KDV'niz ile Satış KDV'niz eşittir. Cebinizden çıkan KDV dahil harcamanız birebir başa baş satış maliyetinize eşittir.</p>
+                          </div>
+                        ` : `
+                          <div class="p-2.5 bg-emerald-950/90 rounded-xl border border-emerald-700/80 text-emerald-200 text-xs space-y-1 mt-1.5 shadow-md">
+                            <div class="font-extrabold text-emerald-300 flex items-center gap-1">🛡️ KDV ANALİZİ: TAM DENGELİ GIDA SENARYOSU (%1 Alış ➔ %1 Satış)</div>
+                            <p>• <strong>Girdi Alış KDV Oranınız:</strong> %1 | <strong>Fatura Satış KDV Oranınız:</strong> %1</p>
+                            <p>• <strong>Vergi Riski Durumu:</strong> Birebir Dengeli (%1 ➔ %1).</p>
+                            <p class="font-extrabold text-emerald-200 border-t border-emerald-800/80 pt-1 text-xs">
+                              = ZARARSIZ DİP SATIŞ MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
+                            </p>
+                            <p class="text-[11px] text-emerald-100">💡 Tohum Alış KDV'niz ile Gıda Satış KDV'niz eşittir. Cebinizden çıkan KDV dahil tohum harcamanız birebir başa baş satış maliyetinize eşittir.</p>
+                          </div>
+                        `}
                       </div>
                     ` : ''}
                   </div>
