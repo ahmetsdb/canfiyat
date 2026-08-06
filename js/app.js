@@ -2598,7 +2598,9 @@ function renderLayer2Cards() {
                       ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-[10px] font-bold text-emerald-400">/ KG</span>
                     </div>
                     <div class="flex items-center justify-end gap-1 text-[9px] font-bold">
-                      ${isProfit ? `
+                      ${Math.abs(profitPerKg) < 0.01 ? `
+                        <span class="text-amber-300 bg-amber-950/90 px-1.5 py-0.2 rounded border border-amber-800/80">🏁 DİP MALİYET (0₺ KÂR)</span>
+                      ` : profitPerKg > 0 ? `
                         <span class="text-emerald-400 bg-emerald-950/90 px-1.5 py-0.2 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(profitPerKg)}₺)</span>
                       ` : `
                         <span class="text-rose-300 bg-rose-950 px-1.5 py-0.2 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(profitPerKg)}₺)</span>
@@ -2803,7 +2805,9 @@ function renderLayer2Cards() {
                       </div>
                       <div class="flex justify-between items-center text-[10px] pt-1 border-t border-emerald-900/60">
                         <span class="text-purple-200 font-mono">📦 ${wholesalePack?.breakdownText}</span>
-                        ${isProfit ? `
+                        ${Math.abs(totalProfitOrLoss) < 0.01 ? `
+                          <span class="text-amber-300 font-bold bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : totalProfitOrLoss > 0 ? `
                           <span class="text-emerald-300 font-bold bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-800">🟢 KÂR: +${PriceCalculator.formatTL(totalProfitOrLoss)} ₺</span>
                         ` : `
                           <span class="text-rose-300 font-bold bg-rose-950 px-1.5 py-0.2 rounded border border-rose-800">🔴 ZARAR: ${PriceCalculator.formatTL(totalProfitOrLoss)} ₺</span>
@@ -2847,7 +2851,9 @@ function renderLayer2Cards() {
                       </div>
                       <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
                         <span class="text-slate-400">Kârlılık:</span>
-                        ${b2bTier1IsProfit ? `
+                        ${Math.abs(b2bTier1ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier1ProfitPerKg > 0 ? `
                           <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier1ProfitPerKg)}₺/KG)</span>
                         ` : `
                           <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier1ProfitPerKg)}₺/KG)</span>
@@ -2872,7 +2878,9 @@ function renderLayer2Cards() {
                       </div>
                       <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
                         <span class="text-slate-400">Kârlılık:</span>
-                        ${b2bTier2IsProfit ? `
+                        ${Math.abs(b2bTier2ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier2ProfitPerKg > 0 ? `
                           <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier2ProfitPerKg)}₺/KG)</span>
                         ` : `
                           <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier2ProfitPerKg)}₺/KG)</span>
@@ -2897,7 +2905,9 @@ function renderLayer2Cards() {
                       </div>
                       <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
                         <span class="text-slate-400">Kârlılık:</span>
-                        ${b2bTier3IsProfit ? `
+                        ${Math.abs(b2bTier3ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier3ProfitPerKg > 0 ? `
                           <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier3ProfitPerKg)}₺/KG)</span>
                         ` : `
                           <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier3ProfitPerKg)}₺/KG)</span>
@@ -2922,7 +2932,9 @@ function renderLayer2Cards() {
                       </div>
                       <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
                         <span class="text-slate-400">Kârlılık:</span>
-                        ${b2bTier4IsProfit ? `
+                        ${Math.abs(b2bTier4ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier4ProfitPerKg > 0 ? `
                           <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier4ProfitPerKg)}₺/KG)</span>
                         ` : `
                           <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier4ProfitPerKg)}₺/KG)</span>
