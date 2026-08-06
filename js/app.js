@@ -2047,9 +2047,10 @@ function renderLayer2Cards() {
           ? wholesalePack.totalPackCost
           : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
 
-        const wholesaleMarginPct = (product.wholesaleMarginPct !== undefined && product.wholesaleMarginPct !== null)
-          ? parseFloat(product.wholesaleMarginPct)
-          : 20;
+        const wholesaleMarginMode = product.wholesaleMarginMode || 'percent'; // 'percent' | 'amount'
+        const wholesaleMarginValue = (product.wholesaleMarginValue !== undefined && product.wholesaleMarginValue !== null)
+          ? parseFloat(product.wholesaleMarginValue)
+          : (wholesaleMarginMode === 'percent' ? 20 : 200);
 
         const isWholesaleSupply = (supplyType === "wholesale");
         const linearOverhead = isWholesaleSupply
@@ -2067,12 +2068,17 @@ function renderLayer2Cards() {
         const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
         const discountPct = tierInfo.discount || 0;
 
-        // Calculate 1 KG Wholesale Quote Price with Profit Margin % + Discount Tier %
-        let baseSellingUnitCost = unitNetCost;
+        // Calculate 1 KG Wholesale Quote Price with Profit Margin (% or ₺/KG) + Discount Tier %
+        let marginAmountPerKg = 0;
         if (layer2GroupMode === 'wholesale_drums') {
-          baseSellingUnitCost = unitNetCost * (1 + (wholesaleMarginPct / 100));
+          if (wholesaleMarginMode === 'amount') {
+            marginAmountPerKg = wholesaleMarginValue;
+          } else {
+            marginAmountPerKg = unitNetCost * (wholesaleMarginValue / 100);
+          }
         }
 
+        const baseSellingUnitCost = unitNetCost + marginAmountPerKg;
         const discountedUnitCost = baseSellingUnitCost * (1 - (discountPct / 100));
         const finalWholesale1KgQuotePrice = parseFloat(discountedUnitCost.toFixed(2));
         const totalOrderPrice = parseFloat((finalWholesale1KgQuotePrice * kg).toFixed(2));
@@ -2192,19 +2198,23 @@ function renderLayer2Cards() {
                   `}
 
                   ${layer2GroupMode === 'wholesale_drums' ? `
-                    <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-xl border border-purple-500/50">
-                      <span class="text-[10px] font-extrabold text-purple-300">🎯 Kâr %:</span>
-                      <select onchange="updateLayer2ProductField('${product.id}', 'wholesaleMarginPct', this.value)" class="bg-slate-900 border border-purple-400/80 text-purple-200 font-bold text-xs px-1 py-0.5 rounded-lg focus:outline-none">
-                        <option value="0" ${wholesaleMarginPct === 0 ? 'selected' : ''}>%0</option>
-                        <option value="5" ${wholesaleMarginPct === 5 ? 'selected' : ''}>%5</option>
-                        <option value="10" ${wholesaleMarginPct === 10 ? 'selected' : ''}>%10</option>
-                        <option value="15" ${wholesaleMarginPct === 15 ? 'selected' : ''}>%15</option>
-                        <option value="20" ${wholesaleMarginPct === 20 ? 'selected' : ''}>%20</option>
-                        <option value="25" ${wholesaleMarginPct === 25 ? 'selected' : ''}>%25</option>
-                        <option value="30" ${wholesaleMarginPct === 30 ? 'selected' : ''}>%30</option>
-                        <option value="40" ${wholesaleMarginPct === 40 ? 'selected' : ''}>%40</option>
-                        <option value="50" ${wholesaleMarginPct === 50 ? 'selected' : ''}>%50</option>
-                      </select>
+                    <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-purple-500/50">
+                      <span class="text-[10px] font-extrabold text-purple-300">🎯 Kâr:</span>
+                      <div class="flex items-center p-0.5 bg-slate-900 rounded-lg border border-slate-800 text-[10px]">
+                        <button onclick="updateLayer2ProductField('${product.id}', 'wholesaleMarginMode', 'percent')" class="px-1.5 py-0.5 rounded font-bold transition-all ${wholesaleMarginMode === 'percent' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">%</button>
+                        <button onclick="updateLayer2ProductField('${product.id}', 'wholesaleMarginMode', 'amount')" class="px-1.5 py-0.5 rounded font-bold transition-all ${wholesaleMarginMode === 'amount' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">₺/KG</button>
+                      </div>
+                      ${wholesaleMarginMode === 'amount' ? `
+                        <div class="flex items-center gap-1">
+                          <input type="number" value="${wholesaleMarginValue}" step="10" min="0" placeholder="₺/KG" onchange="updateLayer2ProductField('${product.id}', 'wholesaleMarginValue', this.value)" class="w-16 bg-slate-900 border border-emerald-500/60 text-emerald-300 font-extrabold text-xs px-1.5 py-0.5 rounded text-center focus:outline-none">
+                          <span class="text-[10px] font-bold text-emerald-400">₺/KG</span>
+                        </div>
+                      ` : `
+                        <div class="flex items-center gap-1">
+                          <input type="number" value="${wholesaleMarginValue}" step="5" min="0" max="500" placeholder="%" onchange="updateLayer2ProductField('${product.id}', 'wholesaleMarginValue', this.value)" class="w-14 bg-slate-900 border border-purple-400/80 text-purple-200 font-extrabold text-xs px-1.5 py-0.5 rounded text-center focus:outline-none">
+                          <span class="text-[10px] font-bold text-purple-300">%</span>
+                        </div>
+                      `}
                     </div>
                   ` : ''}
 
@@ -2268,7 +2278,7 @@ function renderLayer2Cards() {
 
               <!-- DİKEY, RAHAT OKUNUR VE EKRANA TAM SIĞAN KOMPAKT RESMİ FATURA DÖKÜM ÇEKMECESİ -->
               ${isBreakdownOpen ? `
-                <div class="bg-slate-950/95 p-3.5 rounded-xl border border-slate-700 text-xs space-y-2 animate-slide-up max-w-2xl my-1 shadow-lg">
+                <div class="bg-slate-950/95 p-4.5 rounded-2xl border border-slate-700 text-xs space-y-2.5 animate-slide-up max-w-3xl my-2 shadow-xl">
                   <div class="flex justify-between items-center pb-1.5 border-b border-slate-800 font-extrabold text-xs text-teal-400 tracking-wider">
                     <span>📋 RESMİ FABRİKA MALİYET VE SİPARİŞ HESAP FATURASI</span>
                     <span class="text-[10px] text-slate-400 font-normal">Tıkla Detay Gör ℹ️</span>
@@ -2969,6 +2979,8 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "layer2Volume") product.layer2Volume = value;
   if (field === "layer2WholesaleKg") product.layer2WholesaleKg = parseFloat(value) || 30;
   if (field === "wholesaleMarginPct") product.wholesaleMarginPct = parseFloat(value) || 20;
+  if (field === "wholesaleMarginMode") product.wholesaleMarginMode = value; // 'percent' | 'amount'
+  if (field === "wholesaleMarginValue") product.wholesaleMarginValue = parseFloat(value) || 0;
   if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
 
   const isMaceration = isMacerationOil(product);
