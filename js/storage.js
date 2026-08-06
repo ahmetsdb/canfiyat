@@ -11,9 +11,10 @@ const DEFAULT_USER = "ahmet";
 const DEFAULT_PASS = "Ahmet123.";
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v16", // Storage Key v16 (Supabase Cloud Sync Fix & Enforced KDV Dahil)
+  PRODUCTS: "canfiyat_products_v16", // Katman 1 Master Products Catalog
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
-  SITE_OVERRIDES: "canfiyat_site_overrides_v1",
+  SITE_OVERRIDES: "canfiyat_site_overrides_v1", // Katman 3 Store Price Overrides
+  LAYER2_SIM: "canfiyat_layer2_sim_v1", // Katman 2 Isolated Simulation State
   TRENDYOL_CUSTOM: "canfiyat_trendyol_custom_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1"
 };
@@ -400,5 +401,44 @@ class StorageManager {
     } catch (e) {
       console.error("Save Trendyol custom products error:", e);
     }
+  }
+
+  // ==========================================
+  // KATMAN 2 ISOLATED SIMULATION STORAGE
+  // ==========================================
+  static getLayer2SimData() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.LAYER2_SIM);
+      return stored ? JSON.parse(stored) : {};
+    } catch(e) {
+      return {};
+    }
+  }
+
+  static getLayer2SimProduct(productId) {
+    const map = this.getLayer2SimData();
+    return map[productId] || {};
+  }
+
+  static saveLayer2SimProduct(productId, simData) {
+    try {
+      const map = this.getLayer2SimData();
+      map[productId] = {
+        ...(map[productId] || {}),
+        ...simData,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(STORAGE_KEYS.LAYER2_SIM, JSON.stringify(map));
+    } catch(e) {
+      console.error("Save Layer 2 Sim error:", e);
+    }
+  }
+
+  static resetLayer2SimProduct(productId) {
+    try {
+      const map = this.getLayer2SimData();
+      delete map[productId];
+      localStorage.setItem(STORAGE_KEYS.LAYER2_SIM, JSON.stringify(map));
+    } catch(e) {}
   }
 }

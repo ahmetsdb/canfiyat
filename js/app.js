@@ -1918,6 +1918,8 @@ function renderLayer2Cards() {
     const currentCat = (typeof activeCategory !== "undefined" && activeCategory) ? activeCategory : "all";
     const currentSearch = (typeof searchQuery !== "undefined" && searchQuery) ? searchQuery.toLowerCase() : "";
 
+    const layer2SimMap = StorageManager.getLayer2SimData();
+
     const productsListRaw = Object.values(productsMap).filter(p => {
       if (!p || typeof p.name !== "string" || typeof p.sku !== "string") return false;
       const matchesCat = (currentCat === "all" || currentCat === "ALL") || (p.category === currentCat);
@@ -1925,6 +1927,12 @@ function renderLayer2Cards() {
       const pSku = (p.sku || "").toLowerCase();
       const matchesSearch = !currentSearch || pName.includes(currentSearch) || pSku.includes(currentSearch);
       return matchesCat && matchesSearch;
+    }).map(masterProd => {
+      const sim = layer2SimMap[masterProd.id] || {};
+      return {
+        ...masterProd,
+        ...sim
+      };
     });
 
     const productsList = sortProductsByCategoryAndName(productsListRaw);
@@ -2779,9 +2787,9 @@ async function resetProductField(productId, field) {
     product.layer2NetCostPerKg = coldPressRes.netCostPerKg;
   }
 
-  await StorageManager.saveProduct(product);
+  // Isolate Katman 2 reset: Clear Katman 2 Sim override data only!
+  StorageManager.resetLayer2SimProduct(product.id);
   renderLayer2Cards();
-  if (currentLayerMode === 1) renderProductGrid();
   showToast(`Sıfırlandı: ${product.name} (Orijinal %${kdvRate} KDV Dahil: ${PriceCalculator.formatTL(initialCost)} ₺ Fiyata Döndü ↺)`);
 }
 
@@ -2807,8 +2815,10 @@ function isMacerationOil(product) {
 }
 
 async function updateLayer2ProductField(productId, field, value) {
-  const product = currentProducts[productId] || Object.values(currentProducts).find(p => p.id === productId || p.sku === productId);
-  if (!product) return;
+  const masterProduct = (currentProducts && currentProducts[productId]) ? currentProducts[productId] : (StorageManager.getProducts()[productId] || {});
+  const simData = StorageManager.getLayer2SimProduct(productId);
+  const product = { ...masterProduct, ...simData };
+  if (!product || !product.name) return;
 
   if (field === "productionType") product.productionType = value;
   if (field === "supplyType") product.supplyType = value; // 'press' | 'wholesale'
@@ -2851,13 +2861,13 @@ async function updateLayer2ProductField(productId, field, value) {
       oilKg: product.oilKg,
       supplyType: supplyType,
       wholesaleCostPerKg: product.wholesaleCostPerKg,
-      fallbackCostPerKg: product.costPerKg || 600
+      fallbackCostPerKg: masterProduct.costPerKg || 600
     });
     product.herbRatioKg = macerationRes.calculatedRatio;
     product.layer2NetCostPerKg = macerationRes.netCostPerKg;
   } else {
     if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {
-      product.seedCostPerKg = parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+      product.seedCostPerKg = parseFloat(((masterProduct.costPerKg || 1212.00) * 0.25).toFixed(2));
     }
     const coldPressRes = PriceCalculator.calculateColdPressCost({
       seedCostPerKg: product.seedCostPerKg,
@@ -2866,14 +2876,32 @@ async function updateLayer2ProductField(productId, field, value) {
       supplyType: supplyType,
       dipStatus: product.dipStatus || "none",
       dipPercent: product.dipPercent || 0,
-      fallbackCostPerKg: product.costPerKg || 1200
+      fallbackCostPerKg: masterProduct.costPerKg || 1200
     });
     product.layer2NetCostPerKg = coldPressRes.netCostPerKg;
   }
 
-  await StorageManager.saveProduct(product);
+  // Isolate Katman 2 saving: Save ONLY into Layer2Sim storage namespace!
+  StorageManager.saveLayer2SimProduct(productId, {
+    productionType: product.productionType,
+    supplyType: product.supplyType,
+    wholesaleCostPerKg: product.wholesaleCostPerKg,
+    seedCostPerKg: product.seedCostPerKg,
+    yieldPercent: product.yieldPercent,
+    dipStatus: product.dipStatus,
+    dipPercent: product.dipPercent,
+    herbCostPerKg: product.herbCostPerKg,
+    oliveOilCostPerKg: product.oliveOilCostPerKg,
+    herbRatioKg: product.herbRatioKg,
+    herbKg: product.herbKg,
+    oilKg: product.oilKg,
+    layer2Volume: product.layer2Volume,
+    layer2WholesaleKg: product.layer2WholesaleKg,
+    layer2Profit: product.layer2Profit,
+    layer2NetCostPerKg: product.layer2NetCostPerKg
+  });
+
   renderLayer2Cards();
-  if (currentLayerMode === 1) renderProductGrid();
 }
 
 // ----------------------------------------------------
