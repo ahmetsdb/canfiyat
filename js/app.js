@@ -2431,11 +2431,13 @@ function renderLayer2Cards() {
                 <div class="flex flex-wrap items-center gap-3 bg-slate-900/90 px-3 py-1.5 rounded-2xl border ${isMaceration ? 'border-purple-500/40' : supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} shadow-inner">
                   <!-- Sıkım / Maserasyon / Toptan Seçici -->
                   <div class="flex items-center p-1 bg-slate-950 rounded-xl border border-slate-800 shrink-0">
-                    <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white shadow-sm' : 'bg-amber-500 text-slate-950 shadow-sm') : 'text-slate-400 hover:text-white'}">
-                      ${isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
-                    </button>
+                    ${!isEssentialOil ? `
+                      <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white shadow-sm' : 'bg-amber-500 text-slate-950 shadow-sm') : 'text-slate-400 hover:text-white'}">
+                        ${isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
+                      </button>
+                    ` : ''}
                     <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
-                      📦 Toptan
+                      📦 Toptan Tedarik
                     </button>
                   </div>
 
@@ -3061,9 +3063,11 @@ function renderLayer2Cards() {
                   <div class="flex items-center justify-between pb-1 border-b border-slate-800/80">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">Tedarik Türü:</span>
                     <div class="flex items-center p-0.5 bg-slate-900 rounded-lg border border-slate-800">
-                      <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded text-[10px] font-bold transition-all ${supplyType !== 'wholesale' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'}">
-                        🌾 Sıkım
-                      </button>
+                      ${!isEssentialOil ? `
+                        <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded text-[10px] font-bold transition-all ${supplyType !== 'wholesale' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'}">
+                          🌾 Sıkım
+                        </button>
+                      ` : ''}
                       <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2 py-0.5 rounded text-[10px] font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
                         📦 Toptan
                       </button>
