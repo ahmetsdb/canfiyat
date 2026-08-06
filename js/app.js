@@ -4076,25 +4076,7 @@ function generateLayer3PdfReport() {
     productsArr = INITIAL_PRODUCTS;
   }
 
-  // Filter products relevant to the active channel
-  let displayList = [];
-  if (isTrendyol) {
-    displayList = getTrendyolFilteredCatalog();
-  } else {
-    productsArr.forEach(prod => {
-      if (!prod || !prod.name) return;
-      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
-      const hasAnyVolPrice = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
-        const ov = StorageManager.getSiteOverride(prod.id, vk);
-        if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
-        if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
-        return false;
-      });
-      if (hasAnyVolPrice) displayList.push(prod);
-    });
-  }
-
-  const sortedList = sortProductsByCategoryAndName(displayList);
+  const sortedList = sortProductsByCategoryAndName(productsArr);
   const allVols = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
 
   // Build satır satır comparison records
@@ -4103,6 +4085,8 @@ function generateLayer3PdfReport() {
   let totalBelowCount = 0;
 
   sortedList.forEach(prod => {
+    if (!prod || !prod.name) return;
+
     allVols.forEach(vk => {
       let livePrice = 0;
       if (isTrendyol) {
