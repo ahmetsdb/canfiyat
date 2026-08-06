@@ -1814,22 +1814,155 @@ function closeOperatorSettingsModal() {
   }
 }
 
+let operatorVatSearchQuery = "";
+let operatorVatFilterCategory = "all"; // "all" or "mismatch"
+
 function switchOperatorTab(tab) {
   const tabOverhead = document.getElementById("operator-tab-overhead");
   const tabTiers = document.getElementById("operator-tab-tiers");
+  const tabVat = document.getElementById("operator-tab-vat");
+
   const btnOverhead = document.getElementById("tab-btn-operator-overhead");
   const btnTiers = document.getElementById("tab-btn-operator-tiers");
+  const btnVat = document.getElementById("tab-btn-operator-vat");
+
+  const inactiveBtnClass = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white";
+
+  if (tabOverhead) tabOverhead.classList.add("hidden");
+  if (tabTiers) tabTiers.classList.add("hidden");
+  if (tabVat) tabVat.classList.add("hidden");
+
+  if (btnOverhead) btnOverhead.className = inactiveBtnClass;
+  if (btnTiers) btnTiers.className = inactiveBtnClass;
+  if (btnVat) btnVat.className = inactiveBtnClass;
 
   if (tab === "overhead") {
     if (tabOverhead) tabOverhead.classList.remove("hidden");
-    if (tabTiers) tabTiers.classList.add("hidden");
     if (btnOverhead) btnOverhead.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-teal-700 to-emerald-600 text-white shadow-md";
-    if (btnTiers) btnTiers.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white";
-  } else {
-    if (tabOverhead) tabOverhead.classList.add("hidden");
+  } else if (tab === "tiers") {
     if (tabTiers) tabTiers.classList.remove("hidden");
-    if (btnOverhead) btnOverhead.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white";
     if (btnTiers) btnTiers.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md";
+  } else if (tab === "vat") {
+    if (tabVat) tabVat.classList.remove("hidden");
+    if (btnVat) btnVat.className = "flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-amber-600 to-emerald-600 text-white shadow-md";
+    renderOperatorVatList();
+  }
+}
+
+function filterOperatorVatCategory(cat) {
+  operatorVatFilterCategory = cat;
+  const btnAll = document.getElementById("btn-vat-filter-all");
+  const btnMismatch = document.getElementById("btn-vat-filter-mismatch");
+  if (cat === 'all') {
+    if (btnAll) btnAll.className = "px-2 py-1 bg-purple-600 text-white rounded font-bold shadow-sm";
+    if (btnMismatch) btnMismatch.className = "px-2 py-1 bg-slate-800 text-amber-300 rounded font-bold hover:bg-amber-950 border border-amber-800/80";
+  } else {
+    if (btnAll) btnAll.className = "px-2 py-1 bg-slate-800 text-slate-200 rounded font-bold hover:bg-slate-700";
+    if (btnMismatch) btnMismatch.className = "px-2 py-1 bg-amber-600 text-white rounded font-bold shadow-sm border border-amber-500";
+  }
+  renderOperatorVatList();
+}
+
+function renderOperatorVatList() {
+  const container = document.getElementById("operator-vat-list-container");
+  if (!container) return;
+
+  const searchInput = document.getElementById("operator-vat-search");
+  if (searchInput) operatorVatSearchQuery = searchInput.value.toLowerCase().trim();
+
+  let productsMap = StorageManager.getProducts();
+  let productsArr = Object.values(productsMap);
+
+  if (operatorVatSearchQuery) {
+    productsArr = productsArr.filter(p => (p.name || "").toLowerCase().includes(operatorVatSearchQuery) || (p.sku || "").toLowerCase().includes(operatorVatSearchQuery));
+  }
+
+  if (operatorVatFilterCategory === "mismatch") {
+    productsArr = productsArr.filter(p => {
+      const inputVat = p.inputVatRate !== undefined ? p.inputVatRate : (p.category === "Sabit Yağlar" ? 1 : 20);
+      const salesVat = p.kdv !== undefined ? p.kdv : (p.vatRate !== undefined ? p.vatRate : 20);
+      return inputVat === 1 && salesVat === 20;
+    });
+  }
+
+  if (productsArr.length === 0) {
+    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs font-semibold">Aramanıza uygun ürün bulunamadı.</div>`;
+    return;
+  }
+
+  let html = productsArr.map(p => {
+    const inputVat = p.inputVatRate !== undefined ? p.inputVatRate : (p.category === "Sabit Yağlar" ? 1 : 20);
+    const salesVat = p.kdv !== undefined ? p.kdv : (p.vatRate !== undefined ? p.vatRate : 20);
+    const hasMismatch = inputVat === 1 && salesVat === 20;
+
+    return `
+      <div class="bg-slate-950 p-2.5 rounded-xl border ${hasMismatch ? 'border-amber-500/60 bg-amber-950/10' : 'border-slate-800'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+        <div class="truncate">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-[10.5px] text-slate-400 font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">${p.sku}</span>
+            <span class="font-extrabold text-slate-100 truncate">${p.name}</span>
+          </div>
+          <div class="text-[10.5px] text-slate-400 mt-0.5">${p.category}</div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-1">
+            <span class="text-[10px] text-amber-400 font-bold">Alış KDV:</span>
+            <select onchange="updateProductInputVat('${p.id}', this.value)" class="bg-slate-900 text-amber-300 font-bold border border-amber-800 rounded px-1.5 py-1 text-xs focus:outline-none cursor-pointer">
+              <option value="1" ${inputVat === 1 ? 'selected' : ''}>%1 Alış</option>
+              <option value="20" ${inputVat === 20 ? 'selected' : ''}>%20 Alış</option>
+            </select>
+          </div>
+
+          <span class="text-slate-600 font-bold">➔</span>
+
+          <div class="flex items-center gap-1">
+            <span class="text-[10px] text-emerald-400 font-bold">Satış KDV:</span>
+            <select onchange="updateProductSalesVat('${p.id}', this.value)" class="bg-slate-900 text-emerald-300 font-bold border border-emerald-800 rounded px-1.5 py-1 text-xs focus:outline-none cursor-pointer">
+              <option value="1" ${salesVat === 1 ? 'selected' : ''}>%1 Satış</option>
+              <option value="20" ${salesVat === 20 ? 'selected' : ''}>%20 Satış</option>
+            </select>
+          </div>
+
+          <div class="hidden md:block pl-2">
+            ${hasMismatch ? `
+              <span class="px-2 py-0.5 text-[10px] bg-amber-950 text-amber-300 rounded border border-amber-800 font-bold">🛡️ KDV Farkı Var</span>
+            ` : `
+              <span class="px-2 py-0.5 text-[10px] bg-emerald-950 text-emerald-300 rounded border border-emerald-800 font-bold">⚖️ Dengeli</span>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  container.innerHTML = html;
+}
+
+async function updateProductInputVat(productId, newInVatStr) {
+  const newInVat = parseInt(newInVatStr, 10);
+  let productsMap = StorageManager.getProducts();
+  if (productsMap[productId]) {
+    productsMap[productId].inputVatRate = newInVat;
+    await StorageManager.saveProduct(productsMap[productId]);
+    currentProducts = StorageManager.getProducts();
+    if (typeof renderLayer2Cards === "function") renderLayer2Cards();
+    if (typeof renderProductGrid === "function" && currentLayerMode === 1) renderProductGrid();
+    showToast(`✅ ${productsMap[productId].name} Alış KDV'si %${newInVat} Yapıldı!`);
+  }
+}
+
+async function updateProductSalesVat(productId, newSalesVatStr) {
+  const newSalesVat = parseInt(newSalesVatStr, 10);
+  let productsMap = StorageManager.getProducts();
+  if (productsMap[productId]) {
+    productsMap[productId].kdv = newSalesVat;
+    productsMap[productId].vatRate = newSalesVat;
+    await StorageManager.saveProduct(productsMap[productId]);
+    currentProducts = StorageManager.getProducts();
+    if (typeof renderLayer2Cards === "function") renderLayer2Cards();
+    if (typeof renderProductGrid === "function" && currentLayerMode === 1) renderProductGrid();
+    showToast(`✅ ${productsMap[productId].name} Satış Fatura KDV'si %${newSalesVat} Yapıldı!`);
   }
 }
 
@@ -1837,7 +1970,7 @@ function saveOperatorSettingsModal() {
   saveFactoryOverheadModal();
   saveWholesaleTiersModal();
   closeOperatorSettingsModal();
-  showToast("Operatör ayarları ve toptan iskontolar başarıyla kaydedildi! ⚙️✅", "success");
+  showToast("Operatör ayarları ve KDV parametreleri başarıyla kaydedildi! ⚙️✅", "success");
 }
 
 let openLayer2Breakdowns = {};
@@ -2231,6 +2364,20 @@ function renderLayer2Cards() {
                       ` : ''}
                     </div>
                   `}
+
+                  <!-- KDV HIZLI AYAR SEÇİCİ -->
+                  <div class="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 shrink-0 text-xs">
+                    <span class="text-[10px] font-bold text-slate-400 pl-1">KDV:</span>
+                    <select onchange="updateProductInputVat('${product.id}', this.value)" class="bg-slate-900 text-amber-300 font-bold border border-amber-800/80 rounded px-1.5 py-0.5 text-xs focus:outline-none cursor-pointer" title="Hammadde / Tohum Alış KDV Oranınız">
+                      <option value="1" ${inputVatRate === 1 ? 'selected' : ''}>Alış %1</option>
+                      <option value="20" ${inputVatRate === 20 ? 'selected' : ''}>Alış %20</option>
+                    </select>
+                    <span class="text-slate-600 font-bold">➔</span>
+                    <select onchange="updateProductSalesVat('${product.id}', this.value)" class="bg-slate-900 text-emerald-300 font-bold border border-emerald-800/80 rounded px-1.5 py-0.5 text-xs focus:outline-none cursor-pointer" title="Resmi Satış Faturası KDV Oranınız">
+                      <option value="1" ${salesVatRate === 1 ? 'selected' : ''}>Satış %1</option>
+                      <option value="20" ${salesVatRate === 20 ? 'selected' : ''}>Satış %20</option>
+                    </select>
+                  </div>
 
                   ${layer2GroupMode === 'wholesale_drums' ? `
                     <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-purple-500/50">

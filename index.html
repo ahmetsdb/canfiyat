@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="truncate max-w-[280px] md:max-w-none text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v2.93: Kalem 5 Detayı Ferah 4 Kolonlu Izgara Ve Çift Para Simgeleri Temizlendi">
-                            v2.93 (✨ Kalem 5 Detayı Ferah Izgaraya Dönüştürüldü)
+                        <span class="truncate max-w-[280px] md:max-w-none text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v2.94: Operatör Paneline 3. Tab Ürün Alış & Satış KDV Ayar Modülü Eklendi">
+                            v2.94 (⚙️ Ürün Alış & Satış KDV Ayar Modülü Eklendi)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -1000,10 +1000,13 @@
             <!-- Tab Switcher Navigation -->
             <div class="flex items-center gap-2 p-1 bg-slate-950 rounded-2xl border border-slate-800">
                 <button id="tab-btn-operator-overhead" onclick="switchOperatorTab('overhead')" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-teal-700 to-emerald-600 text-white shadow-md">
-                    🏭 1. Fabrika Aylık Genel Giderleri
+                    🏭 1. Fabrika Giderleri
                 </button>
                 <button id="tab-btn-operator-tiers" onclick="switchOperatorTab('tiers')" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white">
-                    🏷️ 2. Toptan Tonaj İskontoları
+                    🏷️ 2. Toptan İskontoları
+                </button>
+                <button id="tab-btn-operator-vat" onclick="switchOperatorTab('vat')" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white">
+                    🛡️ 3. Ürün Alış & Satış KDV
                 </button>
             </div>
 
@@ -1093,6 +1096,21 @@
                 </div>
             </div>
 
+            <!-- TAB 3: ÜRÜN ALIŞ VE SATIŞ KDV PARAMETRELERİ -->
+            <div id="operator-tab-vat" class="space-y-3 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <input type="text" id="operator-vat-search" placeholder="🔍 Ürün SKU veya Adı Ara..." oninput="renderOperatorVatList()" class="w-full sm:w-64 bg-slate-900 border border-slate-700 text-white text-xs px-3 py-1.5 rounded-lg focus:outline-none">
+                    <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                        <button onclick="filterOperatorVatCategory('all')" id="btn-vat-filter-all" class="px-2 py-1 bg-purple-600 text-white rounded font-bold shadow-sm">Tümü</button>
+                        <button onclick="filterOperatorVatCategory('mismatch')" id="btn-vat-filter-mismatch" class="px-2 py-1 bg-slate-800 text-amber-300 rounded font-bold hover:bg-amber-950 border border-amber-800/80">🛡️ KDV Farkı Olanlar (%1 ➔ %20)</button>
+                    </div>
+                </div>
+
+                <div id="operator-vat-list-container" class="max-h-72 overflow-y-auto space-y-2 pr-1">
+                    <!-- Dynamic Product VAT Rows rendered by renderOperatorVatList() -->
+                </div>
+            </div>
+
             <!-- Modal Footer Actions -->
             <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
                 <button onclick="closeOperatorSettingsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all">İptal</button>
@@ -1143,12 +1161,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=2.93"></script>
-    <script src="js/liveSiteData.js?v=2.93"></script>
-    <script src="js/trendyolData.js?v=2.93"></script>
-    <script src="js/storage.js?v=2.93"></script>
-    <script src="js/calculator.js?v=2.93"></script>
-    <script src="js/app.js?v=2.93"></script>
+    <script src="js/productsData.js?v=2.94"></script>
+    <script src="js/liveSiteData.js?v=2.94"></script>
+    <script src="js/trendyolData.js?v=2.94"></script>
+    <script src="js/storage.js?v=2.94"></script>
+    <script src="js/calculator.js?v=2.94"></script>
+    <script src="js/app.js?v=2.94"></script>
 </body>
 </html>
 
