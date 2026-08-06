@@ -1292,6 +1292,97 @@ function updateLiveSitePriceOverride(productId, volKey, newPrice) {
   renderLayer3Cards();
 }
 
+function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) {
+  const layer2SimMap = StorageManager.getLayer2SimData();
+  const sim = layer2SimMap[product.id] || {};
+  const prodMerged = { ...product, ...sim };
+
+  const isMaceration = isMacerationOil(prodMerged);
+  const isEssential = prodMerged.category === "Uçucu Yağlar";
+  let supplyType = prodMerged.supplyType;
+  if (isEssential && (!supplyType || supplyType === "press")) supplyType = "wholesale";
+  if (!supplyType) supplyType = isEssential ? "wholesale" : "press";
+
+  const dipStatus = prodMerged.dipStatus || "none";
+  const dipPercent = (prodMerged.dipPercent !== undefined && prodMerged.dipPercent !== null) ? prodMerged.dipPercent : 0;
+  const yieldPct = (prodMerged.yieldPercent !== undefined && prodMerged.yieldPercent !== null) ? prodMerged.yieldPercent : 25;
+  const seedCost = (prodMerged.seedCostPerKg !== undefined && prodMerged.seedCostPerKg !== null)
+    ? prodMerged.seedCostPerKg
+    : parseFloat(((prodMerged.costPerKg || 1212.00) * 0.25).toFixed(2));
+
+  const herbCost = (prodMerged.herbCostPerKg !== undefined && prodMerged.herbCostPerKg !== null) ? prodMerged.herbCostPerKg : 0;
+  const oliveOilCost = (prodMerged.oliveOilCostPerKg !== undefined && prodMerged.oliveOilCostPerKg !== null) ? prodMerged.oliveOilCostPerKg : 454.50;
+
+  const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
+    seedCostPerKg: seedCost,
+    yieldPercent: yieldPct,
+    wholesaleCostPerKg: prodMerged.wholesaleCostPerKg,
+    supplyType: supplyType,
+    dipStatus: dipStatus,
+    dipPercent: dipPercent,
+    fallbackCostPerKg: prodMerged.costPerKg || 1200
+  }) : null;
+
+  const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
+    herbCostPerKg: herbCost,
+    oliveOilCostPerKg: oliveOilCost,
+    herbRatioKg: prodMerged.herbRatioKg || 0.2,
+    herbKg: prodMerged.herbKg,
+    oilKg: prodMerged.oilKg,
+    supplyType: supplyType,
+    wholesaleCostPerKg: prodMerged.wholesaleCostPerKg,
+    fallbackCostPerKg: prodMerged.costPerKg || 600
+  }) : null;
+
+  const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
+
+  const ml = PriceCalculator.getVolumeMl(volKey);
+  const volInKg = ml / 1000;
+  const rawOilCost = parseFloat((costPerKg * volInKg).toFixed(2));
+
+  const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[volKey] !== undefined)
+    ? DEFAULT_PACKAGING_COSTS[volKey]
+    : 14.50;
+
+  const isWholesaleSupply = (supplyType === "wholesale");
+  const linearOverhead = isWholesaleSupply ? 0 : parseFloat((dynamicOverheadPerKg * volInKg).toFixed(2));
+  const laborAssemblyFee = PriceCalculator.getLaborAssemblyFee(volKey);
+
+  const inputVatRate = (prodMerged.inputVatRate !== undefined && prodMerged.inputVatRate !== null)
+    ? parseFloat(prodMerged.inputVatRate)
+    : (parseFloat(prodMerged.kdv) || 1);
+  const salesVatRate = parseFloat(prodMerged.kdv) || 1;
+
+  const netCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
+
+  const taxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost({
+    netCost: netCost,
+    inputVatRate: inputVatRate,
+    salesVatRate: salesVatRate,
+    rawOilCost: rawOilCost,
+    packCost: packCost,
+    linearOverhead: linearOverhead,
+    laborAssemblyFee: laborAssemblyFee
+  });
+
+  const effectiveNetCost = taxProtection.taxNeutralBreakEvenCost;
+  const targetProfit = (prodMerged.layer2Profit !== undefined && prodMerged.layer2Profit !== null) ? prodMerged.layer2Profit : 70;
+
+  return {
+    costPerKg,
+    volInKg,
+    rawOilCost,
+    packCost,
+    linearOverhead,
+    laborAssemblyFee,
+    netCost,
+    effectiveNetCost,
+    targetProfit,
+    inputVatRate,
+    salesVatRate
+  };
+}
+
 function renderLayer3Cards() {
   const container = document.getElementById("layer3-product-grid");
   if (!container) return;
@@ -1420,29 +1511,9 @@ function renderLayer3Cards() {
     cardActiveVolumes[product.id] = activeVolKey;
 
     // --- Dynamic Katman 1 Recommended Price & Effective Net Cost Calculation ---
-    const activeVolInKg = (typeof PriceCalculator.getVolumeInKg === "function")
-      ? PriceCalculator.getVolumeInKg(activeVolKey)
-      : (PriceCalculator.getVolumeMl(activeVolKey) / 1000);
-
-    const activeRawCostPerKg = product.costPerKg || product.initialCostPerKg || 1000;
-    const activeRawOilCost = parseFloat((activeRawCostPerKg * activeVolInKg).toFixed(2));
-    const activePackCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[activeVolKey] !== undefined)
-      ? DEFAULT_PACKAGING_COSTS[activeVolKey]
-      : 14.50;
-
-    const activeIsWholesale = (product.supplyType === "wholesale");
-    const activeLinearOverhead = activeIsWholesale ? 0 : parseFloat((dynamicOverheadPerKg * activeVolInKg).toFixed(2));
-    const activeLaborFee = PriceCalculator.getLaborAssemblyFee(activeVolKey);
-
-    const activeInputVatRate = product.inputVatRate !== undefined ? product.inputVatRate : (product.category === "Sabit Yağlar" ? 1 : 20);
-    const activeSalesVatRate = product.kdv !== undefined ? product.kdv : (product.vatRate !== undefined ? product.vatRate : 20);
-
-    const activeTaxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost(
-      activeRawOilCost, activeInputVatRate, activePackCost, activeLinearOverhead, activeLaborFee, activeSalesVatRate
-    );
-    const activeEffectiveNetCost = activeTaxProtection.taxNeutralBreakEvenCost;
-
-    const activeTargetProfit = product.layer2Profit !== undefined ? product.layer2Profit : 50;
+    const activeCalc = getLayer2EffectiveCostForVolume(product, activeVolKey, dynamicOverheadPerKg);
+    const activeEffectiveNetCost = activeCalc.effectiveNetCost;
+    const activeTargetProfit = activeCalc.targetProfit;
 
     let systemRecommendedPrice = 0;
     if (currentLayer3Channel === "trendyol") {
@@ -1520,29 +1591,9 @@ function renderLayer3Cards() {
     if (isExpanded) {
       let rowsHtml = "";
       availableVols.forEach(vKey => {
-        const vVolInKg = (typeof PriceCalculator.getVolumeInKg === "function")
-          ? PriceCalculator.getVolumeInKg(vKey)
-          : (PriceCalculator.getVolumeMl(vKey) / 1000);
-
-        const vRawCostPerKg = product.costPerKg || product.initialCostPerKg || 1000;
-        const vRawOilCost = parseFloat((vRawCostPerKg * vVolInKg).toFixed(2));
-        const vPackCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vKey] !== undefined)
-          ? DEFAULT_PACKAGING_COSTS[vKey]
-          : 14.50;
-
-        const vIsWholesale = (product.supplyType === "wholesale");
-        const vLinearOverhead = vIsWholesale ? 0 : parseFloat((dynamicOverheadPerKg * vVolInKg).toFixed(2));
-        const vLaborFee = PriceCalculator.getLaborAssemblyFee(vKey);
-
-        const vInputVat = product.inputVatRate !== undefined ? product.inputVatRate : (product.category === "Sabit Yağlar" ? 1 : 20);
-        const vSalesVat = product.kdv !== undefined ? product.kdv : (product.vatRate !== undefined ? product.vatRate : 20);
-
-        const vTaxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost(
-          vRawOilCost, vInputVat, vPackCost, vLinearOverhead, vLaborFee, vSalesVat
-        );
-        const vEffectiveNetCost = vTaxProtection.taxNeutralBreakEvenCost;
-
-        const vTargetProfit = product.layer2Profit !== undefined ? product.layer2Profit : 50;
+        const vCalc = getLayer2EffectiveCostForVolume(product, vKey, dynamicOverheadPerKg);
+        const vEffectiveNetCost = vCalc.effectiveNetCost;
+        const vTargetProfit = vCalc.targetProfit;
 
         let vRecommendedPrice = 0;
         if (currentLayer3Channel === "trendyol") {
