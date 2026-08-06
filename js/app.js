@@ -2389,68 +2389,56 @@ function renderLayer2Cards() {
                     ` : ''}
                   </div>
 
-                  <!-- KALEM 5: KÂRSIZ HAM MALİYET (NET AÇIKLAMALI) -->
-                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item5')" class="cursor-pointer hover:bg-slate-900/80 p-2 rounded-lg transition-all border border-amber-500/40 bg-amber-950/20">
+                  <!-- KALEM 5: SAF FABRİKA HAM MALİYETİ (NET TOPLAM) -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item5')" class="cursor-pointer hover:bg-slate-900/80 p-2.5 rounded-xl transition-all border border-amber-500/40 bg-amber-950/20">
                     <div class="flex items-center justify-between font-extrabold text-xs">
                       <span class="text-amber-300 flex items-center gap-1.5">
-                        🏁 SAF FABRİKA HAM MALİYETİ (KÂRSIZ HAM GİDER)
-                        <span class="text-[10px] text-amber-200 bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800/80">ℹ️ Detay</span>
+                        🏁 SAF FABRİKA ÜRETİM MALİYETİ (KÂRSIZ NET GİDER)
+                        <span class="text-[10px] text-amber-200 bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800/80">ℹ️ Formül / Detay</span>
                       </span>
-                      <span class="text-amber-300 text-xs shrink-0">${PriceCalculator.formatTL(netCost)} ₺</span>
+                      <span class="text-amber-300 text-sm shrink-0 font-black">${PriceCalculator.formatTL(netCost)} ₺</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item5 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-amber-500/50 text-xs text-amber-200 space-y-1.5 animate-slide-up">
-                        <div class="font-bold text-amber-300 border-b border-slate-800 pb-1">💡 SAF HAM MALİYET NEDİR?</div>
+                        <div class="font-bold text-amber-300 border-b border-slate-800 pb-1">💡 NET ÜRETİM MALİYETİ AÇIKLAMASI</div>
                         <p>• 1. Yağ: ${PriceCalculator.formatTL(rawOilCost)} ₺ | 2. Ambalaj: ${PriceCalculator.formatTL(packCost)} ₺ | 3. Tesis: ${PriceCalculator.formatTL(linearOverhead)} ₺ | 4. İşçilik: ${PriceCalculator.formatTL(laborAssemblyFee)} ₺</p>
                         <p class="font-bold text-amber-300 border-t border-slate-800 pt-1 text-xs">
-                          = SAF HAM MALİYET: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong> (${PriceCalculator.formatTL(unitNetCost)} ₺/KG)
+                          = 1 ADET AMBALAJLI FABRİKA MALİYETİ: <strong>${PriceCalculator.formatTL(netCost)} ₺</strong>
                         </p>
-                        <p class="text-rose-300 font-semibold text-[11px]">⚠️ Bu tutar fabrikanızın cebinden çıkan kârsız ham giderdir. Müşteriye bu tutarın üzerine kâr koyarak teklif verilir.</p>
+                        <p class="text-rose-300 font-semibold text-[11px]">⚠️ Bu tutar fabrikanızın cebinden çıkan kârsız ham giderdir. Perakende satış fiyatınız Katman 1 Pazaryeri Simülatöründe kâr marjınız eklenerek oluşturulur.</p>
                       </div>
                     ` : ''}
                   </div>
 
-                  <!-- KALEM 6: MALİYET VE SATIŞ HESAP ÖZETİ (PERAKENDE MALİYET VS TOPTAN TEKLİF AYRIMI) -->
-                  <div class="p-3 bg-gradient-to-r ${layer2GroupMode === 'wholesale_drums' ? 'from-emerald-950 via-teal-950 to-slate-950 border-emerald-500' : 'from-slate-900 via-sky-950 to-slate-950 border-sky-500'} rounded-xl border shadow-md text-xs space-y-1.5">
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-1">
-                      <span class="font-black ${layer2GroupMode === 'wholesale_drums' ? 'text-emerald-400' : 'text-sky-400'} text-xs flex items-center gap-1.5">
-                        ${layer2GroupMode === 'wholesale_drums' ? '💰 MÜŞTERİYE SATIŞ YAPACAĞINIZ GERÇEK TEKLİF FİYATI' : '🏁 BİRİM ÜRÜN TOPLAM FABRİKA MALİYETİ'}
-                      </span>
-                      <span class="text-[10px] font-bold text-slate-300 bg-slate-900 px-1.5 py-0.2 rounded border border-slate-700">%${kdvRate} KDV Dahil</span>
-                    </div>
-                    <div class="flex justify-between items-center pt-0.5">
-                      <div>
-                        <span class="text-[10px] text-slate-300 font-bold block">
-                          ${layer2GroupMode === 'wholesale_drums' ? '📢 1 KG BİRİM TEKLİF:' : `📦 BİRİM MALİYET (${vol}):`}
+                  <!-- TOPTAN SİPARİŞİ İÇİN MÜŞTERİ TEKLİF KUTUSU (Sadece Toptan Bidon Modunda Açılır) -->
+                  ${layer2GroupMode === 'wholesale_drums' ? `
+                    <div class="p-3 bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 rounded-xl border border-emerald-500 shadow-md text-xs space-y-1.5">
+                      <div class="flex justify-between items-center border-b border-emerald-800/80 pb-1">
+                        <span class="font-black text-emerald-400 text-xs flex items-center gap-1.5">
+                          💰 MÜŞTERİYE SATIŞ YAPACAĞINIZ GERÇEK TEKLİF FİYATI
                         </span>
-                        <span class="text-base font-black ${layer2GroupMode === 'wholesale_drums' ? 'text-emerald-300' : 'text-sky-300'}">
-                          ${layer2GroupMode === 'wholesale_drums' ? `${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺ / KG` : `${PriceCalculator.formatTL(netCost)} ₺`}
-                        </span>
+                        <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-700">%${kdvRate} KDV Dahil</span>
                       </div>
-                      <div class="text-right">
-                        <span class="text-[10px] text-slate-300 font-bold block">
-                          ${layer2GroupMode === 'wholesale_drums' ? `📦 SİPARİŞ TOPLAMI (${kg} KG):` : '🧪 SAF FABRİKA GİDERİ:'}
-                        </span>
-                        <span class="text-base font-black ${layer2GroupMode === 'wholesale_drums' ? 'text-emerald-300' : 'text-sky-300'}">
-                          ${layer2GroupMode === 'wholesale_drums' ? `${PriceCalculator.formatTL(totalOrderPrice)} ₺` : `${PriceCalculator.formatTL(netCost)} ₺`}
-                        </span>
+                      <div class="flex justify-between items-center pt-0.5">
+                        <div>
+                          <span class="text-[10px] text-slate-300 font-bold block">📢 1 KG BİRİM TEKLİF:</span>
+                          <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺ / KG</span>
+                        </div>
+                        <div class="text-right">
+                          <span class="text-[10px] text-slate-300 font-bold block">📦 SİPARİŞ TOPLAMI (${kg} KG):</span>
+                          <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
+                        </div>
                       </div>
-                    </div>
-                    <div class="flex justify-between items-center text-[10px] pt-1 border-t border-slate-800">
-                      <span class="text-purple-200 font-mono">
-                        📦 ${layer2GroupMode === 'wholesale_drums' ? (wholesalePack?.breakdownText || `${kg} KG Bidon`) : `Seçilen Ambalaj: ${vol}`}
-                      </span>
-                      ${layer2GroupMode === 'wholesale_drums' ? `
+                      <div class="flex justify-between items-center text-[10px] pt-1 border-t border-emerald-900/60">
+                        <span class="text-purple-200 font-mono">📦 ${wholesalePack?.breakdownText}</span>
                         ${isProfit ? `
                           <span class="text-emerald-300 font-bold bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-800">🟢 KÂR: +${PriceCalculator.formatTL(totalProfitOrLoss)} ₺</span>
                         ` : `
                           <span class="text-rose-300 font-bold bg-rose-950 px-1.5 py-0.2 rounded border border-rose-800">🔴 ZARAR: ${PriceCalculator.formatTL(totalProfitOrLoss)} ₺</span>
                         `}
-                      ` : `
-                        <span class="text-sky-300 font-bold bg-sky-950 px-1.5 py-0.2 rounded border border-sky-800">🏭 Kârsız Üretim Maliyeti</span>
-                      `}
+                      </div>
                     </div>
-                  </div>
+                  ` : ''}
                 </div>
               ` : ""}
 
