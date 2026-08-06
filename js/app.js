@@ -4050,3 +4050,294 @@ function generateLayer2PdfReport() {
   printWindow.document.write(reportHtml);
   printWindow.document.close();
 }
+
+// ----------------------------------------------------
+// 📄 KATMAN 3 CANLI MAĞAZA VE KATMAN 1 ÖNERİLEN FİYAT KARŞILAŞTIRMA PDF RAPORU
+// ----------------------------------------------------
+function generateLayer3PdfReport() {
+  const channel = currentLayer3Channel || "trendyol"; // 'trendyol' or 'site'
+  const isTrendyol = channel === "trendyol";
+  const channelName = isTrendyol ? "🧡 Trendyol Pazaryeri" : "🌐 iyzico (Web Siteleriniz)";
+  const commRate = isTrendyol ? 19 : 4;
+  const cargoFee = isTrendyol ? 110 : 82.50;
+
+  const todayStr = new Date().toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const factoryOverheadConfig = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(factoryOverheadConfig);
+  const dynamicOverheadPerKg = overheadRes.overheadPerKg;
+
+  const logoUrl = "assets/cansizzade_logo.jpg";
+
+  let productsArr = Object.values(currentProducts || {});
+  if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
+    productsArr = INITIAL_PRODUCTS;
+  }
+
+  // Filter products relevant to the active channel
+  let displayList = [];
+  if (isTrendyol) {
+    displayList = getTrendyolFilteredCatalog();
+  } else {
+    productsArr.forEach(prod => {
+      if (!prod || !prod.name) return;
+      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
+      const hasAnyVolPrice = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+        const ov = StorageManager.getSiteOverride(prod.id, vk);
+        if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
+        if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
+        return false;
+      });
+      if (hasAnyVolPrice) displayList.push(prod);
+    });
+  }
+
+  const sortedList = sortProductsByCategoryAndName(displayList);
+  const allVols = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
+
+  // Build satır satır comparison records
+  let items = [];
+  let totalAboveCount = 0;
+  let totalBelowCount = 0;
+
+  sortedList.forEach(prod => {
+    allVols.forEach(vk => {
+      let livePrice = 0;
+      if (isTrendyol) {
+        const tyMatch = findTrendyolProduct(prod.name, vk);
+        if (tyMatch && tyMatch.price > 0) {
+          livePrice = tyMatch.price;
+        }
+      } else {
+        const ov = StorageManager.getSiteOverride(prod.id, vk);
+        if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) {
+          livePrice = parseFloat(ov);
+        } else {
+          const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
+          if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) {
+            livePrice = siteData.samplePrices[vk];
+          }
+        }
+      }
+
+      if (livePrice > 0) {
+        // Calculate Katman 2 cost & Katman 1 recommended price
+        const calc = getLayer2EffectiveCostForVolume(prod, vk, dynamicOverheadPerKg);
+        const netCost = calc.effectiveNetCost;
+
+        // Katman 1 Recommended Sale Price (Target Profit = 70 TL)
+        const recSim = PriceCalculator.calculateSystem1Channel({ wholesaleCost: netCost, targetProfit: 70, commission: commRate, cargo: cargoFee });
+        const recPrice = recSim.salePrice;
+
+        // Realized Net Profit at Live Listing Price
+        const commAmt = parseFloat((livePrice * (commRate / 100)).toFixed(2));
+        const livePayout = parseFloat((livePrice - commAmt - cargoFee).toFixed(2));
+        const liveNetProfit = parseFloat((livePayout - netCost).toFixed(2));
+
+        const diffPrice = parseFloat((livePrice - recPrice).toFixed(2));
+        const isAbove = diffPrice >= 0;
+
+        if (isAbove) totalAboveCount++;
+        else totalBelowCount++;
+
+        items.push({
+          sku: prod.sku,
+          name: prod.name,
+          category: prod.category || "Sabit Yağlar",
+          volume: vk,
+          netCost: netCost,
+          recPrice: recPrice,
+          livePrice: livePrice,
+          liveNetProfit: liveNetProfit,
+          diffPrice: diffPrice,
+          isAbove: isAbove
+        });
+      }
+    });
+  });
+
+  const sabitItems = items.filter(i => i.category === "Sabit Yağlar");
+  const ucucuItems = items.filter(i => i.category === "Uçucu Yağlar");
+
+  let reportHtml = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Cansızzade - Katman 3 Canlı Mağaza vs Önerilen Fiyat Karşılaştırma Raporu (${channelName})</title>
+  <style>
+    @page { size: A4 portrait; margin: 6mm 7mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.15; }
+    .page { page-break-after: always; min-height: 280mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
+    .page:last-child { page-break-after: avoid; }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #7c3aed; padding-bottom: 5px; margin-bottom: 5px; }
+    .header-logo { height: 54px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08)); }
+    .header-info { text-align: right; }
+    .header-info h1 { margin: 0; font-size: 12px; color: #6d28d9; font-weight: 900; text-transform: uppercase; letter-spacing: -0.3px; }
+    .header-info p { margin: 1px 0 0 0; font-size: 8px; color: #475569; font-weight: 600; }
+    .meta-banner { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 5px; padding: 4px 8px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 8px; font-weight: 600; color: #5b21b6; }
+    .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3.5px 6px; margin-bottom: 5px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
+    .cat-title { background: #6d28d9; color: #ffffff; font-weight: 800; font-size: 9.5px; padding: 3px 6px; border-radius: 3px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 7.5px; margin-bottom: 5px; }
+    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 3.5px 4px; border-bottom: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 7px; }
+    td { padding: 2.5px 4px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    tr:nth-child(even) { background: #f8fafc; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .font-black { font-weight: 900; }
+    .font-bold { font-weight: 700; }
+    .text-purple { color: #6d28d9; }
+    .text-emerald { color: #047857; }
+    .text-rose { color: #be123c; }
+    .text-blue { color: #1d4ed8; }
+    .badge-above { background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; padding: 1px 4px; border-radius: 3px; font-size: 7px; }
+    .badge-below { background: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; font-weight: 800; padding: 1px 4px; border-radius: 3px; font-size: 7px; }
+    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 3px; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  <!-- SAYFA 1: SABİT YAĞLAR -->
+  <div class="page">
+    <div class="header">
+      <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
+      <div class="header-info">
+        <h1>KATMAN 3: CANLI MAĞAZA VE ÖNERİLEN FİYAT ANALİZİ</h1>
+        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>${channelName.toUpperCase()} KARŞILAŞTIRMA RAPORU</strong></p>
+      </div>
+    </div>
+
+    <div class="meta-banner">
+      <span>📅 <strong>Tarih:</strong> ${todayStr}</span>
+      <span>📊 <strong>İncelenen Kanal:</strong> ${channelName} (%${commRate} Kom. + ${PriceCalculator.formatTL(cargoFee)} ₺ Kargo)</span>
+      <span>🟢 <strong>Önerilen Üstünde:</strong> ${totalAboveCount} Ambalaj</span>
+      <span>🔴 <strong>Önerilenden Düşük:</strong> ${totalBelowCount} Ambalaj</span>
+    </div>
+
+    <div class="legend-banner">
+      <span><strong>1. Katman 2 Saf Maliyet:</strong> KDV Korumalı Dip Üretim Maliyeti</span>
+      <span><strong>2. Katman 1 Önerilen Fiyat:</strong> +70 ₺ Hedef Kâr Eklenmiş Fiyat</span>
+      <span><strong>3. Canlı Mağaza Fiyatı:</strong> ${channelName} Canlı İlan Fiyatınız</span>
+      <span><strong>4. Net Kâr:</strong> Canlı Satış Hakedişinden Saf Maliyet Çıkarılmış Tutar</span>
+    </div>
+
+    <div class="cat-title">🌿 SABİT YAĞLAR — CANLI SATIŞ VE ÖNERİLEN FİYAT KARŞILAŞTIRMA CETVELİ</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 3%;">#</th>
+          <th style="width: 7%;">SKU</th>
+          <th style="width: 20%;">Ürün Adı</th>
+          <th style="width: 8%;" class="text-center">Ambalaj</th>
+          <th style="width: 12%;" class="text-right">Saf Maliyet (Katman 2)</th>
+          <th style="width: 13%;" class="text-right">🎯 Önerilen Fiyat (Katman 1)</th>
+          <th style="width: 13%;" class="text-right">🛒 Canlı Mağaza Fiyatı</th>
+          <th style="width: 11%;" class="text-right">💰 Canlı Net Kâr</th>
+          <th style="width: 13%;" class="text-center">🏁 Karşılaştırma Durumu</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sabitItems.length > 0 ? sabitItems.map((item, idx) => `
+          <tr>
+            <td class="text-center font-bold">${idx + 1}</td>
+            <td class="font-bold">${item.sku}</td>
+            <td class="font-bold text-emerald">${item.name}</td>
+            <td class="text-center font-bold text-blue">${item.volume}</td>
+            <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(item.netCost)} ₺</td>
+            <td class="text-right font-extrabold text-purple">${PriceCalculator.formatTL(item.recPrice)} ₺</td>
+            <td class="text-right font-black text-blue">${PriceCalculator.formatTL(item.livePrice)} ₺</td>
+            <td class="text-right font-bold ${item.liveNetProfit >= 0 ? 'text-emerald' : 'text-rose'}">${PriceCalculator.formatTL(item.liveNetProfit)} ₺</td>
+            <td class="text-center">
+              ${item.isAbove
+                ? `<span class="badge-above">🟢 Üstünde (+${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`
+                : `<span class="badge-below">🔴 Düşük (${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`}
+            </td>
+          </tr>
+        `).join('') : `<tr><td colspan="9" class="text-center text-slate">Bu kategoride gösterilecek canlı ilan bulunamadı.</td></tr>`}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>Cansızzade Karşılaştırma & Fiyat Analiz Portalı v3.04</span>
+      <span>Sayfa 1 / 2 (Sabit Yağlar - ${channelName} Fiyat Karşılaştırması)</span>
+    </div>
+  </div>
+
+  <!-- SAYFA 2: UÇUCU YAĞLAR (EĞER VARSA) -->
+  ${ucucuItems.length > 0 ? `
+  <div class="page">
+    <div class="header">
+      <img src="${logoUrl}" class="header-logo" alt="Cansızzade Logo">
+      <div class="header-info">
+        <h1>KATMAN 3: UÇUCU YAĞLAR CANLI VE ÖNERİLEN FİYAT ANALİZİ</h1>
+        <p>CANSIZZADE BİTKİSEL YAĞLAR SAN. TİC. LTD. ŞTİ. | <strong>${channelName.toUpperCase()} UÇUCU YAĞ CETVELİ</strong></p>
+      </div>
+    </div>
+
+    <div class="meta-banner">
+      <span>📅 <strong>Tarih:</strong> ${todayStr}</span>
+      <span>📊 <strong>İncelenen Kanal:</strong> ${channelName}</span>
+      <span>🌸 <strong>Uçucu Yağ Sayısı:</strong> ${ucucuItems.length} Ambalaj</span>
+    </div>
+
+    <div class="cat-title">🌸 UÇUCU YAĞLAR — CANLI SATIŞ VE ÖNERİLEN FİYAT KARŞILAŞTIRMA CETVELİ</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 3%;">#</th>
+          <th style="width: 7%;">SKU</th>
+          <th style="width: 20%;">Ürün Adı</th>
+          <th style="width: 8%;" class="text-center">Ambalaj</th>
+          <th style="width: 12%;" class="text-right">Saf Maliyet (Katman 2)</th>
+          <th style="width: 13%;" class="text-right">🎯 Önerilen Fiyat (Katman 1)</th>
+          <th style="width: 13%;" class="text-right">🛒 Canlı Mağaza Fiyatı</th>
+          <th style="width: 11%;" class="text-right">💰 Canlı Net Kâr</th>
+          <th style="width: 13%;" class="text-center">🏁 Karşılaştırma Durumu</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${ucucuItems.map((item, idx) => `
+          <tr>
+            <td class="text-center font-bold">${idx + 1}</td>
+            <td class="font-bold">${item.sku}</td>
+            <td class="font-bold text-emerald">${item.name}</td>
+            <td class="text-center font-bold text-blue">${item.volume}</td>
+            <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(item.netCost)} ₺</td>
+            <td class="text-right font-extrabold text-purple">${PriceCalculator.formatTL(item.recPrice)} ₺</td>
+            <td class="text-right font-black text-blue">${PriceCalculator.formatTL(item.livePrice)} ₺</td>
+            <td class="text-right font-bold ${item.liveNetProfit >= 0 ? 'text-emerald' : 'text-rose'}">${PriceCalculator.formatTL(item.liveNetProfit)} ₺</td>
+            <td class="text-center">
+              ${item.isAbove
+                ? `<span class="badge-above">🟢 Üstünde (+${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`
+                : `<span class="badge-below">🔴 Düşük (${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`}
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>Cansızzade Karşılaştırma & Fiyat Analiz Portalı v3.04</span>
+      <span>Sayfa 2 / 2 (Uçucu Yağlar - ${channelName} Fiyat Karşılaştırması)</span>
+    </div>
+  </div>
+  ` : ''}
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 400);
+    };
+  </script>
+</body>
+</html>`;
+
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(reportHtml);
+    printWindow.document.close();
+  } else {
+    alert("Lütfen tarayıcınızın açılır pencere (pop-up) engelleyicisini kaldırın.");
+  }
+}
