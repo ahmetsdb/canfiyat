@@ -1176,8 +1176,57 @@ function getTrendyolFilteredCatalog() {
   if (typeof TRENDYOL_PRODUCTS_DATA === "undefined" || !Array.isArray(TRENDYOL_PRODUCTS_DATA)) return [];
   const storedCustom = StorageManager.getTrendyolCustomProducts();
   const catalog = (storedCustom && storedCustom.length > 0) ? storedCustom : TRENDYOL_PRODUCTS_DATA;
-  // User Directive: Exclude Endora products
-  return catalog.filter(item => item && item.title && !item.title.toLowerCase().includes("endora"));
+  
+  // User Directive: Purge Endora products completely & keep ONLY Cansızzade products
+  return catalog.filter(item => {
+    if (!item || !item.title) return false;
+    const t = item.title.toLowerCase();
+    const u = (item.url || "").toLowerCase();
+
+    // 1. Must NOT contain "endora" in title or URL
+    if (t.includes("endora") || u.includes("endora")) return false;
+
+    // 2. Must contain "cansizzade" or "cansızzade" in title or URL (or 100% doğallık kalıbı)
+    const isCansizzade = t.includes("cansizzade") || t.includes("cansızzade") || u.includes("cansizzade") || t.includes("%100 dogal") || t.includes("%100 doğal");
+    return isCansizzade;
+  });
+}
+
+function matchVolumeStrict(title, normVol) {
+  const t = title.toLowerCase();
+
+  if (normVol === "5000ml" || normVol === "5kg") {
+    return /(?:^|[^\d])(5000\s*ml|5\s*kg|5000\s*g|5000\s*gr|5\s*lt|5\s*litre)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "1000ml" || normVol === "1kg") {
+    return /(?:^|[^\d])(1000\s*ml|1\s*kg|1000\s*g|1000\s*gr|1\s*lt|1\s*litre)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "500ml") {
+    return /(?:^|[^\d])(500\s*ml|500\s*g|500\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "250ml") {
+    return /(?:^|[^\d])(250\s*ml|250\s*g|250\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "150ml") {
+    return /(?:^|[^\d])(150\s*ml|150\s*g|150\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "100ml") {
+    return /(?:^|[^\d])(100\s*ml|100\s*g|100\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "50ml") {
+    if (/(5000|500|250|150)\s*(ml|g|gr|kg)/i.test(t)) return false;
+    return /(?:^|[^\d])(50\s*ml|50\s*g|50\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "30ml") {
+    return /(?:^|[^\d])(30\s*ml|30\s*g|30\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "20ml") {
+    return /(?:^|[^\d])(20\s*ml|20\s*g|20\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  if (normVol === "10ml") {
+    return /(?:^|[^\d])(10\s*ml|10\s*g|10\s*gr)(?:[^\d]|$)/i.test(t);
+  }
+  return false;
 }
 
 function findTrendyolProduct(productName, volKey) {
@@ -1259,31 +1308,8 @@ function findTrendyolProduct(productName, volKey) {
 
     if (!nameMatch) return false;
 
-    // 2. Volume Match
-    let volMatch = false;
-    if (normVol === "1000ml") {
-      volMatch = itemTitle.includes("1000ml") || itemTitle.includes("1000 ml") || itemTitle.includes("1kg") || itemTitle.includes("1 kg") || itemTitle.includes("1000g") || itemTitle.includes("1000 gr");
-    } else if (normVol === "5000ml") {
-      volMatch = itemTitle.includes("5000ml") || itemTitle.includes("5000 ml") || itemTitle.includes("5kg") || itemTitle.includes("5 kg") || itemTitle.includes("5000g") || itemTitle.includes("5000 gr");
-    } else if (normVol === "500ml") {
-      volMatch = itemTitle.includes("500ml") || itemTitle.includes("500 ml") || itemTitle.includes("500g") || itemTitle.includes("500 g") || itemTitle.includes("500gr");
-    } else if (normVol === "250ml") {
-      volMatch = itemTitle.includes("250ml") || itemTitle.includes("250 ml") || itemTitle.includes("250g") || itemTitle.includes("250 g") || itemTitle.includes("250gr");
-    } else if (normVol === "150ml") {
-      volMatch = itemTitle.includes("150ml") || itemTitle.includes("150 ml") || itemTitle.includes("150g") || itemTitle.includes("150 g");
-    } else if (normVol === "100ml") {
-      volMatch = itemTitle.includes("100ml") || itemTitle.includes("100 ml") || itemTitle.includes("100g") || itemTitle.includes("100 g") || itemTitle.includes("100gr");
-    } else if (normVol === "50ml") {
-      volMatch = itemTitle.includes("50ml") || itemTitle.includes("50 ml") || itemTitle.includes("50g") || itemTitle.includes("50 g") || itemTitle.includes("50gr");
-    } else if (normVol === "30ml") {
-      volMatch = itemTitle.includes("30ml") || itemTitle.includes("30 ml");
-    } else if (normVol === "20ml") {
-      volMatch = itemTitle.includes("20ml") || itemTitle.includes("20 ml");
-    } else if (normVol === "10ml") {
-      volMatch = itemTitle.includes("10ml") || itemTitle.includes("10 ml");
-    }
-
-    return volMatch;
+    // 2. Strict Regex Volume Match
+    return matchVolumeStrict(itemTitle, normVol);
   }) || null;
 }
 
