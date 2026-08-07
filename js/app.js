@@ -1066,6 +1066,7 @@ function switchLayerMode(mode) {
 
     renderLayer3Cards();
   }
+  updateTopDipFiyatBtnState();
 }
 
 let cardActiveVolumes = {};
@@ -1084,18 +1085,40 @@ function toggleCardAccordion(productId) {
 let currentLayer3Channel = "iyzico"; // "iyzico" or "trendyol"
 let isLayer3DipFiyatMode = false; // Toggle for 0 TL Break-even Dip Price Mode
 
-function toggleLayer3DipFiyatMode() {
-  isLayer3DipFiyatMode = !isLayer3DipFiyatMode;
-  const btnDip = document.getElementById("btn-l3-dip-fiyat");
-  if (btnDip) {
+function handleDipFiyatToggle() {
+  if (currentLayerMode === 3) {
+    toggleLayer3DipFiyatMode();
+  } else {
+    toggleRedLineFloor();
+  }
+}
+
+function updateTopDipFiyatBtnState() {
+  const btnTop = document.getElementById("btn-toggle-redline");
+  if (!btnTop) return;
+
+  if (currentLayerMode === 3) {
     if (isLayer3DipFiyatMode) {
-      btnDip.className = "bg-gradient-to-r from-rose-600 via-red-600 to-rose-500 text-white font-black px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-rose-600/30 flex items-center gap-1.5 text-xs border border-rose-300 ring-2 ring-rose-500/50 cursor-pointer animate-pulse";
-      btnDip.innerHTML = "🔥 DİP FİYAT MODU AKTİF (0 ₺ KÂR)";
+      btnTop.className = "px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-rose-600 via-red-600 to-rose-500 text-white border border-rose-400 shadow-lg shadow-rose-600/40 flex items-center gap-1 cursor-pointer animate-pulse";
+      btnTop.innerHTML = "🟢 Dip Fiyat (0 ₺ Kâr)";
     } else {
-      btnDip.className = "bg-slate-900 hover:bg-slate-800 text-rose-300 font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-rose-500/40 cursor-pointer";
-      btnDip.innerHTML = "🏁 DİP FİYAT (0 ₺ KÂR)";
+      btnTop.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer";
+      btnTop.innerHTML = "🔴 Dip Fiyat";
+    }
+  } else {
+    if (showRedLineFloor) {
+      btnTop.className = "px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-rose-600 text-white border border-rose-400 shadow-lg shadow-rose-600/30 flex items-center gap-1 cursor-pointer";
+      btnTop.innerHTML = "🔴 Dip Fiyat (AÇIK)";
+    } else {
+      btnTop.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer";
+      btnTop.innerHTML = "🔴 Dip Fiyat";
     }
   }
+}
+
+function toggleLayer3DipFiyatMode() {
+  isLayer3DipFiyatMode = !isLayer3DipFiyatMode;
+  updateTopDipFiyatBtnState();
   renderLayer3Cards();
 }
 
@@ -3588,18 +3611,7 @@ let showRedLineFloor = false;
 
 function toggleRedLineFloor() {
   showRedLineFloor = !showRedLineFloor;
-  const btn = document.getElementById("btn-toggle-redline");
-  if (btn) {
-    if (showRedLineFloor) {
-      btn.classList.remove("bg-slate-900", "text-rose-400");
-      btn.classList.add("bg-rose-600", "text-white", "shadow-lg", "shadow-rose-600/30");
-      btn.innerHTML = `🔴 Dip Fiyat (AÇIK)`;
-    } else {
-      btn.classList.remove("bg-rose-600", "text-white", "shadow-lg", "shadow-rose-600/30");
-      btn.classList.add("bg-slate-900", "text-rose-400");
-      btn.innerHTML = `🔴 Dip Fiyat`;
-    }
-  }
+  updateTopDipFiyatBtnState();
 
   if (currentLayerMode === 1) renderProductGrid();
   else if (currentLayerMode === 2) renderLayer2Cards();

@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.20: Avokado 30ml, Gliserin 500ml, Çörek Otu 100ml Silindi & Hindistan Cevizi 300ml Eklendi (Tam Güncel)">
-                            v3.20 (✨ Canlı Hacimler Güncellendi)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.21: Katman 3 Alttaki Yinelenen Dip Fiyat Butonu İptal Edildi; Üstteki 🔴 Dip Fiyat Butonu Katman 3 Başa Baş Modunu Tetikleyecek Şekilde Entegre Edildi">
+                            v3.21 (🎯 Katman 3 Dip Fiyat Butonu Entegre Edildi)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -181,7 +181,7 @@
                         </svg>
                         Kartlar
                     </button>
-                    <button id="btn-toggle-redline" onclick="toggleRedLineFloor()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1">
+                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
                         🔴 Dip Fiyat
                     </button>
                 </div>
@@ -324,11 +324,6 @@
 
                     <!-- PDF & Excel Action Group -->
                     <div class="flex flex-wrap items-center gap-2">
-                        <!-- Dip Fiyat (0 TL Kâr) Toggle Button -->
-                        <button id="btn-l3-dip-fiyat" onclick="toggleLayer3DipFiyatMode()" class="bg-slate-900 hover:bg-slate-800 text-rose-300 font-extrabold px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-rose-500/40 cursor-pointer" title="0 ₺ Kâr ile Katman 1 Dip Başa Baş Satış Fiyatlarını Göster / Gizle">
-                            🏁 DİP FİYAT (0 ₺ KÂR)
-                        </button>
-
                         <!-- PDF Comparison Report Button -->
                         <button id="btn-l3-pdf-report" onclick="generateLayer3PdfReport()" class="bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-500 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-lg flex items-center gap-1.5 text-xs border border-purple-400/40 cursor-pointer" title="Katman 3 Canlı Mağaza & Önerilen Fiyat Karşılaştırma Raporunu PDF Olarak Yazdır / İndir">
                             📄 İYZİCO KARŞILAŞTIRMA PDF AL
@@ -1174,12 +1169,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.20"></script>
-    <script src="js/liveSiteData.js?v=3.20"></script>
-    <script src="js/trendyolData.js?v=3.20"></script>
-    <script src="js/storage.js?v=3.20"></script>
-    <script src="js/calculator.js?v=3.20"></script>
-    <script src="js/app.js?v=3.20"></script>
+    <script src="js/productsData.js?v=3.21"></script>
+    <script src="js/liveSiteData.js?v=3.21"></script>
+    <script src="js/trendyolData.js?v=3.21"></script>
+    <script src="js/storage.js?v=3.21"></script>
+    <script src="js/calculator.js?v=3.21"></script>
+    <script src="js/app.js?v=3.21"></script>
 </body>
 </html>
 
