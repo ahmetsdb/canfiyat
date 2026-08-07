@@ -564,41 +564,45 @@ function loadActiveVolumeConfig(product, volKey) {
 
   const baseTyPrice = s1TyRes.listPrice;
 
-  document.getElementById("slot-packaging-cost").value = packCost;
-  document.getElementById("slot-target-profit").value = targetProfit;
-  
-  document.getElementById("s2_web_price").value = config.webSalePrice ?? parseFloat((baseTyPrice * 0.85).toFixed(2));
-  document.getElementById("s4_retail_price").value = config.retailPrice ?? baseTyPrice;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  };
+
+  setVal("slot-packaging-cost", packCost);
+  setVal("slot-target-profit", targetProfit);
+
+  setVal("s2_web_price", config.webSalePrice ?? parseFloat((baseTyPrice * 0.85).toFixed(2)));
+  setVal("s4_retail_price", config.retailPrice ?? baseTyPrice);
 
   const s5 = config.s5 || {};
   const defaultAvPrice = parseFloat((baseTyPrice * 0.90).toFixed(2));  // 🟢 1. Avantajlı %10 indirimli teklif
   const defaultCakPrice = parseFloat((baseTyPrice * 0.82).toFixed(2)); // 🟡 2. Çok Avantajlı %18 indirimli teklif
   const defaultSupPrice = parseFloat((baseTyPrice * 0.70).toFixed(2)); // 🔴 3. Süper Avantajlı %30 indirimli teklif
 
-  document.getElementById("s5_price_av").value = s5.priceAv ?? defaultAvPrice;
-  document.getElementById("s5_comm_av").value = s5.commAv ?? 19.0;
-  document.getElementById("s5_price_cak").value = s5.priceCak ?? defaultCakPrice;
-  document.getElementById("s5_comm_cak").value = s5.commCak ?? 19.0;
-  document.getElementById("s5_price_sup").value = s5.priceSup ?? defaultSupPrice;
-  document.getElementById("s5_comm_sup").value = s5.commSup ?? 19.0;
-  document.getElementById("s5_cargo").value = s5.cargo ?? (tyChannel.cargo || 110);
-
+  setVal("s5_price_av", s5.priceAv ?? defaultAvPrice);
+  setVal("s5_comm_av", s5.commAv ?? 19.0);
+  setVal("s5_price_cak", s5.priceCak ?? defaultCakPrice);
+  setVal("s5_comm_cak", s5.commCak ?? 19.0);
+  setVal("s5_price_sup", s5.priceSup ?? defaultSupPrice);
+  setVal("s5_comm_sup", s5.commSup ?? 19.0);
+  setVal("s5_cargo", s5.cargo ?? (tyChannel.cargo || 110));
 
   const ty = config.channels?.trendyol || { commission: 19, discount: 0, cargo: 110 };
   const hb = config.channels?.hepsiburada || { commission: 17, discount: 0, cargo: 110 };
   const iy = config.channels?.iyzico || { commission: 4, discount: 0, cargo: 82.50 };
 
-  document.getElementById("s1_comm_ty").value = ty.commission;
-  document.getElementById("s1_disc_ty").value = ty.discount;
-  document.getElementById("s1_kargo_ty").value = ty.cargo;
+  setVal("s1_comm_ty", ty.commission);
+  setVal("s1_disc_ty", ty.discount);
+  setVal("s1_kargo_ty", ty.cargo);
 
-  document.getElementById("s1_comm_hb").value = hb.commission;
-  document.getElementById("s1_disc_hb").value = hb.discount;
-  document.getElementById("s1_kargo_hb").value = hb.cargo;
+  setVal("s1_comm_hb", hb.commission);
+  setVal("s1_disc_hb", hb.discount);
+  setVal("s1_kargo_hb", hb.cargo);
 
-  document.getElementById("s1_comm_iy").value = iy.commission;
-  document.getElementById("s1_disc_iy").value = iy.discount;
-  document.getElementById("s1_kargo_iy").value = iy.cargo;
+  setVal("s1_comm_iy", iy.commission);
+  setVal("s1_disc_iy", iy.discount);
+  setVal("s1_kargo_iy", iy.cargo);
 
   calculateCurrentModal();
 }
@@ -608,40 +612,49 @@ function saveInputsToCurrentVolumeConfig() {
   const product = currentProducts[selectedProductId];
   if (!product) return;
 
+  const getVal = (id, defaultVal = 0) => {
+    const el = document.getElementById(id);
+    if (!el) return defaultVal;
+    const parsed = parseFloat(el.value);
+    return isNaN(parsed) ? defaultVal : parsed;
+  };
+
   const config = getVolumeConfig(product, activeVolume);
-  config.packagingCost = parseFloat(document.getElementById("slot-packaging-cost").value) || 0;
-  config.targetProfit = parseFloat(document.getElementById("slot-target-profit").value) || 0;
-  
-  config.webSalePrice = parseFloat(document.getElementById("s2_web_price").value) || 500;
-  config.retailPrice = parseFloat(document.getElementById("s4_retail_price").value) || 650;
+  config.packagingCost = getVal("slot-packaging-cost", 14.50);
+  config.targetProfit = getVal("slot-target-profit", 70);
+
+  config.webSalePrice = getVal("s2_web_price", 500);
+  config.retailPrice = getVal("s4_retail_price", 650);
 
   config.s5 = {
-    priceAv: parseFloat(document.getElementById("s5_price_av").value) || 0,
-    commAv: parseFloat(document.getElementById("s5_comm_av").value) || 15,
-    priceCak: parseFloat(document.getElementById("s5_price_cak").value) || 0,
-    commCak: parseFloat(document.getElementById("s5_comm_cak").value) || 14.6,
-    priceSup: parseFloat(document.getElementById("s5_price_sup").value) || 0,
-    commSup: parseFloat(document.getElementById("s5_comm_sup").value) || 12.5,
-    cargo: parseFloat(document.getElementById("s5_cargo").value) || 110
+    priceAv: getVal("s5_price_av", 0),
+    commAv: getVal("s5_comm_av", 15),
+    priceCak: getVal("s5_price_cak", 0),
+    commCak: getVal("s5_comm_cak", 14.6),
+    priceSup: getVal("s5_price_sup", 0),
+    commSup: getVal("s5_comm_sup", 12.5),
+    cargo: getVal("s5_cargo", 110)
   };
 
   config.channels = {
     trendyol: {
-      commission: parseFloat(document.getElementById("s1_comm_ty").value) || 0,
-      discount: parseFloat(document.getElementById("s1_disc_ty").value) || 0,
-      cargo: parseFloat(document.getElementById("s1_kargo_ty").value) || 0
+      commission: getVal("s1_comm_ty", 19),
+      discount: getVal("s1_disc_ty", 0),
+      cargo: getVal("s1_kargo_ty", 110)
     },
     hepsiburada: {
-      commission: parseFloat(document.getElementById("s1_comm_hb").value) || 0,
-      discount: parseFloat(document.getElementById("s1_disc_hb").value) || 0,
-      cargo: parseFloat(document.getElementById("s1_kargo_hb").value) || 0
+      commission: getVal("s1_comm_hb", 17),
+      discount: getVal("s1_disc_hb", 0),
+      cargo: getVal("s1_kargo_hb", 110)
     },
     iyzico: {
-      commission: parseFloat(document.getElementById("s1_comm_iy").value) || 0,
-      discount: parseFloat(document.getElementById("s1_disc_iy").value) || 0,
-      cargo: parseFloat(document.getElementById("s1_kargo_iy").value) || 0
+      commission: getVal("s1_comm_iy", 4),
+      discount: getVal("s1_disc_iy", 0),
+      cargo: getVal("s1_kargo_iy", 82.50)
     }
   };
+
+  saveProductsState();
 }
 
 function closeProductSlot() {
