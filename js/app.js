@@ -1613,7 +1613,11 @@ function renderLayer3Cards() {
       } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[activeVolKey] === "number") && siteData.samplePrices[activeVolKey] > 0) {
         activeLivePrice = siteData.samplePrices[activeVolKey];
       }
-      if (siteData && siteData.url) siteUrl = siteData.url;
+      if (siteData && siteData.urls && siteData.urls[activeVolKey]) {
+        siteUrl = siteData.urls[activeVolKey];
+      } else if (siteData && siteData.url) {
+        siteUrl = siteData.url;
+      }
     }
 
     const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
@@ -1690,7 +1694,11 @@ function renderLayer3Cards() {
           } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vKey] === "number" && siteData.samplePrices[vKey] > 0) {
             vLivePrice = siteData.samplePrices[vKey];
           }
-          if (siteData && siteData.url) vRowUrl = siteData.url;
+          if (siteData && siteData.urls && siteData.urls[vKey]) {
+            vRowUrl = siteData.urls[vKey];
+          } else if (siteData && siteData.url) {
+            vRowUrl = siteData.url;
+          }
         }
 
         const vHasPrice = vLivePrice !== null && vLivePrice > 0;
