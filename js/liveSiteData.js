@@ -22,8 +22,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0245': {
     name: 'AVOKADO YAĞI',
-    samplePrices: { '1000ml': 650, '30ml': 200, '250ml': 350 },
-    urls: { '1000ml': 'https://www.cansizzadeyag.com/urun/avokado-yagi-1-kg', '30ml': 'https://www.cansizzadeyag.com/urun/avokado-yagi-30-ml', '250ml': 'https://www.cansizzadeyag.com/urun/avokado-yagi-250-ml' },
+    samplePrices: { '1000ml': 650, '250ml': 350 },
+    urls: { '1000ml': 'https://www.cansizzadeyag.com/urun/avokado-yagi-1-kg', '250ml': 'https://www.cansizzadeyag.com/urun/avokado-yagi-250-ml' },
     url: 'https://www.cansizzadeyag.com/urun/avokado-yagi'
   },
   'T.0148': {
@@ -58,8 +58,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0074': {
     name: 'ÇÖREK OTU YAĞI',
-    samplePrices: { '100ml': 220, '250ml': 440, '50ml': 250, '1000ml': 1250 },
-    urls: { '100ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-100-ml', '250ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-250-ml', '50ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-50-ml', '1000ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-1-kg' },
+    samplePrices: { '250ml': 440, '50ml': 250, '1000ml': 1250 },
+    urls: { '250ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-250-ml', '50ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-50-ml', '1000ml': 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-1-kg' },
     url: 'https://www.cansizzadeyag.com/urun/corek-otu-yagi'
   },
   'T.0353': {
@@ -82,8 +82,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0077': {
     name: 'HİNDİSTAN CEVİZİ YAĞI',
-    samplePrices: { '150ml': 290, '1000ml': 750, '5000ml': 3200 },
-    urls: { '150ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-150-ml', '1000ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-1-kg', '5000ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-5-kg' },
+    samplePrices: { '150ml': 290, '300ml': 399, '1000ml': 750, '5000ml': 3200 },
+    urls: { '150ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-150-ml', '300ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-300-ml', '1000ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-1-kg', '5000ml': 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-5-kg' },
     url: 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi'
   },
   'T.0155_sabit': {
@@ -250,8 +250,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'A.0300': {
     name: 'BİTKİSEL GLİSERİN',
-    samplePrices: { '500ml': 180, '1000ml': 250, '5000ml': 900 },
-    urls: { '500ml': 'https://www.cansizzadeyag.com/urun/gliserin-farma-0-5-kg', '1000ml': 'https://www.cansizzadeyag.com/urun/gliserin-farma-1-kg-1', '5000ml': 'https://www.cansizzadeyag.com/urun/gliserin-farma-5-kg' },
+    samplePrices: { '1000ml': 250, '5000ml': 900 },
+    urls: { '1000ml': 'https://www.cansizzadeyag.com/urun/gliserin-farma-1-kg-1', '5000ml': 'https://www.cansizzadeyag.com/urun/gliserin-farma-5-kg' },
     url: 'https://www.cansizzadeyag.com/urun/gliserin-farma'
   },
   'A.0301': {

@@ -96,6 +96,7 @@ const DEFAULT_PACKAGING_COSTS = {
   "50ml": 7.25,    // Şişe: 3.00 TL + Kapak+Tıpa: 4.25 TL = 7.25 TL
   "100ml": 8.35,   // Şişe: 4.10 TL + Kapak+Tıpa: 4.25 TL = 8.35 TL
   "250ml": 14.50,  // Toplam: 14.50 TL
+  "300ml": 18.00,  // 300ml kavanoz / ambalaj
   "500ml": 25.00,  // 500ml
   "1000ml": 35.00, // 1000ml (1 KG)
   "5000ml": 45.00, // 5000ml (5 KG Bidon)

@@ -30,6 +30,7 @@ const ALL_VOLUMES = [
   { key: "100ml", label: "100 ml", price: "8.35 ₺" },
   { key: "150ml", label: "150 ml", price: "10.00 ₺" },
   { key: "250ml", label: "250 ml", price: "14.50 ₺" },
+  { key: "300ml", label: "300 ml", price: "18.00 ₺" },
   { key: "500ml", label: "500 ml", price: "25.00 ₺" },
   { key: "1000ml", label: "1000 ml (1kg)", price: "35.00 ₺" },
   { key: "5000ml", label: "5000 ml (5kg)", price: "120.00 ₺" }
