@@ -654,7 +654,7 @@ function saveInputsToCurrentVolumeConfig() {
     }
   };
 
-  saveProductsState();
+  StorageManager.saveProduct(product);
 }
 
 function closeProductSlot() {
