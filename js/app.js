@@ -665,7 +665,7 @@ function switchSimTab(tabId) {
     activeBtn.classList.add("active", "bg-blue-600", "text-white");
   }
 
-  ["system1", "system2", "system3", "system4", "system5"].forEach(id => {
+  ["system1", "system5"].forEach(id => {
     const el = document.getElementById(`sim-${id}-container`);
     if (el) {
       if (id === tabId) {
@@ -686,12 +686,6 @@ function calculateCurrentModal() {
 
   if (activeSimTab === "system1") {
     calculateSystem1Modal();
-  } else if (activeSimTab === "system2") {
-    calculateSystem2Modal();
-  } else if (activeSimTab === "system3") {
-    calculateSystem3Modal();
-  } else if (activeSimTab === "system4") {
-    calculateSystem4Modal();
   } else if (activeSimTab === "system5") {
     calculateSystem5Modal();
   }
