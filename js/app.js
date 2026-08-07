@@ -23,13 +23,16 @@ function toggleLayer2BreakdownInfo(productId, itemKey) {
 }
 
 const ALL_VOLUMES = [
+  { key: "10ml", label: "10 ml (Uçucu)", price: "5.50 ₺" },
   { key: "20ml", label: "20 ml", price: "6.00 ₺" },
   { key: "30ml", label: "30 ml", price: "6.75 ₺" },
   { key: "50ml", label: "50 ml", price: "7.25 ₺" },
   { key: "100ml", label: "100 ml", price: "8.35 ₺" },
+  { key: "150ml", label: "150 ml", price: "10.00 ₺" },
   { key: "250ml", label: "250 ml", price: "14.50 ₺" },
   { key: "500ml", label: "500 ml", price: "25.00 ₺" },
-  { key: "1000ml", label: "1000 ml (1kg)", price: "35.00 ₺" }
+  { key: "1000ml", label: "1000 ml (1kg)", price: "35.00 ₺" },
+  { key: "5000ml", label: "5000 ml (5kg)", price: "120.00 ₺" }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1460,14 +1463,14 @@ function renderLayer3Cards() {
 
   productsArr.forEach(prod => {
     if (!prod || !prod.name) return;
-    const hasTy = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+    const hasTy = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
       const m = findTrendyolProduct(prod.name, vk);
       return m && m.price > 0;
     });
     if (hasTy) tyMatchCount++;
 
     const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
-    const hasIyzico = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+    const hasIyzico = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
       const ov = StorageManager.getSiteOverride(prod.id, vk);
       if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
       if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
@@ -1497,7 +1500,7 @@ function renderLayer3Cards() {
 
       // Check if product has any matching volume in Trendyol
       let hasAnyTyMatch = false;
-      ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
+      ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
         const m = findTrendyolProduct(prod.name, vk);
         if (m && m.price > 0) {
           hasAnyTyMatch = true;
@@ -1519,7 +1522,7 @@ function renderLayer3Cards() {
       }
 
       const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
-      const hasAnyVolPrice = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+      const hasAnyVolPrice = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
         const ov = StorageManager.getSiteOverride(prod.id, vk);
         if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
         if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
@@ -1536,7 +1539,7 @@ function renderLayer3Cards() {
 
   sortedDisplayList.forEach(product => {
     // Process regular matched products
-    const allVols = ["20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
+    const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
     const availableVols = allVols.filter(vk => {
       if (currentLayer3Channel === "trendyol") {
         const tyMatch = findTrendyolProduct(product.name, vk);
@@ -2162,7 +2165,7 @@ function setLayer2GroupMode(mode) {
   renderLayer2Cards();
 }
 
-function getLayer2VolumeOptionsHtml(vol) {
+function getLayer2VolumeOptionsHtml(vol, product) {
   const tiers = StorageManager.getWholesaleTiers();
   if (layer2GroupMode === "wholesale_drums") {
     return `
@@ -2172,16 +2175,40 @@ function getLayer2VolumeOptionsHtml(vol) {
       <option value="250KG" ${vol === "250KG" ? "selected" : ""}>250 KG (10 Adet 25 KG Sanayi Bidonu | %${tiers.tier4?.discount ?? 20} İsk.)</option>
     `;
   }
-  return `
-    <option value="1000ml" ${vol === "1000ml" ? "selected" : ""}>1000 ml (1 KG)</option>
-    <option value="500ml" ${vol === "500ml" ? "selected" : ""}>500 ml</option>
-    <option value="250ml" ${vol === "250ml" ? "selected" : ""}>250 ml</option>
-    <option value="100ml" ${vol === "100ml" ? "selected" : ""}>100 ml</option>
-    <option value="50ml" ${vol === "50ml" ? "selected" : ""}>50 ml</option>
-    <option value="30ml" ${vol === "30ml" ? "selected" : ""}>30 ml</option>
-    <option value="20ml" ${vol === "20ml" ? "selected" : ""}>20 ml</option>
-    <option value="5000ml" ${vol === "5000ml" ? "selected" : ""}>5000 ml (5 KG)</option>
-  `;
+
+  const pId = product ? (product.id || product.sku) : null;
+  const siteData = (pId && typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[pId] : null;
+
+  let availableVols = [];
+  if (siteData && siteData.samplePrices && Object.keys(siteData.samplePrices).length > 0) {
+    availableVols = Object.keys(siteData.samplePrices);
+  } else if (product && product.volumes) {
+    availableVols = Object.keys(product.volumes);
+  } else {
+    availableVols = ["1000ml"];
+  }
+
+  if (vol && !availableVols.includes(vol)) {
+    availableVols.push(vol);
+  }
+
+  const volLabels = {
+    "10ml": "10 ml (Uçucu)",
+    "20ml": "20 ml",
+    "30ml": "30 ml",
+    "50ml": "50 ml",
+    "100ml": "100 ml",
+    "150ml": "150 ml",
+    "250ml": "250 ml",
+    "500ml": "500 ml",
+    "1000ml": "1000 ml (1 KG)",
+    "5000ml": "5000 ml (5 KG)"
+  };
+
+  return availableVols.map(v => {
+    const label = volLabels[v] || v;
+    return `<option value="${v}" ${vol === v ? "selected" : ""}>${label}</option>`;
+  }).join("");
 }
 
 function renderLayer2Cards() {
@@ -2582,7 +2609,7 @@ function renderLayer2Cards() {
                   <div class="flex items-center gap-2 shrink-0">
                     <span class="text-xs text-slate-300 font-bold">Ambalaj:</span>
                     <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none">
-                      ${getLayer2VolumeOptionsHtml(vol)}
+                      ${getLayer2VolumeOptionsHtml(vol, product)}
                     </select>
                   </div>
                 `}
@@ -3174,7 +3201,7 @@ function renderLayer2Cards() {
                     </div>
                   ` : `
                     <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
-                      ${getLayer2VolumeOptionsHtml(vol)}
+                      ${getLayer2VolumeOptionsHtml(vol, product)}
                     </select>
                   `}
                 </div>
