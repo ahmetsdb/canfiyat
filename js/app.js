@@ -3925,21 +3925,21 @@ function generateLayer2PdfReport() {
   <meta charset="UTF-8">
   <title>Cansızzade - Katman 2 Fabrika Detaylı Reçete & Saf Maliyet Raporu (${selectedVol})</title>
   <style>
-    @page { size: A4 portrait; margin: 6mm 7mm; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.15; }
-    .page { page-break-after: always; min-height: 280mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
+    @page { size: A4 portrait; margin: 7mm 8mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.25; }
+    .page { page-break-after: always; min-height: 278mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
     .page:last-child { page-break-after: avoid; }
-    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 5px; margin-bottom: 5px; }
-    .header-logo { height: 54px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08)); }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #047857; padding-bottom: 5px; margin-bottom: 6px; }
+    .header-logo { height: 52px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08)); }
     .header-info { text-align: right; }
     .header-info h1 { margin: 0; font-size: 13px; color: #047857; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
     .header-info p { margin: 1px 0 0 0; font-size: 8px; color: #475569; font-weight: 600; }
-    .meta-banner { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 5px; padding: 4px 8px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 8px; font-weight: 600; color: #166534; }
-    .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 6px; margin-bottom: 5px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
-    .cat-title { background: #047857; color: #ffffff; font-weight: 800; font-size: 9.5px; padding: 3px 6px; border-radius: 3px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-    table { width: 100%; border-collapse: collapse; font-size: 7.5px; margin-bottom: 5px; }
-    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 3px 3.5px; border-bottom: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 7px; }
-    td { padding: 2px 3.5px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    .meta-banner { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 5px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 8px; font-weight: 600; color: #166534; }
+    .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; margin-bottom: 6px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
+    .cat-title { background: #047857; color: #ffffff; font-weight: 800; font-size: 9.5px; padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 8px; margin-bottom: 6px; }
+    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 5px 5.5px; border-bottom: 2px solid #047857; text-transform: uppercase; font-size: 7.5px; }
+    td { padding: 4.5px 5.5px; border-bottom: 1px solid #cbd5e1; color: #1e293b; vertical-align: middle; }
     tr:nth-child(even) { background: #f8fafc; }
     .text-right { text-align: right; }
     .text-center { text-align: center; }
@@ -3949,7 +3949,7 @@ function generateLayer2PdfReport() {
     .text-blue { color: #1d4ed8; }
     .text-purple { color: #7e22ce; }
     .text-slate { color: #64748b; font-size: 7px; }
-    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 3px; }
+    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 4px; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
 </head>
@@ -4238,27 +4238,33 @@ function generateLayer3PdfReport() {
   const sabitItems = items.filter(i => i.category === "Sabit Yağlar");
   const ucucuItems = items.filter(i => i.category === "Uçucu Yağlar");
 
+  const themeBorder = isTrendyol ? "#ea580c" : "#7c3aed";
+  const themeTitleColor = isTrendyol ? "#c2410c" : "#6d28d9";
+  const themeMetaBg = isTrendyol ? "#fff7ed" : "#f5f3ff";
+  const themeMetaBorder = isTrendyol ? "#ffedd5" : "#ddd6fe";
+  const themeMetaText = isTrendyol ? "#9a3412" : "#5b21b6";
+
   let reportHtml = `<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <title>Cansızzade - Katman 3 ${isLayer3DipFiyatMode ? 'Dip Fiyat (0 ₺ Kâr)' : 'Önerilen Fiyat'} Karşılaştırma Raporu (${channelName})</title>
   <style>
-    @page { size: A4 portrait; margin: 6mm 7mm; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.15; }
-    .page { page-break-after: always; min-height: 280mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
+    @page { size: A4 portrait; margin: 7mm 8mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 0; font-size: 8.5px; line-height: 1.25; }
+    .page { page-break-after: always; min-height: 278mm; box-sizing: border-box; padding-bottom: 8mm; position: relative; }
     .page:last-child { page-break-after: avoid; }
-    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #7c3aed; padding-bottom: 5px; margin-bottom: 5px; }
-    .header-logo { height: 54px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08)); }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid ${themeBorder}; padding-bottom: 5px; margin-bottom: 6px; }
+    .header-logo { height: 52px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08)); }
     .header-info { text-align: right; }
-    .header-info h1 { margin: 0; font-size: 12px; color: #6d28d9; font-weight: 900; text-transform: uppercase; letter-spacing: -0.3px; }
+    .header-info h1 { margin: 0; font-size: 12px; color: ${themeTitleColor}; font-weight: 900; text-transform: uppercase; letter-spacing: -0.3px; }
     .header-info p { margin: 1px 0 0 0; font-size: 8px; color: #475569; font-weight: 600; }
-    .meta-banner { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 5px; padding: 4px 8px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 8px; font-weight: 600; color: #5b21b6; }
-    .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3.5px 6px; margin-bottom: 5px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
-    .cat-title { background: #6d28d9; color: #ffffff; font-weight: 800; font-size: 9.5px; padding: 3px 6px; border-radius: 3px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-    table { width: 100%; border-collapse: collapse; font-size: 7.5px; margin-bottom: 5px; }
-    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 3.5px 4px; border-bottom: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 7px; }
-    td { padding: 2.5px 4px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    .meta-banner { background: ${themeMetaBg}; border: 1px solid ${themeMetaBorder}; border-radius: 5px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 8px; font-weight: 600; color: ${themeMetaText}; }
+    .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; margin-bottom: 6px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
+    .cat-title { background: ${themeTitleColor}; color: #ffffff; font-weight: 800; font-size: 9.5px; padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 8px; margin-bottom: 6px; }
+    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 5px 5px; border-bottom: 2px solid ${themeBorder}; text-transform: uppercase; font-size: 7.5px; }
+    td { padding: 4.5px 5px; border-bottom: 1px solid #cbd5e1; color: #1e293b; vertical-align: middle; }
     tr:nth-child(even) { background: #f8fafc; }
     .text-right { text-align: right; }
     .text-center { text-align: center; }
@@ -4268,9 +4274,9 @@ function generateLayer3PdfReport() {
     .text-emerald { color: #047857; }
     .text-rose { color: #be123c; }
     .text-blue { color: #1d4ed8; }
-    .badge-above { background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; padding: 1px 4px; border-radius: 3px; font-size: 7px; }
-    .badge-below { background: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; font-weight: 800; padding: 1px 4px; border-radius: 3px; font-size: 7px; }
-    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 3px; }
+    .badge-above { background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 7.5px; }
+    .badge-below { background: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 7.5px; }
+    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 4px; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
 </head>
