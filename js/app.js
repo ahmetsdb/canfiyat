@@ -697,11 +697,8 @@ function switchSimTab(tabId) {
 function calculateCurrentModal() {
   if (!selectedProductId) return;
 
-  if (activeSimTab === "system1") {
-    calculateSystem1Modal();
-  } else if (activeSimTab === "system5") {
-    calculateSystem5Modal();
-  }
+  calculateSystem1Modal();
+  calculateSystem5Modal();
 }
 
 function getModalCostPerKg() {
