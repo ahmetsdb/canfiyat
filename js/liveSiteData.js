@@ -1,60 +1,20 @@
 // Canfiyat Live Site Scraped Data (Official XML Feed: cansizzadeyag.com)
-// Updated automatically from Cansizzade-xml.xml Feed
+// Updated automatically from Cansizzade-xml.xml Feed (Strictly Excluding Endora Sub-Brand)
 
 const LIVE_SITE_SCRAPED_DATA = {
-  'U.0326': {
-    name: 'BERGAMOT UÇUCU YAĞI',
-    samplePrices: { '10ml': 299 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-bergamot-ucucu-yagi-10-ml'
-  },
-  'U.0235': {
-    name: 'BİBERİYE YAĞI',
-    samplePrices: { '10ml': 280 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-biberiye-ucucu-yagi-10-ml'
-  },
-  'U.0320': {
-    name: 'ÇAY AĞACI YAĞI',
-    samplePrices: { '10ml': 290 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-cay-agaci-yagi-10-ml'
-  },
   'T.0407': {
     name: 'DEFNE YAPRAĞI YAĞI',
     samplePrices: { '1000ml': 850, '250ml': 450, '500ml': 750, '5000ml': 2700 },
     url: 'https://www.cansizzadeyag.com/urun/defne-tohumu-yagi-1-kg'
-  },
-  'U.0199': {
-    name: 'NANE UÇUCU YAĞI peppermint',
-    samplePrices: { '10ml': 250 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-nane-ucucu-yagi-10-ml'
-  },
-  'U.0155': {
-    name: 'LAVANTA YAĞI (intermedia)',
-    samplePrices: { '10ml': 300 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-lavanta-ucucu-yagi-10-ml'
   },
   'U.0259': {
     name: 'NİOLİ UÇUCU YAĞI',
     samplePrices: { '10ml': 550, '1000ml': 2200 },
     url: 'https://www.cansizzadeyag.com/urun/nioli-ucucu-yagi-10ml'
   },
-  'U.0248': {
-    name: 'OKALİPTUS YAĞI',
-    samplePrices: { '10ml': 250 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-okaliptus-ucucu-yagi-10-ml'
-  },
-  'U.0154': {
-    name: 'LAVANTA YAĞI (angustifolia)',
-    samplePrices: { '10ml': 300 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-lavanta-ucucu-yagi-10-ml'
-  },
-  'U.0095': {
-    name: 'KEKİK YAĞI',
-    samplePrices: { '10ml': 250 },
-    url: 'https://www.cansizzadeyag.com/urun/kekik-ucucu-yagi-10-ml'
-  },
   'T.0243': {
     name: 'ARGAN YAĞI',
-    samplePrices: { '1000ml': 2200, '5000ml': 1200, '100ml': 500, '30ml': 250 },
+    samplePrices: { '1000ml': 2200, '500ml': 1200 },
     url: 'https://www.cansizzadeyag.com/urun/argan'
   },
   'T.0097': {
@@ -64,18 +24,18 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0245': {
     name: 'AVOKADO YAĞI',
-    samplePrices: { '30ml': 200, '1000ml': 650, '250ml': 350 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-avokado-yagi'
+    samplePrices: { '1000ml': 650, '30ml': 200, '250ml': 350 },
+    url: 'https://www.cansizzadeyag.com/urun/avokado-yagi-1-kg'
   },
   'T.0148': {
     name: 'AYNISEFA YAĞI (CALENDULA)',
-    samplePrices: { '1000ml': 650, '250ml': 350, '100ml': 300, '30ml': 200 },
+    samplePrices: { '1000ml': 650, '250ml': 350 },
     url: 'https://www.cansizzadeyag.com/urun/aynisefa-yagi-1-kg'
   },
   'T.0078': {
     name: 'BADEM YAĞI (TATLI)',
-    samplePrices: { '100ml': 225, '30ml': 220, '1000ml': 480, '5000ml': 1000, '50ml': 190 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-tatli-badem-yagi-100-ml'
+    samplePrices: { '1000ml': 480, '5000ml': 1000, '100ml': 225, '50ml': 190 },
+    url: 'https://www.cansizzadeyag.com/urun/tatli-badem-yagi-kg-1-kg'
   },
   'T.0254': {
     name: 'BAMYA TOHUMU YAĞI',
@@ -84,8 +44,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0013': {
     name: 'BUĞDAY ÖZÜ YAĞI (ruşeym)',
-    samplePrices: { '30ml': 240, '1000ml': 1300, '5000ml': 1400, '100ml': 400, '50ml': 300 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-bugday-ruseym-yagi'
+    samplePrices: { '1000ml': 1300, '5000ml': 1400, '100ml': 400, '50ml': 300 },
+    url: 'https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi-kg-1-kg'
   },
   'T.0147': {
     name: 'CHİA TOHUMU YAĞI',
@@ -96,11 +56,6 @@ const LIVE_SITE_SCRAPED_DATA = {
     name: 'ÇÖREK OTU YAĞI',
     samplePrices: { '1000ml': 1250, '5000ml': 1000, '100ml': 220, '250ml': 850, '50ml': 250 },
     url: 'https://www.cansizzadeyag.com/urun/corek-otu-yagi-kg-1-kg'
-  },
-  'T.0363': {
-    name: 'ÇUHA TOHUMU YAĞI',
-    samplePrices: { '30ml': 450 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-cuhatohumu-yagi'
   },
   'T.0353': {
     name: 'DEFNE TOHUMU YAĞI',
@@ -119,12 +74,12 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0077': {
     name: 'HİNDİSTAN CEVİZİ YAĞI',
-    samplePrices: { '100ml': 199, '1000ml': 750, '5000ml': 3200, '150ml': 290 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-hindistan-cevizi-yagi'
+    samplePrices: { '1000ml': 750, '5000ml': 3200, '150ml': 290 },
+    url: 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-kg-1-kg'
   },
   'T.0155_sabit': {
     name: 'HİNT YAĞI',
-    samplePrices: { '1000ml': 550, '5000ml': 2500, '100ml': 400, '30ml': 200 },
+    samplePrices: { '1000ml': 550, '5000ml': 2500 },
     url: 'https://www.cansizzadeyag.com/urun/hint-yagi-1-kg'
   },
   'T.0366': {
@@ -139,7 +94,7 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0110': {
     name: 'JOJOBA YAĞI',
-    samplePrices: { '250ml': 550, '1000ml': 700, '5000ml': 7000, '100ml': 390, '30ml': 249 },
+    samplePrices: { '250ml': 550, '1000ml': 700, '5000ml': 7000 },
     url: 'https://www.cansizzadeyag.com/urun/jojoba-yagi-250-ml'
   },
   'T.0080': {
@@ -154,13 +109,13 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0082': {
     name: 'KAYISI ÇEKİRDEĞİ YAĞI',
-    samplePrices: { '30ml': 225, '1000ml': 440, '5000ml': 701.39, '100ml': 149, '50ml': 110 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-kayisi-cekirdegi-yagi'
+    samplePrices: { '1000ml': 440, '5000ml': 701.39, '100ml': 149, '50ml': 110 },
+    url: 'https://www.cansizzadeyag.com/urun/kayisi-cekirdegi-yagi-kg-1-kg'
   },
   'T.0209': {
     name: 'KENEVİR TOHUMU YAĞI',
-    samplePrices: { '30ml': 249, '100ml': 399, '1000ml': 850, '250ml': 400 },
-    url: 'https://www.cansizzadeyag.com/urun/kenevir-kendir-tohumu-yagi-30-ml'
+    samplePrices: { '1000ml': 850, '250ml': 400 },
+    url: 'https://www.cansizzadeyag.com/urun/kenevir-kendir-tohumu-yagi-1-kg'
   },
   'T.0083': {
     name: 'KETEN TOHUMU YAĞI',
@@ -169,13 +124,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0104': {
     name: 'KUŞBURNU ÇEKİRDEĞİ YAĞI',
-    samplePrices: { '1000ml': 720, '250ml': 600, '30ml': 250 },
+    samplePrices: { '1000ml': 720, '250ml': 600, '30ml': 240 },
     url: 'https://www.cansizzadeyag.com/urun/kusburnu-cekirdegi-yagi-1-kg'
-  },
-  'T.0270': {
-    name: 'MAKADEMYA YAĞI',
-    samplePrices: { '30ml': 299 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-makademya-yagi'
   },
   'T.0210': {
     name: 'MENENGİÇ TOHUMU YAĞI (bıttım)',
@@ -184,13 +134,13 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0084': {
     name: 'NAR ÇEKİRDEĞİ YAĞI',
-    samplePrices: { '100ml': 299, '30ml': 220, '1000ml': 450, '5000ml': 748.15, '50ml': 200, '250ml': 300 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-nar-cekirdegi-yagi-100-ml'
+    samplePrices: { '1000ml': 450, '5000ml': 748.15, '50ml': 200, '250ml': 300 },
+    url: 'https://www.cansizzadeyag.com/urun/nar-cekirdegi-yagi-kg-1-kg'
   },
   'T.0081': {
     name: 'SARI KANTARON YAĞI',
-    samplePrices: { '100ml': 200, '30ml': 220, '1000ml': 650, '5000ml': 740.74, '50ml': 150, '250ml': 350 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-sari-kantaron-yagi-100-ml'
+    samplePrices: { '1000ml': 650, '5000ml': 740.74, '100ml': 200, '50ml': 150, '250ml': 350 },
+    url: 'https://www.cansizzadeyag.com/urun/sari-kantaron-yagi-kg-1-kg'
   },
   'T.0246': {
     name: 'SARIMSAK YAĞI',
@@ -199,18 +149,13 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0355': {
     name: 'SHEA YAĞI (Refined)',
-    samplePrices: { '1000ml': 1200, '150ml': 500, '5000ml': 580 },
+    samplePrices: { '1000ml': 1200, '150ml': 500, '500ml': 580 },
     url: 'https://www.cansizzadeyag.com/urun/shea-yagi-1kg'
   },
   'T.0085': {
     name: 'SUSAM YAĞI',
-    samplePrices: { '100ml': 390, '30ml': 220, '1000ml': 550, '5000ml': 700, '250ml': 350, '50ml': 200 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-susam-yagi-100-ml'
-  },
-  'T.0365': {
-    name: 'TAMANU YAĞI',
-    samplePrices: { '30ml': 249 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-tamanu-yagi'
+    samplePrices: { '1000ml': 550, '5000ml': 700, '250ml': 350, '50ml': 200 },
+    url: 'https://www.cansizzadeyag.com/urun/susam-yagi-kg-1-kg'
   },
   'T.0272': {
     name: 'UDİ HİNDİ YAĞI',
@@ -219,8 +164,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0086': {
     name: 'ÜZÜM ÇEKİRDEĞİ YAĞI',
-    samplePrices: { '30ml': 220, '100ml': 250, '1000ml': 650, '5000ml': 748.15, '250ml': 350, '50ml': 200 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-uzum-cekirdegi-yagi'
+    samplePrices: { '1000ml': 650, '5000ml': 748.15, '100ml': 250, '250ml': 350, '50ml': 200 },
+    url: 'https://www.cansizzadeyag.com/urun/uzum-cekirdegi-yagi-kg-1-kg'
   },
   'T.0125': {
     name: 'KUDRET NARI YAĞI (Meyveli)',
@@ -239,8 +184,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'A.0200': {
     name: 'BUĞDAY YAĞI',
-    samplePrices: { '30ml': 240, '1000ml': 1300, '5000ml': 1400, '100ml': 400, '50ml': 300 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-bugday-ruseym-yagi'
+    samplePrices: { '1000ml': 1300, '5000ml': 1400, '100ml': 400, '50ml': 300 },
+    url: 'https://www.cansizzadeyag.com/urun/bugday-ruseym-yagi-kg-1-kg'
   },
   'T.0079': {
     name: 'FINDIK YAĞI',
@@ -254,8 +199,8 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0087': {
     name: 'CEVİZ YAĞI',
-    samplePrices: { '100ml': 199, '1000ml': 490, '5000ml': 3200, '150ml': 290, '50ml': 190, '250ml': 300 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-hindistan-cevizi-yagi'
+    samplePrices: { '1000ml': 490, '5000ml': 3200, '150ml': 290, '50ml': 190, '250ml': 300 },
+    url: 'https://www.cansizzadeyag.com/urun/hindistan-cevizi-yagi-kg-1-kg'
   },
   'T.0358': {
     name: 'ASPİR YAĞI',
@@ -264,33 +209,23 @@ const LIVE_SITE_SCRAPED_DATA = {
   },
   'T.0359': {
     name: 'ACI BADEM YAĞI',
-    samplePrices: { '30ml': 200, '100ml': 300, '1000ml': 277.78, '250ml': 500, '5000ml': 1111.11 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-aci-badem-yagi-30-ml'
+    samplePrices: { '1000ml': 277.78, '250ml': 500, '5000ml': 1111.11 },
+    url: 'https://www.cansizzadeyag.com/urun/aci-badem-yagi-1-kg'
   },
   'T.0360': {
     name: 'ÜZERLİK TOHUMU YAĞI',
     samplePrices: { '1000ml': 7000, '250ml': 2250 },
     url: 'https://www.cansizzadeyag.com/urun/uzerlik-tohumu-yagi-kg-1-kg'
   },
-  'T.0361': {
-    name: 'ALOE VERA YAĞI',
-    samplePrices: { '30ml': 250 },
-    url: 'https://www.cansizzadeyag.com/urun/aloe-vera-yagi-30ml'
-  },
   'A.0300': {
     name: 'BİTKİSEL GLİSERİN',
-    samplePrices: { '100ml': 199, '30ml': 119, '5000ml': 900, '1000ml': 250 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-gliserin-farma-100-ml'
+    samplePrices: { '500ml': 180, '1000ml': 250, '5000ml': 900 },
+    url: 'https://www.cansizzadeyag.com/urun/gliserin-farma-0-5-kg'
   },
   'A.0301': {
     name: 'SKUALEN (SQUALENE)',
-    samplePrices: { '30ml': 590, '5000ml': 2200, '1000ml': 4500, '250ml': 1400, '500ml': 2500 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-skualen-yagi-squalene'
-  },
-  'U.0280': {
-    name: 'LİMON UÇUCU YAĞI',
-    samplePrices: { '10ml': 220 },
-    url: 'https://www.cansizzadeyag.com/urun/endora-limon-ucucu-yagi-10-ml'
+    samplePrices: { '500ml': 2500, '1000ml': 3800, '250ml': 1400 },
+    url: 'https://www.cansizzadeyag.com/urun/skualen-squalene-wax-0-5-kg'
   },
   'T.0367': {
     name: 'PAPATYA YAĞI',
