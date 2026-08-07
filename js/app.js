@@ -4260,8 +4260,9 @@ function generateLayer3PdfReport() {
     .legend-banner { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; margin-bottom: 6px; font-size: 7.5px; color: #475569; display: flex; justify-content: space-around; font-weight: 600; }
     .cat-title { background: ${themeTitleColor}; color: #ffffff; font-weight: 800; font-size: 9.5px; padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
     table { width: 100%; border-collapse: collapse; font-size: 8px; margin-bottom: 6px; }
-    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 5px 5px; border-bottom: 2px solid ${themeBorder}; text-transform: uppercase; font-size: 7.5px; }
-    td { padding: 4.5px 5px; border-bottom: 1px solid #cbd5e1; color: #1e293b; vertical-align: middle; }
+    th { background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: left; padding: 6px 5px; border-bottom: 2px solid ${themeBorder}; text-transform: uppercase; font-size: 7.5px; white-space: nowrap; }
+    td { padding: 5.5px 5px; border-bottom: 1.5px solid #cbd5e1; color: #1e293b; vertical-align: middle; font-size: 8px; }
+    td.nowrap { white-space: nowrap; }
     tr:nth-child(even) { background: #f8fafc; }
     .text-right { text-align: right; }
     .text-center { text-align: center; }
@@ -4271,9 +4272,9 @@ function generateLayer3PdfReport() {
     .text-emerald { color: #047857; }
     .text-rose { color: #be123c; }
     .text-blue { color: #1d4ed8; }
-    .badge-above { background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 7.5px; }
-    .badge-below { background: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 7.5px; }
-    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 4px; }
+    .badge-above { background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; padding: 2.5px 6px; border-radius: 4px; font-size: 7.5px; white-space: nowrap; display: inline-block; }
+    .badge-below { background: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; font-weight: 800; padding: 2.5px 6px; border-radius: 4px; font-size: 7.5px; white-space: nowrap; display: inline-block; }
+    .footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-between: space-between; font-size: 7.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 4px; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
 </head>
@@ -4308,28 +4309,28 @@ function generateLayer3PdfReport() {
       <thead>
         <tr>
           <th style="width: 3%;">#</th>
-          <th style="width: 7%;">SKU</th>
-          <th style="width: 20%;">Ürün Adı</th>
-          <th style="width: 8%;" class="text-center">Ambalaj</th>
-          <th style="width: 12%;" class="text-right">Saf Maliyet (Katman 2)</th>
-          <th style="width: 13%;" class="text-right">${isLayer3DipFiyatMode ? '🏁 Dip Fiyat (0 ₺ Kâr)' : '🎯 Önerilen Fiyat (Katman 1)'}</th>
-          <th style="width: 13%;" class="text-right">🛒 Canlı Mağaza Fiyatı</th>
-          <th style="width: 11%;" class="text-right">💰 Canlı Net Kâr</th>
-          <th style="width: 13%;" class="text-center">🏁 Karşılaştırma Durumu</th>
+          <th style="width: 6%;">SKU</th>
+          <th style="width: 22%;">Ürün Adı</th>
+          <th style="width: 7%;" class="text-center">Ambalaj</th>
+          <th style="width: 10%;" class="text-right">Saf Maliyet</th>
+          <th style="width: 11%;" class="text-right">${isLayer3DipFiyatMode ? '🏁 Dip Fiyat' : '🎯 Önerilen'}</th>
+          <th style="width: 11%;" class="text-right">🛒 Canlı Mağaza</th>
+          <th style="width: 11%;" class="text-right">💰 Net Kâr</th>
+          <th style="width: 19%;" class="text-center">🏁 Karşılaştırma Durumu</th>
         </tr>
       </thead>
       <tbody>
         ${sabitItems.length > 0 ? sabitItems.map((item, idx) => `
           <tr>
-            <td class="text-center font-bold">${idx + 1}</td>
-            <td class="font-bold">${item.sku}</td>
+            <td class="text-center font-bold nowrap">${idx + 1}</td>
+            <td class="font-bold nowrap">${item.sku}</td>
             <td class="font-bold text-emerald">${item.name}</td>
-            <td class="text-center font-bold text-blue">${item.volume}</td>
-            <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(item.netCost)} ₺</td>
-            <td class="text-right font-extrabold text-purple">${PriceCalculator.formatTL(item.recPrice)} ₺</td>
-            <td class="text-right font-black text-blue">${PriceCalculator.formatTL(item.livePrice)} ₺</td>
-            <td class="text-right font-bold ${item.liveNetProfit >= 0 ? 'text-emerald' : 'text-rose'}">${PriceCalculator.formatTL(item.liveNetProfit)} ₺</td>
-            <td class="text-center">
+            <td class="text-center font-bold text-blue nowrap">${item.volume}</td>
+            <td class="text-right font-bold text-purple nowrap">${PriceCalculator.formatTL(item.netCost)} ₺</td>
+            <td class="text-right font-extrabold text-purple nowrap">${PriceCalculator.formatTL(item.recPrice)} ₺</td>
+            <td class="text-right font-black text-blue nowrap">${PriceCalculator.formatTL(item.livePrice)} ₺</td>
+            <td class="text-right font-bold ${item.liveNetProfit >= 0 ? 'text-emerald' : 'text-rose'} nowrap">${PriceCalculator.formatTL(item.liveNetProfit)} ₺</td>
+            <td class="text-center nowrap">
               ${item.isAbove
                 ? `<span class="badge-above">🟢 Üstünde (+${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`
                 : `<span class="badge-below">🔴 Düşük (${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`}
@@ -4368,28 +4369,28 @@ function generateLayer3PdfReport() {
       <thead>
         <tr>
           <th style="width: 3%;">#</th>
-          <th style="width: 7%;">SKU</th>
-          <th style="width: 20%;">Ürün Adı</th>
-          <th style="width: 8%;" class="text-center">Ambalaj</th>
-          <th style="width: 12%;" class="text-right">Saf Maliyet (Katman 2)</th>
-          <th style="width: 13%;" class="text-right">🎯 Önerilen Fiyat (Katman 1)</th>
-          <th style="width: 13%;" class="text-right">🛒 Canlı Mağaza Fiyatı</th>
-          <th style="width: 11%;" class="text-right">💰 Canlı Net Kâr</th>
-          <th style="width: 13%;" class="text-center">🏁 Karşılaştırma Durumu</th>
+          <th style="width: 6%;">SKU</th>
+          <th style="width: 22%;">Ürün Adı</th>
+          <th style="width: 7%;" class="text-center">Ambalaj</th>
+          <th style="width: 10%;" class="text-right">Saf Maliyet</th>
+          <th style="width: 11%;" class="text-right">🎯 Önerilen</th>
+          <th style="width: 11%;" class="text-right">🛒 Canlı Mağaza</th>
+          <th style="width: 11%;" class="text-right">💰 Net Kâr</th>
+          <th style="width: 19%;" class="text-center">🏁 Karşılaştırma Durumu</th>
         </tr>
       </thead>
       <tbody>
         ${ucucuItems.map((item, idx) => `
           <tr>
-            <td class="text-center font-bold">${idx + 1}</td>
-            <td class="font-bold">${item.sku}</td>
+            <td class="text-center font-bold nowrap">${idx + 1}</td>
+            <td class="font-bold nowrap">${item.sku}</td>
             <td class="font-bold text-emerald">${item.name}</td>
-            <td class="text-center font-bold text-blue">${item.volume}</td>
-            <td class="text-right font-bold text-purple">${PriceCalculator.formatTL(item.netCost)} ₺</td>
-            <td class="text-right font-extrabold text-purple">${PriceCalculator.formatTL(item.recPrice)} ₺</td>
-            <td class="text-right font-black text-blue">${PriceCalculator.formatTL(item.livePrice)} ₺</td>
-            <td class="text-right font-bold ${item.liveNetProfit >= 0 ? 'text-emerald' : 'text-rose'}">${PriceCalculator.formatTL(item.liveNetProfit)} ₺</td>
-            <td class="text-center">
+            <td class="text-center font-bold text-blue nowrap">${item.volume}</td>
+            <td class="text-right font-bold text-purple nowrap">${PriceCalculator.formatTL(item.netCost)} ₺</td>
+            <td class="text-right font-extrabold text-purple nowrap">${PriceCalculator.formatTL(item.recPrice)} ₺</td>
+            <td class="text-right font-black text-blue nowrap">${PriceCalculator.formatTL(item.livePrice)} ₺</td>
+            <td class="text-right font-bold ${item.liveNetProfit >= 0 ? 'text-emerald' : 'text-rose'} nowrap">${PriceCalculator.formatTL(item.liveNetProfit)} ₺</td>
+            <td class="text-center nowrap">
               ${item.isAbove
                 ? `<span class="badge-above">🟢 Üstünde (+${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`
                 : `<span class="badge-below">🔴 Düşük (${PriceCalculator.formatTL(item.diffPrice)} ₺)</span>`}
