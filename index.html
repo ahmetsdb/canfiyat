@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.31: PDF Rapor Çıktıları Siyah-Beyaz Fotokopi ve Yazıcı Çıktılarında Net Görünecek Şekilde ▲ ÜSTÜNDE ve ▼ DÜŞÜK İkonlarıyla Optimize Edildi">
-                            v3.31 (🖨️ Siyah-Beyaz PDF İkonları ▲ / ▼ Eklendi)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.32: Katman 3 Rozetlerinde ▲ / ▼ Yön Okları Aktif Edildi, Her Ürün Ambalaj Boyutu İçin 🧮 Döküm Butonu ile Açılan Fatura Döküm Modalı Eklendi">
+                            v3.32 (🧾 Katman 3 Ok İkonları & 🧮 Döküm Modalı Eklendi)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -1070,13 +1070,39 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- KATMAN 3 NET KÂR HESAPLAMA FATURASI MODAL  -->
+    <!-- ========================================== -->
+    <div id="layer3-calc-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+        <div class="bg-slate-900 border border-purple-500/40 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
+            <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-lg border border-purple-500/30 shadow-md">🧾</span>
+                    <div>
+                        <h2 id="l3-calc-modal-title" class="text-sm font-extrabold text-white tracking-tight">Net Kâr Hesaplama Dökümü & Faturası</h2>
+                        <p id="l3-calc-modal-subtitle" class="text-[11px] text-slate-400">Katman 1 Pazaryeri Hakedişi ve Katman 2 Saf Üretim Maliyeti Detayı</p>
+                    </div>
+                </div>
+                <button onclick="closeLayer3CalcModal()" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="l3-calc-modal-content" class="p-5 space-y-4 text-xs">
+                <!-- Content renders dynamically via openLayer3CalculationModal(productId, volKey) -->
+            </div>
+        </div>
+    </div>
+
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.31"></script>
-    <script src="js/liveSiteData.js?v=3.31"></script>
-    <script src="js/trendyolData.js?v=3.31"></script>
-    <script src="js/storage.js?v=3.31"></script>
-    <script src="js/calculator.js?v=3.31"></script>
-    <script src="js/app.js?v=3.31"></script>
+    <script src="js/productsData.js?v=3.32"></script>
+    <script src="js/liveSiteData.js?v=3.32"></script>
+    <script src="js/trendyolData.js?v=3.32"></script>
+    <script src="js/storage.js?v=3.32"></script>
+    <script src="js/calculator.js?v=3.32"></script>
+    <script src="js/app.js?v=3.32"></script>
 </body>
 </html>
 

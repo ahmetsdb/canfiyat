@@ -1751,9 +1751,21 @@ function renderLayer3Cards() {
 
           const priceDiff = vLivePrice - vRecommendedPrice;
           if (priceDiff >= 0) {
-            vPriceDiffBadge = `<span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının +${PriceCalculator.formatTL(priceDiff)} ₺ üzerinde">🟢 Önerilen Üstünde (+${PriceCalculator.formatTL(priceDiff)} ₺)</span>`;
+            vPriceDiffBadge = `
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının +${PriceCalculator.formatTL(priceDiff)} ₺ üzerinde">▲ Önerilen Üstünde (+${PriceCalculator.formatTL(priceDiff)} ₺)</span>
+                <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
+                  🧮 Döküm
+                </button>
+              </div>`;
           } else {
-            vPriceDiffBadge = `<span class="text-[10px] bg-red-950 text-red-300 border border-red-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının ${PriceCalculator.formatTL(priceDiff)} ₺ altında!">🔴 Önerilenden Düşük (${PriceCalculator.formatTL(priceDiff)} ₺)</span>`;
+            vPriceDiffBadge = `
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] bg-red-950 text-red-300 border border-red-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının ${PriceCalculator.formatTL(priceDiff)} ₺ altında!">▼ Önerilenden Düşük (${PriceCalculator.formatTL(priceDiff)} ₺)</span>
+                <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
+                  🧮 Döküm
+                </button>
+              </div>`;
           }
         }
 
@@ -1859,8 +1871,12 @@ function renderLayer3Cards() {
             </div>
           </div>
 
-          <!-- 3. Far Right Action Buttons: Prominent "Tüm Boyutlar" & Vector Chain Link -->
+          <!-- 3. Far Right Action Buttons: Prominent "Tüm Boyutlar", "Döküm" & Vector Chain Link -->
           <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openLayer3CalculationModal('${product.id}', '${activeVolKey}')" class="px-2.5 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center gap-1" title="${activeVolKey} Net Kâr Hesaplama Döküm Faturası">
+              <span>🧮 Döküm</span>
+            </button>
+
             <button onclick="toggleCardAccordion('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isExpanded ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950 text-orange-300 border border-orange-700/80' : 'bg-purple-950 text-purple-300 border border-purple-700/80') : 'bg-slate-900 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700'}">
               <span>📊 Tüm Boyutlar ${isExpanded ? '▲' : '▼'}</span>
             </button>
@@ -4423,5 +4439,209 @@ function generateLayer3PdfReport() {
     printWindow.document.close();
   } else {
     alert("Lütfen tarayıcınızın açılır pencere (pop-up) engelleyicisini kaldırın.");
+  }
+}
+
+function openLayer3CalculationModal(productId, volKey) {
+  let productsArr = Object.values(currentProducts || {});
+  if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
+    productsArr = INITIAL_PRODUCTS;
+  }
+  let product = productsArr.find(p => p.id === productId);
+  if (!product) return;
+
+  const channel = currentLayer3Channel || "iyzico";
+  const channelName = channel === "trendyol" ? "Trendyol" : "iyzico";
+  const commRate = channel === "trendyol" ? 19 : 4;
+  const cargoFee = channel === "trendyol" ? 110 : 82.50;
+
+  const overheadConfig = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
+  const calc = getLayer2EffectiveCostForVolume(product, volKey, overheadRes.overheadPerKg);
+
+  let livePrice = null;
+  let siteUrl = "https://www.cansizzadeyag.com/";
+
+  if (channel === "trendyol") {
+    const tyM = findTrendyolProduct(product.name, volKey);
+    if (tyM && tyM.price > 0) {
+      livePrice = tyM.price;
+      if (tyM.url) siteUrl = tyM.url;
+    }
+  } else {
+    const vOverride = StorageManager.getSiteOverride(product.id, volKey);
+    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
+    if (vOverride !== null && !isNaN(parseFloat(vOverride))) {
+      livePrice = parseFloat(vOverride);
+    } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[volKey] === "number" && siteData.samplePrices[volKey] > 0) {
+      livePrice = siteData.samplePrices[volKey];
+    }
+    if (siteData && siteData.urls && siteData.urls[volKey]) {
+      siteUrl = siteData.urls[volKey];
+    } else if (siteData && siteData.url) {
+      siteUrl = siteData.url;
+    }
+  }
+
+  const hasLivePrice = livePrice !== null && livePrice > 0;
+  const commAmt = hasLivePrice ? parseFloat((livePrice * (commRate / 100)).toFixed(2)) : 0;
+  const payout = hasLivePrice ? parseFloat((livePrice - commAmt - cargoFee).toFixed(2)) : 0;
+  const netProfit = hasLivePrice ? parseFloat((payout - calc.effectiveNetCost).toFixed(2)) : 0;
+
+  const targetProfit = isLayer3DipFiyatMode ? 0 : calc.targetProfit;
+  const sys1 = PriceCalculator.calculateSystem1Channel({
+    wholesaleCost: calc.effectiveNetCost,
+    targetProfit: targetProfit,
+    commission: commRate,
+    cargo: cargoFee
+  });
+  const recPrice = sys1.salePrice;
+  const diffPrice = hasLivePrice ? livePrice - recPrice : 0;
+
+  const isAbove = diffPrice >= 0;
+
+  const titleEl = document.getElementById("l3-calc-modal-title");
+  const subTitleEl = document.getElementById("l3-calc-modal-subtitle");
+  const contentEl = document.getElementById("l3-calc-modal-content");
+
+  if (titleEl) titleEl.innerText = `${product.name} (${volKey}) - Net Kâr Hesaplama Dökümü`;
+  if (subTitleEl) subTitleEl.innerText = `${channelName.toUpperCase()} Kanalı | SKU: ${product.sku} | Katman 1 ve Katman 2 Detaylı Hesap Adımları`;
+
+  if (contentEl) {
+    contentEl.innerHTML = `
+      <!-- Product Quick Header Info -->
+      <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div>
+          <span class="font-bold text-white text-sm">${product.name}</span>
+          <span class="text-slate-400 font-mono text-[11px] ml-2">SKU: ${product.sku}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800/60 font-black text-xs">
+            📌 Ambalaj: ${volKey}
+          </span>
+          <span class="px-2.5 py-1 rounded-lg ${channel === 'trendyol' ? 'bg-orange-950 text-orange-300 border-orange-800' : 'bg-purple-950 text-purple-300 border-purple-800'} font-bold text-xs">
+            ${channelName}
+          </span>
+        </div>
+      </div>
+
+      <!-- SECTION 1: KATMAN 1 PAZARYERİ / MAĞAZA SATIŞ HAKEDİŞİ -->
+      <div class="bg-slate-950/90 rounded-xl p-3.5 border border-amber-500/30 space-y-2">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <span class="font-extrabold text-amber-300 text-xs flex items-center gap-1.5">
+            🛒 1. KATMAN 1 SATIŞ VE BANKA HAKEDİŞİ DÖKÜMÜ
+          </span>
+          <span class="text-[10px] text-slate-400 font-mono">Pazaryeri Parametreleri</span>
+        </div>
+
+        <table class="w-full text-left text-xs border-collapse">
+          <tbody>
+            <tr class="border-b border-slate-800/60">
+              <td class="py-1.5 text-slate-300">🛒 Canlı Mağaza Satış Fiyatı:</td>
+              <td class="py-1.5 text-right font-black text-amber-300">${hasLivePrice ? PriceCalculator.formatTL(livePrice) + ' ₺' : '⚪ Canlı Fiyat Bulunamadı'}</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 text-rose-400">
+              <td class="py-1.5">📉 Pazaryeri Komisyonu (%${commRate}):</td>
+              <td class="py-1.5 text-right font-bold">-${PriceCalculator.formatTL(commAmt)} ₺</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 text-rose-400">
+              <td class="py-1.5">📦 Kargo Gönderim Kesintisi:</td>
+              <td class="py-1.5 text-right font-bold">-${PriceCalculator.formatTL(cargoFee)} ₺</td>
+            </tr>
+            <tr class="bg-slate-900/90 font-black text-amber-300">
+              <td class="py-2 px-1">➡ NET BANKA HAKEDİŞİ (Mağazanıza Geçen Net Para):</td>
+              <td class="py-2 px-1 text-right text-sm">${PriceCalculator.formatTL(payout)} ₺</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SECTION 2: KATMAN 2 SAF ÜRETİM VE AMBALAJ MALİYETİ -->
+      <div class="bg-slate-950/90 rounded-xl p-3.5 border border-cyan-500/30 space-y-2">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <span class="font-extrabold text-cyan-300 text-xs flex items-center gap-1.5">
+            🌿 2. KATMAN 2 SAF ÜRETİM VE AMBALAJ MALİYETİ DÖKÜMÜ
+          </span>
+          <span class="text-[10px] text-slate-400 font-mono">Fabrika Reçete Maliyeti</span>
+        </div>
+
+        <table class="w-full text-left text-xs border-collapse">
+          <tbody>
+            <tr class="border-b border-slate-800/60">
+              <td class="py-1.5 text-slate-300">🌿 Bitkisel Ham Yağ Reçetesi (${volKey}):</td>
+              <td class="py-1.5 text-right font-bold text-slate-200">${PriceCalculator.formatTL(calc.rawOilCost)} ₺</td>
+            </tr>
+            <tr class="border-b border-slate-800/60">
+              <td class="py-1.5 text-slate-300">🍾 Şişe + Etiket + Paketleme Malzemesi:</td>
+              <td class="py-1.5 text-right font-bold text-slate-200">${PriceCalculator.formatTL(calc.packCost)} ₺</td>
+            </tr>
+            <tr class="border-b border-slate-800/60">
+              <td class="py-1.5 text-slate-300">👨‍🔧 Birim Dolum ve Etiketleme İşçiliği:</td>
+              <td class="py-1.5 text-right font-bold text-slate-200">${PriceCalculator.formatTL(calc.laborAssemblyFee)} ₺</td>
+            </tr>
+            <tr class="border-b border-slate-800/60">
+              <td class="py-1.5 text-slate-300">🏭 Fabrika Tesis Gider Payı (Maaş/Elektrik/SGK):</td>
+              <td class="py-1.5 text-right font-bold text-slate-200">${PriceCalculator.formatTL(calc.linearOverhead)} ₺</td>
+            </tr>
+            <tr class="bg-slate-900/90 font-black text-slate-100">
+              <td class="py-2 px-1">➡ TOPLAM SAF ÜRETİM MALİYETİ (KDV Korumalı Dip):</td>
+              <td class="py-2 px-1 text-right text-sm text-purple-300">${PriceCalculator.formatTL(calc.effectiveNetCost)} ₺</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SECTION 3: FİNAL NET KÂR VE KATMAN 1 KARŞILAŞTIRMASI -->
+      <div class="bg-slate-950/90 rounded-xl p-3.5 border ${netProfit >= 0 ? 'border-emerald-500/40 bg-emerald-950/20' : 'border-rose-500/40 bg-rose-950/20'} space-y-2">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <span class="font-black text-xs flex items-center gap-1.5 ${netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+            💰 3. FİNAL NET KÂR VE KATMAN 1 KARŞILAŞTIRMA SONUCU
+          </span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isAbove ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-rose-950 text-rose-300 border border-rose-800'}">
+            ${isAbove ? '▲ Önerilen Üstünde' : '▼ Önerilenden Düşük'}
+          </span>
+        </div>
+
+        <div class="space-y-1.5 text-xs">
+          <div class="flex justify-between items-center text-slate-300">
+            <span>Katman 1 Önerilen Satış Fiyatı (${isLayer3DipFiyatMode ? '0 ₺ Kâr' : '+70 ₺ Kâr'}):</span>
+            <span class="font-extrabold text-amber-300">🎯 ${PriceCalculator.formatTL(recPrice)} ₺</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-300">
+            <span>Formül Hesabı:</span>
+            <span class="font-bold text-slate-200">Banka Hakedişi (${PriceCalculator.formatTL(payout)} ₺) - Saf Maliyet (${PriceCalculator.formatTL(calc.effectiveNetCost)} ₺)</span>
+          </div>
+          <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <span class="font-black text-white text-sm">BU SATIŞTAN NET KÂRINIZ:</span>
+            <span class="font-black text-base ${netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+              ${netProfit >= 0 ? '▲ +' : '▼ '}${PriceCalculator.formatTL(netProfit)} ₺
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <a href="${siteUrl}" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 transition-all font-bold text-xs inline-flex items-center gap-1.5">
+          <span>🔗 Mağaza Bağlantısını Aç</span>
+        </a>
+        <button onclick="closeLayer3CalcModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all cursor-pointer">
+          Kapat
+        </button>
+      </div>
+    `;
+  }
+
+  const modal = document.getElementById("layer3-calc-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+}
+
+function closeLayer3CalcModal() {
+  const modal = document.getElementById("layer3-calc-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
   }
 }
