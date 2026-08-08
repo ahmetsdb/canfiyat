@@ -2224,24 +2224,10 @@ function getLayer2VolumeOptionsHtml(vol, product) {
     `;
   }
 
-  const pId = product ? (product.id || product.sku) : null;
-  const siteData = (pId && typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[pId] : null;
-
-  let availableVols = [];
-  if (siteData && siteData.samplePrices && Object.keys(siteData.samplePrices).length > 0) {
-    availableVols = Object.keys(siteData.samplePrices);
-  } else if (product && product.volumes) {
-    availableVols = Object.keys(product.volumes);
-  } else {
-    availableVols = ["1000ml"];
-  }
-
-  if (vol && !availableVols.includes(vol)) {
-    availableVols.push(vol);
-  }
+  const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
 
   const volLabels = {
-    "10ml": "10 ml (Uçucu)",
+    "10ml": "10 ml",
     "20ml": "20 ml",
     "30ml": "30 ml",
     "50ml": "50 ml",
@@ -2253,7 +2239,7 @@ function getLayer2VolumeOptionsHtml(vol, product) {
     "5000ml": "5000 ml (5 KG)"
   };
 
-  return availableVols.map(v => {
+  return allVols.map(v => {
     const label = volLabels[v] || v;
     return `<option value="${v}" ${vol === v ? "selected" : ""}>${label}</option>`;
   }).join("");
@@ -2328,7 +2314,7 @@ function renderLayer2Cards() {
           kg = customKg > 0 ? customKg : 30;
           vol = `${kg}KG`;
         } else {
-          const validVolumes = ["20ml", "30ml", "50ml", "100ml", "250ml", "500ml", "1000ml", "5000ml"];
+          const validVolumes = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
           if (!vol || !validVolumes.includes(vol)) {
             vol = "1000ml";
           }
