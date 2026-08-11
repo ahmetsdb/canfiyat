@@ -2410,20 +2410,30 @@ function renderLayer2Cards() {
           : (wholesaleMarginMode === 'percent' ? 20 : 200);
 
         const isWholesaleSupply = (supplyType === "wholesale");
-        const linearOverhead = isWholesaleSupply
-          ? 0.00
-          : parseFloat((overheadRes.overheadPerKg * kg).toFixed(2));
+        let linearOverhead = 0;
+        let laborAssemblyFee = 0;
+        let totalOverhead = 0;
 
-        const totalOverhead = isWholesaleSupply
-          ? PriceCalculator.getOverheadForVolume(vol, 0)
-          : PriceCalculator.getOverheadForVolume(vol, overheadRes.overheadPerKg);
+        if (isWholesaleSupply) {
+            linearOverhead = 0;
+            laborAssemblyFee = 0;
+            totalOverhead = 0;
+        } else {
+            const overheadData = PriceCalculator.getOverheadForVolume(
+                vol,
+                overheadRes.energyOverheadPerKg,
+                overheadRes.laborOverheadPerKg
+            );
+            linearOverhead = overheadData.linearVolumeOverhead;
+            laborAssemblyFee = overheadData.laborAssemblyFee;
+            totalOverhead = overheadData.totalOverhead;
+        }
 
         const inputVatRate = (product.inputVatRate !== undefined && product.inputVatRate !== null)
           ? parseFloat(product.inputVatRate)
           : (parseFloat(product.kdv) || 1);
         const salesVatRate = parseFloat(product.kdv) || 1;
 
-        const laborAssemblyFee = parseFloat(Math.max(0, totalOverhead - linearOverhead).toFixed(2));
         const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
 
         // 🛡️ İki Yönlü KDV Koruma Motoru (VAT Rate Mismatch Tax Neutralization Engine)
@@ -2772,8 +2782,8 @@ function renderLayer2Cards() {
                         ${supplyType === 'wholesale' ? `
                           <p>• <strong>Toptan Alınan Yağlarda Tesis Payı:</strong> <strong>0,00 ₺</strong> (Dışarıdan dökme alındığı için fabrika presi çalışmaz).</p>
                         ` : `
-                          <p>• <strong>Aylık Tesis & Enerji Masraf Payı:</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} ₺ / KG</p>
-                          <p>• <strong>Sipariş Tesis Payı:</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)} ₺</strong></p>
+                          <p>• <strong>Aylık Tesis & Enerji Masraf Payı (Elektrik+Kira):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} ₺ / KG</p>
+                          <p>• <strong>Sipariş Tesis Payı (Lineer Hacim):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)} ₺</strong></p>
                         `}
                       </div>
                     ` : ''}
@@ -2791,8 +2801,9 @@ function renderLayer2Cards() {
                     ${openLayer2BreakdownInfos[product.id]?.item4 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-indigo-500/40 text-xs text-indigo-200 space-y-1.5 animate-slide-up">
                         <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1">💡 4. KALEM (İŞÇİLİK HİZMETİ) NASIL HESAPLANDI?</div>
-                        <p>• <strong>Dolum & Paketleme İşçiliği:</strong> Ambalaj tipine göre kapak sıkma, etiketleme, bidon dolumu ve paletleme işçilik payıdır.</p>
-                        <p>• <strong>Bu Sipariş İçin Toplam İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)} ₺</strong></p>
+                        <p>• <strong>Taban İşçilik Payı (Maaş+SGK vb.):</strong> ${PriceCalculator.formatTL(overheadRes.laborOverheadPerKg)} ₺ / KG</p>
+                        <p>• <strong>Ambalaj Zorluk Katsayısı (${vol}):</strong> ×${(laborAssemblyFee / (overheadRes.laborOverheadPerKg * kg)).toFixed(1)} Çarpan</p>
+                        <p>• <strong>Sipariş İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)} ₺</strong></p>
                       </div>
                     ` : ''}
                   </div>
