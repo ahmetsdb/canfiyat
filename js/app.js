@@ -2410,24 +2410,21 @@ function renderLayer2Cards() {
           : (wholesaleMarginMode === 'percent' ? 20 : 200);
 
         const isWholesaleSupply = (supplyType === "wholesale");
-        let linearOverhead = 0;
-        let laborAssemblyFee = 0;
-        let totalOverhead = 0;
+        
+        // Toptan alım (dışarıdan tedarik) ise fabrika presi çalışmaz (Enerji Payı = 0),
+        // Ama işçiler bu yağı şişelemek zorundadır, bu yüzden İşçilik Payı hesaplanmalıdır!
+        const energyOverheadToUse = isWholesaleSupply ? 0 : overheadRes.energyOverheadPerKg;
+        const laborOverheadToUse = overheadRes.laborOverheadPerKg;
 
-        if (isWholesaleSupply) {
-            linearOverhead = 0;
-            laborAssemblyFee = 0;
-            totalOverhead = 0;
-        } else {
-            const overheadData = PriceCalculator.getOverheadForVolume(
-                vol,
-                overheadRes.energyOverheadPerKg,
-                overheadRes.laborOverheadPerKg
-            );
-            linearOverhead = overheadData.linearVolumeOverhead;
-            laborAssemblyFee = overheadData.laborAssemblyFee;
-            totalOverhead = overheadData.totalOverhead;
-        }
+        const overheadData = PriceCalculator.getOverheadForVolume(
+            vol,
+            energyOverheadToUse,
+            laborOverheadToUse
+        );
+        
+        const linearOverhead = overheadData.linearVolumeOverhead;
+        const laborAssemblyFee = overheadData.laborAssemblyFee;
+        const totalOverhead = overheadData.totalOverhead;
 
         const inputVatRate = (product.inputVatRate !== undefined && product.inputVatRate !== null)
           ? parseFloat(product.inputVatRate)
@@ -2802,7 +2799,7 @@ function renderLayer2Cards() {
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-indigo-500/40 text-xs text-indigo-200 space-y-1.5 animate-slide-up">
                         <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1">💡 4. KALEM (İŞÇİLİK HİZMETİ) NASIL HESAPLANDI?</div>
                         <p>• <strong>Taban İşçilik Payı (Maaş+SGK vb.):</strong> ${PriceCalculator.formatTL(overheadRes.laborOverheadPerKg)} ₺ / KG</p>
-                        <p>• <strong>Ambalaj Zorluk Katsayısı (${vol}):</strong> ×${(laborAssemblyFee / (overheadRes.laborOverheadPerKg * kg)).toFixed(1)} Çarpan</p>
+                        <p>• <strong>Ambalaj Zorluk Katsayısı (${vol}):</strong> ×${(overheadRes.laborOverheadPerKg > 0 && kg > 0) ? (laborAssemblyFee / (overheadRes.laborOverheadPerKg * kg)).toFixed(1) : "0.0"} Çarpan</p>
                         <p>• <strong>Sipariş İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)} ₺</strong></p>
                       </div>
                     ` : ''}
