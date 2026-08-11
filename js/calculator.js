@@ -339,6 +339,10 @@ class PriceCalculator {
       cargoFee: kargo,
       payout,
       wholesaleCost: maliyet,
+      extraSalesVatOwed,
+      kargoKdv,
+      commKdv,
+      totalVatRefund,
       netVatImpact,
       netProfit
     };
