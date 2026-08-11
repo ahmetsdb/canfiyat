@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=3.35">
+    <link rel="stylesheet" href="css/styles.css?v=3.36">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.35: KDV Mahsup Detay Analizleri ve Ferahlatılmış Arayüz">
-                            v3.35 (🛡️ KDV Mahsup & Ferah Arayüz)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.36: Ferahlatılmış Modül ve Araç Çubuğu Düzeni">
+                            v3.36 (🛡️ Ferah Modül Düzeni)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -435,61 +435,70 @@
                 </div>
             </div>
 
-            <!-- UNIFIED COMPACT CONTROL TOOLBAR (SINGLE ROW ALL INPUTS) -->
-            <div class="px-4 py-2 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <!-- UNIFIED FERAH CONTROL TOOLBAR (2-ROW SPACIOUS & CLEAN DESIGN) -->
+            <div class="px-5 py-3 bg-slate-950 border-b border-slate-800 space-y-2.5 text-xs">
                 
-                <!-- BOTTLE SIZE DROPDOWN MENU -->
-                <div class="flex items-center gap-1.5">
-                    <label for="modal-volume-select" class="font-extrabold text-blue-400 uppercase text-[11px] flex items-center gap-1">
-                        🧴 Ambalaj:
-                    </label>
-                    <select id="modal-volume-select" onchange="selectModalVolumeDropdown(this.value)" class="bg-slate-900 border border-blue-500/60 text-white font-extrabold text-xs px-2.5 py-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400 cursor-pointer shadow-sm">
-                        <option value="20ml">20 ml (Şişe: 6.00 ₺)</option>
-                        <option value="30ml">30 ml (Şişe: 6.75 ₺)</option>
-                        <option value="50ml">50 ml (Şişe: 7.25 ₺)</option>
-                        <option value="100ml">100 ml (Şişe: 8.35 ₺)</option>
-                        <option value="250ml" selected>250 ml (Şişe: 14.50 ₺)</option>
-                        <option value="300ml">300 ml (Şişe: 18.00 ₺)</option>
-                        <option value="500ml">500 ml (Şişe: 25.00 ₺)</option>
-                        <option value="1000ml">1000 ml / 1kg (Şişe: 35.00 ₺)</option>
-                    </select>
-                </div>
-
-                <!-- 1KG WHOLESALE COST & KDV INPUT -->
-                <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1.5">
-                        <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-bold">🌾 1KG Toptan:</label>
-                        <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-16 bg-slate-900 border border-slate-700 text-white font-black text-xs px-2 py-0.5 rounded-lg text-center focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
-                    </div>
-                    <div class="flex items-center gap-1 bg-slate-800/40 p-0.5 pr-1 rounded-lg border border-slate-700/60">
-                        <span class="text-slate-400 text-[10px] font-bold pl-1">KDV:</span>
-                        <select id="slot-kdv-rate" class="w-14 bg-slate-950 border border-slate-600 text-white font-black text-[11px] px-1 py-0.5 rounded text-center focus:outline-none focus:border-blue-400 cursor-pointer" onchange="calculateCurrentModal()">
-                            <option value="1">%1</option>
-                            <option value="20" selected>%20</option>
+                <!-- ROW 1: PRODUCTION & COST INPUTS -->
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <!-- BOTTLE SIZE DROPDOWN MENU -->
+                    <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-blue-500/40 shadow-sm">
+                        <label for="modal-volume-select" class="font-extrabold text-blue-400 uppercase text-[11px] flex items-center gap-1 shrink-0">
+                            🧴 Ambalaj:
+                        </label>
+                        <select id="modal-volume-select" onchange="selectModalVolumeDropdown(this.value)" class="bg-slate-950 border border-blue-500/60 text-white font-extrabold text-xs px-2 py-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400 cursor-pointer">
+                            <option value="20ml">20 ml (Şişe: 6.00 ₺)</option>
+                            <option value="30ml">30 ml (Şişe: 6.75 ₺)</option>
+                            <option value="50ml">50 ml (Şişe: 7.25 ₺)</option>
+                            <option value="100ml">100 ml (Şişe: 8.35 ₺)</option>
+                            <option value="250ml" selected>250 ml (Şişe: 14.50 ₺)</option>
+                            <option value="300ml">300 ml (Şişe: 18.00 ₺)</option>
+                            <option value="500ml">500 ml (Şişe: 25.00 ₺)</option>
+                            <option value="1000ml">1000 ml / 1kg (Şişe: 35.00 ₺)</option>
                         </select>
                     </div>
+
+                    <!-- 1KG WHOLESALE COST INPUT -->
+                    <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700/60">
+                        <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-bold shrink-0">🌾 1KG Toptan:</label>
+                        <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-24 bg-slate-950 border border-slate-700 text-white font-black text-xs px-2.5 py-1 rounded-lg text-center focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
+                        <span class="text-slate-400 text-[11px]">₺/KG</span>
+                    </div>
+
+                    <!-- KDV SELECTOR -->
+                    <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700/60">
+                        <label for="slot-kdv-rate" class="text-slate-300 text-[11px] font-bold shrink-0">🏷️ KDV Oranı:</label>
+                        <select id="slot-kdv-rate" class="w-20 bg-slate-950 border border-slate-700 text-white font-black text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:border-blue-400 cursor-pointer" onchange="calculateCurrentModal()">
+                            <option value="1">%1 (Gıda/Tohum)</option>
+                            <option value="20" selected>%20 (Kozmetik/Uçucu)</option>
+                        </select>
+                    </div>
+
+                    <!-- PACKAGING COST INPUT -->
+                    <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700/60">
+                        <label for="slot-packaging-cost" class="text-slate-300 text-[11px] font-bold shrink-0">📦 Şişe + Etiket:</label>
+                        <input type="number" id="slot-packaging-cost" value="14.50" min="0" step="any" class="w-20 bg-slate-950 border border-slate-700 text-white font-bold text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
+                        <span class="text-slate-400 text-[11px]">₺</span>
+                    </div>
                 </div>
 
-                <!-- PACKAGING COST INPUT -->
-                <div class="flex items-center gap-1.5">
-                    <label for="slot-packaging-cost" class="text-slate-300 text-[11px] font-bold">📦 Şişe+Etiket:</label>
-                    <input type="number" id="slot-packaging-cost" value="14.50" min="0" step="any" class="w-16 bg-slate-900 border border-slate-700 text-white font-bold text-xs px-2 py-0.5 rounded-lg text-center focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
-                    <span class="text-slate-400 text-[11px]">₺</span>
-                </div>
+                <!-- ROW 2: PROFIT TARGET & CALCULATED UNIT COST -->
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-1 border-t border-slate-800/60">
+                    <!-- TARGET PROFIT INPUT & FAST BUTTONS -->
+                    <div class="flex items-center gap-2.5 bg-emerald-950/30 px-3.5 py-1.5 rounded-xl border border-emerald-800/40">
+                        <label for="slot-target-profit" class="text-emerald-400 text-[11px] font-extrabold shrink-0">🎯 Target Kâr:</label>
+                        <input type="number" id="slot-target-profit" value="70" min="0" step="any" class="w-20 bg-emerald-950 border border-emerald-800 text-emerald-300 font-black text-xs px-2 py-1 rounded-lg text-center" oninput="calculateCurrentModal()">
+                        <span class="text-emerald-400 text-[11px]">₺</span>
+                        <div class="flex items-center gap-1.5 ml-2">
+                            <button onclick="setZeroProfitFloor()" class="text-[10px] font-extrabold text-rose-300 bg-rose-950 px-2 py-1 rounded-lg border border-rose-800/80 hover:bg-rose-900 transition-all cursor-pointer">🔴 Dip (0₺)</button>
+                            <button onclick="setDefaultProfit70()" class="text-[10px] font-extrabold text-emerald-300 bg-emerald-950 px-2 py-1 rounded-lg border border-emerald-800/80 hover:bg-emerald-900 transition-all cursor-pointer">🟢 70₺</button>
+                        </div>
+                    </div>
 
-                <!-- TARGET PROFIT INPUT & FAST BUTTONS -->
-                <div class="flex items-center gap-1.5">
-                    <label for="slot-target-profit" class="text-emerald-400 text-[11px] font-extrabold">🎯 Target Kâr:</label>
-                    <input type="number" id="slot-target-profit" value="70" min="0" step="any" class="w-16 bg-emerald-950/60 border border-emerald-800 text-emerald-300 font-black text-xs px-2 py-0.5 rounded-lg text-center" oninput="calculateCurrentModal()">
-                    <span class="text-emerald-400 text-[11px]">₺</span>
-                    <button onclick="setZeroProfitFloor()" class="text-[9px] font-extrabold text-rose-300 bg-rose-950 px-1.5 py-0.5 rounded border border-rose-800 hover:bg-rose-900 transition-all">🔴 Dip (0₺)</button>
-                    <button onclick="setDefaultProfit70()" class="text-[9px] font-extrabold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800 hover:bg-emerald-900 transition-all">🟢 70₺</button>
-                </div>
-
-                <!-- CALCULATED UNIT COST BADGE -->
-                <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
-                    <span class="text-slate-400 text-[11px] font-semibold">⚡ Birim Maliyet:</span>
-                    <span id="calculated-unit-cost" class="font-black text-white text-xs md:text-sm">0.00 ₺</span>
+                    <!-- CALCULATED UNIT COST BADGE -->
+                    <div class="flex items-center gap-2 bg-blue-950/60 px-4 py-1.5 rounded-xl border border-blue-800/60 shadow-md">
+                        <span class="text-blue-300 text-[11px] font-extrabold">⚡ Saf Birim Maliyet:</span>
+                        <span id="calculated-unit-cost" class="font-black text-white text-sm md:text-base">0.00 ₺</span>
+                    </div>
                 </div>
             </div>
 
@@ -1111,12 +1120,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.35"></script>
-    <script src="js/liveSiteData.js?v=3.35"></script>
-    <script src="js/trendyolData.js?v=3.35"></script>
-    <script src="js/storage.js?v=3.35"></script>
-    <script src="js/calculator.js?v=3.35"></script>
-    <script src="js/app.js?v=3.35"></script>
+    <script src="js/productsData.js?v=3.36"></script>
+    <script src="js/liveSiteData.js?v=3.36"></script>
+    <script src="js/trendyolData.js?v=3.36"></script>
+    <script src="js/storage.js?v=3.36"></script>
+    <script src="js/calculator.js?v=3.36"></script>
+    <script src="js/app.js?v=3.36"></script>
 </body>
 
 
