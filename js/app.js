@@ -766,6 +766,11 @@ function calculateSystem1Modal() {
   if(document.getElementById("s1_kdv_ty")) {
     document.getElementById("s1_kdv_ty").innerText = (tyRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(tyRes.netVatImpact || 0));
     document.getElementById("s1_kdv_ty").className = "val font-semibold text-[10px] " + (tyRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
+    document.getElementById("s1_kdv_detail_ty").innerHTML = `
+      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(tyRes.extraSalesVatOwed)}</strong></span>
+      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(tyRes.totalVatRefund)}</strong> (Kar:${PriceCalculator.formatTL(tyRes.kargoKdv)}|Kom:${PriceCalculator.formatTL(tyRes.commKdv)})</span>
+    `;
+    if(tyRes.extraSalesVatOwed === 0 && tyRes.totalVatRefund === 0) document.getElementById("s1_kdv_detail_ty").innerHTML = `<span>Sıfır Kâr = Sıfır KDV Mahsuplaşması</span>`;
   }
   document.getElementById("s1_profit_ty").innerText = PriceCalculator.formatTL(tyRes.netProfit);
 
@@ -779,6 +784,11 @@ function calculateSystem1Modal() {
   if(document.getElementById("s1_kdv_hb")) {
     document.getElementById("s1_kdv_hb").innerText = (hbRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(hbRes.netVatImpact || 0));
     document.getElementById("s1_kdv_hb").className = "val font-semibold text-[10px] " + (hbRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
+    document.getElementById("s1_kdv_detail_hb").innerHTML = `
+      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(hbRes.extraSalesVatOwed)}</strong></span>
+      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(hbRes.totalVatRefund)}</strong> (Kar:${PriceCalculator.formatTL(hbRes.kargoKdv)}|Kom:${PriceCalculator.formatTL(hbRes.commKdv)})</span>
+    `;
+    if(hbRes.extraSalesVatOwed === 0 && hbRes.totalVatRefund === 0) document.getElementById("s1_kdv_detail_hb").innerHTML = `<span>Sıfır Kâr = Sıfır KDV Mahsuplaşması</span>`;
   }
   document.getElementById("s1_profit_hb").innerText = PriceCalculator.formatTL(hbRes.netProfit);
 
@@ -792,6 +802,11 @@ function calculateSystem1Modal() {
   if(document.getElementById("s1_kdv_iy")) {
     document.getElementById("s1_kdv_iy").innerText = (iyRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(iyRes.netVatImpact || 0));
     document.getElementById("s1_kdv_iy").className = "val font-semibold text-[10px] " + (iyRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
+    document.getElementById("s1_kdv_detail_iy").innerHTML = `
+      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(iyRes.extraSalesVatOwed)}</strong></span>
+      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(iyRes.totalVatRefund)}</strong> (Kar:${PriceCalculator.formatTL(iyRes.kargoKdv)}|Kom:${PriceCalculator.formatTL(iyRes.commKdv)})</span>
+    `;
+    if(iyRes.extraSalesVatOwed === 0 && iyRes.totalVatRefund === 0) document.getElementById("s1_kdv_detail_iy").innerHTML = `<span>Sıfır Kâr = Sıfır KDV Mahsuplaşması</span>`;
   }
   document.getElementById("s1_profit_iy").innerText = PriceCalculator.formatTL(iyRes.netProfit);
 }
@@ -891,29 +906,57 @@ function calculateSystem5Modal() {
   // 1. Avantajlı
   const priceAv = parseFloat(document.getElementById("s5_price_av").value) || 0;
   const commAv = parseFloat(document.getElementById("s5_comm_av").value) || 15;
+  const kdvRate = parseFloat(document.getElementById("slot-kdv-rate").value) || 20;
   const commAmtAv = priceAv * (commAv / 100);
   const payoutAv = priceAv - commAmtAv - cargo;
-  const profitAv = payoutAv - unitCost;
+  
+  const extraVatAv = (priceAv - unitCost) * (kdvRate / (100 + kdvRate));
+  const kargoKdv = cargo - (cargo / 1.20);
+  const commKdvAv = commAmtAv - (commAmtAv / 1.20);
+  const refundAv = kargoKdv + commKdvAv;
+  const netVatAv = extraVatAv - refundAv;
+  
+  const profitAv = payoutAv - unitCost - netVatAv;
 
   // 2. Çok Avantajlı
   const priceCak = parseFloat(document.getElementById("s5_price_cak").value) || 0;
   const commCak = parseFloat(document.getElementById("s5_comm_cak").value) || 14.6;
   const commAmtCak = priceCak * (commCak / 100);
   const payoutCak = priceCak - commAmtCak - cargo;
-  const profitCak = payoutCak - unitCost;
+  
+  const extraVatCak = (priceCak - unitCost) * (kdvRate / (100 + kdvRate));
+  const commKdvCak = commAmtCak - (commAmtCak / 1.20);
+  const refundCak = kargoKdv + commKdvCak;
+  const netVatCak = extraVatCak - refundCak;
+  
+  const profitCak = payoutCak - unitCost - netVatCak;
 
   // 3. Süper Avantajlı
   const priceSup = parseFloat(document.getElementById("s5_price_sup").value) || 0;
   const commSup = parseFloat(document.getElementById("s5_comm_sup").value) || 12.5;
   const commAmtSup = priceSup * (commSup / 100);
   const payoutSup = priceSup - commAmtSup - cargo;
-  const profitSup = payoutSup - unitCost;
+  
+  const extraVatSup = (priceSup - unitCost) * (kdvRate / (100 + kdvRate));
+  const commKdvSup = commAmtSup - (commAmtSup / 1.20);
+  const refundSup = kargoKdv + commKdvSup;
+  const netVatSup = extraVatSup - refundSup;
+  
+  const profitSup = payoutSup - unitCost - netVatSup;
 
   // Render Avantajlı Card
   document.getElementById("s5_res_comm_av").innerText = `-${PriceCalculator.formatTL(commAmtAv)}`;
   document.getElementById("s5_res_cargo_av").innerText = `-${PriceCalculator.formatTL(cargo)}`;
   document.getElementById("s5_res_payout_av").innerText = PriceCalculator.formatTL(payoutAv);
   document.getElementById("s5_res_cost_av").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
+  if(document.getElementById("s5_kdv_av")) {
+    document.getElementById("s5_kdv_av").innerText = (netVatAv > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(netVatAv || 0));
+    document.getElementById("s5_kdv_av").className = "val font-semibold text-[10px] " + (netVatAv > 0 ? "text-rose-400" : "text-emerald-400");
+    document.getElementById("s5_kdv_detail_av").innerHTML = `
+      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(extraVatAv)}</strong></span>
+      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(refundAv)}</strong> (Kar:${PriceCalculator.formatTL(kargoKdv)}|Kom:${PriceCalculator.formatTL(commKdvAv)})</span>
+    `;
+  }
   const elProfAv = document.getElementById("s5_res_profit_av");
   if (profitAv < 0) {
     elProfAv.className = "val font-black text-rose-400 text-xs";
@@ -928,6 +971,14 @@ function calculateSystem5Modal() {
   document.getElementById("s5_res_cargo_cak").innerText = `-${PriceCalculator.formatTL(cargo)}`;
   document.getElementById("s5_res_payout_cak").innerText = PriceCalculator.formatTL(payoutCak);
   document.getElementById("s5_res_cost_cak").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
+  if(document.getElementById("s5_kdv_cak")) {
+    document.getElementById("s5_kdv_cak").innerText = (netVatCak > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(netVatCak || 0));
+    document.getElementById("s5_kdv_cak").className = "val font-semibold text-[10px] " + (netVatCak > 0 ? "text-rose-400" : "text-emerald-400");
+    document.getElementById("s5_kdv_detail_cak").innerHTML = `
+      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(extraVatCak)}</strong></span>
+      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(refundCak)}</strong> (Kar:${PriceCalculator.formatTL(kargoKdv)}|Kom:${PriceCalculator.formatTL(commKdvCak)})</span>
+    `;
+  }
   const elProfCak = document.getElementById("s5_res_profit_cak");
   if (profitCak < 0) {
     elProfCak.className = "val font-black text-rose-400 text-xs";
@@ -942,6 +993,14 @@ function calculateSystem5Modal() {
   document.getElementById("s5_res_cargo_sup").innerText = `-${PriceCalculator.formatTL(cargo)}`;
   document.getElementById("s5_res_payout_sup").innerText = PriceCalculator.formatTL(payoutSup);
   document.getElementById("s5_res_cost_sup").innerText = `-${PriceCalculator.formatTL(unitCost)}`;
+  if(document.getElementById("s5_kdv_sup")) {
+    document.getElementById("s5_kdv_sup").innerText = (netVatSup > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(netVatSup || 0));
+    document.getElementById("s5_kdv_sup").className = "val font-semibold text-[10px] " + (netVatSup > 0 ? "text-rose-400" : "text-emerald-400");
+    document.getElementById("s5_kdv_detail_sup").innerHTML = `
+      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(extraVatSup)}</strong></span>
+      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(refundSup)}</strong> (Kar:${PriceCalculator.formatTL(kargoKdv)}|Kom:${PriceCalculator.formatTL(commKdvSup)})</span>
+    `;
+  }
   const elProfSup = document.getElementById("s5_res_profit_sup");
   if (profitSup < 0) {
     elProfSup.className = "val font-black text-rose-400 text-xs";
@@ -2885,7 +2944,7 @@ function renderLayer2Cards() {
                           ` : `
                             💡 Alış ve Satış KDV oranlarınız birebir eşittir (%${salesVatRate}). Cebinizden çıkan KDV dahil harcamanız başa baş satış maliyetinize tam eşittir.
                           `}
-                          <br><br><span class="text-sky-400 font-semibold block mt-1">ℹ️ Not: Pazaryeri (Trendyol vs.) Kargo ve Komisyon faturalarınızdan düşülecek olan KDV İadesi (Mahsup), bu dökümde değil Katman 1 (Pazaryeri Simülasyonu) paneli içerisinde hesaplanmaktadır.</span>
+                          <br><br><span class="text-sky-400 font-semibold block mt-1">ℹ️ Not: Pazaryeri (Trendyol vs.) Kargo ve Komisyon faturalarınızdan düşülecek olan KDV İadesi (Mahsup), bu saf üretim dökümünde değil; hemen aşağıdaki pazar yeri kartlarında ve Katman 1 (Pazaryeri Simülasyonu) paneli içerisinde hesaplanıp detaylarıyla gösterilmektedir.</span>
                         </p>
                       </div>
                     ` : ''}
