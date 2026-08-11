@@ -2936,7 +2936,8 @@ function renderLayer2Cards() {
                         </div>
 
                         <!-- Tek Satır Temiz İzah Metni -->
-                        <p class="text-[11px] text-slate-400 italic border-t border-slate-800/80 pt-1.5 leading-relaxed">
+                        <div class="text-[11px] text-slate-400 italic border-t border-slate-800/80 pt-2 pb-1 space-y-2.5 leading-relaxed">
+                          <p>
                           ${inputVatRate === 1 && salesVatRate === 20 ? `
                             💡 Tohum KDV'niz (%1) Satış KDV'nizden (%20) düşük olduğu için devlete cebinizden vergi ödememeniz adına vergi koruma dengesi eklenmiştir.
                           ` : inputVatRate === 20 && salesVatRate === 1 ? `
@@ -2944,8 +2945,11 @@ function renderLayer2Cards() {
                           ` : `
                             💡 Alış ve Satış KDV oranlarınız birebir eşittir (%${salesVatRate}). Cebinizden çıkan KDV dahil harcamanız başa baş satış maliyetinize tam eşittir.
                           `}
-                          <br><br><span class="text-sky-400 font-semibold block mt-1">ℹ️ Not: Pazaryeri (Trendyol vs.) Kargo ve Komisyon faturalarınızdan düşülecek olan KDV İadesi (Mahsup), bu saf üretim dökümünde değil; hemen aşağıdaki pazar yeri kartlarında ve Katman 1 (Pazaryeri Simülasyonu) paneli içerisinde hesaplanıp detaylarıyla gösterilmektedir.</span>
-                        </p>
+                          </p>
+                          <div class="text-sky-400 font-semibold bg-sky-950/30 p-2 rounded-lg border border-sky-900/40">
+                            ℹ️ Not: Pazaryeri (Trendyol vs.) Kargo ve Komisyon faturalarınızdan düşülecek olan KDV İadesi (Mahsup), bu saf üretim dökümünde değil; hemen aşağıdaki pazar yeri kartlarında ve Katman 1 (Pazaryeri Simülasyonu) paneli içerisinde hesaplanıp detaylarıyla gösterilmektedir.
+                          </div>
+                        </div>
                       </div>
                     ` : ''}
                   </div>

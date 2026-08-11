@@ -456,14 +456,18 @@
                 </div>
 
                 <!-- 1KG WHOLESALE COST & KDV INPUT -->
-                <div class="flex items-center gap-1.5">
-                    <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-bold">🌾 1KG Toptan:</label>
-                    <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-16 bg-slate-900 border border-slate-700 text-white font-black text-xs px-2 py-0.5 rounded-lg text-center focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
-                    <span class="text-slate-400 text-[11px] ml-1">KDV:</span>
-                    <select id="slot-kdv-rate" class="w-14 bg-slate-900 border border-slate-700 text-white font-black text-xs px-1 py-0.5 rounded-lg text-center focus:outline-none focus:border-blue-400" onchange="calculateCurrentModal()">
-                        <option value="1">%1</option>
-                        <option value="20" selected>%20</option>
-                    </select>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <label for="slot-cost-per-kg" class="text-slate-300 text-[11px] font-bold">🌾 1KG Toptan:</label>
+                        <input type="number" id="slot-cost-per-kg" value="1000" min="0" step="any" class="w-16 bg-slate-900 border border-slate-700 text-white font-black text-xs px-2 py-0.5 rounded-lg text-center focus:outline-none focus:border-blue-400" oninput="calculateCurrentModal()">
+                    </div>
+                    <div class="flex items-center gap-1 bg-slate-800/40 p-0.5 pr-1 rounded-lg border border-slate-700/60">
+                        <span class="text-slate-400 text-[10px] font-bold pl-1">KDV:</span>
+                        <select id="slot-kdv-rate" class="w-14 bg-slate-950 border border-slate-600 text-white font-black text-[11px] px-1 py-0.5 rounded text-center focus:outline-none focus:border-blue-400 cursor-pointer" onchange="calculateCurrentModal()">
+                            <option value="1">%1</option>
+                            <option value="20" selected>%20</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- PACKAGING COST INPUT -->
