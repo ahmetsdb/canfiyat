@@ -581,7 +581,9 @@ class PriceCalculator {
   }
 
   static formatTL(val) {
-    if (isNaN(val)) return "0.00 ₺";
-    return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(val);
+    if (isNaN(val) || val === null || val === undefined) return "0,00 ₺";
+    const num = Math.abs(val);
+    const formatted = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+    return `${val < 0 ? "-" : ""}${formatted} ₺`;
   }
 }

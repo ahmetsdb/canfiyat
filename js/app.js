@@ -2804,25 +2804,25 @@ function renderLayer2Cards() {
                         ${supplyType === 'wholesale' ? `1. 📦 Toptan Dökme Yağ Payı (${vol})` : isMaceration ? `1. 🌿 Maserasyon Yağ Payı (${vol})` : `1. 🌾 Sıkım Yağ Payı (${vol})`}
                         <span class="text-[10px] text-sky-400 bg-sky-950 px-1.5 py-0.2 rounded border border-sky-800/80">ℹ️ Formül / Detay</span>
                       </span>
-                      <span class="font-extrabold text-cyan-300 text-xs">${PriceCalculator.formatTL(rawOilCost)} ₺</span>
+                      <span class="font-extrabold text-cyan-300 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item1 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-sky-500/40 text-xs text-sky-200 space-y-1.5 animate-slide-up">
                         <div class="font-bold text-sky-300 border-b border-slate-800 pb-1">💡 1. KALEM (HAM YAĞ) NASIL HESAPLANDI?</div>
                         ${supplyType === 'wholesale' ? `
-                          <p>• <strong>Toptan Dökme Yağ Alış Fiyatı:</strong> ${PriceCalculator.formatTL(costPerKg)} ₺ / KG (%${kdvRate} KDV Dahil)</p>
-                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)} ₺</strong></p>
+                          <p>• <strong>Toptan Dökme Yağ Alış Fiyatı:</strong> ${PriceCalculator.formatTL(costPerKg)} / KG (%${kdvRate} KDV Dahil)</p>
+                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)}</strong></p>
                         ` : isMaceration ? `
-                          <p>• <strong>Zeytinyağı Alış Fiyatı:</strong> ${PriceCalculator.formatTL(oliveOilCost)} ₺ / KG (%${kdvRate} KDV Dahil)</p>
-                          <p>• <strong>Ot/Bitki Alış Fiyatı:</strong> ${PriceCalculator.formatTL(herbCost)} ₺ / KG (Kullanılan Oran: ${macerationRes.calculatedRatio} KG Ot / 1 KG Yağ)</p>
-                          <p>• <strong>1 KG Maserasyon Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(costPerKg)} ₺ / KG</p>
-                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)} ₺</strong></p>
+                          <p>• <strong>Zeytinyağı Alış Fiyatı:</strong> ${PriceCalculator.formatTL(oliveOilCost)} / KG (%${kdvRate} KDV Dahil)</p>
+                          <p>• <strong>Ot/Bitki Alış Fiyatı:</strong> ${PriceCalculator.formatTL(herbCost)} / KG (Kullanılan Oran: ${macerationRes.calculatedRatio} KG Ot / 1 KG Yağ)</p>
+                          <p>• <strong>1 KG Maserasyon Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(costPerKg)} / KG</p>
+                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)}</strong></p>
                         ` : `
-                          <p>• <strong>Hammadde (Tohum) Alış Fiyatı:</strong> ${PriceCalculator.formatTL(seedCost)} ₺ / KG (%${kdvRate} KDV Dahil)</p>
+                          <p>• <strong>Hammadde (Tohum) Alış Fiyatı:</strong> ${PriceCalculator.formatTL(seedCost)} / KG (%${kdvRate} KDV Dahil)</p>
                           <p>• <strong>Pres Verimi:</strong> %${yieldPct} (100 KG tohumdan ${yieldPct} KG saf yağ elde edilir)</p>
                           <p>• <strong>Dip / Tortu Fire Durumu:</strong> ${dipStatus === 'has_dip' && dipPercent > 0 ? `%${dipPercent} Fire Var` : 'Dip Yok (%0 Fire)'}</p>
-                          <p>• <strong>1 KG Saf Sıkım Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(costPerKg)} ₺ / KG</p>
-                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)} ₺</strong></p>
+                          <p>• <strong>1 KG Saf Sıkım Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(costPerKg)} / KG</p>
+                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)}</strong></p>
                         `}
                       </div>
                     ` : ''}
@@ -2835,12 +2835,12 @@ function renderLayer2Cards() {
                         2. 🍾 Ambalaj Maliyeti (${layer2GroupMode === 'wholesale_drums' ? 'Sanayi Bidonları' : 'Şişe + Kapak + Kutu'})
                         <span class="text-[10px] text-sky-400 bg-sky-950 px-1.5 py-0.2 rounded border border-sky-800/80">ℹ️ Detay</span>
                       </span>
-                      <span class="font-extrabold text-sky-300 text-xs">${PriceCalculator.formatTL(packCost)} ₺</span>
+                      <span class="font-extrabold text-sky-300 text-xs">${PriceCalculator.formatTL(packCost)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item2 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-sky-500/40 text-xs text-sky-200 space-y-1.5 animate-slide-up">
                         <p>• <strong>Seçilen Ambalaj Dağılımı:</strong> ${layer2GroupMode === 'wholesale_drums' ? (wholesalePack?.breakdownText || `${kg} KG Bidon`) : vol}</p>
-                        <p>• <strong>Toplam Ambalaj Gideri:</strong> <strong>${PriceCalculator.formatTL(packCost)} ₺</strong></p>
+                        <p>• <strong>Toplam Ambalaj Gideri:</strong> <strong>${PriceCalculator.formatTL(packCost)}</strong></p>
                       </div>
                     ` : ''}
                   </div>
@@ -2852,7 +2852,7 @@ function renderLayer2Cards() {
                         3. ⚡ Tesis & Enerji Masraf Payı ${supplyType === 'wholesale' ? '(0 ₺ Toptan Alış)' : ''}
                         <span class="text-[10px] text-purple-400 bg-purple-950 px-1.5 py-0.2 rounded border border-purple-800/80">ℹ️ Detay</span>
                       </span>
-                      <span class="font-extrabold ${supplyType === 'wholesale' ? 'text-slate-400' : 'text-purple-300'} text-xs">${PriceCalculator.formatTL(linearOverhead)} ₺</span>
+                      <span class="font-extrabold ${supplyType === 'wholesale' ? 'text-slate-400' : 'text-purple-300'} text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item3 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-purple-500/40 text-xs text-purple-200 space-y-1.5 animate-slide-up">
@@ -2860,8 +2860,8 @@ function renderLayer2Cards() {
                         ${supplyType === 'wholesale' ? `
                           <p>• <strong>Toptan Alınan Yağlarda Tesis Payı:</strong> <strong>0,00 ₺</strong> (Dışarıdan dökme alındığı için fabrika presi çalışmaz).</p>
                         ` : `
-                          <p>• <strong>Aylık Tesis & Enerji Masraf Payı (Elektrik+Kira):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} ₺ / KG</p>
-                          <p>• <strong>Sipariş Tesis Payı (Lineer Hacim):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)} ₺</strong></p>
+                          <p>• <strong>Aylık Tesis & Enerji Masraf Payı (Elektrik+Kira):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} / KG</p>
+                          <p>• <strong>Sipariş Tesis Payı (Lineer Hacim):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)}</strong></p>
                         `}
                       </div>
                     ` : ''}
@@ -2874,14 +2874,14 @@ function renderLayer2Cards() {
                         4. 🛠️ Dolum & Paketleme İşçilik Payı
                         <span class="text-[10px] text-indigo-400 bg-indigo-950 px-1.5 py-0.2 rounded border border-indigo-800/80">ℹ️ Formül / Detay</span>
                       </span>
-                      <span class="font-extrabold text-indigo-300 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)} ₺</span>
+                      <span class="font-extrabold text-indigo-300 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item4 ? `
                       <div class="mt-2 p-2.5 bg-slate-900 rounded-xl border border-indigo-500/40 text-xs text-indigo-200 space-y-1.5 animate-slide-up">
                         <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1">💡 4. KALEM (İŞÇİLİK HİZMETİ) NASIL HESAPLANDI?</div>
-                        <p>• <strong>Taban İşçilik Payı (Maaş+SGK vb.):</strong> ${PriceCalculator.formatTL(overheadRes.laborOverheadPerKg)} ₺ / KG</p>
+                        <p>• <strong>Taban İşçilik Payı (Maaş+SGK vb.):</strong> ${PriceCalculator.formatTL(overheadRes.laborOverheadPerKg)} / KG</p>
                         <p>• <strong>Ambalaj Zorluk Katsayısı (${vol}):</strong> ×${(overheadRes.laborOverheadPerKg > 0 && kg > 0) ? (laborAssemblyFee / (overheadRes.laborOverheadPerKg * kg)).toFixed(1) : "0.0"} Çarpan</p>
-                        <p>• <strong>Sipariş İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)} ₺</strong></p>
+                        <p>• <strong>Sipariş İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)}</strong></p>
                       </div>
                     ` : ''}
                   </div>
@@ -2893,31 +2893,31 @@ function renderLayer2Cards() {
                         🏁 SAF FABRİKA ÜRETİM MALİYETİ (KÂRSIZ NET GİDER)
                         <span class="text-[10px] text-amber-200 bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800/80">ℹ️ Formül / Detay</span>
                       </span>
-                      <span class="text-amber-300 text-sm shrink-0 font-black">${PriceCalculator.formatTL(netCost)} ₺</span>
+                      <span class="text-amber-300 text-sm shrink-0 font-black">${PriceCalculator.formatTL(netCost)}</span>
                     </div>
                     ${taxProtection.hasMismatch ? `
                       <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-800/80">
                         <span class="text-emerald-400 font-bold flex items-center gap-1">
                           🛡️ KDV KORUMALI DİP SATIŞ MALİYETİ (Alış %${inputVatRate} ➔ Satış %${salesVatRate}):
                         </span>
-                        <span class="font-extrabold text-emerald-300 text-sm">${PriceCalculator.formatTL(effectiveNetCost)} ₺</span>
+                        <span class="font-extrabold text-emerald-300 text-sm">${PriceCalculator.formatTL(effectiveNetCost)}</span>
                       </div>
                     ` : ''}
                     ${openLayer2BreakdownInfos[product.id]?.item5 ? `
                       <div class="mt-2.5 p-3 bg-slate-900/95 rounded-xl border border-amber-500/40 text-xs text-slate-200 space-y-2 animate-slide-up shadow-lg">
                         <!-- Toplama Satırı (Yan Yana Temiz Izgara) -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px]">
-                          <div><span class="text-slate-400 block">1. Yağ:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(rawOilCost)} ₺</span></div>
-                          <div><span class="text-slate-400 block">2. Ambalaj:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(packCost)} ₺</span></div>
-                          <div><span class="text-slate-400 block">3. Tesis:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(linearOverhead)} ₺</span></div>
-                          <div><span class="text-slate-400 block">4. İşçilik:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(laborAssemblyFee)} ₺</span></div>
+                          <div><span class="text-slate-400 block">1. Yağ:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(rawOilCost)}</span></div>
+                          <div><span class="text-slate-400 block">2. Ambalaj:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(packCost)}</span></div>
+                          <div><span class="text-slate-400 block">3. Tesis:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(linearOverhead)}</span></div>
+                          <div><span class="text-slate-400 block">4. İşçilik:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(laborAssemblyFee)}</span></div>
                         </div>
 
                         <!-- Dip Toplam ve KDV Analiz Satırı -->
                         <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-2 text-xs">
                           <div class="flex items-center gap-2">
                             <span class="font-bold text-amber-300">= Net Üretim Maliyeti:</span>
-                            <span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(netCost)} ₺</span>
+                            <span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(netCost)}</span>
                           </div>
 
                           <!-- KDV Rozeti ve Kısa Özellik -->
