@@ -300,8 +300,8 @@ class PriceCalculator {
   }
 
   // SYSTEM 1: Toptan Maliyet + Hedef Kâr -> Kanal Satış Fiyatları & Hakediş (100% Banka Hakediş Kuruş Hassasiyeti)
-  static calculateSystem1Channel({ wholesaleCost, targetProfit, commission, discount, cargo, salesVatRate = 20 }) {
-    const maliyet = parseFloat(wholesaleCost) || 0; // KDV Korumalı Dip Maliyet (İçinde Satış KDV'si var)
+  static calculateSystem1Channel({ salesVatRate, wholesaleCost, targetProfit, commission, discount, cargo }) {
+    const maliyet = parseFloat(wholesaleCost) || 0;
     const kar = parseFloat(targetProfit) || 0;
     const comm = parseFloat(commission) || 0;
     const disc = parseFloat(discount) || 0;
@@ -311,61 +311,36 @@ class PriceCalculator {
     const commDec = comm / 100;
     const discDec = disc / 100;
 
-    // --- KDV MAHSUPLU %100 SAF KÂR FORMÜLÜ ---
-    // Net Kâr = (KDV'siz Satış) - (KDV'siz Komisyon) - (KDV'siz Kargo) - (KDV'siz Maliyet)
-    // Satış Fiyatı = (KDV'siz Maliyet + KDV'siz Kargo + Hedef Net Kâr) / [ (1 / (1 + ÜrünKDV)) - (Komisyon / 1.20) ]
-
-    // 1. KDV'siz Ham Maliyet (Mevcut maliyet Katman 2'den çıkarken KDV eklenmiş haldedir, içinden KDV'yi süzüyoruz)
     const netMaliyetVatFree = maliyet / (1 + (sVat / 100));
-
-    // 2. KDV'siz Kargo (Pazaryeri faturaları yasal olarak hep %20 KDV'lidir)
     const kargoVatFree = kargo / 1.20;
-
-    // 3. İhtiyaç Duyulan KDV'siz Toplam Gelir
     const neededRevenueVatFree = netMaliyetVatFree + kargoVatFree + kar;
 
-    // 4. Alt Payda ( 1 / 1.KDV ) - ( Komisyon / 1.20 )
-    let denominator = (1 / (1 + (sVat / 100))) - (commDec / 1.20);
-    if (denominator < 0.05) denominator = 0.05; // Aşırı yüksek komisyonlarda patlamayı önle
+    let denominator = (1 / (1 + (sVat / 100))) - (commDec / 1.20) - discDec;
+    if (denominator < 0.05) denominator = 0.05;
 
-    // 5. Pazaryerine Yansıyacak Gerçek Etiket Satış Fiyatı
     const salePrice = parseFloat((neededRevenueVatFree / denominator).toFixed(2));
+    const listPrice = parseFloat((salePrice / (1 - discDec)).toFixed(2));
     
-    // İndirimli Liste Fiyatı
-    const discFactor = discDec >= 1 ? 0.99 : (1 - discDec);
-    const listPrice = parseFloat((salePrice / discFactor).toFixed(2));
-    
-    // 6. Pazaryeri Kesintileri ve Bankaya Yatan
     const commAmount = parseFloat((salePrice * commDec).toFixed(2));
     const payout = parseFloat((salePrice - commAmount - kargo).toFixed(2));
 
-    // 7. KDV Mahsup ve Vergi Etkisi Analizi (Kullanıcıya açıklamak için)
-    // a. Satış fiyatını maliyetin üzerine çıkardığımız için doğan EK Satış KDV'si yükü
     const extraSalesVatOwed = parseFloat(((salePrice - maliyet) * (sVat / (100 + sVat))).toFixed(2));
-    
-    // b. Trendyol Kargo ve Komisyon faturalarından devletten geri alacağımız (Mahsup) KDV İadesi
     const kargoKdv = kargo - kargoVatFree;
     const commKdv = commAmount - (commAmount / 1.20);
     const totalVatRefund = parseFloat((kargoKdv + commKdv).toFixed(2));
-
-    // c. Net KDV Etkisi (Cebimizden Çıkan Ek Vergi) = Ek Satış KDV'si - KDV İadesi
     const netVatImpact = parseFloat((extraSalesVatOwed - totalVatRefund).toFixed(2));
 
-    // 8. Gerçek Net Kâr (Bankaya yatan eksi maliyet EKSİ devlete ödenecek ek vergi)
-    // Matematiksel olarak bu değer tamı tamına `kar` değişkenine eşit olmalıdır.
     const netProfit = parseFloat((payout - maliyet - netVatImpact).toFixed(2));
 
     return {
-      listPrice: listPrice,
-      salePrice: salePrice,
-      commAmount: commAmount,
-      cargoFee: parseFloat(kargo.toFixed(2)),
-      payout: payout,
-      wholesaleCost: parseFloat(maliyet.toFixed(2)),
-      netProfit: netProfit,
-      extraSalesVatOwed: extraSalesVatOwed,
-      totalVatRefund: totalVatRefund,
-      netVatImpact: netVatImpact
+      listPrice,
+      salePrice,
+      commAmount,
+      cargoFee: kargo,
+      payout,
+      wholesaleCost: maliyet,
+      netVatImpact,
+      netProfit
     };
   }
 
