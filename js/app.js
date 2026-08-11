@@ -2650,24 +2650,39 @@ function renderLayer2Cards() {
 
                 <!-- Sadece Net Fiyatların & Kâr/Zarar Durumunun Konuştuğu Rozet (Row View) -->
                 <div class="flex items-center gap-2 shrink-0">
-                  <div class="bg-gradient-to-r from-emerald-950/90 to-slate-950 px-3 py-1.5 rounded-xl border ${isProfit ? 'border-emerald-500/60' : 'border-rose-500/80'} shadow-md text-right min-w-[175px]">
-                    <div class="flex items-center justify-end gap-1">
-                      <span class="text-[9px] font-black uppercase ${isProfit ? 'text-emerald-400' : 'text-rose-400'} tracking-wider">1 KG TEKLİF FİYATI:</span>
-                      <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950/90 px-1 py-0.2 rounded border border-emerald-800/80">%${kdvRate} KDV</span>
+                  ${layer2GroupMode === 'wholesale_drums' ? `
+                    <div class="bg-gradient-to-r from-emerald-950/90 to-slate-950 px-3 py-1.5 rounded-xl border ${isProfit ? 'border-emerald-500/60' : 'border-rose-500/80'} shadow-md text-right min-w-[175px]">
+                      <div class="flex items-center justify-end gap-1">
+                        <span class="text-[9px] font-black uppercase ${isProfit ? 'text-emerald-400' : 'text-rose-400'} tracking-wider">1 KG B2B TEKLİF FİYATI:</span>
+                        <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950/90 px-1 py-0.2 rounded border border-emerald-800/80">%${kdvRate} KDV</span>
+                      </div>
+                      <div class="text-base font-black text-emerald-300 tracking-tight leading-tight my-0.5">
+                        ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-[10px] font-bold text-emerald-400">/ KG</span>
+                      </div>
+                      <div class="flex items-center justify-end gap-1 text-[9px] font-bold">
+                        ${Math.abs(profitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950/90 px-1.5 py-0.2 rounded border border-amber-800/80">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : profitPerKg > 0 ? `
+                          <span class="text-emerald-400 bg-emerald-950/90 px-1.5 py-0.2 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(profitPerKg)}₺)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-1.5 py-0.2 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(profitPerKg)}₺)</span>
+                        `}
+                      </div>
                     </div>
-                    <div class="text-base font-black text-emerald-300 tracking-tight leading-tight my-0.5">
-                      ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-[10px] font-bold text-emerald-400">/ KG</span>
-                    </div>
-                    <div class="flex items-center justify-end gap-1 text-[9px] font-bold">
-                      ${Math.abs(profitPerKg) < 0.01 ? `
+                  ` : `
+                    <div class="bg-gradient-to-r from-sky-950/90 to-slate-950 px-3 py-1.5 rounded-xl border border-sky-500/60 shadow-md text-right min-w-[175px]">
+                      <div class="flex items-center justify-end gap-1">
+                        <span class="text-[9px] font-black uppercase text-sky-400 tracking-wider">NET ÜRETİM MALİYETİ:</span>
+                        <span class="text-[9px] font-bold text-sky-300 bg-sky-950/90 px-1 py-0.2 rounded border border-sky-800/80">%${kdvRate} KDV</span>
+                      </div>
+                      <div class="text-base font-black text-sky-300 tracking-tight leading-tight my-0.5">
+                        ${PriceCalculator.formatTL(effectiveNetCost)} <span class="text-[10px] font-bold text-sky-400">/ ${vol}</span>
+                      </div>
+                      <div class="flex items-center justify-end gap-1 text-[9px] font-bold">
                         <span class="text-amber-300 bg-amber-950/90 px-1.5 py-0.2 rounded border border-amber-800/80">🏁 DİP MALİYET (0₺ KÂR)</span>
-                      ` : profitPerKg > 0 ? `
-                        <span class="text-emerald-400 bg-emerald-950/90 px-1.5 py-0.2 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(profitPerKg)}₺)</span>
-                      ` : `
-                        <span class="text-rose-300 bg-rose-950 px-1.5 py-0.2 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(profitPerKg)}₺)</span>
-                      `}
+                      </div>
                     </div>
-                  </div>
+                  `}
 
                   <!-- DİKEY BUTON GRUBU (3 BUTON ÜST ÜSTE DİZİLİ - DAR ENİYLE YER TASARRUFU SAĞLAR) -->
                   <div class="flex flex-col gap-1 shrink-0">
