@@ -748,6 +748,10 @@ function calculateSystem1Modal() {
   document.getElementById("s1_rec_comm_ty").innerText = `-${PriceCalculator.formatTL(tyRes.commAmount)}`;
   document.getElementById("s1_hakedis_ty").innerText = PriceCalculator.formatTL(tyRes.payout);
   document.getElementById("s1_rec_maliyet_ty").innerText = `-${PriceCalculator.formatTL(tyRes.wholesaleCost)}`;
+  if(document.getElementById("s1_kdv_ty")) {
+    document.getElementById("s1_kdv_ty").innerText = (tyRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(tyRes.netVatImpact || 0));
+    document.getElementById("s1_kdv_ty").className = "val font-semibold text-[10px] " + (tyRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
+  }
   document.getElementById("s1_profit_ty").innerText = PriceCalculator.formatTL(tyRes.netProfit);
 
   document.getElementById("s1_list_hb").innerText = PriceCalculator.formatTL(hbRes.listPrice);
@@ -757,6 +761,10 @@ function calculateSystem1Modal() {
   document.getElementById("s1_rec_comm_hb").innerText = `-${PriceCalculator.formatTL(hbRes.commAmount)}`;
   document.getElementById("s1_hakedis_hb").innerText = PriceCalculator.formatTL(hbRes.payout);
   document.getElementById("s1_rec_maliyet_hb").innerText = `-${PriceCalculator.formatTL(hbRes.wholesaleCost)}`;
+  if(document.getElementById("s1_kdv_hb")) {
+    document.getElementById("s1_kdv_hb").innerText = (hbRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(hbRes.netVatImpact || 0));
+    document.getElementById("s1_kdv_hb").className = "val font-semibold text-[10px] " + (hbRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
+  }
   document.getElementById("s1_profit_hb").innerText = PriceCalculator.formatTL(hbRes.netProfit);
 
   document.getElementById("s1_list_iy").innerText = PriceCalculator.formatTL(iyRes.listPrice);
@@ -766,6 +774,10 @@ function calculateSystem1Modal() {
   document.getElementById("s1_rec_comm_iy").innerText = `-${PriceCalculator.formatTL(iyRes.commAmount)}`;
   document.getElementById("s1_hakedis_iy").innerText = PriceCalculator.formatTL(iyRes.payout);
   document.getElementById("s1_rec_maliyet_iy").innerText = `-${PriceCalculator.formatTL(iyRes.wholesaleCost)}`;
+  if(document.getElementById("s1_kdv_iy")) {
+    document.getElementById("s1_kdv_iy").innerText = (iyRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(iyRes.netVatImpact || 0));
+    document.getElementById("s1_kdv_iy").className = "val font-semibold text-[10px] " + (iyRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
+  }
   document.getElementById("s1_profit_iy").innerText = PriceCalculator.formatTL(iyRes.netProfit);
 }
 
