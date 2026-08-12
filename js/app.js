@@ -4746,3 +4746,20 @@ function closeLayer3CalcModal() {
     modal.classList.remove("flex");
   }
 }
+
+// Manual or automatic sync function to push Chrome local storage into Supabase Cloud
+async function syncChromeToSupabase() {
+  if (typeof StorageManager === "undefined" || !StorageManager.seedSupabaseDatabase) {
+    alert("⚠️ Depolama yöneticisi hazır değil.");
+    return;
+  }
+
+  const products = StorageManager.getProducts();
+  const res = await StorageManager.seedSupabaseDatabase(products);
+
+  if (res && res.success) {
+    alert(`☁️ Başarılı! Toplam ${res.count} adet ürün ve fiyat ayarı Chrome hafızasından Supabase Bulut Veritabanına aktarıldı ve yedeklendi.`);
+  } else {
+    alert(`⚠️ Supabase Bulut Aktarım Uyarısı: ${res?.error || 'Veritabanına ulaşılamadı'}`);
+  }
+}

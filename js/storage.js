@@ -246,7 +246,9 @@ class StorageManager {
   }
 
   static async seedSupabaseDatabase(productsMap) {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+      return { success: false, error: "Supabase istemcisi başlatılamadı." };
+    }
 
     try {
       const rows = Object.values(productsMap).map(p => ({
@@ -260,14 +262,17 @@ class StorageManager {
         updated_at: new Date().toISOString()
       }));
 
-      const { error } = await supabaseClient.from("products").upsert(rows);
+      const { data, error } = await supabaseClient.from("products").upsert(rows);
       if (error) {
         console.warn("Supabase seed warning:", error.message);
+        return { success: false, error: error.message };
       } else {
-        console.log("Supabase database synced successfully!");
+        console.log("Supabase database synced successfully!", rows.length);
+        return { success: true, count: rows.length };
       }
     } catch (e) {
       console.error("Seed error:", e);
+      return { success: false, error: e.message || String(e) };
     }
   }
 
