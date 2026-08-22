@@ -234,9 +234,12 @@ class StorageManager {
           }
         });
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(currentLocal));
+        // Auto-sync any browser-side edits straight into Supabase Cloud DB
+        this.seedSupabaseDatabase(currentLocal);
         if (onCompleteCallback) onCompleteCallback(currentLocal);
       } else {
         const localData = this.getProducts();
+        this.seedSupabaseDatabase(localData);
         if (onCompleteCallback) onCompleteCallback(localData);
       }
     } catch (e) {
