@@ -1,7 +1,7 @@
 // CanFiyat Portal Main Application Logic (v1.13) - Ultra Compact Dropdown & Fit-on-Screen Layout
 
 let currentProducts = {};
-let currentLayerMode = 1; // 1: Satış & Kârlılık, 2: Saf Üretim Maliyeti
+let currentLayerMode = 1; // 1: Saf Maliyet Simülatörü, 2: Hızlı Sipariş / Teklif, 3: Satış Kataloğu & Kasa
 let activeCategory = "all";
 let searchQuery = "";
 let selectedProductId = null;
@@ -18,8 +18,9 @@ function toggleLayer2BreakdownInfo(productId, itemKey) {
   } else {
     openLayer2BreakdownInfos[productId][itemKey] = true;
   }
-  if (currentLayerMode === 1) renderProductGrid();
-  else if (currentLayerMode === 2) renderLayer2Cards();
+  if (currentLayerMode === 1) renderLayer2Cards();
+  else if (currentLayerMode === 2) renderLayer3Cards();
+  else if (currentLayerMode === 3) renderProductGrid();
 }
 
 const ALL_VOLUMES = [
@@ -109,11 +110,12 @@ function initApp() {
   }
   renderStats();
   if (currentLayerMode === 1) {
-    renderProductGrid();
-  } else if (currentLayerMode === 2) {
+    updateLayer2BannerStats();
     renderLayer2Cards();
-  } else if (currentLayerMode === 3) {
+  } else if (currentLayerMode === 2) {
     if (typeof renderLayer3Cards === "function") renderLayer3Cards();
+  } else if (currentLayerMode === 3) {
+    renderProductGrid();
   }
   setupEventListeners();
 
@@ -125,11 +127,12 @@ function initApp() {
         currentProducts = cloudMap;
         renderStats();
         if (currentLayerMode === 1) {
-          renderProductGrid();
-        } else if (currentLayerMode === 2) {
+          updateLayer2BannerStats();
           renderLayer2Cards();
-        } else if (currentLayerMode === 3) {
+        } else if (currentLayerMode === 2) {
           if (typeof renderLayer3Cards === "function") renderLayer3Cards();
+        } else if (currentLayerMode === 3) {
+          renderProductGrid();
         }
       }
     });
@@ -141,9 +144,9 @@ function setupEventListeners() {
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
       searchQuery = e.target.value.toLowerCase().trim();
-      if (currentLayerMode === 1) renderProductGrid();
-      else if (currentLayerMode === 2) renderLayer2Cards();
-      else if (currentLayerMode === 3) renderLayer3Cards();
+      if (currentLayerMode === 1) renderLayer2Cards();
+      else if (currentLayerMode === 2) renderLayer3Cards();
+      else if (currentLayerMode === 3) renderProductGrid();
     });
   }
 
@@ -210,9 +213,9 @@ function filterCategory(cat) {
     activeBtn.classList.add("bg-blue-600", "text-white");
   }
 
-  if (currentLayerMode === 1) renderProductGrid();
-  else if (currentLayerMode === 2) renderLayer2Cards();
-  else if (currentLayerMode === 3) renderLayer3Cards();
+  if (currentLayerMode === 1) renderLayer2Cards();
+  else if (currentLayerMode === 2) renderLayer3Cards();
+  else if (currentLayerMode === 3) renderProductGrid();
 }
 
 function getVolumeConfig(product, volKey) {
@@ -1084,21 +1087,10 @@ function switchLayerMode(mode) {
   if (badge3) { badge3.className = inactiveBadgeClass; badge3.innerText = "KATMANA GEÇ"; }
 
   if (mode === 1) {
-    if (btn1) btn1.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white border border-blue-400/60 shadow-md shadow-blue-500/15";
-    if (dot1) dot1.className = "w-2.5 h-2.5 rounded-full bg-blue-200 shrink-0";
-    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
-
-    if (view1) view1.classList.remove("hidden");
-    if (view2) view2.classList.add("hidden");
-    if (view3) view3.classList.add("hidden");
-    if (btnOverhead) btnOverhead.classList.add("hidden");
-
-    renderProductGrid();
-  } else if (mode === 2) {
-    // 2. KATMAN: ZÜMRÜT YEŞİL TEMA
-    if (btn2) btn2.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-md shadow-emerald-500/15";
-    if (dot2) dot2.className = "w-2.5 h-2.5 rounded-full bg-emerald-200 shrink-0";
-    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
+    // 1. KATMAN: SAF MALİYET SİMÜLATÖRÜ (ZÜMRÜT YEŞİL TEMA)
+    if (btn1) btn1.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-md shadow-emerald-500/15";
+    if (dot1) dot1.className = "w-2.5 h-2.5 rounded-full bg-emerald-200 shrink-0";
+    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.remove("hidden");
@@ -1110,11 +1102,11 @@ function switchLayerMode(mode) {
 
     updateLayer2BannerStats();
     renderLayer2Cards();
-  } else if (mode === 3) {
-    // 3. KATMAN: ASİL MOR TEMA
-    if (btn3) btn3.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white border border-purple-400/60 shadow-md shadow-purple-500/15";
-    if (dot3) dot3.className = "w-2.5 h-2.5 rounded-full bg-purple-200 shrink-0";
-    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-purple-950 text-purple-200 border border-purple-400/50 shrink-0"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
+  } else if (mode === 2) {
+    // 2. KATMAN: HIZLI SİPARİŞ / TEKLİF (ASİL MOR TEMA)
+    if (btn2) btn2.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white border border-purple-400/60 shadow-md shadow-purple-500/15";
+    if (dot2) dot2.className = "w-2.5 h-2.5 rounded-full bg-purple-200 shrink-0";
+    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-purple-950 text-purple-200 border border-purple-400/50 shrink-0"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.add("hidden");
@@ -1122,6 +1114,18 @@ function switchLayerMode(mode) {
     if (btnOverhead) btnOverhead.classList.add("hidden");
 
     renderLayer3Cards();
+  } else if (mode === 3) {
+    // 3. KATMAN: SATIŞ KATALOĞU & KASA (MAVİ TEMA)
+    if (btn3) btn3.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white border border-blue-400/60 shadow-md shadow-blue-500/15";
+    if (dot3) dot3.className = "w-2.5 h-2.5 rounded-full bg-blue-200 shrink-0";
+    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
+
+    if (view1) view1.classList.remove("hidden");
+    if (view2) view2.classList.add("hidden");
+    if (view3) view3.classList.add("hidden");
+    if (btnOverhead) btnOverhead.classList.add("hidden");
+
+    renderProductGrid();
   }
   updateTopDipFiyatBtnState();
 }
@@ -1143,7 +1147,7 @@ let currentLayer3Channel = "iyzico"; // "iyzico" or "trendyol"
 let isLayer3DipFiyatMode = false; // Toggle for 0 TL Break-even Dip Price Mode
 
 function handleDipFiyatToggle() {
-  if (currentLayerMode === 3) {
+  if (currentLayerMode === 2) {
     toggleLayer3DipFiyatMode();
   } else {
     toggleRedLineFloor();
@@ -1154,7 +1158,7 @@ function updateTopDipFiyatBtnState() {
   const btnTop = document.getElementById("btn-toggle-redline");
   if (!btnTop) return;
 
-  if (currentLayerMode === 3) {
+  if (currentLayerMode === 2) {
     if (isLayer3DipFiyatMode) {
       btnTop.className = "px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-rose-600 via-red-600 to-rose-500 text-white border border-rose-400 shadow-lg shadow-rose-600/40 flex items-center gap-1 cursor-pointer animate-pulse";
       btnTop.innerHTML = "🟢 Dip Fiyat (0 ₺ Kâr)";
@@ -2214,7 +2218,7 @@ async function updateProductInputVat(productId, newInVatStr) {
     await StorageManager.saveProduct(productsMap[productId]);
     currentProducts = StorageManager.getProducts();
     if (typeof renderLayer2Cards === "function") renderLayer2Cards();
-    if (typeof renderProductGrid === "function" && currentLayerMode === 1) renderProductGrid();
+    if (typeof renderProductGrid === "function" && currentLayerMode === 3) renderProductGrid();
     showToast(`✅ ${productsMap[productId].name} Alış KDV'si %${newInVat} Yapıldı!`);
   }
 }
@@ -2228,7 +2232,7 @@ async function updateProductSalesVat(productId, newSalesVatStr) {
     await StorageManager.saveProduct(productsMap[productId]);
     currentProducts = StorageManager.getProducts();
     if (typeof renderLayer2Cards === "function") renderLayer2Cards();
-    if (typeof renderProductGrid === "function" && currentLayerMode === 1) renderProductGrid();
+    if (typeof renderProductGrid === "function" && currentLayerMode === 3) renderProductGrid();
     showToast(`✅ ${productsMap[productId].name} Satış Fatura KDV'si %${newSalesVat} Yapıldı!`);
   }
 }
@@ -3698,8 +3702,8 @@ function toggleRedLineFloor() {
   showRedLineFloor = !showRedLineFloor;
   updateTopDipFiyatBtnState();
 
-  if (currentLayerMode === 1) renderProductGrid();
-  else if (currentLayerMode === 2) renderLayer2Cards();
+  if (currentLayerMode === 1) renderLayer2Cards();
+  else if (currentLayerMode === 3) renderProductGrid();
 }
 
 function setZeroProfitFloor() {

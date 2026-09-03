@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.46: Dengeli ve Okunur Altın Oran Tipografi">
-                            v3.46 (✨ Dengeli & Okunur Tipografi)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.47: Katman Sıralaması: 1. Saf Maliyet, 2. Teklif, 3. Kasa">
+                            v3.47 (🔀 1. Saf Maliyet ➔ 2. Teklif ➔ 3. Kasa)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -114,29 +114,29 @@
         <nav class="w-full bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90 shadow-2xl backdrop-blur-xl my-3">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 
-                <!-- Katman 1 Button (Mavi Tema) -->
-                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white border border-blue-400/60 shadow-md shadow-blue-500/15">
+                <!-- Katman 1 Button (Yeşil Tema - Saf Maliyet Simülatörü) -->
+                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-md shadow-emerald-500/15">
                     <div class="flex items-center gap-2.5">
-                        <span id="dot-1" class="w-2.5 h-2.5 rounded-full bg-blue-200 shrink-0"></span>
-                        <span class="tracking-tight text-left font-bold">1. KATMAN: Satış Kataloğu & Kasa</span>
+                        <span id="dot-1" class="w-2.5 h-2.5 rounded-full bg-emerald-200 shrink-0"></span>
+                        <span class="tracking-tight text-left font-bold">1. KATMAN: Saf Maliyet Simülatörü</span>
                     </div>
-                    <span id="badge-1" class="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0">✓ SEÇİLİ KATMAN</span>
+                    <span id="badge-1" class="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0">✓ SEÇİLİ KATMAN</span>
                 </button>
 
-                <!-- Katman 2 Button (Yeşil Tema) -->
+                <!-- Katman 2 Button (Mor Tema - Hızlı Sipariş / Teklif) -->
                 <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800/80 hover:bg-slate-800/80 hover:text-white">
                     <div class="flex items-center gap-2.5">
                         <span id="dot-2" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
-                        <span class="tracking-tight text-left font-bold">2. KATMAN: Saf Maliyet Simülatörü</span>
+                        <span class="tracking-tight text-left font-bold">2. KATMAN: Hızlı Sipariş / Teklif</span>
                     </div>
                     <span id="badge-2" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0">KATMANA GEÇ</span>
                 </button>
 
-                <!-- Katman 3 Button (Mor Tema) -->
+                <!-- Katman 3 Button (Mavi Tema - Satış Kataloğu & Kasa) -->
                 <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800/80 hover:bg-slate-800/80 hover:text-white">
                     <div class="flex items-center gap-2.5">
                         <span id="dot-3" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
-                        <span class="tracking-tight text-left font-bold">3. KATMAN: Hızlı Sipariş / Teklif</span>
+                        <span class="tracking-tight text-left font-bold">3. KATMAN: Satış Kataloğu & Kasa</span>
                     </div>
                     <span id="badge-3" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0">KATMANA GEÇ</span>
                 </button>
@@ -193,8 +193,8 @@
 
         </div>
 
-        <!-- Main Product Stream Container (Default Row/Table View for Layer 1) -->
-        <main id="layer1-main-view">
+        <!-- Main Product Stream Container (Default Row/Table View for Layer 3: Satış Kataloğu & Kasa) -->
+        <main id="layer1-main-view" class="hidden">
             <!-- KDV Dahil Fiyat Bilgilendirme Rozeti Banner -->
             <div class="glass-card rounded-2xl p-3 mb-3 border border-emerald-500/40 bg-gradient-to-r from-emerald-950/60 via-slate-950 to-slate-950 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div class="flex items-center gap-2.5">
@@ -205,7 +205,7 @@
                             <span class="text-[10px] bg-emerald-900/80 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-700">KDV DAHİL HESAPLAMA</span>
                         </h4>
                         <p class="text-slate-300 text-[11.5px] mt-0.5">
-                            Fatura listenizdeki KDV Hariç tutarlara (Örn: 1.950 ₺ / 700 ₺) ürünün yasal KDV oranı <strong>(%20 Uçucu Yağlar / %1 Sabit Yağlar)</strong> eklenmiş olup, Katman 1'deki tüm fiyatlar <strong>KDV DAHİL</strong> olarak gösterilmektedir.
+                            Fatura listenizdeki KDV Hariç tutarlara (Örn: 1.950 ₺ / 700 ₺) ürünün yasal KDV oranı <strong>(%20 Uçucu Yağlar / %1 Sabit Yağlar)</strong> eklenmiş olup, 3. Katman'daki tüm fiyatlar <strong>KDV DAHİL</strong> olarak gösterilmektedir.
                         </p>
                     </div>
                 </div>
@@ -216,8 +216,8 @@
             </div>
         </main>
 
-        <!-- Layer 2: True Production Cost Workspace Container -->
-        <main id="layer2-main-view" class="hidden">
+        <!-- Layer 1: True Production Cost Workspace Container (1. Katman: Saf Maliyet Simülatörü) -->
+        <main id="layer2-main-view">
             <!-- Compact Industrial Overhead & Action Toolbar (1-Row Ergonomic Design) -->
             <div class="glass-card rounded-xl p-3.5 mb-4 border border-teal-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 shadow-xl flex flex-wrap items-center justify-between gap-3">
                 <!-- Left Section: Title & Inline Stat Badges -->
@@ -228,7 +228,7 @@
                     <div>
                         <h3 class="text-xs font-extrabold text-white flex items-center gap-2">
                             Fabrika Saf Maliyet Paneli
-                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-800/50">2. Katman Aktif</span>
+                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-800/50">1. Katman Aktif</span>
                         </h3>
                         <div class="flex items-center gap-2 mt-0.5 text-[10.5px]">
                             <span class="text-slate-400">Aylık Tesis Gideri: <strong class="text-slate-200 font-bold" id="l2-stat-total-overhead">330.000,00 ₺</strong></span>
@@ -1114,12 +1114,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.46"></script>
-    <script src="js/liveSiteData.js?v=3.46"></script>
-    <script src="js/trendyolData.js?v=3.46"></script>
-    <script src="js/storage.js?v=3.46"></script>
-    <script src="js/calculator.js?v=3.46"></script>
-    <script src="js/app.js?v=3.46"></script>
+    <script src="js/productsData.js?v=3.47"></script>
+    <script src="js/liveSiteData.js?v=3.47"></script>
+    <script src="js/trendyolData.js?v=3.47"></script>
+    <script src="js/storage.js?v=3.47"></script>
+    <script src="js/calculator.js?v=3.47"></script>
+    <script src="js/app.js?v=3.47"></script>
 </body>
 
 
