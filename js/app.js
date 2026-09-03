@@ -115,7 +115,7 @@ function initApp() {
   } else if (currentLayerMode === 2) {
     if (typeof renderLayer3Cards === "function") renderLayer3Cards();
   } else if (currentLayerMode === 3) {
-    renderProductGrid();
+    initLayer3Hub();
   }
   setupEventListeners();
 
@@ -132,7 +132,7 @@ function initApp() {
         } else if (currentLayerMode === 2) {
           if (typeof renderLayer3Cards === "function") renderLayer3Cards();
         } else if (currentLayerMode === 3) {
-          renderProductGrid();
+          initLayer3Hub();
         }
       }
     });
@@ -146,7 +146,11 @@ function setupEventListeners() {
       searchQuery = e.target.value.toLowerCase().trim();
       if (currentLayerMode === 1) renderLayer2Cards();
       else if (currentLayerMode === 2) renderLayer3Cards();
-      else if (currentLayerMode === 3) renderProductGrid();
+      else if (currentLayerMode === 3) {
+        if (currentLayer3SubTab === "catalog") renderProductGrid();
+        else if (currentLayer3SubTab === "multipack") calculateMultipackSim();
+        else if (currentLayer3SubTab === "offers") calculateOfferSim();
+      }
     });
   }
 
@@ -1125,7 +1129,7 @@ function switchLayerMode(mode) {
     if (view3) view3.classList.add("hidden");
     if (btnOverhead) btnOverhead.classList.add("hidden");
 
-    renderProductGrid();
+    initLayer3Hub();
   }
   updateTopDipFiyatBtnState();
 }
@@ -3841,19 +3845,24 @@ function updateBundleSimulator() {
       if (costBadge3) costBadge3.textContent = "0,00 ₺";
     }
 
+    const boxCost = parseFloat(document.getElementById("bundle-box-cost")?.value) || 0;
+    const desi = parseInt(document.getElementById("bundle-desi-select")?.value, 10) || 3;
+    const dhlCargo = PriceCalculator.getDhlRateByDesi(desi);
+
     const bundleTargetPrice = parseFloat(priceInput.value) || 0;
-    const totalCost = costsList.reduce((a, b) => a + b, 0);
+    const itemsCostSum = costsList.reduce((a, b) => a + b, 0);
+    const totalCost = itemsCostSum + boxCost;
 
     const costEl = document.getElementById("bundle-total-cost");
     if (costEl) costEl.textContent = PriceCalculator.formatTL(totalCost);
 
-    const cargoSavingsEl = document.getElementById("bundle-cargo-savings");
-    const savedCargo = (itemEntries.length - 1) * 110;
-    if (cargoSavingsEl) cargoSavingsEl.textContent = `+${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu!`;
+    const cargoSavingsEl = document.getElementById("l3-bundle-cargo-savings") || document.getElementById("bundle-cargo-savings");
+    const savedCargo = (itemEntries.length - 1) * dhlCargo;
+    if (cargoSavingsEl) cargoSavingsEl.textContent = `🚀 Tek Kargo: +${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu!`;
 
-    const tyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 19, cargo: 110 });
-    const iyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 4, cargo: 82.50 });
-    const hbRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 17, cargo: 110 });
+    const tyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 19, cargo: dhlCargo });
+    const iyRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 4, cargo: dhlCargo });
+    const hbRes = PriceCalculator.calculateBundleSim({ itemsCostList: costsList, bundlePrice: bundleTargetPrice, commission: 17, cargo: dhlCargo });
     const storeProfit = bundleTargetPrice - totalCost;
 
     const itemsSummaryHtml = `
@@ -3868,6 +3877,12 @@ function updateBundleSimulator() {
             <span class="font-bold text-amber-300 shrink-0 ml-1">${PriceCalculator.formatTL(costsList[idx])}</span>
           </div>
         `).join('')}
+        ${boxCost > 0 ? `
+          <div class="flex justify-between items-center text-slate-400 border-t border-slate-800/80 pt-1">
+            <span>Ortak Kutu & Ambalaj:</span>
+            <span class="font-bold text-slate-200">${PriceCalculator.formatTL(boxCost)}</span>
+          </div>
+        ` : ''}
       </div>
     `;
 
@@ -3902,7 +3917,7 @@ function updateBundleSimulator() {
             <div class="space-y-1.5 text-xs text-slate-300">
               <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-amber-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
               <div class="flex justify-between"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(tyRes.commAmount)}</span></div>
-              <div class="flex justify-between"><span>(-) Tek Kargo:</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(tyRes.cargoFee)}</span></div>
+              <div class="flex justify-between"><span>(-) DHL Kargo (${desi} Desi):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(tyRes.cargoFee)}</span></div>
               <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(tyRes.payout)}</span></div>
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
@@ -3910,28 +3925,7 @@ function updateBundleSimulator() {
           ${renderBundleProfitBadge(tyRes.netProfit)}
         </div>
 
-        <!-- 2. İYZİCO (WEB SİTENİZ) KOMBİN KARTI -->
-        <div class="bg-gradient-to-b from-slate-900 to-blue-950/30 p-4 rounded-2xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-              <span class="font-extrabold text-blue-400 text-xs">🌐 İYZİCO (WEB)</span>
-              <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded-full border border-blue-800">%4 Kom.</span>
-            </div>
-
-            ${itemsSummaryHtml}
-
-            <div class="space-y-1.5 text-xs text-slate-300">
-              <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-blue-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
-              <div class="flex justify-between"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.commAmount)}</span></div>
-              <div class="flex justify-between"><span>(-) Tek Kargo:</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.cargoFee)}</span></div>
-              <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(iyRes.payout)}</span></div>
-              <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
-            </div>
-          </div>
-          ${renderBundleProfitBadge(iyRes.netProfit)}
-        </div>
-
-        <!-- 3. HEPSİBURADA KOMBİN KARTI -->
+        <!-- 2. HEPSİBURADA KOMBİN KARTI -->
         <div class="bg-gradient-to-b from-slate-900 to-orange-950/30 p-4 rounded-2xl border border-orange-800/50 space-y-2 flex flex-col justify-between shadow-lg">
           <div>
             <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
@@ -3944,7 +3938,7 @@ function updateBundleSimulator() {
             <div class="space-y-1.5 text-xs text-slate-300">
               <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-orange-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
               <div class="flex justify-between"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(hbRes.commAmount)}</span></div>
-              <div class="flex justify-between"><span>(-) Tek Kargo:</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(hbRes.cargoFee)}</span></div>
+              <div class="flex justify-between"><span>(-) DHL Kargo (${desi} Desi):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(hbRes.cargoFee)}</span></div>
               <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(hbRes.payout)}</span></div>
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
@@ -3952,30 +3946,449 @@ function updateBundleSimulator() {
           ${renderBundleProfitBadge(hbRes.netProfit)}
         </div>
 
-        <!-- 4. PERAKENDE FİZİKİ MAĞAZA KOMBİN KARTI -->
-        <div class="bg-gradient-to-b from-slate-900 to-emerald-950/30 p-4 rounded-2xl border border-emerald-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+        <!-- 3. İYZİCO (WEB SİTENİZ) KOMBİN KARTI -->
+        <div class="bg-gradient-to-b from-slate-900 to-blue-950/30 p-4 rounded-2xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
           <div>
             <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-              <span class="font-extrabold text-emerald-400 text-xs">🏪 FİZİKİ MAĞAZA</span>
-              <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">Direkt</span>
+              <span class="font-extrabold text-blue-400 text-xs">🌐 İYZİCO (WEB)</span>
+              <span class="text-[10px] font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded-full border border-blue-800">%4 Kom.</span>
             </div>
 
             ${itemsSummaryHtml}
 
             <div class="space-y-1.5 text-xs text-slate-300">
-              <div class="flex justify-between"><span>Mağaza Set Fiyatı:</span><span class="font-bold text-emerald-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
-              <div class="flex justify-between"><span>(-) Komisyon:</span><span class="text-emerald-400 font-semibold">0,00 ₺</span></div>
-              <div class="flex justify-between"><span>(-) Kargo:</span><span class="text-emerald-400 font-semibold">0,00 ₺</span></div>
-              <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Kasa:</span><span class="text-emerald-300">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+              <div class="flex justify-between"><span>Set Satış Fiyatı:</span><span class="font-bold text-blue-300 text-sm">${PriceCalculator.formatTL(bundleTargetPrice)}</span></div>
+              <div class="flex justify-between"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.commAmount)}</span></div>
+              <div class="flex justify-between"><span>(-) DHL Kargo (${desi} Desi):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(iyRes.cargoFee)}</span></div>
+              <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Hakediş:</span><span class="text-emerald-300">${PriceCalculator.formatTL(iyRes.payout)}</span></div>
               <div class="flex justify-between text-slate-400"><span>(-) Toplam Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(totalCost)}</span></div>
             </div>
           </div>
-          ${renderBundleProfitBadge(storeProfit)}
+          ${renderBundleProfitBadge(iyRes.netProfit)}
         </div>
       `;
     }
   } catch (err) {
     console.error("Update Bundle Error:", err);
+  }
+}
+
+// =========================================================================
+// 🚀 3. KATMAN: E-TİCARET KAMPANYA, ÇOKLU SEPET & KOMBİN SET LABORATUVARI
+// =========================================================================
+
+let currentLayer3SubTab = "multipack"; // 'multipack' | 'bundle' | 'offers' | 'catalog'
+let currentMultipackQty = 2;
+
+function switchLayer3SubTab(tab) {
+  currentLayer3SubTab = tab;
+
+  const vMulti = document.getElementById("l3-view-multipack");
+  const vBundle = document.getElementById("l3-view-bundle");
+  const vOffers = document.getElementById("l3-view-offers");
+  const vCatalog = document.getElementById("l3-view-catalog");
+
+  if (vMulti) vMulti.classList.toggle("hidden", tab !== "multipack");
+  if (vBundle) vBundle.classList.toggle("hidden", tab !== "bundle");
+  if (vOffers) vOffers.classList.toggle("hidden", tab !== "offers");
+  if (vCatalog) vCatalog.classList.toggle("hidden", tab !== "catalog");
+
+  const btnMulti = document.getElementById("l3-tab-btn-multipack");
+  const btnBundle = document.getElementById("l3-tab-btn-bundle");
+  const btnOffers = document.getElementById("l3-tab-btn-offers");
+  const btnCatalog = document.getElementById("l3-tab-btn-catalog");
+
+  const activeClass = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md cursor-pointer flex items-center gap-1.5";
+  const inactiveClass = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5";
+
+  if (btnMulti) btnMulti.className = tab === "multipack" ? activeClass : inactiveClass;
+  if (btnBundle) btnBundle.className = tab === "bundle" ? activeClass : inactiveClass;
+  if (btnOffers) btnOffers.className = tab === "offers" ? activeClass : inactiveClass;
+  if (btnCatalog) btnCatalog.className = tab === "catalog" ? activeClass : inactiveClass;
+
+  if (tab === "multipack") {
+    initMultipackSimulator();
+  } else if (tab === "bundle") {
+    populateBundleProductDropdowns();
+    updateBundleSimulator();
+  } else if (tab === "offers") {
+    initOfferSimulator();
+  } else if (tab === "catalog") {
+    renderProductGrid();
+  }
+}
+
+function initLayer3Hub() {
+  switchLayer3SubTab(currentLayer3SubTab || "multipack");
+}
+
+// -------------------------------------------------------------------------
+// 1. SEKME: 📦 2'Lİ & ÇOKLU ADET KAMPANYA SİMÜLATÖRÜ
+// -------------------------------------------------------------------------
+function initMultipackSimulator() {
+  const sel = document.getElementById("mp-product-select");
+  if (!sel) return;
+
+  if (!currentProducts || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+  const pList = Object.values(currentProducts || {});
+  if (pList.length === 0) return;
+
+  if (sel.options.length === 0) {
+    sel.innerHTML = pList.map(p => {
+      const idKey = p.id || p.sku;
+      return `<option value="${idKey}">${p.sku} - ${p.name} (${p.category})</option>`;
+    }).join("");
+  }
+
+  onMultipackProductChange();
+}
+
+function onMultipackProductChange() {
+  const sel = document.getElementById("mp-product-select");
+  const volSel = document.getElementById("mp-volume-select");
+  const priceInput = document.getElementById("mp-single-price");
+  if (!sel) return;
+
+  const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
+  if (!p) return;
+
+  const vol = volSel ? volSel.value : "250ml";
+  const defaultPrice = (p.prices && p.prices[vol]) ? p.prices[vol] : (p.prices && p.prices["250ml"] ? p.prices["250ml"] : 250);
+  if (priceInput) priceInput.value = defaultPrice;
+
+  calculateMultipackSim();
+}
+
+function setMultipackQty(qty) {
+  currentMultipackQty = qty;
+  const customInput = document.getElementById("mp-custom-qty");
+  if (customInput) customInput.value = qty;
+
+  const btn2 = document.getElementById("mp-qty-btn-2");
+  const btn3 = document.getElementById("mp-qty-btn-3");
+
+  if (btn2) {
+    btn2.className = qty === 2 
+      ? "flex-1 py-1.5 px-3 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer"
+      : "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer";
+  }
+  if (btn3) {
+    btn3.className = qty === 3
+      ? "flex-1 py-1.5 px-3 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer"
+      : "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer";
+  }
+
+  calculateMultipackSim();
+}
+
+function onMultipackDiscountChange(val) {
+  const badge = document.getElementById("mp-discount-val-badge");
+  if (badge) badge.textContent = `%${val} İndirim`;
+  calculateMultipackSim();
+}
+
+function calculateMultipackSim() {
+  try {
+    const sel = document.getElementById("mp-product-select");
+    const volSel = document.getElementById("mp-volume-select");
+    const channelSel = document.getElementById("mp-channel-select");
+    const desiSel = document.getElementById("mp-desi-select");
+    const customQtyInput = document.getElementById("mp-custom-qty");
+    const priceInput = document.getElementById("mp-single-price");
+    const rangeInput = document.getElementById("mp-discount-range");
+
+    if (!sel || !volSel || !priceInput) return;
+
+    const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
+    if (!p) return;
+
+    const vol = volSel.value || "250ml";
+    const channel = channelSel ? channelSel.value : "trendyol";
+    const comm = channel === "trendyol" ? 19 : (channel === "hepsiburada" ? 17 : 4);
+    
+    const desi = parseInt(desiSel?.value, 10) || 2;
+    const dhlCargo = PriceCalculator.getDhlRateByDesi(desi);
+
+    const qty = parseInt(customQtyInput?.value, 10) || currentMultipackQty || 2;
+    const singlePrice = parseFloat(priceInput.value) || 0;
+    const discountPercent = parseFloat(rangeInput?.value) || 25;
+
+    // 1. Katman Canlı Saf Fabrika Maliyeti
+    const overheadConfig = StorageManager.getFactoryOverhead();
+    const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
+    const costCalc = getLayer2EffectiveCostForVolume(p, vol, overheadRes.overheadPerKg);
+    const unitCost = costCalc.effectiveNetCost;
+
+    const sim = PriceCalculator.calculateMultiPackSim({
+      singleUnitPrice: singlePrice,
+      singleUnitCost: unitCost,
+      quantity: qty,
+      discountPercent: discountPercent,
+      discountScope: "second_item",
+      commissionPercent: comm,
+      cargoFee: dhlCargo
+    });
+
+    const resultsContainer = document.getElementById("mp-results-cards");
+    if (!resultsContainer) return;
+
+    const isExtraProfit = sim.extraProfitComparedToSingle >= 0;
+    const extraProfitBadgeBg = isExtraProfit ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-300" : "bg-rose-950/80 border-rose-500/50 text-rose-300";
+
+    resultsContainer.innerHTML = `
+      <!-- KART 1: TEKLİ SATIŞ DURUMU (REFERANS) -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="font-extrabold text-slate-300 text-xs">👤 TEKLİ SATIŞ (1 ADET)</span>
+            <span class="text-[10px] font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">Referans</span>
+          </div>
+
+          <div class="space-y-1.5 text-xs text-slate-300">
+            <div class="flex justify-between"><span>1 Adet Satış Fiyatı:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(sim.singleUnitPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon (%${comm}):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(sim.singleUnitPrice * (comm / 100))}</span></div>
+            <div class="flex justify-between"><span>(-) DHL Kargo (${desi} Desi):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(sim.cargoFee)}</span></div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) 1 Adet Hakediş:</span><span class="text-sky-300">${PriceCalculator.formatTL(sim.singlePayout)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) 1. Katman Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(sim.singleUnitCost)}</span></div>
+          </div>
+        </div>
+
+        <div class="space-y-2 border-t border-slate-800/80 pt-2">
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+            <span class="text-slate-400 font-bold uppercase text-[10px]">1 Adet Net Kâr:</span>
+            <span class="font-black text-emerald-400 text-sm">${PriceCalculator.formatTL(sim.singleNetProfit)}</span>
+          </div>
+          <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/60 flex justify-between items-center text-[11px] text-slate-400">
+            <span>${qty} Adet Ayrı Satılsaydı Toplam:</span>
+            <span class="font-bold text-slate-300">${PriceCalculator.formatTL(sim.singleNetProfit * qty)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KART 2: 🚀 KAMPANYALI ÇOKLU SEPET (CANLI HESAP) -->
+      <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-blue-950/40 p-4 rounded-2xl border border-blue-500/40 space-y-3 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm">🚀</span>
+              <span class="font-extrabold text-blue-300 text-xs">${qty}'Lİ PAKET / SEPET KAMPANYASI</span>
+            </div>
+            <span class="text-[10px] font-black text-emerald-300 bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-700 animate-pulse">TEK KARGO</span>
+          </div>
+
+          <div class="space-y-1.5 text-xs text-slate-300">
+            <div class="flex justify-between"><span>Müşteri Sepet Toplamı:</span><span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(sim.totalPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon (%${comm}):</span><span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(sim.commAmount)}</span></div>
+            <div class="flex justify-between">
+              <span class="flex items-center gap-1">(-) <strong>Tek Kargo (DHL ${desi} Desi):</strong></span>
+              <span class="text-rose-400 font-semibold">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
+            </div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Toplam Hakediş:</span><span class="text-emerald-300 text-sm">${PriceCalculator.formatTL(sim.payout)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) ${qty} Adet Saf Maliyet:</span><span class="text-slate-200 font-semibold">-${PriceCalculator.formatTL(sim.totalCost)}</span></div>
+          </div>
+        </div>
+
+        <div class="space-y-2 border-t border-blue-500/30 pt-2">
+          <div class="bg-gradient-to-r from-emerald-950 to-teal-950 p-2.5 rounded-xl border border-emerald-500/50 flex justify-between items-center shadow-lg">
+            <div>
+              <span class="text-emerald-400 uppercase tracking-wider text-[10px] block font-bold">KAMPANYA NET KÂRI:</span>
+              <span class="text-[10px] text-emerald-300 font-medium">(Birim Başına: ${PriceCalculator.formatTL(sim.profitPerUnit)})</span>
+            </div>
+            <span class="text-emerald-300 font-black text-lg">+${PriceCalculator.formatTL(sim.netProfit)}</span>
+          </div>
+
+          <div class="${extraProfitBadgeBg} p-2 rounded-xl border flex justify-between items-center text-[11px] font-bold">
+            <span>📦 Kargo Tasarruf Avantajı:</span>
+            <span class="font-black">+${PriceCalculator.formatTL(sim.cargoSaved)}</span>
+          </div>
+
+          <div class="bg-blue-950/60 border border-blue-800/60 p-2 rounded-xl flex justify-between items-center text-[11px] text-blue-200">
+            <span>💡 Tekli Satışa Göre Net Kâr Farkı:</span>
+            <span class="font-black ${sim.extraProfitComparedToSingle >= 0 ? 'text-emerald-300' : 'text-rose-300'}">
+              ${sim.extraProfitComparedToSingle >= 0 ? '+' : ''}${PriceCalculator.formatTL(sim.extraProfitComparedToSingle)}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    console.error("Multipack calc error:", err);
+  }
+}
+
+// -------------------------------------------------------------------------
+// 3. SEKME: 🏷️ TRENDYOL & HB KAMPANYA TEKLİF SİMÜLATÖRÜ
+// -------------------------------------------------------------------------
+function initOfferSimulator() {
+  const sel = document.getElementById("offer-product-select");
+  if (!sel) return;
+
+  if (!currentProducts || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+  const pList = Object.values(currentProducts || {});
+  if (pList.length === 0) return;
+
+  if (sel.options.length === 0) {
+    sel.innerHTML = pList.map(p => {
+      const idKey = p.id || p.sku;
+      return `<option value="${idKey}">${p.sku} - ${p.name} (${p.category})</option>`;
+    }).join("");
+  }
+
+  onOfferProductChange();
+}
+
+function onOfferProductChange() {
+  const sel = document.getElementById("offer-product-select");
+  const volSel = document.getElementById("offer-volume-select");
+  const baseInput = document.getElementById("offer-base-price");
+  if (!sel) return;
+
+  const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
+  if (!p) return;
+
+  const vol = volSel ? volSel.value : "250ml";
+  const defaultPrice = (p.prices && p.prices[vol]) ? p.prices[vol] : (p.prices && p.prices["250ml"] ? p.prices["250ml"] : 250);
+  if (baseInput) baseInput.value = defaultPrice;
+
+  applyOfferPreset("av1");
+}
+
+function onOfferChannelChange() {
+  const channel = document.getElementById("offer-channel-select")?.value || "trendyol";
+  const commInput = document.getElementById("offer-commission");
+  if (commInput) commInput.value = channel === "trendyol" ? 19 : 17;
+  calculateOfferSim();
+}
+
+function applyOfferPreset(preset) {
+  const baseInput = document.getElementById("offer-base-price");
+  const targetInput = document.getElementById("offer-target-price");
+  const basePrice = parseFloat(baseInput?.value) || 250;
+
+  if (!targetInput) return;
+
+  if (preset === "av1") {
+    targetInput.value = Math.round(basePrice * 0.90); // 1. Avantajlı %10 indirim
+  } else if (preset === "av2") {
+    targetInput.value = Math.round(basePrice * 0.82); // 2. Çok Avantajlı %18 indirim
+  } else if (preset === "av3") {
+    targetInput.value = Math.round(basePrice * 0.70); // 3. Süper Avantajlı %30 indirim
+  }
+
+  calculateOfferSim();
+}
+
+function calculateOfferSim() {
+  try {
+    const sel = document.getElementById("offer-product-select");
+    const volSel = document.getElementById("offer-volume-select");
+    const baseInput = document.getElementById("offer-base-price");
+    const targetInput = document.getElementById("offer-target-price");
+    const commInput = document.getElementById("offer-commission");
+    const desiSel = document.getElementById("offer-desi-select");
+
+    if (!sel || !volSel || !targetInput) return;
+
+    const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
+    if (!p) return;
+
+    const vol = volSel.value || "250ml";
+    const basePrice = parseFloat(baseInput?.value) || 0;
+    const offerPrice = parseFloat(targetInput.value) || 0;
+    const comm = parseFloat(commInput?.value) || 19;
+    const desi = parseInt(desiSel?.value, 10) || 2;
+    const dhlCargo = PriceCalculator.getDhlRateByDesi(desi);
+
+    // 1. Katman Canlı Saf Fabrika Maliyeti
+    const overheadConfig = StorageManager.getFactoryOverhead();
+    const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
+    const costCalc = getLayer2EffectiveCostForVolume(p, vol, overheadRes.overheadPerKg);
+    const unitCost = costCalc.effectiveNetCost;
+
+    const sim = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice: basePrice,
+      offerPrice: offerPrice,
+      unitCost: unitCost,
+      commissionPercent: comm,
+      cargoFee: dhlCargo
+    });
+
+    const cardEl = document.getElementById("offer-analysis-card");
+    if (!cardEl) return;
+
+    const isProfit = sim.isProfitable;
+    const cardBg = isProfit 
+      ? "bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/40 border-emerald-500/50" 
+      : "bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950/40 border-rose-500/60 animate-pulse";
+
+    const badgeStatus = isProfit
+      ? `<span class="px-3 py-1 rounded-lg text-xs font-black bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1.5">🟢 KÂRLI TEKLİF (+${PriceCalculator.formatTL(sim.netProfit)})</span>`
+      : `<span class="px-3 py-1 rounded-lg text-xs font-black bg-rose-950 text-rose-300 border border-rose-500/60 flex items-center gap-1.5">🔴 ZARARLI TEKLİF (${PriceCalculator.formatTL(sim.netProfit)})</span>`;
+
+    const discountRateFromBase = basePrice > 0 ? Math.round(((basePrice - offerPrice) / basePrice) * 100) : 0;
+
+    cardEl.className = `${cardBg} rounded-2xl p-5 border shadow-2xl space-y-4 transition-all`;
+    cardEl.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+        <div>
+          <h5 class="text-sm font-black text-white flex items-center gap-2">
+            ${p.name} <span class="text-sky-300 font-bold text-xs">(${vol})</span>
+          </h5>
+          <p class="text-[11px] text-slate-400 mt-0.5">Normal Liste Fiyatı: <strong class="text-slate-200">${PriceCalculator.formatTL(basePrice)}</strong> • Kampanya İndirimi: <strong class="text-purple-300">%${discountRateFromBase}</strong></p>
+        </div>
+        ${badgeStatus}
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/90 p-3.5 rounded-xl border border-slate-800 text-xs">
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Teklif Satış Fiyatı:</span>
+          <span class="font-black text-white text-base">${PriceCalculator.formatTL(sim.offerPrice)}</span>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Komisyon (%${comm}):</span>
+          <span class="font-bold text-rose-400 text-sm">-${PriceCalculator.formatTL(sim.commAmount)}</span>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">DHL Kargo (${desi} Desi):</span>
+          <span class="font-bold text-rose-400 text-sm">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Banka Hakedişiniz:</span>
+          <span class="font-black text-sky-300 text-base">${PriceCalculator.formatTL(sim.payout)}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl ${isProfit ? 'bg-emerald-950/60 border border-emerald-600/40' : 'bg-rose-950/60 border border-rose-600/50'}">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">${isProfit ? '💰' : '⚠️'}</span>
+          <div>
+            <span class="text-[10px] uppercase font-bold ${isProfit ? 'text-emerald-300' : 'text-rose-300'} block">
+              1. KATMAN SAF MALİYETE GÖRE NET KÂR / ZARAR:
+            </span>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black ${isProfit ? 'text-emerald-200' : 'text-rose-200'}">
+                ${isProfit ? '+' : ''}${PriceCalculator.formatTL(sim.netProfit)}
+              </span>
+              <span class="text-xs font-bold text-slate-300">
+                (Kâr Marjı: %${sim.profitMargin} | 1. Katman Maliyeti: ${PriceCalculator.formatTL(sim.unitCost)})
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/90 px-3.5 py-2 rounded-xl border border-slate-800 text-right">
+          <span class="text-[9px] uppercase font-extrabold text-slate-400 block tracking-wider">🛡️ KIRMIZI ÇİZGİ ASGARİ TEKLİF:</span>
+          <span class="text-sm font-black text-amber-300">${PriceCalculator.formatTL(sim.redlineFloorPrice)}</span>
+          <span class="text-[9px] text-slate-500 block">(0 ₺ kârla kurtaran taban)</span>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    console.error("Offer calc error:", err);
   }
 }
 

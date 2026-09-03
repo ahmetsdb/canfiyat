@@ -569,6 +569,106 @@ class PriceCalculator {
     };
   }
 
+  static getDhlRateByDesi(desi) {
+    const d = Math.max(0, Math.min(12, parseInt(desi, 10) || 0));
+    return DHL_ECOMMERCE_RATES[d] !== undefined ? DHL_ECOMMERCE_RATES[d] : 97.99;
+  }
+
+  // 2'li & Çoklu Adet Kampanya Hesaplama Motoru (Tek Kargo Avantajı)
+  static calculateMultiPackSim({
+    singleUnitPrice = 0,
+    singleUnitCost = 0,
+    quantity = 2,
+    discountPercent = 25,
+    discountScope = "second_item", // 'second_item' | 'all_items'
+    commissionPercent = 19,
+    cargoFee = 97.99
+  }) {
+    const p1 = parseFloat(singleUnitPrice) || 0;
+    const c1 = parseFloat(singleUnitCost) || 0;
+    const q = Math.max(1, parseInt(quantity, 10) || 2);
+    const disc = (parseFloat(discountPercent) || 0) / 100;
+    const commDec = (parseFloat(commissionPercent) || 0) / 100;
+    const cargo = parseFloat(cargoFee) || 0;
+
+    let totalPrice = 0;
+    if (discountScope === "second_item" && q >= 2) {
+      // 1. ürün tam fiyat, 2. ürün indirimli, varsa 3. ve sonrakiler tam fiyat
+      totalPrice = p1 + (p1 * (1 - disc)) + (p1 * (q - 2));
+    } else {
+      // Tüm sepette genel indirim
+      totalPrice = (p1 * q) * (1 - disc);
+    }
+    totalPrice = parseFloat(totalPrice.toFixed(2));
+
+    const totalCost = parseFloat((c1 * q).toFixed(2));
+    const commAmount = parseFloat((totalPrice * commDec).toFixed(2));
+    const payout = parseFloat((totalPrice - commAmount - cargo).toFixed(2));
+    const netProfit = parseFloat((payout - totalCost).toFixed(2));
+    const profitPerUnit = parseFloat((netProfit / q).toFixed(2));
+
+    // Referans: Tekli satılsaydı ne olurdu?
+    const singleComm = parseFloat((p1 * commDec).toFixed(2));
+    const singlePayout = parseFloat((p1 - singleComm - cargo).toFixed(2));
+    const singleNetProfit = parseFloat((singlePayout - c1).toFixed(2));
+    const singleTotalNetForQ = parseFloat((singleNetProfit * q).toFixed(2));
+
+    // Ayrı ayrı kargolamaya kıyasla kargo tasarrufu
+    const cargoSaved = parseFloat(((q - 1) * cargo).toFixed(2));
+    const extraProfitComparedToSingle = parseFloat((netProfit - singleTotalNetForQ).toFixed(2));
+
+    return {
+      singleUnitPrice: p1,
+      singleUnitCost: c1,
+      quantity: q,
+      totalPrice: totalPrice,
+      totalCost: totalCost,
+      commAmount: commAmount,
+      cargoFee: cargo,
+      payout: payout,
+      netProfit: netProfit,
+      profitPerUnit: profitPerUnit,
+      cargoSaved: cargoSaved,
+      singleNetProfit: singleNetProfit,
+      extraProfitComparedToSingle: extraProfitComparedToSingle
+    };
+  }
+
+  // Pazaryeri Kampanya / Teklif Analiz Motoru (Avantajlı Ürün Etiketleri & Kırmızı Çizgi)
+  static calculateMarketplaceOfferSim({
+    basePrice = 0,
+    offerPrice = 0,
+    unitCost = 0,
+    commissionPercent = 19,
+    cargoFee = 97.99
+  }) {
+    const p = parseFloat(offerPrice) || 0;
+    const c = parseFloat(unitCost) || 0;
+    const commDec = (parseFloat(commissionPercent) || 0) / 100;
+    const cargo = parseFloat(cargoFee) || 0;
+
+    const commAmount = parseFloat((p * commDec).toFixed(2));
+    const payout = parseFloat((p - commAmount - cargo).toFixed(2));
+    const netProfit = parseFloat((payout - c).toFixed(2));
+    const profitMargin = p > 0 ? parseFloat(((netProfit / p) * 100).toFixed(1)) : 0;
+
+    // Başa-baş (0 TL kâr için gereken minimum kırmızı çizgi fiyatı)
+    const redlineFloorPrice = commDec < 1 ? parseFloat(((c + cargo) / (1 - commDec)).toFixed(2)) : 0;
+
+    return {
+      basePrice: parseFloat(basePrice) || 0,
+      offerPrice: p,
+      unitCost: c,
+      commAmount: commAmount,
+      cargoFee: cargo,
+      payout: payout,
+      netProfit: netProfit,
+      profitMargin: profitMargin,
+      isProfitable: netProfit >= 0,
+      redlineFloorPrice: redlineFloorPrice
+    };
+  }
+
   static formatTL(val) {
     if (isNaN(val) || val === null || val === undefined) return "0,00 ₺";
     const num = Math.abs(val);
@@ -576,3 +676,20 @@ class PriceCalculator {
     return `${val < 0 ? "-" : ""}${formatted} ₺`;
   }
 }
+
+// 📦 DHL eCommerce Anlaşmalı Desi Fiyat Matrisi
+const DHL_ECOMMERCE_RATES = {
+  0: 97.99,
+  1: 97.99,
+  2: 97.99,
+  3: 110.99,
+  4: 124.99,
+  5: 137.99,
+  6: 150.99,
+  7: 159.99,
+  8: 169.99,
+  9: 179.99,
+  10: 189.99,
+  11: 199.99,
+  12: 209.99
+};
