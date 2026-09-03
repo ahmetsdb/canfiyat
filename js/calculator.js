@@ -311,26 +311,15 @@ class PriceCalculator {
     const commDec = comm / 100;
     const discDec = disc / 100;
 
-    const netMaliyetVatFree = maliyet / (1 + (sVat / 100));
-    const kargoVatFree = kargo / 1.20;
-    const neededRevenueVatFree = netMaliyetVatFree + kargoVatFree + kar;
-
-    let denominator = (1 / (1 + (sVat / 100))) - (commDec / 1.20) - discDec;
+    let denominator = 1 - commDec - discDec;
     if (denominator < 0.05) denominator = 0.05;
 
-    const salePrice = parseFloat((neededRevenueVatFree / denominator).toFixed(2));
+    const salePrice = parseFloat(((maliyet + kargo + kar) / denominator).toFixed(2));
     const listPrice = parseFloat((salePrice / (1 - discDec)).toFixed(2));
     
     const commAmount = parseFloat((salePrice * commDec).toFixed(2));
     const payout = parseFloat((salePrice - commAmount - kargo).toFixed(2));
-
-    const extraSalesVatOwed = parseFloat(((salePrice - maliyet) * (sVat / (100 + sVat))).toFixed(2));
-    const kargoKdv = kargo - kargoVatFree;
-    const commKdv = commAmount - (commAmount / 1.20);
-    const totalVatRefund = parseFloat((kargoKdv + commKdv).toFixed(2));
-    const netVatImpact = parseFloat((extraSalesVatOwed - totalVatRefund).toFixed(2));
-
-    const netProfit = parseFloat((payout - maliyet - netVatImpact).toFixed(2));
+    const netProfit = parseFloat((payout - maliyet).toFixed(2));
 
     return {
       listPrice,
@@ -339,11 +328,11 @@ class PriceCalculator {
       cargoFee: kargo,
       payout,
       wholesaleCost: maliyet,
-      extraSalesVatOwed,
-      kargoKdv,
-      commKdv,
-      totalVatRefund,
-      netVatImpact,
+      extraSalesVatOwed: 0,
+      kargoKdv: 0,
+      commKdv: 0,
+      totalVatRefund: 0,
+      netVatImpact: 0,
       netProfit
     };
   }

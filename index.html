@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.44: Otomatik Çift Yönlü Tarayıcı & Bulut Eşitleme Motoru">
-                            v3.44 (🔄 Otomatik Çift Yönlü Eşitleme)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.45: Banka Hakediş ve Net Nakit Akış Esaslı Sade Kârlılık Sistemi">
+                            v3.45 (💰 Banka Hakediş & Net Nakit Esası)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -535,8 +535,6 @@
                                 <div class="breakdown-row negative"><span class="label text-amber-400">Komisyon</span><span class="val font-semibold text-amber-400" id="s1_rec_comm_ty">0.00 ₺</span></div>
                                 <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-extrabold text-slate-200">BANKA HAKEDİŞ</span><span class="val font-black text-white text-sm" id="s1_hakedis_ty">0.00 ₺</span></div>
                                 <div class="breakdown-row negative"><span class="label text-slate-400">Birim Maliyet</span><span class="val font-semibold text-slate-400" id="s1_rec_maliyet_ty">0.00 ₺</span></div>
-                                <div class="breakdown-row"><span class="label text-slate-500 text-[10px]" title="Kâr KDV'si eksi Kargo/Komisyon KDV iadesi">(±) Vergi Mahsup</span><span class="val font-semibold text-[10px]" id="s1_kdv_ty">0.00 ₺</span></div>
-                                <div id="s1_kdv_detail_ty" class="flex flex-col text-[9px] text-slate-500/80 ml-2 mb-1 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed"></div>
                                 <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-black text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s1_profit_ty">0.00 ₺</span></div>
                             </div>
                         </div>
@@ -563,8 +561,6 @@
                                 <div class="breakdown-row negative"><span class="label text-amber-400">Komisyon</span><span class="val font-semibold text-amber-400" id="s1_rec_comm_hb">0.00 ₺</span></div>
                                 <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-extrabold text-slate-200">BANKA HAKEDİŞ</span><span class="val font-black text-white text-sm" id="s1_hakedis_hb">0.00 ₺</span></div>
                                 <div class="breakdown-row negative"><span class="label text-slate-400">Birim Maliyet</span><span class="val font-semibold text-slate-400" id="s1_rec_maliyet_hb">0.00 ₺</span></div>
-                                <div class="breakdown-row"><span class="label text-slate-500 text-[10px]" title="Kâr KDV'si eksi Kargo/Komisyon KDV iadesi">(±) Vergi Mahsup</span><span class="val font-semibold text-[10px]" id="s1_kdv_hb">0.00 ₺</span></div>
-                                <div id="s1_kdv_detail_hb" class="flex flex-col text-[9px] text-slate-500/80 ml-2 mb-1 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed"></div>
                                 <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-black text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s1_profit_hb">0.00 ₺</span></div>
                             </div>
                         </div>
@@ -591,8 +587,6 @@
                                 <div class="breakdown-row negative"><span class="label text-cyan-400">Komisyon</span><span class="val font-semibold text-cyan-400" id="s1_rec_comm_iy">0.00 ₺</span></div>
                                 <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-extrabold text-slate-200">BANKA HAKEDİŞ</span><span class="val font-black text-white text-sm" id="s1_hakedis_iy">0.00 ₺</span></div>
                                 <div class="breakdown-row negative"><span class="label text-slate-400">Birim Maliyet</span><span class="val font-semibold text-slate-400" id="s1_rec_maliyet_iy">0.00 ₺</span></div>
-                                <div class="breakdown-row"><span class="label text-slate-500 text-[10px]" title="Kâr KDV'si eksi Kargo/Komisyon KDV iadesi">(±) Vergi Mahsup</span><span class="val font-semibold text-[10px]" id="s1_kdv_iy">0.00 ₺</span></div>
-                                <div id="s1_kdv_detail_iy" class="flex flex-col text-[9px] text-slate-500/80 ml-2 mb-1 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed"></div>
                                 <div class="breakdown-row pt-1 border-t border-slate-800"><span class="label font-black text-white">NET KÂR</span><span class="val font-black text-emerald-400 text-sm" id="s1_profit_iy">0.00 ₺</span></div>
                             </div>
                         </div>
@@ -1120,12 +1114,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.44"></script>
-    <script src="js/liveSiteData.js?v=3.44"></script>
-    <script src="js/trendyolData.js?v=3.44"></script>
-    <script src="js/storage.js?v=3.44"></script>
-    <script src="js/calculator.js?v=3.44"></script>
-    <script src="js/app.js?v=3.44"></script>
+    <script src="js/productsData.js?v=3.45"></script>
+    <script src="js/liveSiteData.js?v=3.45"></script>
+    <script src="js/trendyolData.js?v=3.45"></script>
+    <script src="js/storage.js?v=3.45"></script>
+    <script src="js/calculator.js?v=3.45"></script>
+    <script src="js/app.js?v=3.45"></script>
 </body>
 
 

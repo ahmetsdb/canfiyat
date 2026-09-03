@@ -763,15 +763,6 @@ function calculateSystem1Modal() {
   document.getElementById("s1_rec_comm_ty").innerText = `-${PriceCalculator.formatTL(tyRes.commAmount)}`;
   document.getElementById("s1_hakedis_ty").innerText = PriceCalculator.formatTL(tyRes.payout);
   document.getElementById("s1_rec_maliyet_ty").innerText = `-${PriceCalculator.formatTL(tyRes.wholesaleCost)}`;
-  if(document.getElementById("s1_kdv_ty")) {
-    document.getElementById("s1_kdv_ty").innerText = (tyRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(tyRes.netVatImpact || 0));
-    document.getElementById("s1_kdv_ty").className = "val font-semibold text-[10px] " + (tyRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
-    document.getElementById("s1_kdv_detail_ty").innerHTML = `
-      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(tyRes.extraSalesVatOwed)}</strong></span>
-      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(tyRes.totalVatRefund)}</strong> (Kar:${PriceCalculator.formatTL(tyRes.kargoKdv)}|Kom:${PriceCalculator.formatTL(tyRes.commKdv)})</span>
-    `;
-    if(tyRes.extraSalesVatOwed === 0 && tyRes.totalVatRefund === 0) document.getElementById("s1_kdv_detail_ty").innerHTML = `<span>Sıfır Kâr = Sıfır KDV Mahsuplaşması</span>`;
-  }
   document.getElementById("s1_profit_ty").innerText = PriceCalculator.formatTL(tyRes.netProfit);
 
   document.getElementById("s1_list_hb").innerText = PriceCalculator.formatTL(hbRes.listPrice);
@@ -781,15 +772,6 @@ function calculateSystem1Modal() {
   document.getElementById("s1_rec_comm_hb").innerText = `-${PriceCalculator.formatTL(hbRes.commAmount)}`;
   document.getElementById("s1_hakedis_hb").innerText = PriceCalculator.formatTL(hbRes.payout);
   document.getElementById("s1_rec_maliyet_hb").innerText = `-${PriceCalculator.formatTL(hbRes.wholesaleCost)}`;
-  if(document.getElementById("s1_kdv_hb")) {
-    document.getElementById("s1_kdv_hb").innerText = (hbRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(hbRes.netVatImpact || 0));
-    document.getElementById("s1_kdv_hb").className = "val font-semibold text-[10px] " + (hbRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
-    document.getElementById("s1_kdv_detail_hb").innerHTML = `
-      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(hbRes.extraSalesVatOwed)}</strong></span>
-      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(hbRes.totalVatRefund)}</strong> (Kar:${PriceCalculator.formatTL(hbRes.kargoKdv)}|Kom:${PriceCalculator.formatTL(hbRes.commKdv)})</span>
-    `;
-    if(hbRes.extraSalesVatOwed === 0 && hbRes.totalVatRefund === 0) document.getElementById("s1_kdv_detail_hb").innerHTML = `<span>Sıfır Kâr = Sıfır KDV Mahsuplaşması</span>`;
-  }
   document.getElementById("s1_profit_hb").innerText = PriceCalculator.formatTL(hbRes.netProfit);
 
   document.getElementById("s1_list_iy").innerText = PriceCalculator.formatTL(iyRes.listPrice);
@@ -799,15 +781,6 @@ function calculateSystem1Modal() {
   document.getElementById("s1_rec_comm_iy").innerText = `-${PriceCalculator.formatTL(iyRes.commAmount)}`;
   document.getElementById("s1_hakedis_iy").innerText = PriceCalculator.formatTL(iyRes.payout);
   document.getElementById("s1_rec_maliyet_iy").innerText = `-${PriceCalculator.formatTL(iyRes.wholesaleCost)}`;
-  if(document.getElementById("s1_kdv_iy")) {
-    document.getElementById("s1_kdv_iy").innerText = (iyRes.netVatImpact > 0 ? "-" : "+") + PriceCalculator.formatTL(Math.abs(iyRes.netVatImpact || 0));
-    document.getElementById("s1_kdv_iy").className = "val font-semibold text-[10px] " + (iyRes.netVatImpact > 0 ? "text-rose-400" : "text-emerald-400");
-    document.getElementById("s1_kdv_detail_iy").innerHTML = `
-      <span>+ Satış KDV: <strong class="text-rose-400/80">${PriceCalculator.formatTL(iyRes.extraSalesVatOwed)}</strong></span>
-      <span>- İade KDV: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(iyRes.totalVatRefund)}</strong> (Kar:${PriceCalculator.formatTL(iyRes.kargoKdv)}|Kom:${PriceCalculator.formatTL(iyRes.commKdv)})</span>
-    `;
-    if(iyRes.extraSalesVatOwed === 0 && iyRes.totalVatRefund === 0) document.getElementById("s1_kdv_detail_iy").innerHTML = `<span>Sıfır Kâr = Sıfır KDV Mahsuplaşması</span>`;
-  }
   document.getElementById("s1_profit_iy").innerText = PriceCalculator.formatTL(iyRes.netProfit);
 }
 
@@ -3158,16 +3131,6 @@ function renderLayer2Cards() {
                           <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.cargoFee)}</span></div>
                           <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(tySim.payout)}</span></div>
                           <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
-                          <div class="flex justify-between items-center text-[10px] text-slate-500 mt-1">
-                            <span title="Net Kâr Marjından doğan Ek Satış KDV'si eksi Kargo/Komisyon faturalarından düşülen KDV İadesi">(±) Vergi & KDV Mahsup Etkisi:</span>
-                            <span class="${tySim.netVatImpact > 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold">
-                              ${tySim.netVatImpact > 0 ? '-' : '+'}${PriceCalculator.formatTL(Math.abs(tySim.netVatImpact || 0))}
-                            </span>
-                          </div>
-                          <div class="flex flex-col text-[9px] text-slate-500/80 ml-2 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed">
-                            <span>+ Satıştan KDV Çıkışı: <strong class="text-rose-400/80">${PriceCalculator.formatTL(tySim.extraSalesVatOwed)}</strong></span>
-                            <span>- Gider KDV İadesi: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(tySim.totalVatRefund)}</strong> (Kargo: ${PriceCalculator.formatTL(tySim.kargoKdv)} | Kom: ${PriceCalculator.formatTL(tySim.commKdv)})</span>
-                          </div>
                         </div>
                       </div>
                       <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
@@ -3192,16 +3155,6 @@ function renderLayer2Cards() {
                           <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.cargoFee)}</span></div>
                           <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(iySim.payout)}</span></div>
                           <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
-                          <div class="flex justify-between items-center text-[10px] text-slate-500 mt-1">
-                            <span title="Net Kâr Marjından doğan Ek Satış KDV'si eksi Kargo/Komisyon faturalarından düşülen KDV İadesi">(±) Vergi & KDV Mahsup Etkisi:</span>
-                            <span class="${iySim.netVatImpact > 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold">
-                              ${iySim.netVatImpact > 0 ? '-' : '+'}${PriceCalculator.formatTL(Math.abs(iySim.netVatImpact || 0))}
-                            </span>
-                          </div>
-                          <div class="flex flex-col text-[9px] text-slate-500/80 ml-2 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed">
-                            <span>+ Satıştan KDV Çıkışı: <strong class="text-rose-400/80">${PriceCalculator.formatTL(iySim.extraSalesVatOwed)}</strong></span>
-                            <span>- Gider KDV İadesi: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(iySim.totalVatRefund)}</strong> (Kargo: ${PriceCalculator.formatTL(iySim.kargoKdv)} | Kom: ${PriceCalculator.formatTL(iySim.commKdv)})</span>
-                          </div>
                         </div>
                       </div>
                       <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
@@ -3226,16 +3179,6 @@ function renderLayer2Cards() {
                           <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.cargoFee)}</span></div>
                           <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(hbSim.payout)}</span></div>
                           <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
-                          <div class="flex justify-between items-center text-[10px] text-slate-500 mt-1">
-                            <span title="Net Kâr Marjından doğan Ek Satış KDV'si eksi Kargo/Komisyon faturalarından düşülen KDV İadesi">(±) Vergi & KDV Mahsup Etkisi:</span>
-                            <span class="${hbSim.netVatImpact > 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold">
-                              ${hbSim.netVatImpact > 0 ? '-' : '+'}${PriceCalculator.formatTL(Math.abs(hbSim.netVatImpact || 0))}
-                            </span>
-                          </div>
-                          <div class="flex flex-col text-[9px] text-slate-500/80 ml-2 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed">
-                            <span>+ Satıştan KDV Çıkışı: <strong class="text-rose-400/80">${PriceCalculator.formatTL(hbSim.extraSalesVatOwed)}</strong></span>
-                            <span>- Gider KDV İadesi: <strong class="text-emerald-400/80">${PriceCalculator.formatTL(hbSim.totalVatRefund)}</strong> (Kargo: ${PriceCalculator.formatTL(hbSim.kargoKdv)} | Kom: ${PriceCalculator.formatTL(hbSim.commKdv)})</span>
-                          </div>
                         </div>
                       </div>
                       <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
@@ -3260,16 +3203,6 @@ function renderLayer2Cards() {
                           <div class="flex justify-between items-center"><span>(-) Kargo:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
                           <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Kasa (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(storePrice)}</span></div>
                           <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
-                          <div class="flex justify-between items-center text-[10px] text-slate-500 mt-1">
-                            <span title="Net Kâr Marjından doğan Ek Satış KDV'si eksi Kargo/Komisyon faturalarından düşülen KDV İadesi">(±) Vergi & KDV Mahsup Etkisi:</span>
-                            <span class="${storeSim.netVatImpact > 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold">
-                              ${storeSim.netVatImpact > 0 ? '-' : '+'}${PriceCalculator.formatTL(Math.abs(storeSim.netVatImpact || 0))}
-                            </span>
-                          </div>
-                          <div class="flex flex-col text-[9px] text-slate-500/80 ml-2 mt-0.5 border-l border-slate-700/50 pl-2 leading-relaxed">
-                            <span>+ Satıştan KDV Çıkışı: <strong class="text-rose-400/80">${PriceCalculator.formatTL(storeSim.extraSalesVatOwed)}</strong></span>
-                            <span>- Gider KDV İadesi: <strong class="text-emerald-400/80">0,00 ₺</strong> (Kargo ve Komisyon yok)</span>
-                          </div>
                         </div>
                       </div>
                       <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
