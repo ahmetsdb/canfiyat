@@ -29,11 +29,11 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=3.36">
+    <link rel="stylesheet" href="css/styles.css?v=4.00">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="p-3 md:p-6 min-h-screen text-slate-100 bg-[#090d16]">
+<body class="p-3 md:p-6 min-h-screen text-slate-100 bg-[#090a0d]">
 
     <div class="max-w-7xl mx-auto space-y-6">
         
@@ -41,23 +41,23 @@
         <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
             <!-- Left Side: Brand Logo, Title, Badges & Subtitle -->
             <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/25 border border-blue-400/30 shrink-0 mt-0.5">
+                <div class="w-10 h-10 rounded-2xl bg-zinc-900 flex items-center justify-center font-black text-xl shadow-md border border-zinc-700/80 shrink-0 mt-0.5 text-blue-400">
                     💧
                 </div>
                 <div class="space-y-1">
                     <div class="flex flex-wrap items-center gap-2">
                         <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">CanFiyat</h1>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-blue-950/80 text-blue-400 border border-blue-800/60 shadow-sm">
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800 shadow-sm">
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.52: Net Başlıklar ve Dengeli Sol Panel">
-                            v3.52 (✨ Net Başlıklar & Orantı)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-700/80 shadow-sm" title="v4.00: Next-Gen Financial SaaS Mimarisi">
+                            v4.00 (✨ Next-Gen SaaS)
                         </span>
 
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             Bulut DB
                         </span>
                     </div>
@@ -68,17 +68,17 @@
             <!-- Right Side: Action Buttons & Statistics Bar -->
             <div class="flex flex-wrap items-center gap-2.5 shrink-0">
                 <!-- Action Buttons -->
-                <button onclick="openAddProductModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition-all border border-blue-400/30">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                <button onclick="openAddProductModal()" class="bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs px-4 py-2 rounded-xl shadow-md flex items-center gap-1.5 transition-all border border-white cursor-pointer">
+                    <svg class="w-4 h-4 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
                     </svg>
                     YENİ ÜRÜN EKLE
                 </button>
 
                 <!-- User Profile & Logout Badge -->
-                <div id="user-header-badge" class="hidden flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 shadow-sm">
+                <div id="user-header-badge" class="hidden flex items-center gap-2 bg-[#12151b] px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
                     <span class="text-xs font-bold text-slate-200 flex items-center gap-1">👤 Ahmet</span>
-                    <button onclick="handleLogout()" title="Çıkış Yap" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-md transition-all">
+                    <button onclick="handleLogout()" title="Çıkış Yap" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-md transition-all cursor-pointer">
                         🚪 Çıkış
                     </button>
                 </div>
@@ -88,102 +88,102 @@
 
                 <!-- Quick Stats Pill Cards -->
                 <div class="flex items-center gap-1.5">
-                    <div class="bg-slate-950/80 border border-slate-800/80 px-3 py-1 text-center rounded-xl min-w-[70px]">
-                        <span class="text-[9px] uppercase font-extrabold text-slate-400 block tracking-wider">Toplam</span>
-                        <span class="text-sm font-black text-white" id="stat-total-count">0</span>
+                    <div class="bg-[#12151b] border border-zinc-800/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
+                        <span class="text-[9px] uppercase font-bold text-zinc-400 block tracking-wider">Toplam</span>
+                        <span class="text-sm font-extrabold text-white font-mono tabular-nums" id="stat-total-count">0</span>
                     </div>
 
-                    <div class="bg-purple-950/40 border border-purple-800/50 px-3 py-1 text-center rounded-xl min-w-[70px]">
-                        <span class="text-[9px] uppercase font-extrabold text-purple-300 block tracking-wider">Uçucu</span>
-                        <span class="text-sm font-black text-purple-300" id="stat-ucucu-count">0</span>
+                    <div class="bg-[#12151b] border border-zinc-800/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
+                        <span class="text-[9px] uppercase font-bold text-zinc-400 block tracking-wider">Uçucu</span>
+                        <span class="text-sm font-extrabold text-zinc-200 font-mono tabular-nums" id="stat-ucucu-count">0</span>
                     </div>
 
-                    <div class="bg-emerald-950/40 border border-emerald-800/50 px-3 py-1 text-center rounded-xl min-w-[70px]">
-                        <span class="text-[9px] uppercase font-extrabold text-emerald-300 block tracking-wider">Sabit</span>
-                        <span class="text-sm font-black text-emerald-300" id="stat-sabit-count">0</span>
+                    <div class="bg-[#12151b] border border-zinc-800/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
+                        <span class="text-[9px] uppercase font-bold text-zinc-400 block tracking-wider">Sabit</span>
+                        <span class="text-sm font-extrabold text-zinc-200 font-mono tabular-nums" id="stat-sabit-count">0</span>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Executive Segmented Control Dock Bar (Katman Seçici Navigation Bar) -->
-        <nav class="w-full bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90 shadow-2xl backdrop-blur-xl my-3">
+        <nav class="w-full bg-[#0d1017] p-1.5 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl my-3">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 
-                <!-- Katman 1 Button (Yeşil Tema - Saf Maliyet) -->
-                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-md shadow-emerald-500/15">
+                <!-- Katman 1 Button (Saf Maliyet) -->
+                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#161a24] text-white border border-white/20 shadow-md">
                     <div class="flex items-center gap-2.5">
-                        <span id="dot-1" class="w-2.5 h-2.5 rounded-full bg-emerald-200 shrink-0"></span>
+                        <span id="dot-1" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50 shrink-0"></span>
                         <span class="tracking-tight text-left font-bold">1. KATMAN: Saf Maliyet</span>
                     </div>
-                    <span id="badge-1" class="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0">✓ SEÇİLİ KATMAN</span>
+                    <span id="badge-1" class="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 shrink-0">✓ SEÇİLİ KATMAN</span>
                 </button>
 
-                <!-- Katman 2 Button (Mor Tema - Karşılaştırma / Teklif) -->
-                <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800/80 hover:bg-slate-800/80 hover:text-white">
+                <!-- Katman 2 Button (Karşılaştırma / Teklif) -->
+                <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#0f1218]/90 text-zinc-400 border border-white/5 hover:border-white/10 hover:text-zinc-200 hover:bg-[#151922]">
                     <div class="flex items-center gap-2.5">
-                        <span id="dot-2" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
+                        <span id="dot-2" class="w-2.5 h-2.5 rounded-full bg-zinc-600 shrink-0"></span>
                         <span class="tracking-tight text-left font-bold">2. KATMAN: Karşılaştırma / Teklif</span>
                     </div>
-                    <span id="badge-2" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0">KATMANA GEÇ</span>
+                    <span id="badge-2" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-500 border border-zinc-800 shrink-0">KATMANA GEÇ</span>
                 </button>
 
-                <!-- Katman 3 Button (Mavi Tema - Kampanya & Set) -->
-                <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800/80 hover:bg-slate-800/80 hover:text-white">
+                <!-- Katman 3 Button (Kampanya & Set) -->
+                <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#0f1218]/90 text-zinc-400 border border-white/5 hover:border-white/10 hover:text-zinc-200 hover:bg-[#151922]">
                     <div class="flex items-center gap-2.5">
-                        <span id="dot-3" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
+                        <span id="dot-3" class="w-2.5 h-2.5 rounded-full bg-zinc-600 shrink-0"></span>
                         <span class="tracking-tight text-left font-bold">3. KATMAN: Kampanya & Set</span>
                     </div>
-                    <span id="badge-3" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0">KATMANA GEÇ</span>
+                    <span id="badge-3" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-500 border border-zinc-800 shrink-0">KATMANA GEÇ</span>
                 </button>
 
             </div>
         </nav>
 
         <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
-        <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-slate-900/60 p-3 rounded-2xl border border-slate-800/80">
+        <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#11141b] p-3 rounded-2xl border border-zinc-800/80 shadow-sm">
             
             <!-- Category Tabs -->
             <div class="flex flex-wrap gap-1.5 w-full lg:w-auto">
-                <button id="cat-tab-all" onclick="filterCategory('all')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-blue-600 text-white">
+                <button id="cat-tab-all" onclick="filterCategory('all')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm">
                     Tüm Ürünler (65)
                 </button>
-                <button id="cat-tab-Uçucu Yağlar" onclick="filterCategory('Uçucu Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:bg-slate-700">
+                <button id="cat-tab-Uçucu Yağlar" onclick="filterCategory('Uçucu Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">
                     🌿 Uçucu Yağlar (23)
                 </button>
-                <button id="cat-tab-Sabit Yağlar" onclick="filterCategory('Sabit Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:bg-slate-700">
+                <button id="cat-tab-Sabit Yağlar" onclick="filterCategory('Sabit Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">
                     🌻 Sabit Yağlar (42)
                 </button>
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
                 <!-- View Mode Switcher (Satır vs Kart) & Redline Toggle -->
-                <div class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white flex items-center gap-1">
+                <div class="flex items-center gap-1.5 bg-[#090b10] p-1 rounded-xl border border-zinc-800">
+                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-800 text-white flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                         Satır
                     </button>
-                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center gap-1">
+                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-transparent text-zinc-400 hover:text-white flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                         Kartlar
                     </button>
-                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-slate-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
+                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
                         🔴 Dip Fiyat
                     </button>
                 </div>
 
                 <!-- Search Input -->
                 <div class="relative w-full sm:w-64">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-9 pr-3 py-1.5 bg-[#090b10] border border-zinc-800 rounded-xl text-xs font-medium text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all">
                 </div>
             </div>
 
@@ -192,32 +192,32 @@
         <!-- Main Container for Layer 3: E-Ticaret Kampanya, Çoklu Sepet & Kombin Set Laboratuvarı -->
         <main id="layer1-main-view" class="hidden space-y-4">
             <!-- Katman 3 Executive Hub Toolbar & Sub-Tabs -->
-            <div class="glass-card rounded-2xl p-3 border border-blue-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+            <div class="glass-card rounded-2xl p-3 border border-white/10 bg-[#11141b] flex flex-wrap items-center justify-between gap-3 shadow-md">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-black text-xl border border-blue-500/30 shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-zinc-900 text-indigo-400 flex items-center justify-center font-black text-xl border border-zinc-800 shrink-0">
                         🚀
                     </div>
                     <div>
                         <h3 class="text-xs font-black text-white flex items-center gap-2">
                             E-Ticaret Kampanya, Çoklu Sepet & Kombin Set Laboratuvarı
-                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800/50">3. Katman Aktif</span>
+                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">3. Katman Aktif</span>
                         </h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">DHL eCommerce Anlaşmalı Desi Baremleri & 1. Katman Saf Fabrika Maliyet Entegrasyonu</p>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">DHL eCommerce Anlaşmalı Desi Baremleri & 1. Katman Saf Fabrika Maliyet Entegrasyonu</p>
                     </div>
                 </div>
 
                 <!-- 3. Katman Alt Sekmeleri (Sub-Tabs) -->
-                <div class="flex flex-wrap gap-1.5 p-1 bg-slate-950/90 rounded-xl border border-slate-800">
-                    <button id="l3-tab-btn-multipack" onclick="switchLayer3SubTab('multipack')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md cursor-pointer flex items-center gap-1.5">
+                <div class="flex flex-wrap gap-1.5 p-1 bg-[#090b10] rounded-xl border border-zinc-800">
+                    <button id="l3-tab-btn-multipack" onclick="switchLayer3SubTab('multipack')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm cursor-pointer flex items-center gap-1.5">
                         📦 2'li / Çoklu Alım
                     </button>
-                    <button id="l3-tab-btn-bundle" onclick="switchLayer3SubTab('bundle')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-bundle" onclick="switchLayer3SubTab('bundle')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
                         🎁 Kombin Set Laboratuvarı
                     </button>
-                    <button id="l3-tab-btn-offers" onclick="switchLayer3SubTab('offers')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-offers" onclick="switchLayer3SubTab('offers')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
                         🏷️ Trendyol & HB Teklif Sim
                     </button>
-                    <button id="l3-tab-btn-catalog" onclick="switchLayer3SubTab('catalog')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-catalog" onclick="switchLayer3SubTab('catalog')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
                         📋 Ürün Kataloğu & Kasa
                     </button>
                 </div>
@@ -545,21 +545,21 @@
         <!-- Layer 1: True Production Cost Workspace Container (1. Katman: Saf Maliyet Simülatörü) -->
         <main id="layer2-main-view">
             <!-- Compact Industrial Overhead & Action Toolbar (1-Row Ergonomic Design) -->
-            <div class="glass-card rounded-xl p-3.5 mb-4 border border-teal-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 shadow-xl flex flex-wrap items-center justify-between gap-3">
+            <div class="glass-card rounded-xl p-3.5 mb-4 border border-white/10 bg-[#11141b] shadow-md flex flex-wrap items-center justify-between gap-3">
                 <!-- Left Section: Title & Inline Stat Badges -->
                 <div class="flex flex-wrap items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-black text-xl border border-teal-500/30 shrink-0">
+                    <div class="w-9 h-9 rounded-lg bg-zinc-900 text-emerald-400 flex items-center justify-center font-black text-xl border border-zinc-800 shrink-0">
                         🏭
                     </div>
                     <div>
                         <h3 class="text-xs font-extrabold text-white flex items-center gap-2">
                             Fabrika Saf Maliyet Paneli
-                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-800/50">1. Katman Aktif</span>
+                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">1. Katman Aktif</span>
                         </h3>
                         <div class="flex items-center gap-2 mt-0.5 text-[10.5px]">
-                            <span class="text-slate-400">Aylık Tesis Gideri: <strong class="text-slate-200 font-bold" id="l2-stat-total-overhead">330.000,00 ₺</strong></span>
-                            <span class="text-slate-600">•</span>
-                            <span class="text-teal-400 font-bold">1KG Gider Payı: <strong class="text-teal-300 font-extrabold" id="l2-stat-overhead-per-kg">110,00 ₺/KG</strong></span>
+                            <span class="text-zinc-400">Aylık Tesis Gideri: <strong class="text-zinc-100 font-bold tabular-nums font-mono" id="l2-stat-total-overhead">330.000,00 ₺</strong></span>
+                            <span class="text-zinc-600">•</span>
+                            <span class="text-emerald-400 font-bold">1KG Gider Payı: <strong class="text-emerald-300 font-extrabold tabular-nums font-mono" id="l2-stat-overhead-per-kg">110,00 ₺/KG</strong></span>
                         </div>
                     </div>
                 </div>
@@ -567,18 +567,18 @@
                 <!-- Right Section: Mode Switcher, PDF Report Bar, and Operator Settings -->
                 <div class="flex flex-wrap items-center gap-2.5">
                     <!-- Mode Switcher -->
-                    <div class="inline-flex p-1 rounded-lg bg-slate-950 border border-slate-800">
-                        <button id="btn-layer2-group-retail" onclick="setLayer2GroupMode('retail')" class="px-3 py-1 rounded-md text-[11px] font-extrabold transition-all bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md shadow-emerald-500/20 flex items-center gap-1 cursor-pointer">
+                    <div class="inline-flex p-1 rounded-lg bg-[#090b10] border border-zinc-800">
+                        <button id="btn-layer2-group-retail" onclick="setLayer2GroupMode('retail')" class="px-3 py-1 rounded-md text-[11px] font-bold transition-all bg-white text-zinc-950 shadow-sm flex items-center gap-1 cursor-pointer">
                             🛍️ Perakende Şişe
                         </button>
-                        <button id="btn-layer2-group-drums" onclick="setLayer2GroupMode('wholesale_drums')" class="px-3 py-1 rounded-md text-[11px] font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer">
+                        <button id="btn-layer2-group-drums" onclick="setLayer2GroupMode('wholesale_drums')" class="px-3 py-1 rounded-md text-[11px] font-semibold transition-all text-zinc-400 hover:text-white flex items-center gap-1 cursor-pointer">
                             📦 Toptan KG
                         </button>
                     </div>
 
                     <!-- PDF Cost Report Generator Bar (Prominently Placed on Top Right Action Cluster) -->
-                    <div class="flex items-center gap-1.5 bg-emerald-950/60 p-1 rounded-lg border border-emerald-500/40 shadow-md">
-                        <select id="pdf-report-volume-select" class="bg-slate-900 text-emerald-200 font-extrabold text-[11px] px-2.5 py-1 rounded-md border border-emerald-500/40 outline-none cursor-pointer focus:ring-1 focus:ring-emerald-400">
+                    <div class="flex items-center gap-1.5 bg-[#090b10] p-1 rounded-lg border border-zinc-800 shadow-sm">
+                        <select id="pdf-report-volume-select" class="bg-[#12151b] text-zinc-200 font-bold text-[11px] px-2.5 py-1 rounded-md border border-zinc-700 outline-none cursor-pointer focus:ring-1 focus:ring-zinc-500">
                             <option value="1000ml" selected>1000ml (1 KG)</option>
                             <option value="250ml">250ml Şişe</option>
                             <option value="500ml">500ml Şişe</option>
@@ -591,13 +591,13 @@
                             <option value="25KG">25 KG Bidon</option>
                             <option value="30KG">30 KG Bidon</option>
                         </select>
-                        <button onclick="generateLayer2PdfReport()" class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black px-3 py-1 rounded-md shadow-md transition-all flex items-center gap-1 text-[11px] border border-emerald-300/40 cursor-pointer whitespace-nowrap">
+                        <button onclick="generateLayer2PdfReport()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3 py-1 rounded-md shadow-sm transition-all flex items-center gap-1 text-[11px] border border-zinc-700 cursor-pointer whitespace-nowrap">
                             📄 RAPOR OLUŞTUR (PDF)
                         </button>
                     </div>
 
                     <!-- Operator Settings Button -->
-                    <button id="btn-operator-settings" onclick="openOperatorSettingsModal()" class="bg-slate-900 hover:bg-slate-800 text-purple-300 hover:text-white font-extrabold px-3 py-1.5 rounded-lg shadow transition-all flex items-center gap-1 text-[11px] border border-purple-500/40 cursor-pointer">
+                    <button id="btn-operator-settings" onclick="openOperatorSettingsModal()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white font-bold px-3 py-1.5 rounded-lg shadow transition-all flex items-center gap-1 text-[11px] border border-zinc-700/80 cursor-pointer">
                         ⚙️ OPERATÖR AYARLARI
                     </button>
                 </div>
@@ -615,29 +615,29 @@
         <!-- Layer 3: Live Retail Channel Price Comparison Workspace -->
         <main id="layer3-main-view" class="hidden space-y-4">
             <!-- Summary Multi-Channel Comparison Banner -->
-            <div id="l3-summary-banner" class="glass-card rounded-2xl p-4 border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-xl transition-all">
+            <div id="l3-summary-banner" class="glass-card rounded-2xl p-4 border border-white/10 bg-[#11141b] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-md transition-all">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-xl border border-purple-500/30 shadow-lg shadow-purple-500/10">
+                    <div class="w-10 h-10 rounded-xl bg-zinc-900 text-sky-400 flex items-center justify-center font-black text-xl border border-zinc-800 shadow-sm">
                         📊
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-white flex flex-wrap items-center gap-2">
                             Çoklu Perakende Satış Karşılaştırma Portalı
-                            <span id="l3-active-channel-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50">🌐 iyzico Canlı Sitede</span>
+                            <span id="l3-active-channel-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">🌐 iyzico Canlı Sitede</span>
                         </h3>
-                        <p class="text-slate-400 text-xs mt-0.5">Pazar yeri canlı satış fiyatları ile CanFiyat saf maliyetlerinin birebir kârlılık kıyaslaması</p>
+                        <p class="text-zinc-400 text-xs mt-0.5">Pazar yeri canlı satış fiyatları ile CanFiyat saf maliyetlerinin birebir kârlılık kıyaslaması</p>
                     </div>
                 </div>
 
                 <!-- Controls & Action Cluster (Spacious & Distinctly Grouped) -->
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end text-xs">
                     <!-- Channel Switcher Group -->
-                    <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-950/90 border border-slate-800 shadow-inner">
-                        <span class="text-[10px] font-extrabold uppercase text-slate-400 px-2 tracking-wider">Kanal:</span>
-                        <button id="btn-l3-channel-iyzico" onclick="setLayer3Channel('iyzico')" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-md shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer">
+                    <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#090b10] border border-zinc-800 shadow-inner">
+                        <span class="text-[10px] font-bold uppercase text-zinc-400 px-2 tracking-wider">Kanal:</span>
+                        <button id="btn-l3-channel-iyzico" onclick="setLayer3Channel('iyzico')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm flex items-center gap-1.5 cursor-pointer">
                             🌐 iyzico (Sitemiz)
                         </button>
-                        <button id="btn-l3-channel-trendyol" onclick="setLayer3Channel('trendyol')" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                        <button id="btn-l3-channel-trendyol" onclick="setLayer3Channel('trendyol')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
                             🧡 Trendyol (117 Ürün)
                         </button>
                     </div>
@@ -645,12 +645,12 @@
                     <!-- PDF & Excel Action Group -->
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- PDF Comparison Report Button -->
-                        <button id="btn-l3-pdf-report" onclick="generateLayer3PdfReport()" class="bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-500 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-lg flex items-center gap-1.5 text-xs border border-purple-400/40 cursor-pointer" title="Katman 3 Canlı Mağaza & Önerilen Fiyat Karşılaştırma Raporunu PDF Olarak Yazdır / İndir">
+                        <button id="btn-l3-pdf-report" onclick="generateLayer3PdfReport()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-zinc-700 cursor-pointer" title="Katman 3 Canlı Mağaza & Önerilen Fiyat Karşılaştırma Raporunu PDF Olarak Yazdır / İndir">
                             📄 İYZİCO KARŞILAŞTIRMA PDF AL
                         </button>
 
                         <!-- Upload Excel Button (Only Visible on Trendyol Tab) -->
-                        <button id="btn-l3-excel-upload" onclick="openTrendyolExcelModal()" class="hidden bg-gradient-to-r from-orange-700 to-amber-600 hover:from-orange-600 hover:to-amber-500 text-white font-extrabold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-orange-400/30 cursor-pointer">
+                        <button id="btn-l3-excel-upload" onclick="openTrendyolExcelModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white font-bold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 text-xs border border-amber-500/40 cursor-pointer">
                             📥 TRENDYOL EXCEL YÜKLE
                         </button>
                     </div>
@@ -1440,12 +1440,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.52"></script>
-    <script src="js/liveSiteData.js?v=3.52"></script>
-    <script src="js/trendyolData.js?v=3.52"></script>
-    <script src="js/storage.js?v=3.52"></script>
-    <script src="js/calculator.js?v=3.52"></script>
-    <script src="js/app.js?v=3.52"></script>
+    <script src="js/productsData.js?v=4.00"></script>
+    <script src="js/liveSiteData.js?v=4.00"></script>
+    <script src="js/trendyolData.js?v=4.00"></script>
+    <script src="js/storage.js?v=4.00"></script>
+    <script src="js/calculator.js?v=4.00"></script>
+    <script src="js/app.js?v=4.00"></script>
 </body>
 
 

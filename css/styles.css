@@ -1,137 +1,150 @@
-/* CanFiyat Premium Dark Theme & Layout System */
+/* CanFiyat Next-Gen Financial SaaS Design System (Linear / Stripe Caliber) */
 
 :root {
-  --bg-main: #090d16;
-  --bg-card: #0f172a;
-  --bg-card-hover: #1e293b;
-  --border-color: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --bg-canvas: #090a0d;
+  --bg-surface: #12151b;
+  --bg-surface-elevated: #181c24;
+  --bg-surface-hover: #1f2430;
   
-  --accent-orange: #f97316;
-  --accent-yellow: #eab308;
-  --accent-cyan: #06b6d4;
-  --accent-blue: #3b82f6;
-  --accent-green: #10b981;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.14);
+  --border-active: #3b82f6;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+
+  /* Semantic-only Colors */
+  --semantic-profit: #10b981;
+  --semantic-profit-bg: rgba(16, 185, 129, 0.12);
+  --semantic-loss: #f43f5e;
+  --semantic-loss-bg: rgba(244, 63, 94, 0.12);
+  --semantic-warning: #f59e0b;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
+/* Tabular Financial Numbers (All numbers align perfectly in tables & cards) */
+.tabular-nums,
+.font-mono,
+input[type="number"],
+.breakdown-row .val,
+span[id^="stat-"] {
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Custom Minimalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: #232936;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #374151;
 }
 
-/* Glassmorphism Cards */
+/* Glassmorphism & SaaS Card Surfaces */
 .glass-card {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: rgba(18, 21, 28, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+}
+
+.glass-card:hover {
+  border-color: var(--border-medium);
 }
 
 .glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-card-hover:hover {
-  transform: translateY(-3px);
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
 }
 
-/* Input Form Controls */
+/* Financial Input Form Controls */
 .input-group label {
   display: block;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-bottom: 0.35rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
 }
 
-.input-group input, .input-group select {
+.input-group input, 
+.input-group select,
+.input-group textarea {
   width: 100%;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid #334155;
-  border-radius: 0.5rem;
-  background-color: #0f172a;
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.625rem;
+  background-color: #0c0e13;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: #f8fafc;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.input-group input:focus, .input-group select:focus {
+.input-group input:focus, 
+.input-group select:focus,
+.input-group textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
 }
 
-/* Channel Colors */
-.card-brand-ty { border-top: 4px solid #f97316; }
-.card-brand-hb { border-top: 4px solid #eab308; }
-.card-brand-iy { border-top: 4px solid #06b6d4; }
+/* Channel Header Badges (Subdued, Professional) */
+.header-badge-ty { background-color: rgba(249, 115, 22, 0.12); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.25); }
+.header-badge-hb { background-color: rgba(234, 179, 8, 0.12); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.25); }
+.header-badge-iy { background-color: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.25); }
 
-.header-badge-ty { background-color: rgba(249, 115, 22, 0.15); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.3); }
-.header-badge-hb { background-color: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); }
-.header-badge-iy { background-color: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); }
-
-/* Breakdown Row */
+/* Breakdown Accounting Rows */
 .breakdown-row {
   display: flex;
   justify-content: space-between;
   font-size: 0.8125rem;
-  padding: 0.4rem 0;
-  border-bottom: 1px dashed #1e293b;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
   align-items: center;
 }
 .breakdown-row:last-child { border-bottom: none; }
-.breakdown-row .label { color: #94a3b8; font-weight: 500; }
-.breakdown-row .val { font-weight: 600; color: #f1f5f9; font-variant-numeric: tabular-nums; }
-.breakdown-row.negative .val { color: #f87171; }
-.breakdown-row.positive .val { color: #34d399; }
+.breakdown-row .label { color: var(--text-secondary); font-weight: 500; }
+.breakdown-row .val { font-weight: 700; color: #f8fafc; }
+.breakdown-row.negative .val { color: var(--semantic-loss); }
+.breakdown-row.positive .val { color: var(--semantic-profit); }
 
-/* Tabs */
-.tab-btn {
-  transition: all 0.2s ease-in-out;
-}
-.tab-btn.active {
-  background-color: #3b82f6;
-  color: white;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-}
-.tab-btn.inactive {
-  background-color: transparent;
-  color: #94a3b8;
-  border: 1px solid #1e293b;
-}
-.tab-btn.inactive:hover {
-  background-color: #1e293b;
-  color: #f1f5f9;
-}
-
-/* Toast animations */
+/* Animated Elements */
 @keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
+  from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 .animate-slide-up {
-  animation: slideUp 0.3s ease-out forwards;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
 }

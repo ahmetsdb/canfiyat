@@ -327,59 +327,59 @@ function renderProductGrid() {
 
     if (viewMode === "rows") {
       const rowHtml = `
-        <div class="glass-card rounded-xl p-3 border ${showRedLineFloor ? 'border-rose-600/60 bg-rose-950/20' : 'border-slate-800/80 hover:border-blue-500/50'} bg-gradient-to-r from-slate-950 via-slate-900/60 to-slate-950 transition-all shadow-md group flex flex-col gap-2">
+        <div class="glass-card rounded-xl p-3 border ${showRedLineFloor ? 'border-rose-600/60 bg-rose-950/20' : 'border-white/5 hover:border-white/15 bg-[#12151b]'} transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
             
             <!-- 1. Left: Product Title, SKU, Category Badge -->
             <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-              <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
+              <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
                 ${product.sku}
               </span>
               <div class="truncate">
-                <h3 class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors truncate" title="${product.name}">
+                <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
                   ${product.name}
                 </h3>
                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                   <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
                     ${product.category}
                   </span>
-                  <span class="text-[11px] font-medium text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">
-                    📌 Ambalaj: <span class="text-sky-300 font-bold text-xs">${mainVol}</span>
+                  <span class="text-[11px] font-medium text-zinc-400 bg-[#0a0c10] px-2 py-0.5 rounded-md border border-zinc-800">
+                    📌 Ambalaj: <span class="text-zinc-200 font-bold text-xs">${mainVol}</span>
                   </span>
                 </div>
               </div>
             </div>
 
             <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
-            <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
-              <div class="text-center border-r border-slate-800/80 pr-1">
-                <span class="text-[11px] font-medium text-slate-400 block leading-tight">1KG Toptan</span>
-                <span class="font-bold text-emerald-300 text-xs block mt-0.5">${PriceCalculator.formatTL(product.costPerKg)}</span>
+            <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
+              <div class="text-center border-r border-zinc-800/80 pr-1">
+                <span class="text-[11px] font-medium text-zinc-400 block leading-tight">1KG Toptan</span>
+                <span class="font-bold text-zinc-100 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
 
-              <div class="text-center border-r border-slate-800/80 pr-1">
-                <span class="text-[11px] font-medium text-slate-400 block leading-tight">${mainVol} Maliyet</span>
-                <span class="font-bold text-sky-300 text-xs block mt-0.5">${PriceCalculator.formatTL(unitCost)}</span>
+              <div class="text-center border-r border-zinc-800/80 pr-1">
+                <span class="text-[11px] font-medium text-zinc-400 block leading-tight">${mainVol} Maliyet</span>
+                <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(unitCost)}</span>
               </div>
 
-              <div class="text-center border-r border-slate-800/80 pr-1">
-                <span class="text-[11px] font-medium ${showRedLineFloor ? 'text-rose-400 font-bold' : 'text-orange-400'} block leading-tight">
+              <div class="text-center border-r border-zinc-800/80 pr-1">
+                <span class="text-[11px] font-medium ${showRedLineFloor ? 'text-rose-400 font-bold' : 'text-zinc-400'} block leading-tight">
                   ${showRedLineFloor ? '🔴 Dip Satış' : 'Trendyol Etiket'}
                 </span>
-                <span class="font-bold ${showRedLineFloor ? 'text-rose-300' : 'text-white'} text-xs block mt-0.5">
+                <span class="font-bold ${showRedLineFloor ? 'text-rose-300' : 'text-zinc-100'} text-xs block mt-0.5 tabular-nums font-mono">
                   ${PriceCalculator.formatTL(showRedLineFloor ? breakEvenTy.breakEvenPrice : tyResult.listPrice)}
                 </span>
               </div>
 
               <div class="text-center">
-                <span class="text-[11px] font-medium text-emerald-400 block leading-tight">Hedef Kâr</span>
-                <span class="font-bold text-emerald-300 text-xs block mt-0.5">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)}</span>
+                <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Hedef Kâr</span>
+                <span class="font-bold text-emerald-400 text-xs block mt-0.5 tabular-nums font-mono">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)}</span>
               </div>
             </div>
 
             <!-- 3. Far Right Action Button: Kasa & Detay Modal Açıcı -->
             <div class="flex items-center gap-2 shrink-0">
-              <button onclick="openProductSlot('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-950 text-blue-300 hover:text-white border border-blue-700/80 transition-all cursor-pointer shadow-sm flex items-center gap-1">
+              <button onclick="openProductSlot('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800 transition-all cursor-pointer shadow-sm flex items-center gap-1">
                 <span>🧮 5'li Sistem Kasa ▼</span>
               </button>
             </div>
@@ -1072,9 +1072,9 @@ function switchLayerMode(mode) {
   const view3 = document.getElementById("layer3-main-view");
   const btnOverhead = document.getElementById("btn-factory-overhead");
 
-  const inactiveBtnClass = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-slate-900/80 text-slate-400 border border-slate-800/80 hover:bg-slate-800/80 hover:text-white";
-  const inactiveDotClass = "w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0";
-  const inactiveBadgeClass = "text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 shrink-0";
+  const inactiveBtnClass = "layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#0f1218]/90 text-zinc-400 border border-white/5 hover:border-white/10 hover:text-zinc-200 hover:bg-[#151922]";
+  const inactiveDotClass = "w-2.5 h-2.5 rounded-full bg-zinc-600 shrink-0";
+  const inactiveBadgeClass = "text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-500 border border-zinc-800 shrink-0";
 
   if (btn1) btn1.className = inactiveBtnClass;
   if (btn2) btn2.className = inactiveBtnClass;
@@ -1090,9 +1090,9 @@ function switchLayerMode(mode) {
 
   if (mode === 1) {
     // 1. KATMAN: SAF MALİYET SİMÜLATÖRÜ (ZÜMRÜT YEŞİL TEMA)
-    if (btn1) btn1.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-md shadow-emerald-500/15";
-    if (dot1) dot1.className = "w-2.5 h-2.5 rounded-full bg-emerald-200 shrink-0";
-    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-200 border border-emerald-400/50 shrink-0"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
+    if (btn1) btn1.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#161a24] text-white border border-white/20 shadow-md";
+    if (dot1) dot1.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50 shrink-0";
+    if (badge1) { badge1.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 shrink-0"; badge1.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.remove("hidden");
@@ -1105,10 +1105,10 @@ function switchLayerMode(mode) {
     updateLayer2BannerStats();
     renderLayer2Cards();
   } else if (mode === 2) {
-    // 2. KATMAN: HIZLI SİPARİŞ / TEKLİF (ASİL MOR TEMA)
-    if (btn2) btn2.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white border border-purple-400/60 shadow-md shadow-purple-500/15";
-    if (dot2) dot2.className = "w-2.5 h-2.5 rounded-full bg-purple-200 shrink-0";
-    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-purple-950 text-purple-200 border border-purple-400/50 shrink-0"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
+    // 2. KATMAN: HIZLI SİPARİŞ / TEKLİF (SKY / AMBER TEMA)
+    if (btn2) btn2.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#161a24] text-white border border-white/20 shadow-md";
+    if (dot2) dot2.className = "w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400/50 shrink-0";
+    if (badge2) { badge2.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-sky-950/80 text-sky-300 border border-sky-800/80 shrink-0"; badge2.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.add("hidden");
     if (view2) view2.classList.add("hidden");
@@ -1117,10 +1117,10 @@ function switchLayerMode(mode) {
 
     renderLayer3Cards();
   } else if (mode === 3) {
-    // 3. KATMAN: SATIŞ KATALOĞU & KASA (MAVİ TEMA)
-    if (btn3) btn3.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white border border-blue-400/60 shadow-md shadow-blue-500/15";
-    if (dot3) dot3.className = "w-2.5 h-2.5 rounded-full bg-blue-200 shrink-0";
-    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-blue-950 text-blue-200 border border-blue-400/50 shrink-0"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
+    // 3. KATMAN: SATIŞ KATALOĞU & KASA (INDIGO TEMA)
+    if (btn3) btn3.className = "layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#161a24] text-white border border-white/20 shadow-md";
+    if (dot3) dot3.className = "w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50 shrink-0";
+    if (badge3) { badge3.className = "text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-indigo-950/80 text-indigo-300 border border-indigo-800/80 shrink-0"; badge3.innerText = "✓ SEÇİLİ KATMAN"; }
 
     if (view1) view1.classList.remove("hidden");
     if (view2) view2.classList.add("hidden");
@@ -1879,65 +1879,63 @@ function renderLayer3Cards() {
       `;
     }
 
-    const cardTheme = currentLayer3Channel === "trendyol" 
-      ? "border-orange-500/30 hover:border-orange-400/80 bg-gradient-to-r from-slate-950 via-slate-900/60 to-slate-950"
-      : "border-slate-800/80 hover:border-purple-500/50 bg-gradient-to-r from-slate-950 via-slate-900/60 to-slate-950";
+    const cardTheme = "border-white/5 hover:border-white/15 bg-[#12151b]";
 
     const cardHtml = `
-      <div class="glass-card rounded-xl p-3 border ${cardTheme} transition-all shadow-md group flex flex-col gap-2">
+      <div class="glass-card rounded-xl p-3 border ${cardTheme} transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
           
           <!-- 1. Left: Product Title, SKU, Category Badge -->
           <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-            <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
+            <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
               ${product.sku}
             </span>
             <div class="truncate">
-              <h3 class="text-sm font-bold text-white group-hover:text-amber-300 transition-colors truncate" title="${product.name}">
+              <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
                 ${product.name}
               </h3>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${catBadge}">
                   ${product.category}
                 </span>
-                <span class="text-[11px] font-medium text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">
-                  📌 Ambalaj: <span class="text-amber-300 font-bold text-xs">${activeVolKey}</span>
+                <span class="text-[11px] font-medium text-zinc-400 bg-[#0a0c10] px-2 py-0.5 rounded-md border border-zinc-800">
+                  📌 Ambalaj: <span class="text-zinc-200 font-bold text-xs">${activeVolKey}</span>
                 </span>
               </div>
             </div>
           </div>
 
           <!-- 2. Center: Side-by-Side Metrics Preview (Önerilen Fiyat, Canlı Fiyat, Saf Maliyet, Net Kâr) -->
-          <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
-            <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[11px] font-medium ${isLayer3DipFiyatMode ? 'text-rose-400 font-bold' : 'text-amber-400'} block leading-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
-              <span class="font-bold ${isLayer3DipFiyatMode ? 'text-rose-300' : 'text-amber-300'} text-xs block mt-0.5">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
+          <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
+            <div class="text-center border-r border-zinc-800/80 pr-1">
+              <span class="text-[11px] font-medium ${isLayer3DipFiyatMode ? 'text-rose-400 font-bold' : 'text-zinc-400'} block leading-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
+              <span class="font-bold ${isLayer3DipFiyatMode ? 'text-rose-400' : 'text-zinc-100'} text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
             </div>
 
-            <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[11px] font-medium ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-purple-400'} block leading-tight">${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol' : '🌐 iyzico'} Canlı</span>
-              <span class="font-bold text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'} block mt-0.5">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
+            <div class="text-center border-r border-zinc-800/80 pr-1">
+              <span class="text-[11px] font-medium text-zinc-400 block leading-tight">${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol' : '🌐 iyzico'} Canlı</span>
+              <span class="font-bold text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} block mt-0.5 tabular-nums font-mono">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
             </div>
 
-            <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[11px] font-medium text-slate-400 block leading-tight">Saf Maliyet</span>
-              <span class="font-bold text-slate-300 text-xs block mt-0.5">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
+            <div class="text-center border-r border-zinc-800/80 pr-1">
+              <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Saf Maliyet</span>
+              <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
             </div>
 
             <div class="text-center">
-              <span class="text-[11px] font-medium text-slate-400 block leading-tight">Net Kâr</span>
-              <span class="text-xs font-bold block mt-0.5">${netProfitMarginHtml}</span>
+              <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Net Kâr</span>
+              <span class="text-xs font-bold block mt-0.5 tabular-nums font-mono">${netProfitMarginHtml}</span>
             </div>
           </div>
 
           <!-- 3. Far Right Action Buttons: Prominent "Tüm Boyutlar" & Vector Chain Link -->
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="toggleCardAccordion('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isExpanded ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950 text-orange-300 border border-orange-700/80' : 'bg-purple-950 text-purple-300 border border-purple-700/80') : 'bg-slate-900 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700'}">
+            <button onclick="toggleCardAccordion('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isExpanded ? 'bg-zinc-800 text-white border border-zinc-600' : 'bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800'}">
               <span>📊 Tüm Boyutlar ${isExpanded ? '▲' : '▼'}</span>
             </button>
 
-            <a href="${siteUrl}" target="_blank" class="p-2 rounded-lg bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-700/60 transition-all text-xs flex items-center justify-center shadow-sm" title="Mağaza Bağlantısı 🔗">
-              <svg class="w-4 h-4 text-amber-400 hover:text-amber-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <a href="${siteUrl}" target="_blank" class="p-2 rounded-lg bg-[#181c24] text-zinc-400 hover:text-white border border-zinc-700/80 hover:bg-zinc-800 transition-all text-xs flex items-center justify-center shadow-sm" title="Mağaza Bağlantısı 🔗">
+              <svg class="w-4 h-4 text-zinc-300 hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
               </svg>
             </a>
@@ -2554,26 +2552,26 @@ function renderLayer2Cards() {
         const storePrice = effectiveNetCost + targetProfitInput;
 
         const badgeClass = product.category === "Uçucu Yağlar"
-          ? "bg-purple-950/80 text-purple-300 border-purple-800/60"
-          : "bg-emerald-950/80 text-emerald-300 border-emerald-800/60";
+          ? "bg-purple-950/40 text-purple-300 border-purple-800/50"
+          : "bg-emerald-950/40 text-emerald-300 border-emerald-800/50";
 
         if (activeView === "rows") {
           const rowHtml = `
-            <div class="glass-card rounded-xl p-3 border border-slate-800/80 hover:border-teal-500/50 bg-gradient-to-r from-slate-950 via-slate-900/60 to-slate-950 transition-all shadow-md group flex flex-col gap-2">
+            <div class="glass-card rounded-xl p-3 border border-white/5 hover:border-white/15 bg-[#12151b] transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 
                 <!-- 1. Left: Product Title, SKU, Category Badge, Ambalaj -->
                 <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-                  <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
+                  <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
                     ${product.sku}
                   </span>
                   <div class="truncate">
                     <div class="flex items-center gap-1.5 truncate">
-                      <h3 class="text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate" title="${product.name}">
+                      <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
                         ${product.name}
                       </h3>
                       ${isAnyModified ? `
-                        <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded-md border border-amber-800/80 shrink-0">
+                        <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded-md border border-amber-800/80 shrink-0 cursor-pointer">
                           ↺
                         </button>
                       ` : ''}
@@ -2582,11 +2580,11 @@ function renderLayer2Cards() {
                       <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
                         ${product.category}
                       </span>
-                      <span class="text-[11px] font-medium text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800 flex items-center gap-1.5">
+                      <span class="text-[11px] font-medium text-zinc-400 bg-[#0a0c10] px-2 py-0.5 rounded-md border border-zinc-800 flex items-center gap-1.5">
                         📌 Ambalaj: 
                         ${layer2GroupMode === 'wholesale_drums' 
-                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-slate-900 text-teal-300 font-bold px-1.5 py-0.5 rounded border border-slate-700 text-center text-xs"> KG`
-                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 text-sky-300 font-bold px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer text-xs">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
+                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-[#12151b] text-zinc-200 font-bold px-1.5 py-0.5 rounded border border-zinc-700 text-center text-xs"> KG`
+                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-[#12151b] text-zinc-200 font-bold px-1.5 py-0.5 rounded border border-zinc-700 cursor-pointer text-xs">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
                         }
                       </span>
                     </div>
@@ -2594,27 +2592,27 @@ function renderLayer2Cards() {
                 </div>
 
                 <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
-                <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
-                  <div class="text-center border-r border-slate-800/80 pr-1">
-                    <span class="text-[11px] font-medium text-slate-400 block leading-tight">1KG Hammadde</span>
-                    <span class="font-bold ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-amber-300'} text-xs block mt-0.5">${PriceCalculator.formatTL(costPerKg)}</span>
+                <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
+                  <div class="text-center border-r border-zinc-800/80 pr-1">
+                    <span class="text-[11px] font-medium text-zinc-400 block leading-tight">1KG Hammadde</span>
+                    <span class="font-bold text-zinc-100 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
 
-                  <div class="text-center border-r border-slate-800/80 pr-1">
-                    <span class="text-[11px] font-medium text-slate-400 block leading-tight">Tesis Gideri</span>
-                    <span class="font-bold text-teal-300 text-xs block mt-0.5">${PriceCalculator.formatTL(linearOverhead)}</span>
+                  <div class="text-center border-r border-zinc-800/80 pr-1">
+                    <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Tesis Gideri</span>
+                    <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(linearOverhead)}</span>
                   </div>
 
-                  <div class="text-center border-r border-slate-800/80 pr-1">
-                    <span class="text-[11px] font-medium text-slate-400 block leading-tight">Ambalaj & Sarf</span>
-                    <span class="font-bold text-slate-300 text-xs block mt-0.5">${PriceCalculator.formatTL(packCost)}</span>
+                  <div class="text-center border-r border-zinc-800/80 pr-1">
+                    <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Ambalaj & Sarf</span>
+                    <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(packCost)}</span>
                   </div>
 
                   <div class="text-center">
-                    <span class="text-[11px] font-medium text-teal-400 block leading-tight">
+                    <span class="text-[11px] font-semibold text-zinc-300 block leading-tight">
                       ${layer2GroupMode === 'wholesale_drums' ? '1KG Teklif' : 'Net Saf Maliyet'}
                     </span>
-                    <span class="text-xs font-bold text-teal-300 block mt-0.5">
+                    <span class="text-xs font-extrabold text-emerald-400 block mt-0.5 tabular-nums font-mono">
                       ${PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost)}
                     </span>
                   </div>
@@ -2622,16 +2620,16 @@ function renderLayer2Cards() {
 
                 <!-- 3. Far Right Action Buttons -->
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-teal-950 text-teal-300 border border-teal-600' : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700'}">
+                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-zinc-800 text-white border border-zinc-600' : 'bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800'}">
                     <span>⚙️ Reçete / Ayar ${isBreakdownOpen ? '▲' : '▼'}</span>
                   </button>
 
-                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-purple-950 text-purple-300 border border-purple-600' : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700'}">
+                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-zinc-800 text-white border border-zinc-600' : 'bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800'}">
                     <span>${layer2GroupMode === 'wholesale_drums' ? '🏢 B2B Cetveli' : '⚡ Pazaryeri Sim'} ${isDrawerOpen ? '▲' : '▼'}</span>
                   </button>
 
                   ${layer2GroupMode === 'wholesale_drums' ? `
-                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" title="Müşteri Teklif Metnini Kopyala" class="p-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center">
+                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" title="Müşteri Teklif Metnini Kopyala" class="p-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center cursor-pointer">
                       📋
                     </button>
                   ` : ''}
@@ -3948,8 +3946,8 @@ function switchLayer3SubTab(tab) {
   const btnOffers = document.getElementById("l3-tab-btn-offers");
   const btnCatalog = document.getElementById("l3-tab-btn-catalog");
 
-  const activeClass = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md cursor-pointer flex items-center gap-1.5";
-  const inactiveClass = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5";
+  const activeClass = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm cursor-pointer flex items-center gap-1.5";
+  const inactiveClass = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5";
 
   if (btnMulti) btnMulti.className = tab === "multipack" ? activeClass : inactiveClass;
   if (btnBundle) btnBundle.className = tab === "bundle" ? activeClass : inactiveClass;
