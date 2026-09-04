@@ -1,10 +1,10 @@
-/* CanFiyat Executive Studio - Deep Night Navy & Warm Amber / Emerald Design System */
+/* CanFiyat Next-Gen Financial SaaS Design System (Linear / Stripe Caliber) */
 
 :root {
-  --bg-canvas: #080d1a;
-  --bg-surface: #0f172a;
-  --bg-surface-elevated: #131d33;
-  --bg-surface-hover: #1a2744;
+  --bg-canvas: #090a0d;
+  --bg-surface: #12151b;
+  --bg-surface-elevated: #181c24;
+  --bg-surface-hover: #1f2430;
   
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(255, 255, 255, 0.14);
@@ -14,7 +14,7 @@
   --text-secondary: #94a3b8;
   --text-tertiary: #64748b;
 
-  /* Semantic Accents */
+  /* Semantic-only Colors */
   --semantic-profit: #10b981;
   --semantic-profit-bg: rgba(16, 185, 129, 0.12);
   --semantic-loss: #f43f5e;
@@ -31,7 +31,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tabular Financial Numbers */
+/* Tabular Financial Numbers (All numbers align perfectly in tables & cards) */
 .tabular-nums,
 .font-mono,
 input[type="number"],
@@ -50,16 +50,16 @@ span[id^="stat-"] {
   background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #233250;
+  background: #232936;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #364b73;
+  background: #374151;
 }
 
 /* Glassmorphism & SaaS Card Surfaces */
 .glass-card {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(18, 21, 28, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
@@ -75,30 +75,8 @@ span[id^="stat-"] {
 }
 .glass-card-hover:hover {
   transform: translateY(-2px);
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
-}
-
-/* Active Selected Product Card in Left Browser List */
-.product-card-active {
-  border-color: rgba(56, 189, 248, 0.75) !important;
-  background: linear-gradient(135deg, rgba(16, 28, 54, 0.95), rgba(15, 23, 42, 0.98)) !important;
-  box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.5), 0 10px 25px -5px rgba(0, 0, 0, 0.7) !important;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #334155;
 }
 
 /* Financial Input Form Controls */
@@ -119,7 +97,7 @@ span[id^="stat-"] {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border-subtle);
   border-radius: 0.625rem;
-  background-color: #0b1120;
+  background-color: #0c0e13;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #f8fafc;
@@ -130,14 +108,14 @@ span[id^="stat-"] {
 .input-group select:focus,
 .input-group textarea:focus {
   outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
 }
 
-/* Channel Header Badges */
-.header-badge-ty { background-color: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
-.header-badge-hb { background-color: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
-.header-badge-iy { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+/* Channel Header Badges (Subdued, Professional) */
+.header-badge-ty { background-color: rgba(249, 115, 22, 0.12); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.25); }
+.header-badge-hb { background-color: rgba(234, 179, 8, 0.12); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.25); }
+.header-badge-iy { background-color: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.25); }
 
 /* Breakdown Accounting Rows */
 .breakdown-row {
@@ -145,7 +123,7 @@ span[id^="stat-"] {
   justify-content: space-between;
   font-size: 0.8125rem;
   padding: 0.35rem 0;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
   align-items: center;
 }
 .breakdown-row:last-child { border-bottom: none; }
@@ -156,11 +134,11 @@ span[id^="stat-"] {
 
 /* Animated Elements */
 @keyframes slideUp {
-  from { transform: translateY(8px); opacity: 0; }
+  from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 .animate-slide-up {
-  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeIn {
@@ -168,5 +146,5 @@ span[id^="stat-"] {
   to { opacity: 1; }
 }
 .animate-fade-in {
-  animation: fadeIn 0.15s ease-out forwards;
+  animation: fadeIn 0.2s ease-out forwards;
 }

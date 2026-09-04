@@ -5,59 +5,9 @@ let currentLayerMode = 1; // 1: Saf Maliyet Simülatörü, 2: Hızlı Sipariş /
 let activeCategory = "all";
 let searchQuery = "";
 let selectedProductId = null;
-let viewMode = "split"; // 'split' | 'rows'
-let activeCockpitProductId = null;
-let activeCockpitLayer3ProductId = null;
+let viewMode = "rows"; // 'rows' | 'cards'
 let activeSimTab = "system1"; // 'system1' | 'system2' | 'system3' | 'system4' | 'system5'
 let activeVolume = "250ml"; // Active bottle size sub-tab in modal
-
-function selectCockpitProduct(productId) {
-  activeCockpitProductId = productId;
-  const splitList = document.getElementById("layer2-split-list");
-  if (splitList) {
-    splitList.querySelectorAll("[data-product-id]").forEach(card => {
-      if (card.getAttribute("data-product-id") === productId) {
-        card.classList.add("product-card-active");
-      } else {
-        card.classList.remove("product-card-active");
-      }
-    });
-  }
-  const overhead = StorageManager.getFactoryOverhead();
-  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
-  let productsMap = (typeof currentProducts !== "undefined" && currentProducts && Object.keys(currentProducts).length > 0)
-    ? currentProducts
-    : StorageManager.getProducts();
-  const layer2SimMap = StorageManager.getLayer2SimData();
-  const masterProd = productsMap[productId] || {};
-  const sim = layer2SimMap[productId] || {};
-  const fullProd = { ...masterProd, ...sim };
-  renderLayer2CockpitDesk(fullProd, overheadRes);
-}
-
-function selectCockpitLayer3Product(productId) {
-  activeCockpitLayer3ProductId = productId;
-  const splitList = document.getElementById("layer3-split-list");
-  if (splitList) {
-    splitList.querySelectorAll("[data-product-id]").forEach(card => {
-      if (card.getAttribute("data-product-id") === productId) {
-        card.classList.add("product-card-active");
-      } else {
-        card.classList.remove("product-card-active");
-      }
-    });
-  }
-  const factoryOverheadConfig = StorageManager.getFactoryOverhead();
-  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(factoryOverheadConfig);
-  let productsArr = Object.values(currentProducts || {});
-  if (productsArr.length === 0 && typeof INITIAL_PRODUCTS !== "undefined") {
-    productsArr = INITIAL_PRODUCTS;
-  }
-  const prod = productsArr.find(p => p.id === productId);
-  if (prod) {
-    renderLayer3CockpitDesk(prod, overheadRes.overheadPerKg);
-  }
-}
 
 let openLayer2BreakdownInfos = {};
 
@@ -214,19 +164,19 @@ function setupEventListeners() {
 function setViewMode(mode) {
   viewMode = mode;
   document.querySelectorAll(".view-mode-btn").forEach(btn => {
-    btn.classList.remove("bg-white", "text-zinc-950", "shadow-sm", "bg-blue-600", "text-white");
-    btn.classList.add("bg-transparent", "text-zinc-400", "hover:text-white");
+    btn.classList.remove("bg-blue-600", "text-white");
+    btn.classList.add("bg-slate-900", "text-slate-400", "border-slate-800");
   });
   
   const activeBtn = document.getElementById(`view-btn-${mode}`);
   if (activeBtn) {
-    activeBtn.classList.remove("bg-transparent", "text-zinc-400", "hover:text-white");
-    activeBtn.classList.add("bg-white", "text-zinc-950", "shadow-sm");
+    activeBtn.classList.remove("bg-slate-900", "text-slate-400", "border-slate-800");
+    activeBtn.classList.add("bg-blue-600", "text-white");
   }
 
-  if (currentLayerMode === 1) renderLayer2Cards();
-  else if (currentLayerMode === 2) renderLayer3Cards();
-  else if (currentLayerMode === 3) renderProductGrid();
+  renderProductGrid();
+  renderLayer2Cards();
+  if (typeof renderLayer3Cards === "function") renderLayer3Cards();
 }
 
 function renderStats() {
@@ -1577,351 +1527,16 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
   };
 }
 
-function renderLayer3AllVolumesTableHtml(product, dynamicOverheadPerKg, availableVols, activeVolKey) {
-  if (!availableVols || availableVols.length === 0) {
-    return `
-      <div class="p-4 rounded-xl bg-[#0b1120] border border-slate-800 text-center text-xs text-slate-400">
-        Bu ürün için ${currentLayer3Channel === 'trendyol' ? 'Trendyol' : 'iyzico'} kanalında eşleşen canlı fiyat bulunamadı.
-      </div>
-    `;
-  }
-
-  const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-  let fallbackSiteUrl = "https://www.cansizzadeyag.com/";
-
-  let rowsHtml = "";
-  availableVols.forEach(vKey => {
-    const vCalc = getLayer2EffectiveCostForVolume(product, vKey, dynamicOverheadPerKg);
-    const vEffectiveNetCost = vCalc.effectiveNetCost;
-    const vTargetProfit = isLayer3DipFiyatMode ? 0 : vCalc.targetProfit;
-    const commRate = currentLayer3Channel === "trendyol" ? 19 : 4;
-    const cargoFee = currentLayer3Channel === "trendyol" ? 110 : 82.50;
-
-    const sys1 = PriceCalculator.calculateSystem1Channel({
-      salesVatRate: parseFloat(product.kdv) || 20,
-      wholesaleCost: vEffectiveNetCost,
-      targetProfit: vTargetProfit,
-      commission: commRate,
-      cargo: cargoFee
-    });
-    const vRecommendedPrice = sys1.salePrice;
-
-    let vLivePrice = null;
-    let vRowUrl = fallbackSiteUrl;
-
-    if (currentLayer3Channel === "trendyol") {
-      const tyM = findTrendyolProduct(product.name, vKey);
-      if (tyM && tyM.price > 0) {
-        vLivePrice = tyM.price;
-        if (tyM.url) vRowUrl = tyM.url;
-      }
-    } else {
-      const vOverride = StorageManager.getSiteOverride(product.id, vKey);
-      if (vOverride !== null && !isNaN(parseFloat(vOverride))) {
-        vLivePrice = parseFloat(vOverride);
-      } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vKey] === "number" && siteData.samplePrices[vKey] > 0) {
-        vLivePrice = siteData.samplePrices[vKey];
-      }
-      if (siteData && siteData.urls && siteData.urls[vKey]) {
-        vRowUrl = siteData.urls[vKey];
-      } else if (siteData && siteData.url) {
-        vRowUrl = siteData.url;
-      }
-    }
-
-    const vHasPrice = vLivePrice !== null && vLivePrice > 0;
-    let vNetMarginHtml = `<span class="text-slate-500 font-bold text-xs">N/A</span>`;
-    let vPriceDiffBadge = `<span class="text-[10px] bg-[#080d1a] text-slate-400 border border-slate-800 px-1.5 py-0.5 rounded font-mono">⚪ Canlı Yok</span>`;
-
-    if (vHasPrice) {
-      const payout = vLivePrice * (1 - commRate / 100) - cargoFee;
-      const vMargin = parseFloat((payout - vEffectiveNetCost).toFixed(2));
-
-      if (vMargin >= 0) {
-        vNetMarginHtml = `<span class="text-emerald-400 font-black font-mono text-xs">+${PriceCalculator.formatTL(vMargin)}</span>`;
-      } else {
-        vNetMarginHtml = `<span class="text-rose-400 font-black font-mono text-xs">${PriceCalculator.formatTL(vMargin)}</span>`;
-      }
-
-      const priceDiff = vLivePrice - vRecommendedPrice;
-      if (priceDiff >= 0) {
-        vPriceDiffBadge = `
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-[10px] bg-emerald-950/70 text-emerald-300 border border-emerald-800/80 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının +${PriceCalculator.formatTL(priceDiff)} üzerinde">▲ +${PriceCalculator.formatTL(priceDiff)}</span>
-            <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-[#080d1a] hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
-              🧮 Döküm
-            </button>
-          </div>`;
-      } else {
-        vPriceDiffBadge = `
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-[10px] bg-rose-950/70 text-rose-300 border border-rose-800/80 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının ${PriceCalculator.formatTL(priceDiff)} altında!">▼ ${PriceCalculator.formatTL(priceDiff)}</span>
-            <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-[#080d1a] hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
-              🧮 Döküm
-            </button>
-          </div>`;
-      }
-    }
-
-    const isCurrentActive = vKey === activeVolKey;
-
-    rowsHtml += `
-      <tr class="hover:bg-slate-800/40 transition-colors ${isCurrentActive ? 'bg-amber-500/10 font-bold border-l-2 border-amber-400' : ''}">
-        <td class="p-2.5 font-bold text-slate-200 border-b border-slate-800/60 flex items-center gap-1.5">
-          <span>${vKey}</span>
-          ${isCurrentActive ? '<span class="text-[9px] bg-amber-950 text-amber-300 px-1 rounded border border-amber-800">Aktif</span>' : ''}
-        </td>
-        <td class="p-2.5 border-b border-slate-800/60 font-mono font-bold text-amber-300 text-xs">
-          🎯 ${PriceCalculator.formatTL(vRecommendedPrice)}
-        </td>
-        <td class="p-2.5 border-b border-slate-800/60 font-mono font-bold ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} text-xs">
-          <div class="flex items-center gap-1.5">
-            <span>${vHasPrice ? PriceCalculator.formatTL(vLivePrice) : '⚪ Yok'}</span>
-            ${vHasPrice ? `
-              <a href="${vRowUrl}" target="_blank" rel="noopener noreferrer" class="p-1 rounded bg-[#080d1a] text-slate-300 hover:text-amber-300 border border-slate-700/80 hover:border-amber-500/60 transition-all text-xs inline-flex items-center justify-center shadow-sm" title="${vKey} Canlı Mağaza Bağlantısı">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                </svg>
-              </a>
-            ` : ''}
-          </div>
-        </td>
-        <td class="p-2.5 text-slate-300 font-mono font-semibold border-b border-slate-800/60 text-xs">${PriceCalculator.formatTL(vEffectiveNetCost)}</td>
-        <td class="p-2.5 border-b border-slate-800/60">${vNetMarginHtml}</td>
-        <td class="p-2.5 border-b border-slate-800/60">${vPriceDiffBadge}</td>
-      </tr>
-    `;
-  });
-
-  return `
-    <div class="rounded-xl border border-slate-700/80 bg-[#0b1120] overflow-hidden shadow-xl">
-      <div class="px-3.5 py-2.5 bg-[#080d1a] border-b border-slate-800 flex items-center justify-between flex-wrap gap-2 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-slate-200">📊 Tüm Ambalaj Boyutları Fiyat ve Kârlılık Matrisi</span>
-          <span class="text-[10px] text-slate-400 font-mono">(${availableVols.length} Boyut)</span>
-        </div>
-        <span class="text-[10px] text-slate-400 font-medium">Kanal: <strong class="${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'}">${currentLayer3Channel === 'trendyol' ? 'Trendyol (%19 + 110₺)' : 'iyzico (%4 + 82,50₺)'}</strong></span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="border-b border-slate-800 text-[10px] font-bold uppercase text-slate-400 bg-[#0f172a]">
-              <th class="p-2.5">Ambalaj</th>
-              <th class="p-2.5 ${isLayer3DipFiyatMode ? 'text-rose-300' : 'text-amber-300'}">${isLayer3DipFiyatMode ? '🏁 Katman 1 Dip (0₺)' : '🎯 Katman 1 Önerilen'}</th>
-              <th class="p-2.5 ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'}">🛒 Canlı Fiyat</th>
-              <th class="p-2.5 text-slate-300">🏁 Saf Maliyet</th>
-              <th class="p-2.5 text-emerald-400">💰 Net Kâr</th>
-              <th class="p-2.5">📊 Durum / Döküm</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-function renderLayer3CockpitDesk(product, dynamicOverheadPerKg) {
-  const desk = document.getElementById("layer3-split-desk");
-  if (!desk || !product) return;
-
-  const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
-  const availableVols = allVols.filter(vk => {
-    if (currentLayer3Channel === "trendyol") {
-      const tyMatch = findTrendyolProduct(product.name, vk);
-      return tyMatch && tyMatch.price > 0;
-    } else {
-      const ov = StorageManager.getSiteOverride(product.id, vk);
-      if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
-      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-      if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
-      return false;
-    }
-  });
-
-  const volsToUse = availableVols.length > 0 ? availableVols : allVols;
-
-  let activeVolKey = cardActiveVolumes[product.id];
-  if (!activeVolKey || !volsToUse.includes(activeVolKey)) {
-    if (volsToUse.includes("1000ml")) {
-      activeVolKey = "1000ml";
-    } else {
-      const priorityOrder = ["1000ml", "5000ml", "500ml", "250ml", "150ml", "100ml", "50ml", "30ml", "20ml", "10ml"];
-      activeVolKey = priorityOrder.find(v => volsToUse.includes(v)) || volsToUse[0];
-    }
-    cardActiveVolumes[product.id] = activeVolKey;
-  }
-
-  const activeCalc = getLayer2EffectiveCostForVolume(product, activeVolKey, dynamicOverheadPerKg);
-  const activeEffectiveNetCost = activeCalc.effectiveNetCost;
-  const activeTargetProfit = isLayer3DipFiyatMode ? 0 : activeCalc.targetProfit;
-  const commRate = currentLayer3Channel === "trendyol" ? 19 : 4;
-  const cargoFee = currentLayer3Channel === "trendyol" ? 110 : 82.50;
-
-  const sys1 = PriceCalculator.calculateSystem1Channel({
-    salesVatRate: parseFloat(product.kdv) || 20,
-    wholesaleCost: activeEffectiveNetCost,
-    targetProfit: activeTargetProfit,
-    commission: commRate,
-    cargo: cargoFee
-  });
-  const systemRecommendedPrice = sys1.salePrice;
-
-  let activeLivePrice = null;
-  let siteUrl = "https://www.cansizzadeyag.com/";
-
-  if (currentLayer3Channel === "trendyol") {
-    const tyMatch = findTrendyolProduct(product.name, activeVolKey);
-    if (tyMatch && tyMatch.price > 0) {
-      activeLivePrice = tyMatch.price;
-      if (tyMatch.url) siteUrl = tyMatch.url;
-    }
-  } else {
-    const overridePrice = StorageManager.getSiteOverride(product.id, activeVolKey);
-    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-    if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
-      activeLivePrice = parseFloat(overridePrice);
-    } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[activeVolKey] === "number" && siteData.samplePrices[activeVolKey] > 0) {
-      activeLivePrice = siteData.samplePrices[activeVolKey];
-    }
-    if (siteData && siteData.urls && siteData.urls[activeVolKey]) {
-      siteUrl = siteData.urls[activeVolKey];
-    } else if (siteData && siteData.url) {
-      siteUrl = siteData.url;
-    }
-  }
-
-  const hasVolPrice = activeLivePrice !== null && activeLivePrice > 0;
-  let netProfitMargin = 0;
-  let payout = 0;
-  let commAmt = 0;
-  if (hasVolPrice) {
-    commAmt = parseFloat((activeLivePrice * (commRate / 100)).toFixed(2));
-    payout = parseFloat((activeLivePrice - commAmt - cargoFee).toFixed(2));
-    netProfitMargin = parseFloat((payout - activeEffectiveNetCost).toFixed(2));
-  }
-
-  const isUcucu = product.category === "Uçucu Yağlar";
-  const catBadge = isUcucu
-    ? "bg-purple-950/50 text-purple-300 border-purple-800/60"
-    : "bg-emerald-950/50 text-emerald-300 border-emerald-800/60";
-
-  desk.innerHTML = `
-    <div class="glass-card rounded-2xl p-4 md:p-5 border border-slate-700/80 bg-[#0f172a] shadow-2xl space-y-4">
-      
-      <!-- Ürün Başlık ve Kanal Künyesi -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
-        <div class="flex items-center gap-3">
-          <span class="font-mono text-xs font-black text-slate-300 bg-[#080d1a] px-3 py-1.5 rounded-lg border border-slate-800 shadow-inner">
-            ${product.sku}
-          </span>
-          <div>
-            <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              ${product.name}
-            </h2>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${catBadge}">
-                ${product.category}
-              </span>
-              <span class="text-[11px] text-slate-400">KDV: <strong class="text-slate-200">%${product.kdv || 20}</strong></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 self-start sm:self-auto">
-          <span class="px-3 py-1.5 rounded-xl text-xs font-bold border ${currentLayer3Channel === 'trendyol' ? 'bg-orange-950/70 text-orange-300 border-orange-800' : 'bg-sky-950/70 text-sky-300 border-sky-800'}">
-            ${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol Kanalı' : '🌐 iyzico Web Kanalı'}
-          </span>
-          <a href="${siteUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-[#080d1a] hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-sm" title="Canlı Mağaza Sayfasını Aç">
-            <span>Mağaza 🔗</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Ambalaj Seçim Butonları (Pills) -->
-      <div class="flex items-center gap-1.5 flex-wrap bg-[#080d1a] p-2 rounded-xl border border-slate-800">
-        <span class="text-[11px] font-bold text-slate-400 mr-1 shrink-0">Hacim Boyutu:</span>
-        ${volsToUse.map(vk => {
-          const isAct = vk === activeVolKey;
-          return `
-            <button onclick="updateCardVolume('${product.id}', '${vk}')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${isAct ? 'bg-amber-500 text-slate-950 shadow-md font-black' : 'bg-[#0f172a] text-slate-300 hover:text-white border border-slate-700/80 hover:border-slate-600'}">
-              ${vk}
-            </button>
-          `;
-        }).join("")}
-      </div>
-
-      <!-- 4 Temel Metrik Spotlight Kartları -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <div class="bg-[#0b1120] p-3 rounded-xl border border-amber-500/40 text-center">
-          <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">🎯 Önerilen Fiyat</span>
-          <span class="text-sm sm:text-base font-black text-amber-300 font-mono block mt-0.5">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
-          <span class="text-[9.5px] text-slate-400 block mt-0.5">${activeVolKey} Hedef Fiyat</span>
-        </div>
-
-        <div class="bg-[#0b1120] p-3 rounded-xl border ${currentLayer3Channel === 'trendyol' ? 'border-orange-500/40' : 'border-sky-500/40'} text-center">
-          <span class="text-[10px] font-bold ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'} uppercase tracking-wider block">🛒 Canlı Satış</span>
-          <span class="text-sm sm:text-base font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} font-mono block mt-0.5">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
-          <span class="text-[9.5px] text-slate-400 block mt-0.5">${currentLayer3Channel === 'trendyol' ? 'Trendyol' : 'Web Sitemiz'}</span>
-        </div>
-
-        <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-700/80 text-center">
-          <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider block">🏁 Saf Net Maliyet</span>
-          <span class="text-sm sm:text-base font-black text-slate-100 font-mono block mt-0.5">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
-          <span class="text-[9.5px] text-slate-400 block mt-0.5">0 ₺ Kârsız Dip</span>
-        </div>
-
-        <div class="bg-[#0b1120] p-3 rounded-xl border ${hasVolPrice ? (netProfitMargin >= 0 ? 'border-emerald-500/40' : 'border-rose-500/40') : 'border-slate-800'} text-center">
-          <span class="text-[10px] font-bold ${hasVolPrice ? (netProfitMargin >= 0 ? 'text-emerald-400' : 'text-rose-400') : 'text-slate-400'} uppercase tracking-wider block">💰 Cebe Kalan Kâr</span>
-          <span class="text-sm sm:text-base font-black ${hasVolPrice ? (netProfitMargin >= 0 ? 'text-emerald-400' : 'text-rose-400') : 'text-slate-400'} font-mono block mt-0.5">
-            ${hasVolPrice ? (netProfitMargin >= 0 ? '+' + PriceCalculator.formatTL(netProfitMargin) : PriceCalculator.formatTL(netProfitMargin)) : 'N/A'}
-          </span>
-          <span class="text-[9.5px] text-slate-400 block mt-0.5">${hasVolPrice ? (netProfitMargin >= 0 ? 'Net Kâr' : 'Zarar!') : 'Canlı Fiyat Yok'}</span>
-        </div>
-      </div>
-
-      <!-- Canlı Satış Akışı Hakediş Döküm Çubuğu (Varsa) -->
-      ${hasVolPrice ? `
-        <div class="p-3 bg-[#080d1a] rounded-xl border border-slate-800 text-xs space-y-2">
-          <div class="flex items-center justify-between text-slate-300 text-[11px] pb-1 border-b border-slate-800">
-            <span class="font-bold text-slate-200">💳 Canlı Satış Kesinti ve Hakediş Şeması (${activeVolKey}):</span>
-            <button onclick="openLayer3CalculationModal('${product.id}', '${activeVolKey}')" class="text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer">
-              Tam Fatura Dökümünü Aç 🧮
-            </button>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-            <div><span class="text-slate-400">Canlı Satış:</span> <strong class="text-white font-mono">${PriceCalculator.formatTL(activeLivePrice)}</strong></div>
-            <div><span class="text-slate-400">Komisyon (%${commRate}):</span> <strong class="text-rose-400 font-mono">-${PriceCalculator.formatTL(commAmt)}</strong></div>
-            <div><span class="text-slate-400">Kargo:</span> <strong class="text-rose-400 font-mono">-${PriceCalculator.formatTL(cargoFee)}</strong></div>
-            <div><span class="text-slate-400">Banka Hakediş:</span> <strong class="text-emerald-300 font-mono">${PriceCalculator.formatTL(payout)}</strong></div>
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Tüm Ambalajlar Karşılaştırma Matrisi Tablosu -->
-      ${renderLayer3AllVolumesTableHtml(product, dynamicOverheadPerKg, volsToUse, activeVolKey)}
-
-    </div>
-  `;
-}
-
 function renderLayer3Cards() {
   const container = document.getElementById("layer3-product-grid");
-  const splitContainer = document.getElementById("layer3-split-container");
-  const splitList = document.getElementById("layer3-split-list");
-  const splitDesk = document.getElementById("layer3-split-desk");
-  const listCountEl = document.getElementById("layer3-list-count");
-
   if (!container) return;
-
-  const activeView = (typeof viewMode !== "undefined" && viewMode) ? viewMode : "split";
+  container.innerHTML = "";
 
   const factoryOverheadConfig = StorageManager.getFactoryOverhead();
   const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(factoryOverheadConfig);
   const dynamicOverheadPerKg = overheadRes.overheadPerKg;
 
+  const selectedGlobalVol = document.getElementById("l3-global-vol-filter") ? document.getElementById("l3-global-vol-filter").value : "250ml";
   let totalScrapedMatchCount = 0;
 
   let productsArr = Object.values(currentProducts || {});
@@ -1957,23 +1572,42 @@ function renderLayer3Cards() {
   const btnTrendyol = document.getElementById("btn-l3-channel-trendyol");
   if (btnTrendyol) btnTrendyol.innerHTML = `🧡 Trendyol (${tyMatchCount} Ürün)`;
 
-  // Filter display products
+  // Build Unified Products List for Katman 3
   let displayList = [];
-  productsArr.forEach(prod => {
-    if (!prod || !prod.name) return;
-    if (activeCategory !== "all" && prod.category !== activeCategory) return;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
-    }
 
-    if (currentLayer3Channel === "trendyol") {
-      const hasAnyTyMatch = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
+  if (currentLayer3Channel === "trendyol") {
+    // Process internal products matched to Trendyol
+    productsArr.forEach(prod => {
+      if (!prod || !prod.name) return;
+      if (activeCategory !== "all" && prod.category !== activeCategory) return;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
+      }
+
+      // Check if product has any matching volume in Trendyol
+      let hasAnyTyMatch = false;
+      ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].forEach(vk => {
         const m = findTrendyolProduct(prod.name, vk);
-        return m && m.price > 0;
+        if (m && m.price > 0) {
+          hasAnyTyMatch = true;
+        }
       });
-      if (hasAnyTyMatch) displayList.push(prod);
-    } else {
+
+      if (hasAnyTyMatch) {
+        displayList.push(prod);
+      }
+    });
+  } else {
+    // iyzico channel: only list internal products that have site prices
+    productsArr.forEach(prod => {
+      if (!prod || !prod.name) return;
+      if (activeCategory !== "all" && prod.category !== activeCategory) return;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(prod.name || "").toLowerCase().includes(q) && !(prod.sku || "").toLowerCase().includes(q)) return;
+      }
+
       const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[prod.id] : null;
       const hasAnyVolPrice = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"].some(vk => {
         const ov = StorageManager.getSiteOverride(prod.id, vk);
@@ -1981,139 +1615,17 @@ function renderLayer3Cards() {
         if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
         return false;
       });
-      if (hasAnyVolPrice) displayList.push(prod);
-    }
-  });
+
+      if (hasAnyVolPrice) {
+        displayList.push(prod);
+      }
+    });
+  }
 
   const sortedDisplayList = sortProductsByCategoryAndName(displayList);
-  if (listCountEl) listCountEl.innerText = `${sortedDisplayList.length} Ürün`;
-
-  if (sortedDisplayList.length === 0) {
-    const emptyHtml = `<div class="col-span-full py-12 text-center text-slate-400 font-medium bg-[#0f172a] rounded-2xl border border-slate-800">Seçilen kanalda veya kriterlere uygun canlı ürün bulunamadı.</div>`;
-    if (container) container.innerHTML = emptyHtml;
-    if (splitList) splitList.innerHTML = emptyHtml;
-    if (splitDesk) splitDesk.innerHTML = emptyHtml;
-    return;
-  }
-
-  // --- SPLIT VIEW MODE ---
-  if (activeView === "split" && splitContainer && splitList && splitDesk) {
-    splitContainer.classList.remove("hidden");
-    container.classList.add("hidden");
-
-    if (!activeCockpitLayer3ProductId || !sortedDisplayList.some(p => p.id === activeCockpitLayer3ProductId)) {
-      activeCockpitLayer3ProductId = sortedDisplayList[0].id;
-    }
-
-    const prevScroll = splitList.scrollTop;
-    splitList.innerHTML = sortedDisplayList.map(product => {
-      const isSelected = product.id === activeCockpitLayer3ProductId;
-      const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
-      const availableVols = allVols.filter(vk => {
-        if (currentLayer3Channel === "trendyol") {
-          const tyMatch = findTrendyolProduct(product.name, vk);
-          return tyMatch && tyMatch.price > 0;
-        } else {
-          const ov = StorageManager.getSiteOverride(product.id, vk);
-          if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
-          const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-          return siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0;
-        }
-      });
-
-      let defVol = "1000ml";
-      if (availableVols.length > 0) {
-        if (!availableVols.includes("1000ml")) {
-          const priorityOrder = ["1000ml", "5000ml", "500ml", "250ml", "150ml", "100ml", "50ml", "30ml", "20ml", "10ml"];
-          defVol = priorityOrder.find(v => availableVols.includes(v)) || availableVols[0];
-        }
-      }
-
-      let activeVolKey = cardActiveVolumes[product.id] || defVol;
-      if (!availableVols.includes(activeVolKey) && availableVols.length > 0) activeVolKey = defVol;
-
-      const activeCalc = getLayer2EffectiveCostForVolume(product, activeVolKey, dynamicOverheadPerKg);
-      const activeEffectiveNetCost = activeCalc.effectiveNetCost;
-      const activeTargetProfit = isLayer3DipFiyatMode ? 0 : activeCalc.targetProfit;
-      const commRate = currentLayer3Channel === "trendyol" ? 19 : 4;
-      const cargoFee = currentLayer3Channel === "trendyol" ? 110 : 82.50;
-
-      const sys1 = PriceCalculator.calculateSystem1Channel({
-        salesVatRate: parseFloat(product.kdv) || 20,
-        wholesaleCost: activeEffectiveNetCost,
-        targetProfit: activeTargetProfit,
-        commission: commRate,
-        cargo: cargoFee
-      });
-      const recPrice = sys1.salePrice;
-
-      let livePrice = null;
-      if (currentLayer3Channel === "trendyol") {
-        const tyM = findTrendyolProduct(product.name, activeVolKey);
-        if (tyM && tyM.price > 0) livePrice = tyM.price;
-      } else {
-        const ov = StorageManager.getSiteOverride(product.id, activeVolKey);
-        if (ov !== null && !isNaN(parseFloat(ov))) livePrice = parseFloat(ov);
-        else {
-          const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-          if (siteData?.samplePrices?.[activeVolKey]) livePrice = siteData.samplePrices[activeVolKey];
-        }
-      }
-
-      let netMarginBadge = '<span class="text-slate-500 font-mono text-[10px]">⚪ Yok</span>';
-      if (livePrice !== null && livePrice > 0) {
-        totalScrapedMatchCount++;
-        const payout = livePrice * (1 - commRate / 100) - cargoFee;
-        const netMargin = parseFloat((payout - activeEffectiveNetCost).toFixed(2));
-        if (netMargin >= 0) {
-          netMarginBadge = `<span class="text-emerald-400 font-black font-mono text-[10.5px]">+${PriceCalculator.formatTL(netMargin)}</span>`;
-        } else {
-          netMarginBadge = `<span class="text-rose-400 font-black font-mono text-[10.5px]">${PriceCalculator.formatTL(netMargin)}</span>`;
-        }
-      }
-
-      const bClass = product.category === "Uçucu Yağlar"
-        ? "bg-purple-950/40 text-purple-300 border-purple-800/50"
-        : "bg-emerald-950/40 text-emerald-300 border-emerald-800/50";
-
-      return `
-        <div onclick="selectCockpitLayer3Product('${product.id}')" data-product-id="${product.id}" class="glass-card p-2.5 rounded-xl border transition-all cursor-pointer ${isSelected ? 'product-card-active' : 'border-slate-800/80 hover:border-slate-700 bg-[#0f172a]/70 hover:bg-[#131d33]'}">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5 truncate">
-              <span class="font-mono text-[10px] font-bold text-slate-300 bg-[#080d1a] px-2 py-0.5 rounded border border-slate-800 shrink-0">${product.sku}</span>
-              <span class="text-xs font-bold text-white truncate" title="${product.name}">${product.name}</span>
-            </div>
-            <span class="text-[9.5px] px-1.5 py-0.5 rounded border ${bClass} shrink-0">${product.category === 'Uçucu Yağlar' ? 'Uçucu' : 'Sabit'}</span>
-          </div>
-          <div class="flex items-center justify-between text-xs mt-2 pt-1.5 border-t border-slate-800/60">
-            <div class="flex items-center gap-1.5">
-              <span class="text-slate-400 text-[10.5px] font-mono">${activeVolKey}</span>
-              <span class="text-amber-400 font-bold font-mono text-xs">🎯 ${PriceCalculator.formatTL(recPrice)}</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} font-bold font-mono text-xs">${livePrice ? PriceCalculator.formatTL(livePrice) : '⚪ Yok'}</span>
-              ${netMarginBadge}
-            </div>
-          </div>
-        </div>
-      `;
-    }).join("");
-    splitList.scrollTop = prevScroll;
-
-    const activeProd = sortedDisplayList.find(p => p.id === activeCockpitLayer3ProductId) || sortedDisplayList[0];
-    renderLayer3CockpitDesk(activeProd, dynamicOverheadPerKg);
-
-    const scrapedBadge = document.getElementById("l3-stat-total-scraped");
-    if (scrapedBadge) scrapedBadge.innerText = `${totalScrapedMatchCount} Ürün Bulundu`;
-    return;
-  }
-
-  // --- ROWS MODE (CLASSIC ACCORDION LIST FALLBACK) ---
-  if (splitContainer) splitContainer.classList.add("hidden");
-  container.classList.remove("hidden");
-  container.innerHTML = "";
 
   sortedDisplayList.forEach(product => {
+    // Process regular matched products
     const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
     const availableVols = allVols.filter(vk => {
       if (currentLayer3Channel === "trendyol") {
@@ -2123,38 +1635,58 @@ function renderLayer3Cards() {
         const ov = StorageManager.getSiteOverride(product.id, vk);
         if (ov !== null && !isNaN(parseFloat(ov)) && parseFloat(ov) > 0) return true;
         const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
-        return siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0;
+        if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vk] === "number" && siteData.samplePrices[vk] > 0) return true;
+        return false;
       }
     });
 
+    // User Directive: Default to 1000ml / 1KG, if not available select the highest volume size!
     let defaultVolKey = "1000ml";
     if (availableVols.length > 0) {
-      if (!availableVols.includes("1000ml")) {
+      if (availableVols.includes("1000ml")) {
+        defaultVolKey = "1000ml";
+      } else {
         const priorityOrder = ["1000ml", "5000ml", "500ml", "250ml", "150ml", "100ml", "50ml", "30ml", "20ml", "10ml"];
         defaultVolKey = priorityOrder.find(v => availableVols.includes(v)) || availableVols[0];
       }
     }
 
-    let activeVolKey = cardActiveVolumes[product.id] || defaultVolKey;
-    if (!availableVols.includes(activeVolKey) && availableVols.length > 0) activeVolKey = defaultVolKey;
+    // Force active volume to be one of the available volumes if currently set volume is not available!
+    let activeVolKey = cardActiveVolumes[product.id];
+    if (!activeVolKey || !availableVols.includes(activeVolKey)) {
+      activeVolKey = defaultVolKey;
+    }
+    cardActiveVolumes[product.id] = activeVolKey;
 
+    // --- Dynamic Katman 1 Recommended Price & Effective Net Cost Calculation ---
     const activeCalc = getLayer2EffectiveCostForVolume(product, activeVolKey, dynamicOverheadPerKg);
     const activeEffectiveNetCost = activeCalc.effectiveNetCost;
     const activeTargetProfit = isLayer3DipFiyatMode ? 0 : activeCalc.targetProfit;
-    const commRate = currentLayer3Channel === "trendyol" ? 19 : 4;
-    const cargoFee = currentLayer3Channel === "trendyol" ? 110 : 82.50;
 
-    const sys1 = PriceCalculator.calculateSystem1Channel({
-      salesVatRate: parseFloat(product.kdv) || 20,
-      wholesaleCost: activeEffectiveNetCost,
-      targetProfit: activeTargetProfit,
-      commission: commRate,
-      cargo: cargoFee
-    });
-    const systemRecommendedPrice = sys1.salePrice;
+    let systemRecommendedPrice = 0;
+    if (currentLayer3Channel === "trendyol") {
+      const sys1Ty = PriceCalculator.calculateSystem1Channel({
+        wholesaleCost: activeEffectiveNetCost,
+        targetProfit: activeTargetProfit,
+        commission: 19,
+        cargo: 110
+      });
+      systemRecommendedPrice = sys1Ty.salePrice;
+    } else {
+      const sys1Iy = PriceCalculator.calculateSystem1Channel({
+        wholesaleCost: activeEffectiveNetCost,
+        targetProfit: activeTargetProfit,
+        commission: 4,
+        cargo: 82.50
+      });
+      systemRecommendedPrice = sys1Iy.salePrice;
+    }
+
+    const overridePrice = StorageManager.getSiteOverride(product.id, activeVolKey);
+    const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
 
     let activeLivePrice = null;
-    let siteUrl = "https://www.cansizzadeyag.com/";
+    let siteUrl = `https://www.cansizzadeyag.com/`;
 
     if (currentLayer3Channel === "trendyol") {
       const tyMatch = findTrendyolProduct(product.name, activeVolKey);
@@ -2163,11 +1695,9 @@ function renderLayer3Cards() {
         if (tyMatch.url) siteUrl = tyMatch.url;
       }
     } else {
-      const overridePrice = StorageManager.getSiteOverride(product.id, activeVolKey);
-      const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
       if (overridePrice !== null && !isNaN(parseFloat(overridePrice))) {
         activeLivePrice = parseFloat(overridePrice);
-      } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[activeVolKey] === "number" && siteData.samplePrices[activeVolKey] > 0) {
+      } else if (siteData && siteData.samplePrices && (typeof siteData.samplePrices[activeVolKey] === "number") && siteData.samplePrices[activeVolKey] > 0) {
         activeLivePrice = siteData.samplePrices[activeVolKey];
       }
       if (siteData && siteData.urls && siteData.urls[activeVolKey]) {
@@ -2181,78 +1711,231 @@ function renderLayer3Cards() {
     if (hasVolPrice) totalScrapedMatchCount++;
 
     let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
+
     if (hasVolPrice) {
-      const payout = activeLivePrice * (1 - commRate / 100) - cargoFee;
-      const netProfitMargin = parseFloat((payout - activeEffectiveNetCost).toFixed(2));
-      if (netProfitMargin >= 0) {
-        netProfitMarginHtml = `<span class="font-bold text-emerald-400 font-mono text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+      const livePrice = activeLivePrice;
+      let netProfitMargin = 0;
+
+      if (currentLayer3Channel === "trendyol") {
+        const payout = livePrice * (1 - 0.19) - 110;
+        netProfitMargin = parseFloat((payout - activeEffectiveNetCost).toFixed(2));
       } else {
-        netProfitMarginHtml = `<span class="font-bold text-rose-400 font-mono text-xs">${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+        const payout = livePrice * (1 - 0.04) - 82.50;
+        netProfitMargin = parseFloat((payout - activeEffectiveNetCost).toFixed(2));
+      }
+
+      if (netProfitMargin >= 0) {
+        netProfitMarginHtml = `<span class="font-bold text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
+      } else {
+        netProfitMarginHtml = `<span class="font-bold text-red-400 text-xs">${PriceCalculator.formatTL(netProfitMargin)}</span>`;
       }
     }
 
     const isUcucu = product.category === "Uçucu Yağlar";
     const catBadge = isUcucu 
-      ? "bg-purple-950/40 text-purple-300 border-purple-800/50" 
-      : "bg-emerald-950/40 text-emerald-300 border-emerald-800/50";
+      ? "bg-purple-950/60 text-purple-300 border-purple-800/40" 
+      : "bg-emerald-950/60 text-emerald-300 border-emerald-800/40";
 
     const isExpanded = expandedCards[product.id] || false;
 
+    // Accordion Table HTML for ALL Available Volumes
+    let accordionHtml = "";
+    if (isExpanded) {
+      let rowsHtml = "";
+      availableVols.forEach(vKey => {
+        const vCalc = getLayer2EffectiveCostForVolume(product, vKey, dynamicOverheadPerKg);
+        const vEffectiveNetCost = vCalc.effectiveNetCost;
+        const vTargetProfit = isLayer3DipFiyatMode ? 0 : vCalc.targetProfit;
+
+        let vRecommendedPrice = 0;
+        if (currentLayer3Channel === "trendyol") {
+          const sys1Ty = PriceCalculator.calculateSystem1Channel({
+            wholesaleCost: vEffectiveNetCost,
+            targetProfit: vTargetProfit,
+            commission: 19,
+            cargo: 110
+          });
+          vRecommendedPrice = sys1Ty.salePrice;
+        } else {
+          const sys1Iy = PriceCalculator.calculateSystem1Channel({
+            wholesaleCost: vEffectiveNetCost,
+            targetProfit: vTargetProfit,
+            commission: 4,
+            cargo: 82.50
+          });
+          vRecommendedPrice = sys1Iy.salePrice;
+        }
+
+        let vLivePrice = null;
+        let vRowUrl = siteUrl;
+        if (currentLayer3Channel === "trendyol") {
+          const tyM = findTrendyolProduct(product.name, vKey);
+          if (tyM && tyM.price > 0) {
+            vLivePrice = tyM.price;
+            if (tyM.url) vRowUrl = tyM.url;
+          }
+        } else {
+          const vOverride = StorageManager.getSiteOverride(product.id, vKey);
+          if (vOverride !== null && !isNaN(parseFloat(vOverride))) {
+            vLivePrice = parseFloat(vOverride);
+          } else if (siteData && siteData.samplePrices && typeof siteData.samplePrices[vKey] === "number" && siteData.samplePrices[vKey] > 0) {
+            vLivePrice = siteData.samplePrices[vKey];
+          }
+          if (siteData && siteData.urls && siteData.urls[vKey]) {
+            vRowUrl = siteData.urls[vKey];
+          } else if (siteData && siteData.url) {
+            vRowUrl = siteData.url;
+          }
+        }
+
+        const vHasPrice = vLivePrice !== null && vLivePrice > 0;
+        let vNetMarginHtml = `<span class="text-slate-500 font-bold">N/A</span>`;
+        let vPriceDiffBadge = `<span class="text-[10px] bg-slate-900 text-slate-400 border border-slate-800 px-1.5 py-0.5 rounded font-mono">⚪ Canlı Yok</span>`;
+
+        if (vHasPrice) {
+          let vMargin = 0;
+          if (currentLayer3Channel === "trendyol") {
+            const payout = vLivePrice * (1 - 0.19) - 110;
+            vMargin = parseFloat((payout - vEffectiveNetCost).toFixed(2));
+          } else {
+            const payout = vLivePrice * (1 - 0.04) - 82.50;
+            vMargin = parseFloat((payout - vEffectiveNetCost).toFixed(2));
+          }
+
+          if (vMargin >= 0) {
+            vNetMarginHtml = `<span class="text-emerald-400 font-black">+${PriceCalculator.formatTL(vMargin)}</span>`;
+          } else {
+            vNetMarginHtml = `<span class="text-red-400 font-black">${PriceCalculator.formatTL(vMargin)}</span>`;
+          }
+
+          const priceDiff = vLivePrice - vRecommendedPrice;
+          if (priceDiff >= 0) {
+            vPriceDiffBadge = `
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının +${PriceCalculator.formatTL(priceDiff)} üzerinde">▲ Önerilen Üstünde (+${PriceCalculator.formatTL(priceDiff)})</span>
+                <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
+                  🧮 Döküm
+                </button>
+              </div>`;
+          } else {
+            vPriceDiffBadge = `
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] bg-red-950 text-red-300 border border-red-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının ${PriceCalculator.formatTL(priceDiff)} altında!">▼ Önerilenden Düşük (${PriceCalculator.formatTL(priceDiff)})</span>
+                <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
+                  🧮 Döküm
+                </button>
+              </div>`;
+          }
+        }
+
+        rowsHtml += `
+          <tr class="hover:bg-slate-900/60 transition-colors ${vKey === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950/30 font-bold' : 'bg-purple-950/30 font-bold') : ''}">
+            <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Ön İzlenen)' : ''}</td>
+            <td class="p-2 border-b border-slate-800/50 font-black text-amber-300 text-sm">
+              🎯 ${PriceCalculator.formatTL(vRecommendedPrice)}
+            </td>
+            <td class="p-2 border-b border-slate-800/50 font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'} text-sm">
+              <div class="flex items-center gap-1.5">
+                <span>${vHasPrice ? PriceCalculator.formatTL(vLivePrice) : '⚪ Yok'}</span>
+                ${vHasPrice ? `
+                  <a href="${vRowUrl}" target="_blank" rel="noopener noreferrer" class="p-1 rounded bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-600/60 transition-all text-xs inline-flex items-center justify-center shadow-sm" title="${vKey} Canlı Mağaza Bağlantısına Git">
+                    <svg class="w-3.5 h-3.5 text-amber-400 hover:text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    </svg>
+                  </a>
+                ` : ''}
+              </div>
+            </td>
+            <td class="p-2 text-slate-300 font-semibold border-b border-slate-800/50">${PriceCalculator.formatTL(vEffectiveNetCost)}</td>
+            <td class="p-2 border-b border-slate-800/50">${vNetMarginHtml}</td>
+            <td class="p-2 border-b border-slate-800/50">${vPriceDiffBadge}</td>
+          </tr>
+        `;
+      });
+
+      accordionHtml = `
+        <div class="mt-3 pt-3 border-t border-slate-800/80 bg-slate-950/90 rounded-xl p-3 animate-fadeIn">
+          <div class="text-xs font-bold text-slate-200 mb-2 flex items-center justify-between flex-wrap gap-2">
+            <span class="flex items-center gap-1.5">📊 <span class="text-white font-extrabold">${product.name}</span> - Tüm Ambalaj Boyutlarında Katman 1 Önerilen vs Canlı Fiyat Karşılaştırması (${currentLayer3Channel.toUpperCase()})</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-[10px] font-bold uppercase text-slate-400 bg-slate-900/90">
+                  <th class="p-2">Satılan Ambalaj</th>
+                  <th class="p-2 ${isLayer3DipFiyatMode ? 'text-rose-300 font-extrabold' : 'text-amber-300'}">${isLayer3DipFiyatMode ? '🏁 Katman 1 Dip Fiyat (0 ₺ Kâr)' : '🎯 Katman 1 Önerilen Fiyat'}</th>
+                  <th class="p-2 ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">🛒 ${currentLayer3Channel === 'trendyol' ? 'Trendyol Canlı Fiyatı' : 'iyzico Canlı Fiyatı'}</th>
+                  <th class="p-2 text-slate-300">🏁 Saf Maliyet</th>
+                  <th class="p-2 text-emerald-400">💰 Net Kâr</th>
+                  <th class="p-2">📊 Karşılaştırma Durumu</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    const cardTheme = "border-white/5 hover:border-white/15 bg-[#12151b]";
+
     const cardHtml = `
-      <div class="glass-card rounded-xl p-3.5 border border-slate-800/80 hover:border-slate-700 bg-[#0f172a] transition-all shadow-sm hover:shadow-md flex flex-col gap-3">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div class="glass-card rounded-xl p-3 border ${cardTheme} transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
           
-          <!-- Ürün Başlığı & Ambalaj -->
-          <div class="flex items-center gap-3 min-w-[240px]">
-            <span class="font-mono text-xs font-bold text-slate-300 bg-[#080d1a] px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
+          <!-- 1. Left: Product Title, SKU, Category Badge -->
+          <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
+            <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
               ${product.sku}
             </span>
             <div class="truncate">
-              <h3 class="text-sm font-bold text-white truncate" title="${product.name}">
+              <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
                 ${product.name}
               </h3>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md border ${catBadge}">
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${catBadge}">
                   ${product.category}
                 </span>
-                <span class="text-[11px] font-medium text-slate-400">
-                  📌 Ambalaj: <strong class="text-slate-200">${activeVolKey}</strong>
+                <span class="text-[11px] font-medium text-zinc-400 bg-[#0a0c10] px-2 py-0.5 rounded-md border border-zinc-800">
+                  📌 Ambalaj: <span class="text-zinc-200 font-bold text-xs">${activeVolKey}</span>
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- 4 Metrik Ön İzleme -->
-          <div class="grid grid-cols-4 gap-2 items-center bg-[#080d1a] px-3 py-2 rounded-xl border border-slate-800 text-xs">
-            <div class="text-center border-r border-slate-800 pr-1">
-              <span class="text-[10px] font-bold ${isLayer3DipFiyatMode ? 'text-rose-400' : 'text-amber-400'} block">${isLayer3DipFiyatMode ? '🏁 Dip (0₺)' : '🎯 Önerilen'}</span>
-              <span class="font-bold ${isLayer3DipFiyatMode ? 'text-rose-400' : 'text-amber-300'} text-xs block mt-0.5 font-mono">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
+          <!-- 2. Center: Side-by-Side Metrics Preview (Önerilen Fiyat, Canlı Fiyat, Saf Maliyet, Net Kâr) -->
+          <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
+            <div class="text-center border-r border-zinc-800/80 pr-1">
+              <span class="text-[11px] font-medium ${isLayer3DipFiyatMode ? 'text-rose-400 font-bold' : 'text-zinc-400'} block leading-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
+              <span class="font-bold ${isLayer3DipFiyatMode ? 'text-rose-400' : 'text-zinc-100'} text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
             </div>
 
-            <div class="text-center border-r border-slate-800 pr-1">
-              <span class="text-[10px] font-bold ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'} block">${currentLayer3Channel === 'trendyol' ? 'Trendyol' : 'iyzico'} Canlı</span>
-              <span class="font-bold text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} block mt-0.5 font-mono">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
+            <div class="text-center border-r border-zinc-800/80 pr-1">
+              <span class="text-[11px] font-medium text-zinc-400 block leading-tight">${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol' : '🌐 iyzico'} Canlı</span>
+              <span class="font-bold text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} block mt-0.5 tabular-nums font-mono">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
             </div>
 
-            <div class="text-center border-r border-slate-800 pr-1">
-              <span class="text-[10px] font-bold text-slate-400 block">Saf Maliyet</span>
-              <span class="font-bold text-slate-200 text-xs block mt-0.5 font-mono">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
+            <div class="text-center border-r border-zinc-800/80 pr-1">
+              <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Saf Maliyet</span>
+              <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
             </div>
 
             <div class="text-center">
-              <span class="text-[10px] font-bold text-slate-400 block">Net Kâr</span>
-              <span class="text-xs font-bold block mt-0.5 font-mono">${netProfitMarginHtml}</span>
+              <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Net Kâr</span>
+              <span class="text-xs font-bold block mt-0.5 tabular-nums font-mono">${netProfitMarginHtml}</span>
             </div>
           </div>
 
-          <!-- Aksiyon Butonları -->
+          <!-- 3. Far Right Action Buttons: Prominent "Tüm Boyutlar" & Vector Chain Link -->
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="toggleCardAccordion('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5 ${isExpanded ? 'bg-amber-500 text-slate-950 font-black' : 'bg-[#0b1120] text-slate-200 hover:text-white border border-slate-700/80 hover:bg-slate-800'}">
+            <button onclick="toggleCardAccordion('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isExpanded ? 'bg-zinc-800 text-white border border-zinc-600' : 'bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800'}">
               <span>📊 Tüm Boyutlar ${isExpanded ? '▲' : '▼'}</span>
             </button>
 
-            <a href="${siteUrl}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-[#0b1120] text-slate-300 hover:text-white border border-slate-700/80 hover:bg-slate-800 transition-all text-xs flex items-center justify-center shadow-sm" title="Mağaza Bağlantısı 🔗">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <a href="${siteUrl}" target="_blank" class="p-2 rounded-lg bg-[#181c24] text-zinc-400 hover:text-white border border-zinc-700/80 hover:bg-zinc-800 transition-all text-xs flex items-center justify-center shadow-sm" title="Mağaza Bağlantısı 🔗">
+              <svg class="w-4 h-4 text-zinc-300 hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
               </svg>
             </a>
@@ -2260,8 +1943,8 @@ function renderLayer3Cards() {
 
         </div>
 
-        <!-- Açılır Tablo -->
-        ${isExpanded ? renderLayer3AllVolumesTableHtml(product, dynamicOverheadPerKg, availableVols, activeVolKey) : ''}
+        <!-- Accordion Table for ALL Available Volumes -->
+        ${accordionHtml}
       </div>
     `;
 
@@ -2597,666 +2280,46 @@ function getLayer2VolumeOptionsHtml(vol, product) {
       <option value="250KG" ${vol === "250KG" ? "selected" : ""}>250 KG (10 Adet 25 KG Sanayi Bidonu | %${tiers.tier4?.discount ?? 20} İsk.)</option>
     `;
   }
-  return ALL_VOLUMES.map(v => `
-    <option value="${v.key}" ${vol === v.key ? "selected" : ""}>${v.label} (${v.price})</option>
-  `).join("");
-}
 
-function computeLayer2ProductMetrics(product, overheadRes) {
-  let kg = 1;
-  let vol = product.layer2Volume;
+  const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
 
-  if (layer2GroupMode === "wholesale_drums") {
-    const customKg = (product.layer2WholesaleKg !== undefined && product.layer2WholesaleKg !== null) ? parseFloat(product.layer2WholesaleKg) : 30;
-    kg = customKg > 0 ? customKg : 30;
-    vol = `${kg}KG`;
-  } else {
-    const validVolumes = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
-    if (!vol || !validVolumes.includes(vol)) {
-      vol = "1000ml";
-    }
-    const ml = PriceCalculator.getVolumeMl(vol);
-    kg = ml / 1000;
-  }
-
-  const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? parseFloat(product.layer2Profit) : 70;
-  const isMaceration = isMacerationOil(product);
-  const isEssentialOil = product.category === "Uçucu Yağlar";
-  let supplyType = product.supplyType;
-  if (isEssentialOil && (!supplyType || supplyType === "press")) {
-    supplyType = "wholesale";
-    product.supplyType = "wholesale";
-  }
-  if (!supplyType) {
-    supplyType = isEssentialOil ? "wholesale" : "press";
-  }
-
-  const dipStatus = product.dipStatus || "none";
-  const dipPercent = (product.dipPercent !== undefined && product.dipPercent !== null) ? product.dipPercent : 0;
-  const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
-  const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
-    ? product.seedCostPerKg
-    : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
-
-  const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
-  const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
-  const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
-  const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
-  const initialSeedCost = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
-  const initialYield = 25;
-  const initialHerbCost = 0;
-  const initialOliveOilCost = 454.50;
-
-  const currentWholesale = (product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && product.wholesaleCostPerKg > 0)
-    ? parseFloat(product.wholesaleCostPerKg)
-    : parseFloat(initialCost);
-
-  const currentSeed = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null && product.seedCostPerKg > 0)
-    ? parseFloat(product.seedCostPerKg)
-    : parseFloat(initialSeedCost);
-
-  const isSeedModified = !isMaceration && supplyType !== "wholesale" && Math.abs(currentSeed - initialSeedCost) > 0.05;
-  const isYieldModified = !isMaceration && supplyType !== "wholesale" && Math.abs(yieldPct - initialYield) > 0.01;
-  const isDipModified = !isMaceration && supplyType !== "wholesale" && (dipStatus === "has_dip" || dipStatus === "dip") && dipPercent > 0;
-  const isWholesaleModified = supplyType === "wholesale" && product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && Math.abs(currentWholesale - initialCost) > 0.05;
-  const isHerbCostModified = isMaceration && supplyType !== "wholesale" && Math.abs(herbCost - initialHerbCost) > 0.05;
-  const isOliveOilModified = isMaceration && supplyType !== "wholesale" && Math.abs(oliveOilCost - initialOliveOilCost) > 0.05;
-  const isAnyModified = isSeedModified || isYieldModified || isDipModified || isWholesaleModified || isHerbCostModified || isOliveOilModified;
-
-  const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
-    seedCostPerKg: seedCost,
-    yieldPercent: yieldPct,
-    wholesaleCostPerKg: product.wholesaleCostPerKg,
-    supplyType: supplyType,
-    dipStatus: dipStatus,
-    dipPercent: dipPercent,
-    fallbackCostPerKg: product.costPerKg || 1200
-  }) : null;
-
-  const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
-    herbCostPerKg: herbCost,
-    oliveOilCostPerKg: oliveOilCost,
-    herbRatioKg: product.herbRatioKg || 0.2,
-    herbKg: product.herbKg,
-    oilKg: product.oilKg,
-    supplyType: supplyType,
-    wholesaleCostPerKg: product.wholesaleCostPerKg,
-    fallbackCostPerKg: product.costPerKg || 600
-  }) : null;
-
-  const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
-  const rawOilCost = parseFloat((costPerKg * kg).toFixed(2));
-  const wholesalePack = (layer2GroupMode === "wholesale_drums")
-    ? PriceCalculator.calculateWholesalePackagingBreakdown(kg)
-    : null;
-
-  const packCost = (layer2GroupMode === "wholesale_drums")
-    ? wholesalePack.totalPackCost
-    : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
-
-  const wholesaleMarginMode = product.wholesaleMarginMode || 'percent';
-  const wholesaleMarginValue = (product.wholesaleMarginValue !== undefined && product.wholesaleMarginValue !== null)
-    ? parseFloat(product.wholesaleMarginValue)
-    : (wholesaleMarginMode === 'percent' ? 20 : 200);
-
-  const isWholesaleSupply = (supplyType === "wholesale");
-  const energyOverheadToUse = isWholesaleSupply ? 0 : overheadRes.energyOverheadPerKg;
-  const laborOverheadToUse = overheadRes.laborOverheadPerKg;
-
-  const overheadData = PriceCalculator.getOverheadForVolume(vol, energyOverheadToUse, laborOverheadToUse);
-  const linearOverhead = overheadData.linearVolumeOverhead;
-  const laborAssemblyFee = overheadData.laborAssemblyFee;
-  const totalOverhead = overheadData.totalOverhead;
-
-  const inputVatRate = (product.inputVatRate !== undefined && product.inputVatRate !== null)
-    ? parseFloat(product.inputVatRate)
-    : (parseFloat(product.kdv) || 1);
-  const salesVatRate = parseFloat(product.kdv) || 1;
-
-  const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
-
-  const taxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost({
-    netCost: netCost,
-    inputVatRate: inputVatRate,
-    salesVatRate: salesVatRate,
-    rawOilCost: rawOilCost,
-    packCost: packCost,
-    linearOverhead: linearOverhead,
-    laborAssemblyFee: laborAssemblyFee
-  });
-
-  const effectiveNetCost = taxProtection.taxNeutralBreakEvenCost;
-  const unitNetCost = effectiveNetCost / (kg > 0 ? kg : 1);
-  const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
-  const discountPct = tierInfo.discount || 0;
-
-  let marginAmountPerKg = 0;
-  if (layer2GroupMode === 'wholesale_drums') {
-    if (wholesaleMarginMode === 'amount') {
-      marginAmountPerKg = wholesaleMarginValue;
-    } else {
-      marginAmountPerKg = unitNetCost * (wholesaleMarginValue / 100);
-    }
-  }
-
-  const baseSellingUnitCost = unitNetCost + marginAmountPerKg;
-  const discountedUnitCost = baseSellingUnitCost * (1 - (discountPct / 100));
-  const finalWholesale1KgQuotePrice = parseFloat(discountedUnitCost.toFixed(2));
-  const totalOrderPrice = parseFloat((finalWholesale1KgQuotePrice * kg).toFixed(2));
-  const profitPerKg = parseFloat((finalWholesale1KgQuotePrice - unitNetCost).toFixed(2));
-  const totalProfitOrLoss = parseFloat((profitPerKg * kg).toFixed(2));
-  const isProfit = profitPerKg >= 0;
-
-  const b2bTier1Price = parseFloat((baseSellingUnitCost * 0.95).toFixed(2));
-  const b2bTier2Price = parseFloat((baseSellingUnitCost * 0.90).toFixed(2));
-  const b2bTier3Price = parseFloat((baseSellingUnitCost * 0.85).toFixed(2));
-  const b2bTier4Price = parseFloat((baseSellingUnitCost * 0.80).toFixed(2));
-
-  const tySim = PriceCalculator.calculateSystem1Channel({ salesVatRate: salesVatRate, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
-  const hbSim = PriceCalculator.calculateSystem1Channel({ salesVatRate: salesVatRate, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
-  const iySim = PriceCalculator.calculateSystem1Channel({ salesVatRate: salesVatRate, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
-  const storePrice = effectiveNetCost + targetProfitInput;
-
-  return {
-    kg, vol, targetProfitInput, isMaceration, isEssentialOil, supplyType,
-    dipStatus, dipPercent, yieldPct, seedCost, herbCost, oliveOilCost,
-    kdvRate, initialCost, initialSeedCost, initialYield, initialHerbCost, initialOliveOilCost,
-    currentWholesale, currentSeed, isSeedModified, isYieldModified, isDipModified,
-    isWholesaleModified, isHerbCostModified, isOliveOilModified, isAnyModified,
-    coldPressRes, macerationRes, costPerKg, rawOilCost, wholesalePack, packCost,
-    wholesaleMarginMode, wholesaleMarginValue, energyOverheadToUse, laborOverheadToUse,
-    overheadData, linearOverhead, laborAssemblyFee, totalOverhead,
-    inputVatRate, salesVatRate, netCost, taxProtection, effectiveNetCost, unitNetCost,
-    tierInfo, discountPct, baseSellingUnitCost, finalWholesale1KgQuotePrice, totalOrderPrice,
-    profitPerKg, totalProfitOrLoss, isProfit,
-    b2bTier1Price, b2bTier2Price, b2bTier3Price, b2bTier4Price,
-    tySim, hbSim, iySim, storePrice
+  const volLabels = {
+    "10ml": "10 ml",
+    "20ml": "20 ml",
+    "30ml": "30 ml",
+    "50ml": "50 ml",
+    "100ml": "100 ml",
+    "150ml": "150 ml",
+    "250ml": "250 ml",
+    "500ml": "500 ml",
+    "1000ml": "1000 ml (1 KG)",
+    "5000ml": "5000 ml (5 KG)"
   };
-}
 
-function renderOfficialFactoryInvoiceHtml(product, m) {
-  return `
-    <div class="bg-[#0b1120] p-4 rounded-xl border border-slate-700/80 text-xs space-y-2.5 animate-slide-up w-full shadow-xl">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-bold text-xs text-amber-400">
-        <span class="flex items-center gap-1.5 tracking-wide">📋 RESMİ FABRİKA MALİYET VE SİPARİŞ HESAP FATURASI</span>
-        <span class="text-[11px] text-slate-300 font-medium bg-slate-800/80 px-2.5 py-0.5 rounded-lg border border-slate-700">Tıkla Detay Gör ℹ️</span>
-      </div>
-
-      <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item1')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
-        <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
-          <span class="flex items-center gap-2">
-            ${m.supplyType === 'wholesale' ? `1. 📦 Toptan Dökme Yağ Payı (${m.vol})` : m.isMaceration ? `1. 🌿 Maserasyon Yağ Payı (${m.vol})` : `1. 🌾 Sıkım Yağ Payı (${m.vol})`}
-            <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Formül / Detay</span>
-          </span>
-          <span class="font-bold text-amber-300 text-xs font-mono">${PriceCalculator.formatTL(m.rawOilCost)}</span>
-        </div>
-        ${openLayer2BreakdownInfos[product.id]?.item1 ? `
-          <div class="mt-2.5 p-3 bg-[#080d1a] rounded-lg border border-amber-500/30 text-xs text-slate-200 space-y-1.5 animate-slide-up leading-relaxed">
-            <div class="font-bold text-amber-400 border-b border-slate-800 pb-1 text-xs">💡 1. KALEM (HAM YAĞ) NASIL HESAPLANDI?</div>
-            ${m.supplyType === 'wholesale' ? `
-              <p>• <strong>Toptan Dökme Yağ Alış Fiyatı:</strong> ${PriceCalculator.formatTL(m.costPerKg)} / KG (%${m.kdvRate} KDV Dahil)</p>
-              <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(m.costPerKg)} × ${m.kg} KG = <strong>${PriceCalculator.formatTL(m.rawOilCost)}</strong></p>
-            ` : m.isMaceration ? `
-              <p>• <strong>Zeytinyağı Alış Fiyatı:</strong> ${PriceCalculator.formatTL(m.oliveOilCost)} / KG (%${m.kdvRate} KDV Dahil)</p>
-              <p>• <strong>Ot/Bitki Alış Fiyatı:</strong> ${PriceCalculator.formatTL(m.herbCost)} / KG (Kullanılan Oran: ${m.macerationRes.calculatedRatio} KG Ot / 1 KG Yağ)</p>
-              <p>• <strong>1 KG Maserasyon Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(m.costPerKg)} / KG</p>
-              <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(m.costPerKg)} × ${m.kg} KG = <strong>${PriceCalculator.formatTL(m.rawOilCost)}</strong></p>
-            ` : `
-              <p>• <strong>1 KG Tohum Alış Fiyatı:</strong> ${PriceCalculator.formatTL(m.seedCost)} / KG (%${m.kdvRate} KDV Dahil)</p>
-              <p>• <strong>Pres Yağ Çıkarma Verimi:</strong> %${m.yieldPct}</p>
-              <p>• <strong>1 KG Yağ İçin Gereken Tohum:</strong> 1 / %${m.yieldPct} = <strong>${m.coldPressRes.seedNeededKg} KG Tohum</strong></p>
-              <p>• <strong>Ham Yağ Baz Maliyeti:</strong> ${m.coldPressRes.seedNeededKg} KG × ${PriceCalculator.formatTL(m.seedCost)} = ${PriceCalculator.formatTL(m.coldPressRes.baseCost)} / KG</p>
-              ${m.coldPressRes.dipFireAmount > 0 ? `
-                <p class="text-rose-400 font-bold">• <strong>Dip/Tortu Firesi (%${m.dipPercent}):</strong> +${PriceCalculator.formatTL(m.coldPressRes.dipFireAmount)} / KG</p>
-              ` : ''}
-              <p>• <strong>1 KG Saf Sıkım Maliyeti:</strong> <strong>${PriceCalculator.formatTL(m.costPerKg)} / KG</strong></p>
-              <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(m.costPerKg)} × ${m.kg} KG = <strong>${PriceCalculator.formatTL(m.rawOilCost)}</strong></p>
-            `}
-          </div>
-        ` : ''}
-      </div>
-
-      <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item2')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
-        <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
-          <span class="flex items-center gap-2">
-            ${layer2GroupMode === 'wholesale_drums' ? `2. 📦 Endüstriyel Ambalaj (${m.vol})` : `2. 🍾 Ambalaj Maliyeti (Şişe + Kapak + Kutu)`}
-            <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Detay</span>
-          </span>
-          <span class="font-bold text-amber-300 text-xs font-mono">${PriceCalculator.formatTL(m.packCost)}</span>
-        </div>
-        ${openLayer2BreakdownInfos[product.id]?.item2 ? `
-          <div class="mt-2.5 p-3 bg-[#080d1a] rounded-lg border border-slate-700 text-xs text-slate-200 space-y-1.5 animate-slide-up leading-relaxed">
-            <div class="font-bold text-amber-400 border-b border-slate-800 pb-1 text-xs">💡 2. KALEM (AMBALAJ) DETAYI</div>
-            ${layer2GroupMode === 'wholesale_drums' ? `
-              <p>• <strong>Kullanılan Ambalaj:</strong> ${m.wholesalePack.breakdownText}</p>
-              <p>• <strong>Toplam Ambalaj Maliyeti:</strong> <strong>${PriceCalculator.formatTL(m.packCost)}</strong></p>
-            ` : `
-              <p>• <strong>Şişe / Kutu Hacmi:</strong> ${m.vol}</p>
-              <p>• <strong>Toplam Ambalaj & Kutu Seti Maliyeti:</strong> <strong>${PriceCalculator.formatTL(m.packCost)}</strong></p>
-            `}
-          </div>
-        ` : ''}
-      </div>
-
-      <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item3')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
-        <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
-          <span class="flex items-center gap-2">
-            3. ⚡ Tesis & Enerji Masraf Payı ${m.isWholesaleSupply ? '(0 ₺ Toptan Alış)' : ''}
-            <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Detay</span>
-          </span>
-          <span class="font-bold text-amber-300 text-xs font-mono">${PriceCalculator.formatTL(m.linearOverhead)}</span>
-        </div>
-        ${openLayer2BreakdownInfos[product.id]?.item3 ? `
-          <div class="mt-2.5 p-3 bg-[#080d1a] rounded-lg border border-slate-700 text-xs text-slate-200 space-y-1.5 animate-slide-up leading-relaxed">
-            <div class="font-bold text-amber-400 border-b border-slate-800 pb-1 text-xs">💡 3. KALEM (TESİS & ENERJİ) NASIL HESAPLANDI?</div>
-            ${m.isWholesaleSupply ? `
-              <p>• <strong>Dışarıdan Toptan Alım:</strong> Yağ fabrikamızın pres makinelerinde sıkılmadığı için elektrik/enerji payı eklenmemiştir (0,00 ₺).</p>
-            ` : `
-              <p>• <strong>Aylık 1KG Enerji & Tesis Payı:</strong> ${PriceCalculator.formatTL(m.energyOverheadToUse)} / KG</p>
-              <p>• <strong>Sipariş Hacim Payı (${m.vol}):</strong> ${PriceCalculator.formatTL(m.energyOverheadToUse)} × ${m.kg} KG = <strong>${PriceCalculator.formatTL(m.linearOverhead)}</strong></p>
-            `}
-          </div>
-        ` : ''}
-      </div>
-
-      <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item4')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
-        <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
-          <span class="flex items-center gap-2">
-            4. ⚒️ Dolum & Paketleme İşçilik Payı
-            <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Formül / Detay</span>
-          </span>
-          <span class="font-bold text-amber-300 text-xs font-mono">${PriceCalculator.formatTL(m.laborAssemblyFee)}</span>
-        </div>
-        ${openLayer2BreakdownInfos[product.id]?.item4 ? `
-          <div class="mt-2.5 p-3 bg-[#080d1a] rounded-lg border border-slate-700 text-xs text-slate-200 space-y-1.5 animate-slide-up leading-relaxed">
-            <div class="font-bold text-amber-400 border-b border-slate-800 pb-1 text-xs">💡 4. KALEM (İŞÇİLİK) NASIL HESAPLANDI?</div>
-            <p>• <strong>Aylık 1KG Fabrika İşçilik Payı:</strong> ${PriceCalculator.formatTL(m.laborOverheadToUse)} / KG</p>
-            <p>• <strong>Dolum & Montaj İşçilik Bedeli:</strong> <strong>${PriceCalculator.formatTL(m.laborAssemblyFee)}</strong></p>
-          </div>
-        ` : ''}
-      </div>
-
-      <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'totalCost')" class="cursor-pointer bg-[#080d1a] p-3 rounded-lg border border-amber-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 shadow-inner transition-all hover:border-amber-400">
-        <div class="flex items-center gap-2">
-          <span class="font-extrabold text-amber-400 text-xs">🏁 SAF FABRİKA ÜRETİM MALİYETİ (KÂRSIZ NET GİDER)</span>
-          <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Formül / Detay</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <span class="font-black text-amber-300 text-sm font-mono">${PriceCalculator.formatTL(m.netCost)}</span>
-        </div>
-      </div>
-
-      ${openLayer2BreakdownInfos[product.id]?.totalCost ? `
-        <div class="p-3 bg-[#080d1a] rounded-lg border border-amber-500/30 text-xs text-slate-200 space-y-2 animate-slide-up leading-relaxed">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 flex-wrap gap-2">
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-slate-300">Nakit Çıkan Tutar:</span>
-              <span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(m.netCost)}</span>
-            </div>
-            <div class="flex items-center gap-1.5 text-[11px]">
-              ${m.inputVatRate === 1 && m.salesVatRate === 20 ? `
-                <span class="px-2 py-0.5 bg-amber-950 text-amber-300 rounded border border-amber-800 font-bold">🛡️ KDV Koruması: +${PriceCalculator.formatTL(m.taxProtection.taxDiffSurcharge)}</span>
-                <span class="font-black text-emerald-400">Dip Satış: ${PriceCalculator.formatTL(m.effectiveNetCost)}</span>
-              ` : `
-                <span class="px-2 py-0.5 bg-slate-800 text-slate-200 rounded border border-slate-700 font-bold">🛡️ Birebir Dengeli (%${m.salesVatRate} Alış ➔ %${m.salesVatRate} Satış)</span>
-              `}
-            </div>
-          </div>
-          <div class="text-[11px] text-slate-400 italic pt-1 space-y-1">
-            <p>
-            ${m.inputVatRate === 1 && m.salesVatRate === 20 ? `
-              💡 Tohum KDV'niz (%1) Satış KDV'nizden (%20) düşük olduğu için devlete cebinizden vergi ödememeniz adına vergi koruma dengesi eklenmiştir.
-            ` : `
-              💡 Alış ve Satış KDV oranlarınız birebir eşittir (%${m.salesVatRate}). Cebinizden çıkan KDV dahil harcamanız başa baş satış maliyetinize tam eşittir.
-            `}
-            </p>
-          </div>
-        </div>
-      ` : ''}
-
-      ${layer2GroupMode === 'wholesale_drums' ? `
-        <div class="p-3 bg-[#080d1a] rounded-xl border border-emerald-500/60 shadow-md text-xs space-y-1.5 mt-2">
-          <div class="flex justify-between items-center border-b border-emerald-900/60 pb-1">
-            <span class="font-black text-emerald-400 text-xs flex items-center gap-1.5">
-              💰 MÜŞTERİYE SATIŞ YAPACAĞINIZ GERÇEK TEKLİF FİYATI
-            </span>
-            <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-700">%${m.kdvRate} KDV Dahil</span>
-          </div>
-          <div class="flex justify-between items-center pt-0.5">
-            <div>
-              <span class="text-[10px] text-slate-400 font-bold block">📢 1 KG BİRİM TEKLİF:</span>
-              <span class="text-base font-black text-emerald-300 font-mono">${PriceCalculator.formatTL(m.finalWholesale1KgQuotePrice)} ₺ / KG</span>
-            </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-400 font-bold block">📦 SİPARİŞ TOPLAMI (${m.kg} KG):</span>
-              <span class="text-base font-black text-emerald-300 font-mono">${PriceCalculator.formatTL(m.totalOrderPrice)} ₺</span>
-            </div>
-          </div>
-        </div>
-      ` : ''}
-    </div>
-  `;
-}
-
-function renderChannelSimulatorHtml(product, m) {
-  if (layer2GroupMode === "wholesale_drums") {
-    return `
-      <div class="bg-[#0b1120] p-4 rounded-xl border border-slate-700/80 space-y-3 animate-slide-up shadow-xl">
-        <div class="flex flex-wrap items-center justify-between bg-[#0f172a] p-3 rounded-xl border border-slate-800 gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-extrabold text-white flex items-center gap-1.5">🏢 B2B TOPTAN SANAYİ İSKONTO & KÂRLILIK CETVELİ</span>
-            <span class="text-xs text-slate-400">(Tüm Kademeler İçin Otomatik Kâr/Zarar Hesabı)</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-300">Saf Net Maliyetiniz:</span>
-            <span class="text-xs font-black text-amber-300 bg-amber-950/80 px-2.5 py-1 rounded-lg border border-amber-800 font-mono">${PriceCalculator.formatTL(m.unitNetCost)} ₺ / KG</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <div class="bg-[#0f172a] p-3 rounded-xl border border-slate-700/80 space-y-2 flex flex-col justify-between shadow-md">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1.5">
-                <span class="font-extrabold text-white text-xs">📦 KADEME 1 (5 - 29 KG)</span>
-                <span class="text-xs font-bold text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">%5 İskonto</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-200 text-xs mb-1">
-                <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                <span class="font-black text-amber-300 text-base font-mono">${PriceCalculator.formatTL(m.b2bTier1Price)} / KG</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-[#0f172a] p-3 rounded-xl border border-slate-700/80 space-y-2 flex flex-col justify-between shadow-md">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1.5">
-                <span class="font-extrabold text-white text-xs">📦 KADEME 2 (30 - 49 KG)</span>
-                <span class="text-xs font-bold text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">%10 İskonto</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-200 text-xs mb-1">
-                <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                <span class="font-black text-amber-300 text-base font-mono">${PriceCalculator.formatTL(m.b2bTier2Price)} / KG</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-[#0f172a] p-3 rounded-xl border border-slate-700/80 space-y-2 flex flex-col justify-between shadow-md">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1.5">
-                <span class="font-extrabold text-white text-xs">📦 KADEME 3 (50 - 99 KG)</span>
-                <span class="text-xs font-bold text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">%15 İskonto</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-200 text-xs mb-1">
-                <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                <span class="font-black text-amber-300 text-base font-mono">${PriceCalculator.formatTL(m.b2bTier3Price)} / KG</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-[#0f172a] p-3 rounded-xl border border-slate-700/80 space-y-2 flex flex-col justify-between shadow-md">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1.5">
-                <span class="font-extrabold text-white text-xs">📦 KADEME 4 (100+ KG)</span>
-                <span class="text-xs font-bold text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">%20 İskonto</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-200 text-xs mb-1">
-                <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
-                <span class="font-black text-amber-300 text-base font-mono">${PriceCalculator.formatTL(m.b2bTier4Price)} / KG</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between bg-[#0f172a] p-2.5 rounded-xl border border-slate-800 gap-2">
-          <div class="flex items-center gap-2 truncate text-xs">
-            <span class="font-bold text-slate-300 shrink-0">B2B Müşteri Fiyat Teklifi:</span>
-            <span class="font-mono text-xs text-slate-300 bg-[#080d1a] px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${m.wholesalePack?.breakdownText || (m.kg + ' KG Bidon')} | Birim: ${PriceCalculator.formatTL(m.finalWholesale1KgQuotePrice)} ₺/KG | Toplam: ${PriceCalculator.formatTL(m.totalOrderPrice)} ₺</span>
-          </div>
-          <button onclick="copyWholesaleProposal('${product.id}', ${m.kg}, ${m.finalWholesale1KgQuotePrice}, ${m.totalOrderPrice}, ${m.kdvRate})" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer text-xs">
-            📋 Teklif Metnini Kopyala
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="bg-[#0b1120] p-4 rounded-xl border border-slate-700/80 space-y-3.5 animate-slide-up shadow-xl">
-      <div class="flex flex-wrap items-center justify-between bg-[#0f172a] p-3 rounded-xl border border-slate-800 gap-3">
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-extrabold text-white flex items-center gap-1.5">⚡ SİSTEM 1 SATIŞ KANALI & HAKEDİŞ SİMÜLATÖRÜ</span>
-          <span class="text-xs text-slate-400">(Saf Fabrika Maliyeti Üzerinden Hesaplama)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <label class="text-xs font-bold text-slate-200">Hedef Net Kâr (₺):</label>
-          <input type="number" value="${m.targetProfitInput}" min="0" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-24 bg-[#080d1a] border border-slate-700 text-emerald-400 font-extrabold text-sm px-3 py-1 rounded-lg text-center focus:outline-none focus:border-sky-500 font-mono">
-          <span class="text-xs font-bold text-slate-400">₺ / Adet</span>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 text-xs">
-        <div class="bg-[#0f172a] p-3 rounded-xl border border-orange-800/40 space-y-2 flex flex-col justify-between shadow-md">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-              <span class="font-extrabold text-orange-400 text-xs flex items-center gap-1">🧡 TRENDYOL</span>
-              <span class="header-badge-ty px-2 py-0.5 rounded text-[10.5px] font-bold">%19 Kom.</span>
-            </div>
-            <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
-              <span class="font-semibold text-slate-400">Tavsiye Satış Fiyatı:</span>
-              <span class="font-black text-amber-300 text-base font-mono">${PriceCalculator.formatTL(m.tySim.salePrice)}</span>
-            </div>
-            <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2 font-mono">
-              <div class="flex justify-between items-center"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(m.tySim.commAmount)}</span></div>
-              <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(m.tySim.cargoFee)}</span></div>
-              <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(m.tySim.payout)}</span></div>
-              <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(m.netCost)}</span></div>
-            </div>
-          </div>
-          <div class="bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-500/30 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
-            <span class="text-emerald-300 font-black text-base font-mono">+${PriceCalculator.formatTL(m.tySim.netProfit)}</span>
-          </div>
-        </div>
-
-        <div class="bg-[#0f172a] p-3 rounded-xl border border-sky-800/40 space-y-2 flex flex-col justify-between shadow-md">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-              <span class="font-extrabold text-sky-400 text-xs flex items-center gap-1">🌐 İYZİCO (WEB SİTENİZ)</span>
-              <span class="header-badge-iy px-2 py-0.5 rounded text-[10.5px] font-bold">%4 Kom.</span>
-            </div>
-            <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
-              <span class="font-semibold text-slate-400">Tavsiye Satış Fiyatı:</span>
-              <span class="font-black text-sky-300 text-base font-mono">${PriceCalculator.formatTL(m.iySim.salePrice)}</span>
-            </div>
-            <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2 font-mono">
-              <div class="flex justify-between items-center"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(m.iySim.commAmount)}</span></div>
-              <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(m.iySim.cargoFee)}</span></div>
-              <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(m.iySim.payout)}</span></div>
-              <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(m.netCost)}</span></div>
-            </div>
-          </div>
-          <div class="bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-500/30 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
-            <span class="text-emerald-300 font-black text-base font-mono">+${PriceCalculator.formatTL(m.iySim.netProfit)}</span>
-          </div>
-        </div>
-
-        <div class="bg-[#0f172a] p-3 rounded-xl border border-amber-800/40 space-y-2 flex flex-col justify-between shadow-md">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-              <span class="font-extrabold text-amber-400 text-xs flex items-center gap-1">🧡 HEPSİBURADA</span>
-              <span class="header-badge-hb px-2 py-0.5 rounded text-[10.5px] font-bold">%17 Kom.</span>
-            </div>
-            <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
-              <span class="font-semibold text-slate-400">Tavsiye Satış Fiyatı:</span>
-              <span class="font-black text-amber-300 text-base font-mono">${PriceCalculator.formatTL(m.hbSim.salePrice)}</span>
-            </div>
-            <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2 font-mono">
-              <div class="flex justify-between items-center"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(m.hbSim.commAmount)}</span></div>
-              <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(m.hbSim.cargoFee)}</span></div>
-              <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(m.hbSim.payout)}</span></div>
-              <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(m.netCost)}</span></div>
-            </div>
-          </div>
-          <div class="bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-500/30 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
-            <span class="text-emerald-300 font-black text-base font-mono">+${PriceCalculator.formatTL(m.hbSim.netProfit)}</span>
-          </div>
-        </div>
-
-        <div class="bg-[#0f172a] p-3 rounded-xl border border-emerald-800/40 space-y-2 flex flex-col justify-between shadow-md">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-              <span class="font-extrabold text-emerald-400 text-xs flex items-center gap-1">🏪 FİZİKİ MAĞAZA</span>
-              <span class="text-xs font-bold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">Direkt</span>
-            </div>
-            <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
-              <span class="font-semibold text-slate-400">Mağaza Fiyatı:</span>
-              <span class="font-black text-emerald-300 text-base font-mono">${PriceCalculator.formatTL(m.storePrice)}</span>
-            </div>
-            <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2 font-mono">
-              <div class="flex justify-between items-center"><span>(-) Komisyon:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
-              <div class="flex justify-between items-center"><span>(-) Kargo:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
-              <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Kasa (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(m.storePrice)}</span></div>
-              <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(m.netCost)}</span></div>
-            </div>
-          </div>
-          <div class="bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-500/30 mt-2 flex justify-between items-center font-bold text-xs">
-            <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
-            <span class="text-emerald-300 font-black text-base font-mono">+${PriceCalculator.formatTL(m.targetProfitInput)}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderLayer2CockpitDesk(product, overheadRes) {
-  const deskContainer = document.getElementById("layer2-split-desk");
-  if (!deskContainer) return;
-
-  if (!product) {
-    deskContainer.innerHTML = `<div class="p-8 text-center text-slate-400 bg-[#0f172a] rounded-xl border border-slate-800">Lütfen sol listeden incelemek istediğiniz bir ürünü seçin.</div>`;
-    return;
-  }
-
-  const m = computeLayer2ProductMetrics(product, overheadRes);
-  const badgeClass = product.category === "Uçucu Yağlar"
-    ? "bg-purple-950/40 text-purple-300 border-purple-800/50"
-    : "bg-emerald-950/40 text-emerald-300 border-emerald-800/50";
-
-  deskContainer.innerHTML = `
-    <div class="glass-card rounded-2xl p-4 border border-slate-700/80 bg-[#0f172a] shadow-xl space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="font-mono text-xs font-bold text-slate-300 bg-[#080d1a] px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">${product.sku}</span>
-            <h2 class="text-base font-black text-white tracking-tight">${product.name}</h2>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">${product.category}</span>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">Saf Üretim Maliyet & Satış Kanalı Yönetim Masası</p>
-        </div>
-        <div class="flex items-center gap-2">
-          ${m.isAnyModified ? `
-            <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-2.5 py-1 rounded-lg border border-amber-800/80 transition-all flex items-center gap-1 cursor-pointer">
-              ↺ Varsayılana Dön
-            </button>
-          ` : ''}
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
-        <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-          <span class="text-slate-400 font-bold text-[11px]">Ambalaj:</span>
-          ${layer2GroupMode === 'wholesale_drums' 
-            ? `<input type="number" value="${m.kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-[#0f172a] text-slate-100 font-bold px-1.5 py-0.5 rounded border border-slate-700 text-center text-xs font-mono"> <span class="text-slate-400 font-bold">KG</span>`
-            : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-[#0f172a] text-slate-100 font-bold px-2 py-1 rounded border border-slate-700 cursor-pointer text-xs font-mono">${getLayer2VolumeOptionsHtml(m.vol, product)}</select>`
-          }
-        </div>
-
-        <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-          <span class="text-slate-400 font-bold text-[11px]">Reçete:</span>
-          ${m.isEssentialOil ? `
-            <span class="text-xs font-extrabold text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60">📦 Saf Uçucu</span>
-          ` : `
-            <div class="flex items-center p-0.5 bg-[#0f172a] rounded border border-slate-800">
-              <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded text-[10.5px] font-bold transition-all ${m.supplyType !== 'wholesale' ? (m.isMaceration ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-slate-950') : 'text-slate-400 hover:text-white'}">
-                ${m.isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
-              </button>
-              <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2 py-0.5 rounded text-[10.5px] font-bold transition-all ${m.supplyType === 'wholesale' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'}">
-                📦 Toptan
-              </button>
-            </div>
-          `}
-        </div>
-
-        ${m.isMaceration && m.supplyType !== 'wholesale' ? `
-          <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-            <span class="text-emerald-400 font-bold text-xs">🫒 Z.Yağı:</span>
-            <input type="number" value="${m.oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-16 bg-[#0f172a] border border-slate-700 text-emerald-300 font-bold text-xs py-0.5 px-1 rounded text-center font-mono">
-            <span class="text-indigo-300 font-bold text-xs ml-1">🌱 Ot:</span>
-            <input type="number" value="${m.herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-16 bg-[#0f172a] border border-slate-700 text-indigo-300 font-bold text-xs py-0.5 px-1 rounded text-center font-mono">
-          </div>
-        ` : m.supplyType === 'press' ? `
-          <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-            <span class="text-amber-400 font-bold text-xs">🌾 Tohum:</span>
-            <input type="number" value="${m.seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-16 bg-[#0f172a] border border-slate-700 text-amber-300 font-bold text-xs py-0.5 px-1 rounded text-center font-mono"> <span class="text-slate-400 font-bold">₺</span>
-            <span class="text-slate-400 font-bold text-xs ml-1">💧 Verim:</span>
-            <input type="number" value="${m.yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-14 bg-[#0f172a] border border-slate-700 text-amber-300 font-bold text-xs py-0.5 px-1 rounded text-center font-mono"> <span class="text-slate-400 font-bold">%</span>
-          </div>
-        ` : `
-          <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-            <span class="text-blue-400 font-bold text-xs">📦 Dökme Alış:</span>
-            <input type="number" value="${m.costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-[#0f172a] border border-slate-700 text-blue-300 font-bold text-xs py-0.5 px-1.5 rounded text-center font-mono"> <span class="text-slate-400 font-bold">₺/KG</span>
-          </div>
-        `}
-
-        ${m.supplyType === 'press' ? `
-          <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-            <span class="text-xs font-bold text-rose-300">Dip Fire:</span>
-            <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-[#0f172a] border border-rose-900/60 text-rose-300 font-bold text-xs py-0.5 px-1.5 rounded cursor-pointer">
-              <option value="none" ${m.dipStatus !== 'has_dip' ? 'selected' : ''}>Dip Yok (%0)</option>
-              <option value="has_dip" ${m.dipStatus === 'has_dip' ? 'selected' : ''}>🔴 Dip Var</option>
-            </select>
-            ${m.dipStatus === 'has_dip' ? `
-              <input type="number" value="${m.dipPercent}" step="1" min="0" max="90" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-12 bg-[#0f172a] border border-rose-500 text-rose-300 font-bold text-xs py-0.5 px-1 rounded text-center font-mono"> <span class="text-rose-300 font-bold">%</span>
-            ` : ''}
-          </div>
-        ` : ''}
-
-        <div class="flex items-center gap-1.5 bg-[#080d1a] px-2.5 py-1.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 font-bold">KDV:</span>
-          <select onchange="updateProductInputVat('${product.id}', this.value)" class="bg-[#0f172a] text-amber-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs cursor-pointer">
-            <option value="1" ${m.inputVatRate === 1 ? 'selected' : ''}>Alış %1</option>
-            <option value="20" ${m.inputVatRate === 20 ? 'selected' : ''}>Alış %20</option>
-          </select>
-          <span class="text-slate-600 font-bold">➔</span>
-          <select onchange="updateProductSalesVat('${product.id}', this.value)" class="bg-[#0f172a] text-emerald-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs cursor-pointer">
-            <option value="1" ${m.salesVatRate === 1 ? 'selected' : ''}>Satış %1</option>
-            <option value="20" ${m.salesVatRate === 20 ? 'selected' : ''}>Satış %20</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    ${renderOfficialFactoryInvoiceHtml(product, m)}
-
-    ${renderChannelSimulatorHtml(product, m)}
-  `;
+  return allVols.map(v => {
+    const label = volLabels[v] || v;
+    return `<option value="${v}" ${vol === v ? "selected" : ""}>${label}</option>`;
+  }).join("");
 }
 
 function renderLayer2Cards() {
   try {
     const containerGrid = document.getElementById("layer2-product-grid");
     const containerRows = document.getElementById("layer2-product-rows");
-    const splitContainer = document.getElementById("layer2-split-container");
-    const splitList = document.getElementById("layer2-split-list");
-    const splitDesk = document.getElementById("layer2-split-desk");
-    const listCountEl = document.getElementById("layer2-list-count");
-
     if (!containerGrid || !containerRows) return;
 
-    const activeView = (typeof viewMode !== "undefined" && viewMode) ? viewMode : "split";
+    containerGrid.innerHTML = "";
+    containerRows.innerHTML = "";
+
+    const activeView = (typeof viewMode !== "undefined" && viewMode) ? viewMode : "rows";
+
+    if (activeView === "rows") {
+      containerRows.classList.remove("hidden");
+      containerGrid.classList.add("hidden");
+    } else {
+      containerGrid.classList.remove("hidden");
+      containerRows.classList.add("hidden");
+    }
 
     let productsMap = (typeof currentProducts !== "undefined" && currentProducts && Object.keys(currentProducts).length > 0)
       ? currentProducts
@@ -3268,6 +2331,7 @@ function renderLayer2Cards() {
 
     const currentCat = (typeof activeCategory !== "undefined" && activeCategory) ? activeCategory : "all";
     const currentSearch = (typeof searchQuery !== "undefined" && searchQuery) ? searchQuery.toLowerCase() : "";
+
     const layer2SimMap = StorageManager.getLayer2SimData();
 
     const productsListRaw = Object.values(productsMap).filter(p => {
@@ -3287,150 +2351,1065 @@ function renderLayer2Cards() {
 
     const productsList = sortProductsByCategoryAndName(productsListRaw);
 
-    if (listCountEl) {
-      listCountEl.innerText = `${productsList.length} Ürün`;
+    if (productsList.length === 0) {
+      const emptyHtml = `<div class="col-span-full py-12 text-center text-slate-400 font-medium bg-slate-900/50 rounded-2xl border border-slate-800">Aramanıza veya seçtiğiniz kategoriye uygun ürün bulunamadı.</div>`;
+      containerRows.innerHTML = emptyHtml;
+      containerGrid.innerHTML = emptyHtml;
+      return;
     }
 
     const overhead = StorageManager.getFactoryOverhead();
     const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overhead);
 
-    if (productsList.length === 0) {
-      const emptyHtml = `<div class="col-span-full py-12 text-center text-slate-400 font-medium bg-[#0f172a] rounded-2xl border border-slate-800">Aramanıza veya seçtiğiniz kategoriye uygun ürün bulunamadı.</div>`;
-      if (containerRows) containerRows.innerHTML = emptyHtml;
-      if (splitList) splitList.innerHTML = emptyHtml;
-      if (splitDesk) splitDesk.innerHTML = emptyHtml;
-      return;
-    }
-
-    if (activeView === "split" && splitContainer && splitList && splitDesk) {
-      splitContainer.classList.remove("hidden");
-      containerRows.classList.add("hidden");
-      containerGrid.classList.add("hidden");
-
-      if (!activeCockpitProductId || !productsList.some(p => p.id === activeCockpitProductId)) {
-        activeCockpitProductId = productsList[0].id;
-      }
-
-      const prevScroll = splitList.scrollTop;
-      splitList.innerHTML = productsList.map(product => {
-        const isSelected = product.id === activeCockpitProductId;
-        const m = computeLayer2ProductMetrics(product, overheadRes);
-        const bClass = product.category === "Uçucu Yağlar"
-          ? "bg-purple-950/40 text-purple-300 border-purple-800/50"
-          : "bg-emerald-950/40 text-emerald-300 border-emerald-800/50";
-        return `
-          <div onclick="selectCockpitProduct('${product.id}')" data-product-id="${product.id}" class="glass-card p-2.5 rounded-xl border transition-all cursor-pointer ${isSelected ? 'product-card-active' : 'border-slate-800/80 hover:border-slate-700 bg-[#0f172a]/70 hover:bg-[#131d33]'}">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 truncate">
-                <span class="font-mono text-[10px] font-bold text-slate-300 bg-[#080d1a] px-2 py-0.5 rounded border border-slate-800 shrink-0">${product.sku}</span>
-                <span class="text-xs font-bold text-white truncate" title="${product.name}">${product.name}</span>
-              </div>
-              <span class="text-[9.5px] px-1.5 py-0.5 rounded border ${bClass} shrink-0">${product.category === 'Uçucu Yağlar' ? 'Uçucu' : 'Sabit'}</span>
-            </div>
-            <div class="flex items-center justify-between text-xs mt-2 pt-1.5 border-t border-slate-800/60">
-              <span class="text-slate-400 text-[11px] font-medium font-mono">${m.vol}</span>
-              <div class="flex items-center gap-2.5">
-                <span class="text-[11px] text-slate-400">1KG: <strong class="text-slate-200 font-mono font-bold">${PriceCalculator.formatTL(m.costPerKg)}</strong></span>
-                <span class="text-amber-400 font-black font-mono text-xs">${PriceCalculator.formatTL(m.effectiveNetCost)}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join("");
-      splitList.scrollTop = prevScroll;
-
-      const activeProd = productsList.find(p => p.id === activeCockpitProductId) || productsList[0];
-      renderLayer2CockpitDesk(activeProd, overheadRes);
-      return;
-    }
-
-    if (splitContainer) splitContainer.classList.add("hidden");
-    containerRows.classList.remove("hidden");
-    containerGrid.classList.add("hidden");
-    containerRows.innerHTML = "";
-
     productsList.forEach(product => {
       try {
-        const m = computeLayer2ProductMetrics(product, overheadRes);
+        let kg = 1;
+        let vol = product.layer2Volume;
+
+        if (layer2GroupMode === "wholesale_drums") {
+          const customKg = (product.layer2WholesaleKg !== undefined && product.layer2WholesaleKg !== null) ? parseFloat(product.layer2WholesaleKg) : 30;
+          kg = customKg > 0 ? customKg : 30;
+          vol = `${kg}KG`;
+        } else {
+          const validVolumes = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
+          if (!vol || !validVolumes.includes(vol)) {
+            vol = "1000ml";
+          }
+          const ml = PriceCalculator.getVolumeMl(vol);
+          kg = ml / 1000;
+        }
+
+        const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!openLayer2Drawers[product.id];
+
+        const isMaceration = isMacerationOil(product);
+
+        const isEssentialOil = product.category === "Uçucu Yağlar";
+        let supplyType = product.supplyType;
+        if (isEssentialOil && (!supplyType || supplyType === "press")) {
+          supplyType = "wholesale";
+          product.supplyType = "wholesale";
+        }
+        if (!supplyType) {
+          supplyType = isEssentialOil ? "wholesale" : "press";
+        }
+
+        const dipStatus = product.dipStatus || "none";
+        const dipPercent = (product.dipPercent !== undefined && product.dipPercent !== null) ? product.dipPercent : 0;
+
+        const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
+        const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
+          ? product.seedCostPerKg
+          : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+
+        const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
+        const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
+        const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
+        const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
+        const initialSeedCost = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
+        const initialYield = 25;
+        const initialHerbCost = 0;
+        const initialOliveOilCost = 454.50;
+
+        const currentWholesale = (product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && product.wholesaleCostPerKg > 0)
+          ? parseFloat(product.wholesaleCostPerKg)
+          : parseFloat(initialCost);
+
+        const currentSeed = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null && product.seedCostPerKg > 0)
+          ? parseFloat(product.seedCostPerKg)
+          : parseFloat(initialSeedCost);
+
+        const isSeedModified = !isMaceration && supplyType !== "wholesale" && Math.abs(currentSeed - initialSeedCost) > 0.05;
+        const isYieldModified = !isMaceration && supplyType !== "wholesale" && Math.abs(yieldPct - initialYield) > 0.01;
+        const isDipModified = !isMaceration && supplyType !== "wholesale" && (dipStatus === "has_dip" || dipStatus === "dip") && dipPercent > 0;
+        const isWholesaleModified = supplyType === "wholesale" && product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && Math.abs(currentWholesale - initialCost) > 0.05;
+        const isHerbCostModified = isMaceration && supplyType !== "wholesale" && Math.abs(herbCost - initialHerbCost) > 0.05;
+        const isOliveOilModified = isMaceration && supplyType !== "wholesale" && Math.abs(oliveOilCost - initialOliveOilCost) > 0.05;
+
+        const isAnyModified = isSeedModified || isYieldModified || isDipModified || isWholesaleModified || isHerbCostModified || isOliveOilModified;
+
+        const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
+          seedCostPerKg: seedCost,
+          yieldPercent: yieldPct,
+          wholesaleCostPerKg: product.wholesaleCostPerKg,
+          supplyType: supplyType,
+          dipStatus: dipStatus,
+          dipPercent: dipPercent,
+          fallbackCostPerKg: product.costPerKg || 1200
+        }) : null;
+
+        const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
+          herbCostPerKg: herbCost,
+          oliveOilCostPerKg: oliveOilCost,
+          herbRatioKg: product.herbRatioKg || 0.2,
+          herbKg: product.herbKg,
+          oilKg: product.oilKg,
+          supplyType: supplyType,
+          wholesaleCostPerKg: product.wholesaleCostPerKg,
+          fallbackCostPerKg: product.costPerKg || 600
+        }) : null;
+
+        const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
+
+        const rawOilCost = parseFloat((costPerKg * kg).toFixed(2));
+        const wholesalePack = (layer2GroupMode === "wholesale_drums")
+          ? PriceCalculator.calculateWholesalePackagingBreakdown(kg)
+          : null;
+
+        const packCost = (layer2GroupMode === "wholesale_drums")
+          ? wholesalePack.totalPackCost
+          : ((typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[vol]) ? DEFAULT_PACKAGING_COSTS[vol] : 14.50);
+
+        const wholesaleMarginMode = product.wholesaleMarginMode || 'percent'; // 'percent' | 'amount'
+        const wholesaleMarginValue = (product.wholesaleMarginValue !== undefined && product.wholesaleMarginValue !== null)
+          ? parseFloat(product.wholesaleMarginValue)
+          : (wholesaleMarginMode === 'percent' ? 20 : 200);
+
+        const isWholesaleSupply = (supplyType === "wholesale");
+        
+        // Toptan alım (dışarıdan tedarik) ise fabrika presi çalışmaz (Enerji Payı = 0),
+        // Ama işçiler bu yağı şişelemek zorundadır, bu yüzden İşçilik Payı hesaplanmalıdır!
+        const energyOverheadToUse = isWholesaleSupply ? 0 : overheadRes.energyOverheadPerKg;
+        const laborOverheadToUse = overheadRes.laborOverheadPerKg;
+
+        const overheadData = PriceCalculator.getOverheadForVolume(
+            vol,
+            energyOverheadToUse,
+            laborOverheadToUse
+        );
+        
+        const linearOverhead = overheadData.linearVolumeOverhead;
+        const laborAssemblyFee = overheadData.laborAssemblyFee;
+        const totalOverhead = overheadData.totalOverhead;
+
+        const inputVatRate = (product.inputVatRate !== undefined && product.inputVatRate !== null)
+          ? parseFloat(product.inputVatRate)
+          : (parseFloat(product.kdv) || 1);
+        const salesVatRate = parseFloat(product.kdv) || 1;
+
+        const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
+
+        // 🛡️ İki Yönlü KDV Koruma Motoru (VAT Rate Mismatch Tax Neutralization Engine)
+        const taxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost({
+          netCost: netCost,
+          inputVatRate: inputVatRate,
+          salesVatRate: salesVatRate,
+          rawOilCost: rawOilCost,
+          packCost: packCost,
+          linearOverhead: linearOverhead,
+          laborAssemblyFee: laborAssemblyFee
+        });
+
+        const effectiveNetCost = taxProtection.taxNeutralBreakEvenCost;
+        const unitNetCost = effectiveNetCost / (kg > 0 ? kg : 1);
+        const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
+        const discountPct = tierInfo.discount || 0;
+
+        // Calculate 1 KG Wholesale Quote Price with Profit Margin (% or ₺/KG) + Discount Tier %
+        let marginAmountPerKg = 0;
+        if (layer2GroupMode === 'wholesale_drums') {
+          if (wholesaleMarginMode === 'amount') {
+            marginAmountPerKg = wholesaleMarginValue;
+          } else {
+            marginAmountPerKg = unitNetCost * (wholesaleMarginValue / 100);
+          }
+        }
+
+        const baseSellingUnitCost = unitNetCost + marginAmountPerKg;
+        const discountedUnitCost = baseSellingUnitCost * (1 - (discountPct / 100));
+        const finalWholesale1KgQuotePrice = parseFloat(discountedUnitCost.toFixed(2));
+        const totalOrderPrice = parseFloat((finalWholesale1KgQuotePrice * kg).toFixed(2));
+
+        // Profit or Loss Calculation
+        const profitPerKg = parseFloat((finalWholesale1KgQuotePrice - unitNetCost).toFixed(2));
+        const totalProfitOrLoss = parseFloat((profitPerKg * kg).toFixed(2));
+        const isProfit = profitPerKg >= 0;
+
+        // B2B Wholesale Tier Calculations (based on baseSellingUnitCost and unitNetCost)
+        const b2bTier1Price = parseFloat((baseSellingUnitCost * 0.95).toFixed(2));
+        const b2bTier1ProfitPerKg = parseFloat((b2bTier1Price - unitNetCost).toFixed(2));
+        const b2bTier1IsProfit = b2bTier1ProfitPerKg >= 0;
+
+        const b2bTier2Price = parseFloat((baseSellingUnitCost * 0.90).toFixed(2));
+        const b2bTier2ProfitPerKg = parseFloat((b2bTier2Price - unitNetCost).toFixed(2));
+        const b2bTier2IsProfit = b2bTier2ProfitPerKg >= 0;
+
+        const b2bTier3Price = parseFloat((baseSellingUnitCost * 0.85).toFixed(2));
+        const b2bTier3ProfitPerKg = parseFloat((b2bTier3Price - unitNetCost).toFixed(2));
+        const b2bTier3IsProfit = b2bTier3ProfitPerKg >= 0;
+
+        const b2bTier4Price = parseFloat((baseSellingUnitCost * 0.80).toFixed(2));
+        const b2bTier4ProfitPerKg = parseFloat((b2bTier4Price - unitNetCost).toFixed(2));
+        const b2bTier4IsProfit = b2bTier4ProfitPerKg >= 0;
+
+        // Katman 1 Pazaryeri Simülatörüne KDV Korumalı Dip Maliyeti Aktar
+        const tySim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
+        const hbSim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
+        const iySim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
+        const storeSim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 0, discount: 0, cargo: 0 });
+
+        const storePrice = effectiveNetCost + targetProfitInput;
 
         const badgeClass = product.category === "Uçucu Yağlar"
           ? "bg-purple-950/40 text-purple-300 border-purple-800/50"
           : "bg-emerald-950/40 text-emerald-300 border-emerald-800/50";
 
-        const rowHtml = `
-          <div class="glass-card rounded-xl p-3.5 border border-slate-800/80 hover:border-slate-700 bg-[#0f172a] transition-all shadow-sm hover:shadow-md flex flex-col gap-3">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-              <!-- Sol: Ürün Bilgisi -->
-              <div class="flex items-center gap-3 min-w-[240px]">
-                <span class="font-mono text-xs font-bold text-slate-300 bg-[#080d1a] px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
-                  ${product.sku}
-                </span>
-                <div class="truncate">
+        if (activeView === "rows") {
+          const rowHtml = `
+            <div class="glass-card rounded-xl p-3 border border-white/5 hover:border-white/15 bg-[#12151b] transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                
+                <!-- 1. Left: Product Title, SKU, Category Badge, Ambalaj -->
+                <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
+                  <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
+                    ${product.sku}
+                  </span>
+                  <div class="truncate">
+                    <div class="flex items-center gap-1.5 truncate">
+                      <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
+                        ${product.name}
+                      </h3>
+                      ${isAnyModified ? `
+                        <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded-md border border-amber-800/80 shrink-0 cursor-pointer">
+                          ↺
+                        </button>
+                      ` : ''}
+                    </div>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                      <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
+                        ${product.category}
+                      </span>
+                      <span class="text-[11px] font-medium text-zinc-400 bg-[#0a0c10] px-2 py-0.5 rounded-md border border-zinc-800 flex items-center gap-1.5">
+                        📌 Ambalaj: 
+                        ${layer2GroupMode === 'wholesale_drums' 
+                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-[#12151b] text-zinc-200 font-bold px-1.5 py-0.5 rounded border border-zinc-700 text-center text-xs"> KG`
+                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-[#12151b] text-zinc-200 font-bold px-1.5 py-0.5 rounded border border-zinc-700 cursor-pointer text-xs">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
+                <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
+                  <div class="text-center border-r border-zinc-800/80 pr-1">
+                    <span class="text-[11px] font-medium text-zinc-400 block leading-tight">1KG Hammadde</span>
+                    <span class="font-bold text-zinc-100 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(costPerKg)}</span>
+                  </div>
+
+                  <div class="text-center border-r border-zinc-800/80 pr-1">
+                    <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Tesis Gideri</span>
+                    <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(linearOverhead)}</span>
+                  </div>
+
+                  <div class="text-center border-r border-zinc-800/80 pr-1">
+                    <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Ambalaj & Sarf</span>
+                    <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(packCost)}</span>
+                  </div>
+
+                  <div class="text-center">
+                    <span class="text-[11px] font-semibold text-zinc-300 block leading-tight">
+                      ${layer2GroupMode === 'wholesale_drums' ? '1KG Teklif' : 'Net Saf Maliyet'}
+                    </span>
+                    <span class="text-xs font-extrabold text-emerald-400 block mt-0.5 tabular-nums font-mono">
+                      ${PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost)}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 3. Far Right Action Buttons -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-zinc-800 text-white border border-zinc-600' : 'bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800'}">
+                    <span>⚙️ Reçete / Ayar ${isBreakdownOpen ? '▲' : '▼'}</span>
+                  </button>
+
+                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-zinc-800 text-white border border-zinc-600' : 'bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800'}">
+                    <span>${layer2GroupMode === 'wholesale_drums' ? '🏢 B2B Cetveli' : '⚡ Pazaryeri Sim'} ${isDrawerOpen ? '▲' : '▼'}</span>
+                  </button>
+
+                  ${layer2GroupMode === 'wholesale_drums' ? `
+                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" title="Müşteri Teklif Metnini Kopyala" class="p-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center cursor-pointer">
+                      📋
+                    </button>
+                  ` : ''}
+                </div>
+
+              </div>
+
+              <!-- DİKEY, DENGELİ VE RAHAT OKUNUR RESMİ FATURA DÖKÜM ÇEKMECESİ (Reçete Girdileri ile Birlikte) -->
+              ${isBreakdownOpen ? `
+                <div class="bg-slate-950/95 p-3.5 rounded-xl border border-teal-600/40 text-xs space-y-3 mt-1 shadow-xl animate-slide-up">
+                  <!-- Üst Ayar Kontrolleri: Tohum/Maserasyon/Dökme, Dip Fire, KDV Oranları -->
+                  <div class="flex flex-wrap items-center gap-2.5 pb-2.5 border-b border-slate-800 bg-slate-900/60 p-2.5 rounded-xl text-xs">
+                    <!-- Tedarik / Reçete Türü -->
+                    <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                      <span class="text-xs font-bold text-slate-400">Reçete:</span>
+                      ${isEssentialOil ? `
+                        <span class="text-xs font-extrabold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">📦 Saf Uçucu Yağ</span>
+                      ` : `
+                        <div class="flex items-center p-0.5 bg-slate-900 rounded border border-slate-800">
+                          <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded text-[11px] font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white' : 'bg-amber-500 text-slate-950') : 'text-slate-400 hover:text-white'}">
+                            ${isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
+                          </button>
+                          <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2 py-0.5 rounded text-[11px] font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'}">
+                            📦 Toptan
+                          </button>
+                        </div>
+                      `}
+                    </div>
+
+                    <!-- Tohum / Ot / Dökme Girdileri -->
+                    ${isMaceration && supplyType !== 'wholesale' ? `
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-emerald-400 font-bold text-xs">🫒 Z.Yağı:</span>
+                        <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺</span>
+                        <span class="text-purple-300 font-bold text-xs ml-1">🌱 Ot:</span>
+                        <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-purple-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺</span>
+                        <span class="text-[10px] text-amber-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">${macerationRes.calculatedRatio} KG Ot / 1 KG</span>
+                      </div>
+                    ` : supplyType === 'press' ? `
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-amber-400 font-bold text-xs">🌾 Tohum:</span>
+                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
+                        <span class="text-cyan-400 font-bold text-xs ml-1.5">💧 Verim:</span>
+                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-cyan-300 font-bold text-xs py-1 px-1 rounded text-center"> <span class="text-slate-400 font-bold">%</span>
+                      </div>
+                    ` : `
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-blue-400 font-bold text-xs">📦 Dökme Alış:</span>
+                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-24 bg-slate-900 border border-slate-700 text-blue-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
+                      </div>
+                    `}
+
+                    <!-- Dip / Tortu Fire -->
+                    ${supplyType === 'press' ? `
+                      <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-xs font-bold text-rose-300">Dip Fire:</span>
+                        <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-slate-900 border border-rose-500/50 text-rose-300 font-bold text-xs py-1 px-1.5 rounded cursor-pointer">
+                          <option value="none" ${dipStatus !== 'has_dip' ? 'selected' : ''}>Dip Yok (%0)</option>
+                          <option value="has_dip" ${dipStatus === 'has_dip' ? 'selected' : ''}>🔴 Dip Var</option>
+                        </select>
+                        ${dipStatus === 'has_dip' ? `
+                          <input type="number" value="${dipPercent}" step="1" min="0" max="90" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-16 bg-slate-900 border border-rose-500 text-rose-300 font-bold text-xs py-1 px-1 rounded text-center"> <span class="text-rose-300 font-bold">%</span>
+                        ` : ''}
+                      </div>
+                    ` : ''}
+
+                    <!-- KDV Hızlı Seçim -->
+                    <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                      <span class="text-[10px] text-slate-400 font-bold">KDV:</span>
+                      <select onchange="updateProductInputVat('${product.id}', this.value)" class="bg-slate-900 text-amber-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs cursor-pointer">
+                        <option value="1" ${inputVatRate === 1 ? 'selected' : ''}>Alış %1</option>
+                        <option value="20" ${inputVatRate === 20 ? 'selected' : ''}>Alış %20</option>
+                      </select>
+                      <span class="text-slate-600 font-bold">➔</span>
+                      <select onchange="updateProductSalesVat('${product.id}', this.value)" class="bg-slate-900 text-emerald-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs cursor-pointer">
+                        <option value="1" ${salesVatRate === 1 ? 'selected' : ''}>Satış %1</option>
+                        <option value="20" ${salesVatRate === 20 ? 'selected' : ''}>Satış %20</option>
+                      </select>
+                    </div>
+
+                    ${layer2GroupMode === 'wholesale_drums' ? `
+                      <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-purple-500/50">
+                        <span class="text-xs font-bold text-purple-300">Hedef Kâr:</span>
+                        <div class="flex items-center p-0.5 bg-slate-900 rounded border border-slate-800 text-xs">
+                          <button onclick="updateLayer2ProductField('${product.id}', 'wholesaleMarginMode', 'percent')" class="px-1.5 py-0.5 rounded font-bold transition-all ${wholesaleMarginMode === 'percent' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">%</button>
+                          <button onclick="updateLayer2ProductField('${product.id}', 'wholesaleMarginMode', 'amount')" class="px-1.5 py-0.5 rounded font-bold transition-all ${wholesaleMarginMode === 'amount' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">₺/KG</button>
+                        </div>
+                        <input type="number" value="${wholesaleMarginValue}" step="${wholesaleMarginMode === 'amount' ? '10' : '5'}" onchange="updateLayer2ProductField('${product.id}', 'wholesaleMarginValue', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs py-1 px-1 rounded text-center">
+                      </div>
+                    ` : ''}
+                  </div>
+                <div class="bg-slate-950/95 p-4 rounded-xl border border-slate-700/80 text-xs space-y-2.5 animate-slide-up w-full my-2 shadow-xl">
+                  <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-bold text-xs text-teal-400">
+                    <span class="flex items-center gap-1.5 tracking-wide">📋 RESMİ FABRİKA MALİYET VE SİPARİŞ HESAP FATURASI</span>
+                    <span class="text-[11px] text-slate-400 font-medium bg-slate-900 px-2.5 py-0.5 rounded-lg border border-slate-800">Tıkla Detay Gör ℹ️</span>
+                  </div>
+
+                  <!-- KALEM 1 -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item1')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
+                      <span class="flex items-center gap-2">
+                        ${supplyType === 'wholesale' ? `1. 📦 Toptan Dökme Yağ Payı (${vol})` : isMaceration ? `1. 🌿 Maserasyon Yağ Payı (${vol})` : `1. 🌾 Sıkım Yağ Payı (${vol})`}
+                        <span class="text-[10px] font-medium text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-800/60">ℹ️ Formül / Detay</span>
+                      </span>
+                      <span class="font-bold text-cyan-300 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
+                    </div>
+                    ${openLayer2BreakdownInfos[product.id]?.item1 ? `
+                      <div class="mt-2.5 p-3 bg-slate-900 rounded-lg border border-sky-500/40 text-xs text-sky-200 space-y-1.5 animate-slide-up leading-relaxed">
+                        <div class="font-bold text-sky-300 border-b border-slate-800 pb-1 text-xs">💡 1. KALEM (HAM YAĞ) NASIL HESAPLANDI?</div>
+                        ${supplyType === 'wholesale' ? `
+                          <p>• <strong>Toptan Dökme Yağ Alış Fiyatı:</strong> ${PriceCalculator.formatTL(costPerKg)} / KG (%${kdvRate} KDV Dahil)</p>
+                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)}</strong></p>
+                        ` : isMaceration ? `
+                          <p>• <strong>Zeytinyağı Alış Fiyatı:</strong> ${PriceCalculator.formatTL(oliveOilCost)} / KG (%${kdvRate} KDV Dahil)</p>
+                          <p>• <strong>Ot/Bitki Alış Fiyatı:</strong> ${PriceCalculator.formatTL(herbCost)} / KG (Kullanılan Oran: ${macerationRes.calculatedRatio} KG Ot / 1 KG Yağ)</p>
+                          <p>• <strong>1 KG Maserasyon Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(costPerKg)} / KG</p>
+                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)}</strong></p>
+                        ` : `
+                          <p>• <strong>Hammadde (Tohum) Alış Fiyatı:</strong> ${PriceCalculator.formatTL(seedCost)} / KG (%${kdvRate} KDV Dahil)</p>
+                          <p>• <strong>Pres Verimi:</strong> %${yieldPct} (100 KG tohumdan ${yieldPct} KG saf yağ elde edilir)</p>
+                          <p>• <strong>Dip / Tortu Fire Durumu:</strong> ${dipStatus === 'has_dip' && dipPercent > 0 ? `%${dipPercent} Fire Var` : 'Dip Yok (%0 Fire)'}</p>
+                          <p>• <strong>1 KG Saf Sıkım Yağ Maliyeti:</strong> ${PriceCalculator.formatTL(costPerKg)} / KG</p>
+                          <p>• <strong>Sipariş Hesabı:</strong> ${PriceCalculator.formatTL(costPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(rawOilCost)}</strong></p>
+                        `}
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- KALEM 2 -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item2')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
+                      <span class="flex items-center gap-2">
+                        2. 🍾 Ambalaj Maliyeti (${layer2GroupMode === 'wholesale_drums' ? 'Sanayi Bidonları' : 'Şişe + Kapak + Kutu'})
+                        <span class="text-[10px] font-medium text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-800/60">ℹ️ Detay</span>
+                      </span>
+                      <span class="font-bold text-sky-300 text-xs">${PriceCalculator.formatTL(packCost)}</span>
+                    </div>
+                    ${openLayer2BreakdownInfos[product.id]?.item2 ? `
+                      <div class="mt-2.5 p-3 bg-slate-900 rounded-lg border border-sky-500/40 text-xs text-sky-200 space-y-1.5 animate-slide-up leading-relaxed">
+                        <p>• <strong>Seçilen Ambalaj Dağılımı:</strong> ${layer2GroupMode === 'wholesale_drums' ? (wholesalePack?.breakdownText || `${kg} KG Bidon`) : vol}</p>
+                        <p>• <strong>Toplam Ambalaj Gideri:</strong> <strong>${PriceCalculator.formatTL(packCost)}</strong></p>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- KALEM 3 -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item3')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
+                      <span class="flex items-center gap-2">
+                        3. ⚡ Tesis & Enerji Masraf Payı ${supplyType === 'wholesale' ? '(0 ₺ Toptan Alış)' : ''}
+                        <span class="text-[10px] font-medium text-purple-300 bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-800/60">ℹ️ Detay</span>
+                      </span>
+                      <span class="font-bold ${supplyType === 'wholesale' ? 'text-slate-400' : 'text-purple-300'} text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
+                    </div>
+                    ${openLayer2BreakdownInfos[product.id]?.item3 ? `
+                      <div class="mt-2.5 p-3 bg-slate-900 rounded-lg border border-purple-500/40 text-xs text-purple-200 space-y-1.5 animate-slide-up leading-relaxed">
+                        <div class="font-bold text-purple-300 border-b border-slate-800 pb-1 text-xs">💡 3. KALEM NASIL HESAPLANDI?</div>
+                        ${supplyType === 'wholesale' ? `
+                          <p>• <strong>Toptan Alınan Yağlarda Tesis Payı:</strong> <strong>0,00 ₺</strong> (Dışarıdan dökme alındığı için fabrika presi çalışmaz).</p>
+                        ` : `
+                          <p>• <strong>Aylık Tesis & Enerji Masraf Payı (Elektrik+Kira):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} / KG</p>
+                          <p>• <strong>Sipariş Tesis Payı (Lineer Hacim):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)}</strong></p>
+                        `}
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- KALEM 4 -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item4')" class="cursor-pointer hover:bg-slate-900/90 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
+                      <span class="flex items-center gap-2">
+                        4. 🛠️ Dolum & Paketleme İşçilik Payı
+                        <span class="text-[10px] font-medium text-indigo-300 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-800/60">ℹ️ Formül / Detay</span>
+                      </span>
+                      <span class="font-bold text-indigo-300 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
+                    </div>
+                    ${openLayer2BreakdownInfos[product.id]?.item4 ? `
+                      <div class="mt-2.5 p-3 bg-slate-900 rounded-lg border border-indigo-500/40 text-xs text-indigo-200 space-y-1.5 animate-slide-up leading-relaxed">
+                        <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1 text-xs">💡 4. KALEM (İŞÇİLİK HİZMETİ) NASIL HESAPLANDI?</div>
+                        <p>• <strong>Taban İşçilik Payı (Maaş+SGK vb.):</strong> ${PriceCalculator.formatTL(overheadRes.laborOverheadPerKg)} / KG</p>
+                        <p>• <strong>Ambalaj Zorluk Katsayısı (${vol}):</strong> ×${(overheadRes.laborOverheadPerKg > 0 && kg > 0) ? (laborAssemblyFee / (overheadRes.laborOverheadPerKg * kg)).toFixed(1) : "0.0"} Çarpan</p>
+                        <p>• <strong>Sipariş İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)}</strong></p>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- KALEM 5: SAF FABRİKA HAM MALİYETİ & KDV KORUMA DENGELİ MALİYET -->
+                  <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item5')" class="cursor-pointer hover:opacity-95 py-2.5 px-3 rounded-lg transition-all border ${taxProtection.hasMismatch ? 'border-emerald-500/80 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-950 shadow-md' : 'border-amber-500/60 bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-950 shadow-md'} mt-1 space-y-1">
+                    <div class="flex items-center justify-between font-bold text-xs">
+                      <span class="text-amber-300 flex items-center gap-2">
+                        🏁 SAF FABRİKA ÜRETİM MALİYETİ (KÂRSIZ NET GİDER)
+                        <span class="text-[10px] font-medium text-amber-200 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-800/60">ℹ️ Formül / Detay</span>
+                      </span>
+                      <span class="text-amber-300 text-xs font-bold shrink-0">${PriceCalculator.formatTL(netCost)}</span>
+                    </div>
+                    ${taxProtection.hasMismatch ? `
+                      <div class="flex justify-between items-center text-xs pt-1.5 border-t border-slate-800/80">
+                        <span class="text-emerald-400 font-medium flex items-center gap-1">
+                          🛡️ KDV KORUMALI DİP SATIŞ MALİYETİ (Alış %${inputVatRate} ➔ Satış %${salesVatRate}):
+                        </span>
+                        <span class="font-bold text-emerald-300 text-xs">${PriceCalculator.formatTL(effectiveNetCost)}</span>
+                      </div>
+                    ` : ''}
+                    ${openLayer2BreakdownInfos[product.id]?.item5 ? `
+                      <div class="mt-2.5 p-3 bg-slate-900/95 rounded-xl border border-amber-500/40 text-xs text-slate-200 space-y-2 animate-slide-up shadow-lg">
+                        <!-- Toplama Satırı (Yan Yana Temiz Izgara) -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px]">
+                          <div><span class="text-slate-400 block">1. Yağ:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(rawOilCost)}</span></div>
+                          <div><span class="text-slate-400 block">2. Ambalaj:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(packCost)}</span></div>
+                          <div><span class="text-slate-400 block">3. Tesis:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(linearOverhead)}</span></div>
+                          <div><span class="text-slate-400 block">4. İşçilik:</span><span class="font-bold text-slate-200">${PriceCalculator.formatTL(laborAssemblyFee)}</span></div>
+                        </div>
+
+                        <!-- Dip Toplam ve KDV Analiz Satırı -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-2 text-xs">
+                          <div class="flex items-center gap-2">
+                            <span class="font-bold text-amber-300">= Net Üretim Maliyeti:</span>
+                            <span class="font-black text-amber-300 text-sm">${PriceCalculator.formatTL(netCost)}</span>
+                          </div>
+
+                          <!-- KDV Rozeti ve Kısa Özellik -->
+                          <div class="flex items-center gap-1.5 text-[11px]">
+                            ${inputVatRate === 1 && salesVatRate === 20 ? `
+                              <span class="px-2 py-0.5 bg-amber-950 text-amber-300 rounded border border-amber-800 font-bold">🛡️ KDV Koruması: +${PriceCalculator.formatTL(taxProtection.taxDiffSurcharge)}</span>
+                              <span class="font-black text-emerald-400">Dip Satış: ${PriceCalculator.formatTL(effectiveNetCost)}</span>
+                            ` : inputVatRate === 20 && salesVatRate === 1 ? `
+                              <span class="px-2 py-0.5 bg-blue-950 text-blue-300 rounded border border-blue-800 font-bold">🛡️ KDV Devri (%20 Alış ➔ %1 Satış)</span>
+                            ` : inputVatRate === 20 && salesVatRate === 20 ? `
+                              <span class="px-2 py-0.5 bg-purple-950 text-purple-300 rounded border border-purple-800 font-bold">🛡️ Birebir Dengeli (%20 Alış ➔ %20 Satış)</span>
+                            ` : `
+                              <span class="px-2 py-0.5 bg-emerald-950 text-emerald-300 rounded border border-emerald-800 font-bold">🛡️ Birebir Dengeli (%1 Alış ➔ %1 Satış)</span>
+                            `}
+                          </div>
+                        </div>
+
+                        <!-- Tek Satır Temiz İzah Metni -->
+                        <div class="text-[11px] text-slate-400 italic border-t border-slate-800/80 pt-2 pb-1 space-y-2.5 leading-relaxed">
+                          <p>
+                          ${inputVatRate === 1 && salesVatRate === 20 ? `
+                            💡 Tohum KDV'niz (%1) Satış KDV'nizden (%20) düşük olduğu için devlete cebinizden vergi ödememeniz adına vergi koruma dengesi eklenmiştir.
+                          ` : inputVatRate === 20 && salesVatRate === 1 ? `
+                            💡 Alış KDV'niz (%20) Satış KDV'nizden (%1) yüksek olduğu için devlete ekstra KDV çıkmaz, Devreden KDV birikir.
+                          ` : `
+                            💡 Alış ve Satış KDV oranlarınız birebir eşittir (%${salesVatRate}). Cebinizden çıkan KDV dahil harcamanız başa baş satış maliyetinize tam eşittir.
+                          `}
+                          </p>
+                          <div class="text-sky-400 font-semibold bg-sky-950/30 p-2 rounded-lg border border-sky-900/40">
+                            ℹ️ Not: Pazaryeri (Trendyol, Hepsiburada, İyzico) komisyon ve kargo kesintileri ile banka hakedişi ve net kârlılık hesapları, hemen aşağıdaki Pazaryeri Sim çekmecesi içerisinde gösterilmektedir.
+                          </div>
+                        </div>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- TOPTAN SİPARİŞİ İÇİN MÜŞTERİ TEKLİF KUTUSU (Sadece Toptan Bidon Modunda Açılır) -->
+                  ${layer2GroupMode === 'wholesale_drums' ? `
+                    <div class="p-3 bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 rounded-xl border border-emerald-500 shadow-md text-xs space-y-1.5">
+                      <div class="flex justify-between items-center border-b border-emerald-800/80 pb-1">
+                        <span class="font-black text-emerald-400 text-xs flex items-center gap-1.5">
+                          💰 MÜŞTERİYE SATIŞ YAPACAĞINIZ GERÇEK TEKLİF FİYATI
+                        </span>
+                        <span class="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-700">%${kdvRate} KDV Dahil</span>
+                      </div>
+                      <div class="flex justify-between items-center pt-0.5">
+                        <div>
+                          <span class="text-[10px] text-slate-300 font-bold block">📢 1 KG BİRİM TEKLİF:</span>
+                          <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺ / KG</span>
+                        </div>
+                        <div class="text-right">
+                          <span class="text-[10px] text-slate-300 font-bold block">📦 SİPARİŞ TOPLAMI (${kg} KG):</span>
+                          <span class="text-base font-black text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
+                        </div>
+                      </div>
+                      <div class="flex justify-between items-center text-[10px] pt-1 border-t border-emerald-900/60">
+                        <span class="text-purple-200 font-mono">📦 ${wholesalePack?.breakdownText}</span>
+                        ${Math.abs(totalProfitOrLoss) < 0.01 ? `
+                          <span class="text-amber-300 font-bold bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : totalProfitOrLoss > 0 ? `
+                          <span class="text-emerald-300 font-bold bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-800">🟢 KÂR: +${PriceCalculator.formatTL(totalProfitOrLoss)} ₺</span>
+                        ` : `
+                          <span class="text-rose-300 font-bold bg-rose-950 px-1.5 py-0.2 rounded border border-rose-800">🔴 ZARAR: ${PriceCalculator.formatTL(totalProfitOrLoss)} ₺</span>
+                        `}
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ""}
+
+              <!-- SİSTEM 1 KANAL SATIŞ SİMÜLATÖRÜ VEYA B2B TOPTAN BİDON CETVELİ -->
+              ${isDrawerOpen ? (layer2GroupMode === "wholesale_drums" ? `
+                <div class="bg-slate-950/95 p-4 rounded-2xl border border-purple-800/80 space-y-3 animate-slide-up shadow-xl">
+                  <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-extrabold text-purple-300 flex items-center gap-1.5">🏢 B2B TOPTAN SANAYİ İSKONTO & KÂRLILIK CETVELİ</span>
+                      <span class="text-xs text-slate-400">(Tüm Kademeler İçin Otomatik Kâr/Zarar Hesabı)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-slate-300">Saf Net Maliyetiniz:</span>
+                      <span class="text-xs font-black text-amber-300 bg-amber-950 px-2.5 py-1 rounded-lg border border-amber-800">${PriceCalculator.formatTL(unitNetCost)} ₺ / KG</span>
+                    </div>
+                  </div>
+
+                  <!-- B2B KADEMELİ İSKONTO & TEKLİF MİMARİSİ GRID -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                    <!-- Kademe 1: 5-29 KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-teal-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-teal-400 text-xs">📦 KADEME 1 (5 - 29 KG)</span>
+                          <span class="text-xs font-bold text-teal-300 bg-teal-950 px-2 py-0.5 rounded border border-teal-800">%5 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-teal-300 text-base">${PriceCalculator.formatTL(b2bTier1Price)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>10 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier1Price * 10)} ₺</span></div>
+                        </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${Math.abs(b2bTier1ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier1ProfitPerKg > 0 ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier1ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier1ProfitPerKg)}₺/KG)</span>
+                        `}
+                      </div>
+                    </div>
+
+                    <!-- Kademe 2: 30-99 KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-blue-400 text-xs">🛢️ KADEME 2 (30 - 99 KG)</span>
+                          <span class="text-xs font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">%10 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-blue-300 text-base">${PriceCalculator.formatTL(b2bTier2Price)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>30 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier2Price * 30)} ₺</span></div>
+                        </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${Math.abs(b2bTier2ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier2ProfitPerKg > 0 ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier2ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier2ProfitPerKg)}₺/KG)</span>
+                        `}
+                      </div>
+                    </div>
+
+                    <!-- Kademe 3: 100-249 KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-indigo-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-indigo-400 text-xs">🚚 KADEME 3 (100 - 249 KG)</span>
+                          <span class="text-xs font-bold text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">%15 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-indigo-300 text-base">${PriceCalculator.formatTL(b2bTier3Price)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>100 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier3Price * 100)} ₺</span></div>
+                        </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${Math.abs(b2bTier3ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier3ProfitPerKg > 0 ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier3ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier3ProfitPerKg)}₺/KG)</span>
+                        `}
+                      </div>
+                    </div>
+
+                    <!-- Kademe 4: 250+ KG -->
+                    <div class="bg-slate-900/90 p-3.5 rounded-xl border border-amber-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-amber-400 text-xs">🏭 KADEME 4 (250+ KG SANAYİ)</span>
+                          <span class="text-xs font-bold text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">%20 İskonto</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-1.5">
+                          <span class="font-semibold text-slate-400">1 KG Teklif Fiyatı:</span>
+                          <span class="font-black text-amber-300 text-base">${PriceCalculator.formatTL(b2bTier4Price)} / KG</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>250 KG Sipariş Tutarı:</span><span class="text-slate-100 font-bold">${PriceCalculator.formatTL(b2bTier4Price * 250)} ₺</span></div>
+                        </div>
+                      </div>
+                      <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Kârlılık:</span>
+                        ${Math.abs(b2bTier4ProfitPerKg) < 0.01 ? `
+                          <span class="text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
+                        ` : b2bTier4ProfitPerKg > 0 ? `
+                          <span class="text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">🟢 KÂRDA (+${PriceCalculator.formatTL(b2bTier4ProfitPerKg)}₺/KG)</span>
+                        ` : `
+                          <span class="text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">🔴 ZARARDA (${PriceCalculator.formatTL(b2bTier4ProfitPerKg)}₺/KG)</span>
+                        `}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- B2B TEKLİF METNİ VE HIZLI KOPYALAMA BUTONU -->
+                  <div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-purple-500/40 text-xs flex-wrap gap-2">
+                    <div class="flex items-center gap-2 truncate">
+                      <span class="text-base">📋</span>
+                      <span class="font-bold text-purple-200 shrink-0">B2B Müşteri Fiyat Teklifi:</span>
+                      <span class="font-mono text-xs text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${wholesalePack?.breakdownText || (kg + ' KG Bidon')} | Birim: ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺/KG (%${kdvRate} KDV Dahil) | Toplam: ${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
+                    </div>
+                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0">
+                      📋 Teklif Metnini Kopyala
+                    </button>
+                  </div>
+                </div>
+              ` : `
+                <div class="bg-slate-950 p-4 rounded-xl border border-purple-800/60 space-y-3.5 animate-slide-up">
+                  <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800 gap-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-extrabold text-purple-300 flex items-center gap-1.5">⚡ KATMAN 1 SİSTEM 1 KANAL FİYATI & HAKEDİŞ SİMÜLATÖRÜ</span>
+                      <span class="text-xs text-slate-400">(Saf Fabrika Maliyeti Üzerinden Hesaplama)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs font-bold text-slate-200">Hedef Net Kâr (₺):</label>
+                      <input type="number" value="${targetProfitInput}" min="0" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-24 bg-slate-950 border border-purple-500/60 text-purple-300 font-extrabold text-sm px-3 py-1 rounded-lg text-center focus:outline-none">
+                      <span class="text-xs font-bold text-purple-400">₺ / Adet</span>
+                    </div>
+                  </div>
+
+                  <!-- SİSTEM 1 KANAL DETAY KARTLARI GRID -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                    <!-- 1. TRENDYOL SİSTEM 1 KARTI -->
+                    <div class="bg-gradient-to-b from-slate-900 to-amber-950/20 p-3.5 rounded-xl border border-amber-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-amber-400 text-xs flex items-center gap-1">🧡 TRENDYOL</span>
+                          <span class="text-xs font-bold text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">%19 Kom.</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                          <span class="font-semibold text-slate-400">Tavsiye Satış Fiyatı:</span>
+                          <span class="font-black text-amber-300 text-base">${PriceCalculator.formatTL(tySim.salePrice)}</span>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>(-) Komisyon (%19):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.commAmount)}</span></div>
+                          <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(tySim.cargoFee)}</span></div>
+                          <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(tySim.payout)}</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                        </div>
+                      </div>
+                      <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                        <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
+                        <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(tySim.netProfit)}</span>
+                      </div>
+                    </div>
+
+                    <!-- 2. İYZİCO (WEB SİTENİZ) SİSTEM 1 KARTI -->
+                    <div class="bg-gradient-to-b from-slate-900 to-blue-950/20 p-3.5 rounded-xl border border-blue-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-blue-400 text-xs flex items-center gap-1">🌐 İYZİCO (WEB SİTENİZ)</span>
+                          <span class="text-xs font-bold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">%4 Kom.</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                          <span class="font-semibold text-slate-400">Tavsiye Satış Fiyatı:</span>
+                          <span class="font-black text-blue-300 text-base">${PriceCalculator.formatTL(iySim.salePrice)}</span>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>(-) Komisyon (%4):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.commAmount)}</span></div>
+                          <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(iySim.cargoFee)}</span></div>
+                          <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(iySim.payout)}</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                        </div>
+                      </div>
+                      <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                        <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
+                        <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(iySim.netProfit)}</span>
+                      </div>
+                    </div>
+
+                    <!-- 3. HEPSİBURADA SİSTEM 1 KARTI -->
+                    <div class="bg-gradient-to-b from-slate-900 to-orange-950/20 p-3.5 rounded-xl border border-orange-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-orange-400 text-xs flex items-center gap-1">🧡 HEPSİBURADA</span>
+                          <span class="text-xs font-bold text-orange-300 bg-orange-950 px-2 py-0.5 rounded border border-orange-800">%17 Kom.</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                          <span class="font-semibold text-slate-400">Tavsiye Satış Fiyatı:</span>
+                          <span class="font-black text-orange-300 text-base">${PriceCalculator.formatTL(hbSim.salePrice)}</span>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>(-) Komisyon (%17):</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.commAmount)}</span></div>
+                          <div class="flex justify-between items-center"><span>(-) Kargo Ücreti:</span><span class="text-rose-400 font-bold">-${PriceCalculator.formatTL(hbSim.cargoFee)}</span></div>
+                          <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Hakediş (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(hbSim.payout)}</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                        </div>
+                      </div>
+                      <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                        <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
+                        <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(hbSim.netProfit)}</span>
+                      </div>
+                    </div>
+
+                    <!-- 4. PERAKENDE FİZİKİ MAĞAZA KARTI -->
+                    <div class="bg-gradient-to-b from-slate-900 to-emerald-950/20 p-3.5 rounded-xl border border-emerald-800/50 space-y-2 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                          <span class="font-extrabold text-emerald-400 text-xs flex items-center gap-1">🏪 FİZİKİ MAĞAZA</span>
+                          <span class="text-xs font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Direkt</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+                          <span class="font-semibold text-slate-400">Mağaza Fiyatı:</span>
+                          <span class="font-black text-emerald-300 text-base">${PriceCalculator.formatTL(storePrice)}</span>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                          <div class="flex justify-between items-center"><span>(-) Komisyon:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                          <div class="flex justify-between items-center"><span>(-) Kargo:</span><span class="text-emerald-400 font-bold">0,00 ₺</span></div>
+                          <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5"><span>(=) Kasa (Payout):</span><span class="text-emerald-300 font-extrabold">${PriceCalculator.formatTL(storePrice)}</span></div>
+                          <div class="flex justify-between items-center text-slate-400"><span>(-) Saf Fabrika Maliyeti:</span><span class="text-slate-200 font-bold">-${PriceCalculator.formatTL(netCost)}</span></div>
+                        </div>
+                      </div>
+                      <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 mt-2 flex justify-between items-center font-bold text-xs">
+                        <span class="text-emerald-400 uppercase tracking-wider text-xs">NET KÂRINIZ:</span>
+                        <span class="text-emerald-300 font-black text-base">+${PriceCalculator.formatTL(targetProfitInput)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `) : ""}
+            </div>
+          `;
+
+          containerRows.insertAdjacentHTML("beforeend", rowHtml);
+
+        } else {
+          const cardHtml = `
+            <div class="glass-card rounded-2xl p-4 border border-slate-800/80 hover:border-emerald-500/50 flex flex-col justify-between relative overflow-hidden transition-all bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 shadow-xl">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 truncate">
-                    <h3 class="text-sm font-bold text-white group-hover:text-slate-200 transition-colors truncate" title="${product.name}">
-                      ${product.name}
-                    </h3>
-                    ${m.isAnyModified ? `
-                      <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded-md border border-amber-800/80 shrink-0 cursor-pointer">
-                        ↺
+                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
+                      ${product.category}
+                    </span>
+                    ${isAnyModified ? `
+                      <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-[10px] bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-2 py-0.5 rounded-lg border border-amber-800/80 transition-all flex items-center gap-1 shrink-0 shadow-sm">
+                        ↺ Varsayılana Dön
                       </button>
                     ` : ''}
                   </div>
-                  <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
-                      ${product.category}
-                    </span>
-                    <span class="text-[11px] text-slate-400">1KG: <strong class="text-slate-200 font-mono font-bold">${PriceCalculator.formatTL(m.costPerKg)}</strong></span>
+                  <span class="font-mono text-xs font-semibold text-slate-300 bg-slate-950 px-2.5 py-0.5 rounded-full border border-slate-800">
+                    ${product.sku}
+                  </span>
+                </div>
+
+                <h3 class="text-sm font-extrabold text-white tracking-tight mb-2 truncate">
+                  ${product.name}
+                </h3>
+
+                <!-- TEDARİK TÜRÜ & HAMMADDE/TOPTAN GİRDİLERİ (CARD VIEW) -->
+                <div class="my-2 bg-slate-950/90 p-2.5 rounded-xl border ${supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} space-y-2">
+                  <div class="flex items-center justify-between pb-1 border-b border-slate-800/80">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Tedarik Türü:</span>
+                    <div class="flex items-center p-0.5 bg-slate-900 rounded-lg border border-slate-800">
+                      ${!isEssentialOil ? `
+                        <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded text-[10px] font-bold transition-all ${supplyType !== 'wholesale' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'}">
+                          🌾 Sıkım
+                        </button>
+                      ` : ''}
+                      <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'wholesale')" class="px-2 py-0.5 rounded text-[10px] font-bold transition-all ${supplyType === 'wholesale' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
+                        📦 Toptan
+                      </button>
+                    </div>
+                  </div>
+
+                  ${supplyType === 'wholesale' ? `
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-blue-400">📦 Toptan Alış:</span>
+                      <div class="flex items-center gap-1">
+                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${initialCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <span class="text-xs font-bold text-blue-400">₺/KG</span>
+                        ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${initialCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      </div>
+                    </div>
+                  ` : `
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
+                      <div class="flex items-center gap-1">
+                        <input type="number" value="${seedCost}" step="5" title="Orijinal Varsayılan: ${initialSeedCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'seedCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <span class="text-xs font-bold text-amber-400">₺/KG</span>
+                        ${isSeedModified ? `<button onclick="resetProductField('${product.id}', 'seedCostPerKg')" title="Varsayılana Dön (${initialSeedCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-cyan-400">💧 Pres Verimi:</span>
+                      <div class="flex items-center gap-1">
+                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" title="Orijinal Varsayılan: %${initialYield} (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'yieldPercent')" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-cyan-500/50 text-cyan-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <span class="text-xs font-bold text-cyan-400">%</span>
+                        ${isYieldModified ? `<button onclick="resetProductField('${product.id}', 'yieldPercent')" title="Varsayılana Dön (%${initialYield})" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
+                      </div>
+                    </div>
+                  `}
+
+                  <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold">1KG Yağ Maliyeti:</span>
+                    <span class="text-xs font-black ${supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
                 </div>
-              </div>
 
-              <!-- Orta: Ambalaj & Hızlı Girdiler -->
-              <div class="flex items-center gap-3 flex-wrap">
-                ${layer2GroupMode === 'wholesale_drums' ? `
-                  <div class="flex items-center gap-1.5 bg-[#0b1120] px-3 py-1.5 rounded-xl border border-slate-800">
-                    <span class="text-xs text-slate-400 font-medium">📦 Miktar:</span>
-                    <input type="number" value="${m.kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-16 bg-[#080d1a] border border-slate-700 text-amber-300 font-bold text-xs px-2 py-1 rounded text-center focus:outline-none focus:border-amber-400">
-                    <span class="text-xs font-bold text-slate-300">KG</span>
+                <!-- Minimalist & Vurgulu 1 KG Teklif Fiyatı Rozet (Card View) -->
+                <div class="p-3 bg-gradient-to-br from-emerald-950/90 to-slate-950 rounded-xl border border-emerald-500/60 my-2 space-y-1">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-extrabold text-emerald-400 uppercase text-[10px] tracking-wider">1 KG TEKLİF FİYATI:</span>
+                    <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-800/80">%${kdvRate} KDV</span>
                   </div>
-                ` : `
-                  <div class="flex items-center gap-1.5 bg-[#0b1120] px-3 py-1.5 rounded-xl border border-slate-800">
-                    <span class="text-xs text-slate-400 font-medium">🧴 Ambalaj:</span>
-                    <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-[#080d1a] border border-slate-700 text-slate-200 font-bold text-xs px-2.5 py-1 rounded focus:outline-none focus:border-amber-400">
-                      ${getLayer2VolumeOptionsHtml(m.vol, product)}
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-black text-emerald-300 text-lg tracking-tight">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-xs text-emerald-400">/ KG</span></span>
+                    <span class="text-[10px] font-bold text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800">%${discountPct} İsk.</span>
+                  </div>
+                  <div class="flex justify-between items-center text-[10px] text-slate-300 font-bold border-t border-emerald-900/60 pt-1">
+                    <span>Sipariş Toplamı: <strong class="text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</strong></span>
+                    <span>(${kg} KG)</span>
+                  </div>
+                </div>
+
+                <!-- Ambalaj Seçici veya Toptan Elle KG Yazma Girişi (Card View) -->
+                <div class="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
+                  <label class="text-slate-200 text-xs font-bold">${layer2GroupMode === 'wholesale_drums' ? '📦 Sipariş Miktarı:' : '🧴 Ambalaj Boyutu:'}</label>
+                  ${layer2GroupMode === 'wholesale_drums' ? `
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="${kg}" min="1" step="1" placeholder="KG" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-20 bg-slate-900 border border-purple-400/80 text-purple-200 font-black text-xs px-2 py-1 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <span class="text-xs font-black text-purple-300">KG</span>
+                    </div>
+                  ` : `
+                    <select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-lg focus:outline-none">
+                      ${getLayer2VolumeOptionsHtml(vol, product)}
                     </select>
-                  </div>
-                `}
-
-                <div class="flex items-center gap-2 bg-[#080d1a] px-3 py-1.5 rounded-xl border border-amber-500/30">
-                  <span class="text-xs text-slate-400 font-medium">Saf Maliyet:</span>
-                  <span class="text-sm font-black text-amber-400 font-mono">${PriceCalculator.formatTL(m.effectiveNetCost)}</span>
+                  `}
                 </div>
+
+                <!-- FATURA KESER GİBİ DETAYLI DÖKÜM BUTONU -->
+                <button onclick="toggleLayer2Breakdown('${product.id}')" class="w-full text-center py-2 px-3 rounded-xl bg-slate-950 hover:bg-slate-900 border border-emerald-500/40 text-xs font-bold text-emerald-300 transition-all flex items-center justify-center gap-1.5 my-2">
+                  <span>📋 ${isBreakdownOpen ? "Fatura Dökümünü Gizle" : "📋 Detaylı Maliyet Dökümü"}</span>
+                </button>
+
+                <!-- FATURA KESER GİBİ SIKI DÖKÜM TABLOSU (CARD VIEW RECEIPT STYLE) -->
+                ${isBreakdownOpen ? `
+                  <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-2 animate-slide-up my-2">
+                    <div class="flex justify-between items-center pb-1.5 border-b border-slate-800 font-extrabold text-xs text-emerald-400 uppercase tracking-wider">
+                      <span>📋 MALİYET KALEMİ (${supplyType === 'wholesale' ? 'TOPTAN' : 'SIKIM'})</span>
+                      <span>TUTAR</span>
+                    </div>
+
+                    ${supplyType === 'wholesale' ? `
+                      <div class="flex items-baseline justify-between text-slate-200">
+                        <span class="shrink-0 font-medium text-slate-300">1. 📦 Toptan Yağ Payı (${vol})</span>
+                        <span class="grow border-b border-dotted border-slate-800 mx-1.5"></span>
+                        <span class="font-bold text-blue-300 shrink-0 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
+                      </div>
+                    ` : `
+                      <div class="flex items-baseline justify-between text-slate-200">
+                        <span class="shrink-0 font-medium text-slate-300">1. 🧴 Sıkım Yağ Payı (${vol})</span>
+                        <span class="grow border-b border-dotted border-slate-800 mx-1.5"></span>
+                        <span class="font-bold text-cyan-300 shrink-0 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
+                      </div>
+                    `}
+
+                    <div class="flex items-baseline justify-between text-slate-200">
+                      <span class="shrink-0 font-medium">2. 🍾 Şişe/Kapak</span>
+                      <span class="grow border-b border-dotted border-slate-700 mx-1.5"></span>
+                      <span class="font-bold text-blue-300 shrink-0 text-xs">${PriceCalculator.formatTL(packCost)}</span>
+                    </div>
+
+                    <div class="flex items-baseline justify-between text-slate-200">
+                      <span class="shrink-0 font-medium">3. ⚡ Tesis Payı ${supplyType === 'wholesale' ? '(0 ₺)' : ''}</span>
+                      <span class="grow border-b border-dotted border-slate-700 mx-1.5"></span>
+                      <span class="font-bold ${supplyType === 'wholesale' ? 'text-slate-400' : 'text-purple-300'} shrink-0 text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
+                    </div>
+
+                    <div class="flex items-baseline justify-between text-slate-200">
+                      <span class="shrink-0 font-medium">4. 🛠️ İşçilik Montaj</span>
+                      <span class="grow border-b border-dotted border-slate-700 mx-1.5"></span>
+                      <span class="font-bold text-cyan-300 shrink-0 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800 flex items-center justify-between font-black text-xs">
+                      <span class="text-emerald-400">🏁 TOPLAM SAF MALİYET</span>
+                      <span class="grow border-b border-dashed border-emerald-500/50 mx-1.5"></span>
+                      <span class="text-emerald-300 text-sm shrink-0">${PriceCalculator.formatTL(netCost)}</span>
+                    </div>
+                  </div>
+                ` : ""}
               </div>
 
-              <!-- Sağ: Aksiyon Butonları -->
-              <div class="flex items-center gap-2 shrink-0">
-                <button onclick="toggleLayer2Breakdown('${product.id}')" class="text-xs font-bold px-3 py-2 rounded-xl transition-all border flex items-center gap-1.5 cursor-pointer ${isBreakdownOpen ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-md' : 'bg-[#0b1120] hover:bg-slate-800 text-slate-200 border-slate-700'}">
-                  📋 ${isBreakdownOpen ? "Fatura Gizle" : "Fatura Dökümü"}
-                </button>
-                <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs font-bold px-3 py-2 rounded-xl transition-all border flex items-center gap-1.5 cursor-pointer ${isDrawerOpen ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-md' : 'bg-[#0b1120] hover:bg-slate-800 text-emerald-300 border-emerald-800/60'}">
-                  ⚡ ${isDrawerOpen ? "Simülatör Gizle" : "Satış Simülatörü"}
+              <!-- SAF FABRİKA ÇIKIŞ MALİYETİ VURGU ROZETİ & SİSTEM 1 BUTONU -->
+              <div class="mt-2 pt-3 border-t border-slate-800/80 bg-gradient-to-r from-emerald-950/60 to-slate-950 p-3 rounded-xl border border-emerald-500/40 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider">SAF FABRİKA ÇIKIŞ MALİYETİ:</span>
+                  <span class="text-xl font-black text-emerald-300">${PriceCalculator.formatTL(netCost)}</span>
+                </div>
+                <button onclick="toggleLayer2Drawer('${product.id}')" class="text-xs font-bold px-3 py-2 rounded-xl bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-800/80 transition-all flex items-center gap-1.5 shadow-lg shadow-purple-950/40">
+                  ⚡ ${isDrawerOpen ? "Sistem 1'i Gizle" : "Sistem 1 Simülatörü"}
                 </button>
               </div>
+
+              <!-- SİSTEM 1 KANAL SATIŞ SİMÜLATÖRÜ ÇEKMECESİ (CARD VIEW) -->
+              ${isDrawerOpen ? `
+                <div class="mt-3 pt-3 border-t border-slate-800 bg-slate-950/95 p-3 rounded-xl border border-purple-800/50 animate-slide-up space-y-2.5">
+                  <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
+                    <label class="text-xs font-bold text-purple-300">🎯 Hedef Net Kâr (₺):</label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="${targetProfitInput}" min="0" step="5" onchange="updateLayer2ProductField('${product.id}', 'layer2Profit', this.value)" class="w-16 bg-slate-950 border border-purple-500/60 text-purple-300 font-bold text-xs px-2 py-1 rounded-md text-center focus:outline-none">
+                      <span class="text-xs font-bold text-purple-400">₺</span>
+                    </div>
+                  </div>
+
+                  <!-- SİSTEM 1 KANAL HESAP KARTLARI -->
+                  <div class="grid grid-cols-1 gap-2 text-xs">
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-amber-800/50">
+                      <div class="flex justify-between items-center font-bold text-amber-300">
+                        <span>🧡 Trendyol (%19):</span>
+                        <span class="text-sm font-black">${PriceCalculator.formatTL(tySim.salePrice)}</span>
+                      </div>
+                      <div class="text-xs text-slate-300 mt-1 space-y-1">
+                        <div class="flex justify-between"><span>Komisyon: -${PriceCalculator.formatTL(tySim.commAmount)}</span><span>Kargo: -110 TL</span></div>
+                        <div class="flex justify-between font-semibold text-emerald-300"><span>Hakediş: ${PriceCalculator.formatTL(tySim.payout)}</span><span>Net Kâr: +${PriceCalculator.formatTL(tySim.netProfit)}</span></div>
+                      </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-blue-800/50">
+                      <div class="flex justify-between items-center font-bold text-blue-300">
+                        <span>🌐 İyzico Web (%4):</span>
+                        <span class="text-sm font-black">${PriceCalculator.formatTL(iySim.salePrice)}</span>
+                      </div>
+                      <div class="text-xs text-slate-300 mt-1 space-y-1">
+                        <div class="flex justify-between"><span>Komisyon: -${PriceCalculator.formatTL(iySim.commAmount)}</span><span>Kargo: -82.50 TL</span></div>
+                        <div class="flex justify-between font-semibold text-emerald-300"><span>Hakediş: ${PriceCalculator.formatTL(iySim.payout)}</span><span>Net Kâr: +${PriceCalculator.formatTL(iySim.netProfit)}</span></div>
+                      </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-orange-800/50">
+                      <div class="flex justify-between items-center font-bold text-orange-300">
+                        <span>🧡 Hepsiburada (%17):</span>
+                        <span class="text-sm font-black">${PriceCalculator.formatTL(hbSim.salePrice)}</span>
+                      </div>
+                      <div class="text-xs text-slate-300 mt-1 space-y-1">
+                        <div class="flex justify-between"><span>Komisyon: -${PriceCalculator.formatTL(hbSim.commAmount)}</span><span>Kargo: -110 TL</span></div>
+                        <div class="flex justify-between font-semibold text-emerald-300"><span>Hakediş: ${PriceCalculator.formatTL(hbSim.payout)}</span><span>Net Kâr: +${PriceCalculator.formatTL(hbSim.netProfit)}</span></div>
+                      </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-emerald-800/50">
+                      <div class="flex justify-between items-center font-bold text-emerald-300">
+                        <span>🏪 Fiziki Mağaza:</span>
+                        <span class="text-sm font-black">${PriceCalculator.formatTL(storePrice)}</span>
+                      </div>
+                      <div class="text-xs text-slate-300 mt-1 space-y-1">
+                        <div class="flex justify-between"><span>Komisyon: 0 TL</span><span>Kargo: 0 TL</span></div>
+                        <div class="flex justify-between font-semibold text-emerald-300"><span>Kasa: ${PriceCalculator.formatTL(storePrice)}</span><span>Net Kâr: +${PriceCalculator.formatTL(targetProfitInput)}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ` : ""}
             </div>
+          `;
 
-            <!-- Fatura Dökümü Bölümü -->
-            ${isBreakdownOpen ? renderOfficialFactoryInvoiceHtml(product, m) : ""}
-
-            <!-- Satış Simülatörü Bölümü -->
-            ${isDrawerOpen ? renderChannelSimulatorHtml(product, m) : ""}
-          </div>
-        `;
-        containerRows.insertAdjacentHTML("beforeend", rowHtml);
+          containerGrid.insertAdjacentHTML("beforeend", cardHtml);
+        }
       } catch (itemErr) {
-        console.error("Katman 2 Ürün Satırı Yükleme Hatası:", itemErr);
+        console.error("Katman 2 Ürün Kartı Yükleme Hatası:", itemErr);
       }
     });
   } catch (err) {
@@ -4159,8 +4138,8 @@ function calculateMultipackSim() {
           </div>
         </div>
 
-        <div class="space-y-2 border-t border-slate-700/80 pt-2">
-          <div class="${sim.netProfit >= 0 ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-rose-950/40 border-rose-500/40 text-rose-300'} p-2.5 rounded-xl border flex justify-between items-center shadow-lg">
+        <div class="space-y-2 border-t border-blue-500/30 pt-2">
+          <div class="${sim.netProfit >= 0 ? 'bg-gradient-to-r from-emerald-950 to-teal-950 border-emerald-500/50' : 'bg-rose-950/60 border-rose-500/40'} p-2.5 rounded-xl border flex justify-between items-center shadow-lg">
             <div>
               <span class="${sim.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} uppercase tracking-wider text-[10px] block font-bold">KAMPANYA NET KÂRI:</span>
               <span class="text-[10px] text-slate-300 font-medium">(Birim Başına: ${PriceCalculator.formatTL(sim.profitPerUnit)})</span>
@@ -4963,16 +4942,16 @@ function openLayer3CalculationModal(productId, volKey) {
   if (contentEl) {
     contentEl.innerHTML = `
       <!-- Ürün & Ambalaj Başlık Künyesi -->
-      <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div>
           <span class="font-bold text-white text-sm">🌿 ${product.name}</span>
           <span class="text-slate-400 font-mono text-[11px] ml-2">SKU: ${product.sku}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="px-2.5 py-1 rounded-lg bg-[#080d1a] text-amber-300 border border-amber-500/30 font-black text-xs">
+          <span class="px-2.5 py-1 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800/60 font-black text-xs">
             📌 İncelenen Ambalaj: ${volKey}
           </span>
-          <span class="px-2.5 py-1 rounded-lg ${channel === 'trendyol' ? 'bg-orange-950/70 text-orange-300 border border-orange-800' : 'bg-sky-950/70 text-sky-300 border border-sky-800'} font-bold text-xs">
+          <span class="px-2.5 py-1 rounded-lg ${channel === 'trendyol' ? 'bg-orange-950 text-orange-300 border-orange-800' : 'bg-purple-950 text-purple-300 border-purple-800'} font-bold text-xs">
             ${channelName}
           </span>
         </div>
@@ -4982,60 +4961,60 @@ function openLayer3CalculationModal(productId, volKey) {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
         <!-- 1. SİSTEMİMİZİN ÖNERDİĞİ SATIŞ FİYATI -->
-        <div class="bg-[#0b1120] p-3 rounded-xl border border-amber-500/40 text-xs space-y-1 shadow-sm">
+        <div class="bg-slate-950 p-3 rounded-xl border border-amber-500/40 text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold text-amber-400">1. Tavsiye Edilen Fiyat</div>
           <div class="text-[11px] font-black text-white">🎯 Sistem Önerilen Fiyatı</div>
-          <div class="text-base font-black text-amber-300 font-mono">${PriceCalculator.formatTL(recPrice)}</div>
+          <div class="text-base font-black text-amber-300">${PriceCalculator.formatTL(recPrice)}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Sistemimizin kârlı satış yapmanız için önerdiği tavsiye Katman 1 satış fiyatı</p>
         </div>
 
         <!-- 2. İNTERNETTEKİ CANLI SATIŞ FİYATIMIZ -->
-        <div class="bg-[#0b1120] p-3 rounded-xl border ${channel === 'trendyol' ? 'border-orange-500/40' : 'border-sky-500/40'} text-xs space-y-1 shadow-sm">
-          <div class="text-[10px] uppercase font-bold ${channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'}">2. İnternet Satışımız</div>
+        <div class="bg-slate-950 p-3 rounded-xl border border-purple-500/40 text-xs space-y-1 shadow-sm">
+          <div class="text-[10px] uppercase font-bold ${channel === 'trendyol' ? 'text-orange-400' : 'text-purple-400'}">2. İnternet Satışımız</div>
           <div class="text-[11px] font-black text-white">🛒 ${channelName} Canlı Fiyatı</div>
-          <div class="text-base font-black ${channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} font-mono">${hasLivePrice ? PriceCalculator.formatTL(livePrice) : '⚪ Canlı Fiyat Yok'}</div>
+          <div class="text-base font-black ${channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${hasLivePrice ? PriceCalculator.formatTL(livePrice) : '⚪ Canlı Fiyat Yok'}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Şu anda müşterinin internette mağazanızdan satın aldığı canlı fiyat</p>
         </div>
 
         <!-- 3. BİZİM 0 ₺ KÂR MALİYETİMİZ (BAŞA BAŞ DİP MALİYET) -->
-        <div class="bg-[#0b1120] p-3 rounded-xl border border-slate-700 text-xs space-y-1 shadow-sm">
-          <div class="text-[10px] uppercase font-bold text-slate-300">3. Başa Baş Dip Maliyet</div>
+        <div class="bg-slate-950 p-3 rounded-xl border border-cyan-500/40 text-xs space-y-1 shadow-sm">
+          <div class="text-[10px] uppercase font-bold text-cyan-400">3. Başa Baş Dip Maliyet</div>
           <div class="text-[11px] font-black text-white">🏁 0 ₺ Kâr Üretim Maliyetimiz</div>
-          <div class="text-base font-black text-slate-100 font-mono">${PriceCalculator.formatTL(calc.effectiveNetCost)}</div>
+          <div class="text-base font-black text-cyan-300">${PriceCalculator.formatTL(calc.effectiveNetCost)}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Hiç kâr etmeden fabrikanın başa baş noktası olan KDV korumalı dip maliyeti</p>
         </div>
 
       </div>
 
       <!-- 💰 FİNAL: CANLI SATIŞTAN CEBE KALAN NET KÂR / ZARAR HESABI -->
-      <div class="bg-[#0b1120] p-4 rounded-xl border ${netProfit >= 0 ? 'border-emerald-500/50' : 'border-rose-500/50'} space-y-2.5">
+      <div class="bg-slate-950 p-4 rounded-xl border ${netProfit >= 0 ? 'border-emerald-500/50 bg-emerald-950/30' : 'border-rose-500/50 bg-rose-950/30'} space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="font-black text-xs text-white">📊 İNTERNET SATIŞINDAN CEBİNİZE KALAN NET KÂR HESABI:</span>
-          <span class="text-xs font-black px-2.5 py-1 rounded ${isAbove ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800' : 'bg-rose-950/80 text-rose-300 border border-rose-800'}">
+          <span class="text-xs font-black px-2.5 py-1 rounded ${isAbove ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-rose-950 text-rose-300 border border-rose-800'}">
             ${isAbove ? '▲ Sistem Önerisi Üstünde' : '▼ Sistem Önerisinden Düşük'}
           </span>
         </div>
 
-        <div class="p-3 bg-[#080d1a] rounded-lg text-xs space-y-1.5 border border-slate-800 font-sans">
+        <div class="p-3 bg-slate-900/90 rounded-lg text-xs space-y-1.5 border border-slate-800 font-sans">
           <div class="flex justify-between items-center text-slate-300">
             <span>🛒 1. İnternet Canlı Satış Fiyatı (Müşterinin Ödediği):</span>
-            <span class="font-bold text-white font-mono">${PriceCalculator.formatTL(livePrice)}</span>
+            <span class="font-bold text-white">${PriceCalculator.formatTL(livePrice)}</span>
           </div>
           <div class="flex justify-between items-center text-rose-400">
             <span>📉 2. Pazaryeri Kesintisi (Komisyon %${commRate} + Kargo):</span>
-            <span class="font-bold font-mono">-${PriceCalculator.formatTL(commAmt + cargoFee)}</span>
+            <span class="font-bold">-${PriceCalculator.formatTL(commAmt + cargoFee)}</span>
           </div>
           <div class="flex justify-between items-center text-amber-300 font-extrabold border-t border-slate-800 pt-1">
             <span>➡ Banka Hesabınıza Yatan Net Hakediş:</span>
-            <span class="font-mono">${PriceCalculator.formatTL(payout)}</span>
+            <span>${PriceCalculator.formatTL(payout)}</span>
           </div>
-          <div class="flex justify-between items-center text-slate-300">
+          <div class="flex justify-between items-center text-cyan-300">
             <span>🏁 3. Çıkarılan 0 ₺ Kâr Üretim Maliyetimiz (Katman 2):</span>
-            <span class="font-bold font-mono text-slate-200">-${PriceCalculator.formatTL(calc.effectiveNetCost)}</span>
+            <span class="font-bold">-${PriceCalculator.formatTL(calc.effectiveNetCost)}</span>
           </div>
           <div class="flex justify-between items-center text-sm font-black pt-2.5 border-t border-slate-800">
             <span class="text-white">💰 NET KÂR / ZARAR SONUCUNUZ:</span>
-            <span class="${netProfit >= 0 ? 'text-emerald-400 font-black' : 'text-rose-400 font-black'} text-base font-mono">
+            <span class="${netProfit >= 0 ? 'text-emerald-400 font-black' : 'text-rose-400 font-black'} text-base">
               ${netProfit >= 0 ? '▲ +' + PriceCalculator.formatTL(netProfit) + ' KÂR' : '▼ ' + PriceCalculator.formatTL(netProfit) + ' ZARAR'}
             </span>
           </div>
@@ -5043,7 +5022,7 @@ function openLayer3CalculationModal(productId, volKey) {
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-        <a href="${siteUrl}" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-[#080d1a] hover:bg-slate-800 text-amber-400 border border-slate-700 transition-all font-bold text-xs inline-flex items-center gap-1.5">
+        <a href="${siteUrl}" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 transition-all font-bold text-xs inline-flex items-center gap-1.5">
           <span>🔗 Canlı Mağaza Bağlantısını Aç</span>
         </a>
         <button onclick="closeLayer3CalcModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all cursor-pointer">
