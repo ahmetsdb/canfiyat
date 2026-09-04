@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.48: Kampanya, Çoklu Sepet & DHL Desi Laboratuvarı">
-                            v3.48 (📦 Kampanya & DHL Desi Hub)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/60 shadow-sm" title="v3.49: Katman 1 & 3 Yatay/Tablo UI Modernizasyonu">
+                            v3.49 (🎨 Katman 1 & 3 UI Modernizasyonu)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -227,98 +227,96 @@
             <!-- SEKME 1: 📦 2'Lİ & ÇOKLU ADET KAMPANYA SİMÜLATÖRÜ (TEK KARGO AVANTAJI) -->
             <!-- ========================================================================= -->
             <div id="l3-view-multipack" class="space-y-4">
-                <div class="glass-card bg-slate-900/90 border border-blue-500/30 rounded-2xl p-4 md:p-5 shadow-xl space-y-4">
-                    <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">📦</span>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <!-- Sol Bölüm: Kompakt Parametreler (lg:col-span-5) -->
+                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-blue-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h4 class="text-xs font-black text-white flex items-center gap-1.5">
+                                <span>📦</span> Kampanya Parametreleri
+                            </h4>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">
+                                🚀 Tek Kargo Avantajı
+                            </span>
+                        </div>
+
+                        <div class="space-y-2.5">
                             <div>
-                                <h4 class="text-sm font-extrabold text-white">Çoklu Adet & Kampanyalı Sepet Simülatörü</h4>
-                                <p class="text-xs text-slate-400">Tek kargo faturası ve DHL barem avantajıyla 2'li / 3'lü paket kârlılığını anında hesaplayın</p>
+                                <label class="block text-[11px] font-bold text-slate-300 mb-1">Ürün Seçimi:</label>
+                                <select id="mp-product-select" onchange="onMultipackProductChange()" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none focus:border-blue-500 cursor-pointer">
+                                </select>
                             </div>
-                        </div>
-                        <span class="text-[11px] font-bold px-3 py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">
-                            🚀 Tek Kargo: Fazladan +97,99 ₺ Kargo Tasarrufu
-                        </span>
-                    </div>
 
-                    <!-- Seçim Izgarası -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-950/90 p-3.5 rounded-xl border border-slate-800">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Ürün Seçimi:</label>
-                            <select id="mp-product-select" onchange="onMultipackProductChange()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none focus:border-blue-500 cursor-pointer">
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Şişe / Hacim:</label>
-                            <select id="mp-volume-select" onchange="calculateMultipackSim()" class="w-full bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer">
-                                <option value="250ml" selected>250 ml</option>
-                                <option value="500ml">500 ml</option>
-                                <option value="1000ml">1000 ml (1 KG)</option>
-                                <option value="100ml">100 ml</option>
-                                <option value="50ml">50 ml</option>
-                                <option value="30ml">30 ml</option>
-                                <option value="20ml">20 ml</option>
-                                <option value="10ml">10 ml</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Satış Kanalı & Komisyon:</label>
-                            <select id="mp-channel-select" onchange="calculateMultipackSim()" class="w-full bg-slate-900 border border-amber-500/50 text-amber-300 font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer">
-                                <option value="trendyol" selected>🧡 Trendyol (%19 Komisyon)</option>
-                                <option value="hepsiburada">🟡 Hepsiburada (%17 Komisyon)</option>
-                                <option value="iyzico">🌐 Kendi Web Siteniz / İyzico (%4 Komisyon)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">📦 DHL eCommerce Desi & Kargo:</label>
-                            <select id="mp-desi-select" onchange="calculateMultipackSim()" class="w-full bg-slate-900 border border-emerald-500/50 text-emerald-300 font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer">
-                                <option value="1">1 Desi - 97,99 ₺</option>
-                                <option value="2" selected>2 Desi - 97,99 ₺</option>
-                                <option value="3">3 Desi - 110,99 ₺</option>
-                                <option value="4">4 Desi - 124,99 ₺</option>
-                                <option value="5">5 Desi - 137,99 ₺</option>
-                                <option value="6">6 Desi - 150,99 ₺</option>
-                                <option value="7">7 Desi - 159,99 ₺</option>
-                                <option value="8">8 Desi - 169,99 ₺</option>
-                                <option value="10">10 Desi - 189,99 ₺</option>
-                                <option value="12">12 Desi - 209,99 ₺</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Paket Adedi ve İndirim Ayarları Satırı -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Paket Adedi:</label>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="setMultipackQty(2)" id="mp-qty-btn-2" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer">2 Adet (İkili)</button>
-                                <button type="button" onclick="setMultipackQty(3)" id="mp-qty-btn-3" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer">3 Adet (Üçlü)</button>
-                                <input type="number" id="mp-custom-qty" value="2" min="1" max="20" onchange="calculateMultipackSim()" class="w-14 bg-slate-900 border border-slate-700 text-center text-xs font-extrabold text-white rounded-lg focus:outline-none">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Şişe / Hacim:</label>
+                                    <select id="mp-volume-select" onchange="calculateMultipackSim()" class="w-full bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-xl focus:outline-none cursor-pointer">
+                                        <option value="250ml" selected>250 ml</option>
+                                        <option value="500ml">500 ml</option>
+                                        <option value="1000ml">1000 ml (1 KG)</option>
+                                        <option value="100ml">100 ml</option>
+                                        <option value="50ml">50 ml</option>
+                                        <option value="30ml">30 ml</option>
+                                        <option value="20ml">20 ml</option>
+                                        <option value="10ml">10 ml</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-300 mb-1">📦 DHL Desi:</label>
+                                    <select id="mp-desi-select" onchange="calculateMultipackSim()" class="w-full bg-slate-950 border border-emerald-500/50 text-emerald-300 font-bold text-xs p-1.5 rounded-xl focus:outline-none cursor-pointer">
+                                        <option value="1">1 Desi - 97,99 ₺</option>
+                                        <option value="2" selected>2 Desi - 97,99 ₺</option>
+                                        <option value="3">3 Desi - 110,99 ₺</option>
+                                        <option value="4">4 Desi - 124,99 ₺</option>
+                                        <option value="5">5 Desi - 137,99 ₺</option>
+                                        <option value="6">6 Desi - 150,99 ₺</option>
+                                        <option value="7">7 Desi - 159,99 ₺</option>
+                                        <option value="8">8 Desi - 169,99 ₺</option>
+                                        <option value="10">10 Desi - 189,99 ₺</option>
+                                        <option value="12">12 Desi - 209,99 ₺</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Tekli Normal Satış Fiyatı (₺):</label>
-                            <input type="number" id="mp-single-price" value="250" step="5" onchange="calculateMultipackSim()" oninput="calculateMultipackSim()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-extrabold text-sm p-2 rounded-xl focus:outline-none">
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs font-bold text-slate-300">2. Ürüne İndirim Oranı:</label>
-                                <span id="mp-discount-val-badge" class="text-xs font-black text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">%25 İndirim</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Kanal & Komisyon:</label>
+                                    <select id="mp-channel-select" onchange="calculateMultipackSim()" class="w-full bg-slate-950 border border-amber-500/50 text-amber-300 font-bold text-xs p-1.5 rounded-xl focus:outline-none cursor-pointer">
+                                        <option value="trendyol" selected>🧡 Trendyol (%19)</option>
+                                        <option value="hepsiburada">🟡 HB (%17)</option>
+                                        <option value="iyzico">🌐 Web (%4)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Tek Satış Fiyatı (₺):</label>
+                                    <input type="number" id="mp-single-price" value="250" step="5" onchange="calculateMultipackSim()" oninput="calculateMultipackSim()" class="w-full bg-slate-950 border border-slate-700 text-amber-300 font-black text-xs p-1.5 rounded-xl focus:outline-none text-center">
+                                </div>
                             </div>
-                            <input type="range" id="mp-discount-range" min="0" max="60" step="5" value="25" oninput="onMultipackDiscountChange(this.value)" class="w-full cursor-pointer accent-purple-500">
-                            <div class="flex justify-between text-[10px] text-slate-500 font-bold mt-0.5">
-                                <span>%0</span>
-                                <span>%25</span>
-                                <span>%40</span>
-                                <span>%60</span>
+
+                            <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-2">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Paket Adedi:</label>
+                                    <div class="flex gap-1.5">
+                                        <button type="button" onclick="setMultipackQty(2)" id="mp-qty-btn-2" class="flex-1 py-1 px-2 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer">2 Adet</button>
+                                        <button type="button" onclick="setMultipackQty(3)" id="mp-qty-btn-3" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer">3 Adet</button>
+                                        <input type="number" id="mp-custom-qty" value="2" min="1" max="20" onchange="calculateMultipackSim()" class="w-12 bg-slate-900 border border-slate-700 text-center text-xs font-extrabold text-white rounded-lg focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="text-[10px] uppercase font-bold text-slate-400">2. Ürüne İndirim:</label>
+                                        <span id="mp-discount-val-badge" class="text-[11px] font-black text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">%25 İndirim</span>
+                                    </div>
+                                    <input type="range" id="mp-discount-range" min="0" max="60" step="5" value="25" oninput="onMultipackDiscountChange(this.value)" class="w-full cursor-pointer accent-purple-500">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Canlı Finansal Karşılaştırma Kartları -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1" id="mp-results-cards">
+                    <!-- Sağ Bölüm: Canlı Finansal Karşılaştırma Kartları (lg:col-span-7) -->
+                    <div class="lg:col-span-7">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 h-full" id="mp-results-cards">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -327,124 +325,103 @@
             <!-- SEKME 2: 🎁 KOMBİN SET KÂRLILIK LABORATUVARI (GÖMÜLÜ BUNDLE MAKER) -->
             <!-- ========================================================================= -->
             <div id="l3-view-bundle" class="hidden space-y-4">
-                <div class="glass-card bg-slate-900/90 border border-purple-500/30 rounded-2xl p-4 md:p-5 shadow-xl space-y-4">
-                    <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">🎁</span>
-                            <div>
-                                <h4 class="text-sm font-extrabold text-white">Kombin Set Kârlılık Laboratuvarı</h4>
-                                <p class="text-xs text-slate-400">Farklı ürünleri tek kutuda birleştirip DHL desi ve tek kargo kâr avantajını hesaplayın</p>
-                            </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <!-- Sol Bölüm: Set Seçim Paneli (lg:col-span-5) -->
+                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-purple-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h4 class="text-xs font-black text-white flex items-center gap-1.5">
+                                <span>🎁</span> Set İçeriği & Fiyatlandırma
+                            </h4>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-700" id="l3-bundle-cargo-savings">
+                                🚀 Tek Kargo Tasarrufu
+                            </span>
                         </div>
-                        <span class="text-[11px] font-bold px-3 py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-500/40" id="l3-bundle-cargo-savings">
-                            🚀 Tek Kargo: +97,99 ₺ Kargo Tasarrufu
-                        </span>
-                    </div>
 
-                    <!-- Set Ürün Seçim ve Ambalaj Hacim Alanı -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-950/90 p-3.5 rounded-xl border border-slate-800">
-                        <!-- 1. ÜRÜN KUTUSU -->
-                        <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                            <label class="block text-xs font-extrabold text-purple-300">1. Ürün Seçimi:</label>
-                            <select id="bundle-item-1" onchange="onBundleItemProductChange(1); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
-                            </select>
-                            <div class="flex items-center justify-between gap-2 pt-1">
-                                <span class="text-[10px] font-bold text-slate-400">🧴 Hacim:</span>
-                                <select id="bundle-vol-1" onchange="updateBundleSimulator()" class="bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none cursor-pointer">
+                        <!-- 1. Ürün -->
+                        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+                            <label class="block text-[11px] font-bold text-purple-300">1. Ürün & Hacim:</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <select id="bundle-item-1" onchange="onBundleItemProductChange(1); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
+                                </select>
+                                <select id="bundle-vol-1" onchange="updateBundleSimulator()" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-lg cursor-pointer">
                                     <option value="250ml" selected>250 ml</option>
                                     <option value="500ml">500 ml</option>
-                                    <option value="1000ml">1000 ml (1 KG)</option>
+                                    <option value="1000ml">1000 ml</option>
                                     <option value="100ml">100 ml</option>
                                     <option value="50ml">50 ml</option>
                                     <option value="30ml">30 ml</option>
                                     <option value="20ml">20 ml</option>
                                 </select>
                             </div>
-                            <div class="text-right pt-1 border-t border-slate-800/80">
-                                <span class="text-[9px] text-slate-400 block uppercase font-semibold">1. Katman Saf Maliyeti:</span>
-                                <span id="bundle-item-cost-1" class="text-xs font-black text-amber-300">0,00 ₺</span>
-                            </div>
+                            <div class="text-right text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-1" class="text-amber-300">0,00 ₺</strong></div>
                         </div>
 
-                        <!-- 2. ÜRÜN KUTUSU -->
-                        <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                            <label class="block text-xs font-extrabold text-purple-300">2. Ürün Seçimi:</label>
-                            <select id="bundle-item-2" onchange="onBundleItemProductChange(2); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
-                            </select>
-                            <div class="flex items-center justify-between gap-2 pt-1">
-                                <span class="text-[10px] font-bold text-slate-400">🧴 Hacim:</span>
-                                <select id="bundle-vol-2" onchange="updateBundleSimulator()" class="bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none cursor-pointer">
+                        <!-- 2. Ürün -->
+                        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+                            <label class="block text-[11px] font-bold text-purple-300">2. Ürün & Hacim:</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <select id="bundle-item-2" onchange="onBundleItemProductChange(2); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
+                                </select>
+                                <select id="bundle-vol-2" onchange="updateBundleSimulator()" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-lg cursor-pointer">
                                     <option value="250ml">250 ml</option>
                                     <option value="500ml">500 ml</option>
-                                    <option value="1000ml">1000 ml (1 KG)</option>
+                                    <option value="1000ml">1000 ml</option>
                                     <option value="100ml">100 ml</option>
                                     <option value="50ml" selected>50 ml</option>
                                     <option value="30ml">30 ml</option>
                                     <option value="20ml">20 ml</option>
                                 </select>
                             </div>
-                            <div class="text-right pt-1 border-t border-slate-800/80">
-                                <span class="text-[9px] text-slate-400 block uppercase font-semibold">1. Katman Saf Maliyeti:</span>
-                                <span id="bundle-item-cost-2" class="text-xs font-black text-amber-300">0,00 ₺</span>
-                            </div>
+                            <div class="text-right text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-2" class="text-amber-300">0,00 ₺</strong></div>
                         </div>
 
-                        <!-- 3. ÜRÜN KUTUSU (OPSİYONEL) -->
-                        <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                            <label class="block text-xs font-extrabold text-slate-400">3. Ürün (Opsiyonel):</label>
-                            <select id="bundle-item-3" onchange="onBundleItemProductChange(3); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
-                                <option value="">-- Ürün Yok (2'li Paket) --</option>
-                            </select>
-                            <div class="flex items-center justify-between gap-2 pt-1">
-                                <span class="text-[10px] font-bold text-slate-400">🧴 Hacim:</span>
-                                <select id="bundle-vol-3" onchange="updateBundleSimulator()" class="bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs px-2 py-1 rounded-lg focus:outline-none cursor-pointer">
+                        <!-- 3. Ürün (Opsiyonel) -->
+                        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+                            <label class="block text-[11px] font-bold text-slate-400">3. Ürün (Opsiyonel):</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <select id="bundle-item-3" onchange="onBundleItemProductChange(3); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
+                                    <option value="">-- Ürün Yok (2'li Set) --</option>
+                                </select>
+                                <select id="bundle-vol-3" onchange="updateBundleSimulator()" class="bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-lg cursor-pointer">
                                     <option value="250ml">250 ml</option>
                                     <option value="500ml">500 ml</option>
-                                    <option value="1000ml">1000 ml (1 KG)</option>
+                                    <option value="1000ml">1000 ml</option>
                                     <option value="100ml">100 ml</option>
                                     <option value="50ml">50 ml</option>
                                     <option value="30ml" selected>30 ml</option>
                                     <option value="20ml">20 ml</option>
                                 </select>
                             </div>
-                            <div class="text-right pt-1 border-t border-slate-800/80">
-                                <span class="text-[9px] text-slate-400 block uppercase font-semibold">1. Katman Saf Maliyeti:</span>
-                                <span id="bundle-item-cost-3" class="text-xs font-black text-amber-300">0,00 ₺</span>
-                            </div>
+                            <div class="text-right text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-3" class="text-amber-300">0,00 ₺</strong></div>
                         </div>
-                    </div>
 
-                    <!-- Set Satış Fiyatı & Kargo & Saf Maliyet Çubuğu -->
-                    <div class="flex flex-wrap items-center justify-between bg-slate-950/80 p-3.5 rounded-xl border border-purple-500/40 gap-3">
-                        <div class="flex flex-wrap items-center gap-4">
+                        <!-- Set Satış Fiyatı & Kutu & Desi -->
+                        <div class="grid grid-cols-3 gap-2 bg-slate-950/80 p-2.5 rounded-xl border border-purple-500/30">
                             <div>
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Kombin Set Satış Fiyatınız (₺):</span>
-                                <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-32 bg-slate-900 border border-purple-500 text-purple-300 font-extrabold text-base px-3 py-1 rounded-xl text-center focus:outline-none">
+                                <label class="block text-[10px] uppercase font-bold text-purple-300 mb-1">Set Fiyatı (₺):</label>
+                                <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-full bg-slate-900 border border-purple-500 text-purple-200 font-extrabold text-xs p-1.5 rounded-lg text-center">
                             </div>
                             <div>
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Ortak Kutu / Ambalaj (₺):</span>
-                                <input type="number" id="bundle-box-cost" value="15" step="1" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-24 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-sm px-2 py-1 rounded-xl text-center focus:outline-none">
+                                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Kutu / Sarf (₺):</label>
+                                <input type="number" id="bundle-box-cost" value="15" step="1" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs p-1.5 rounded-lg text-center">
                             </div>
                             <div>
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">📦 DHL Desi:</span>
-                                <select id="bundle-desi-select" onchange="updateBundleSimulator()" class="bg-slate-900 border border-emerald-500/50 text-emerald-300 font-bold text-xs p-1.5 rounded-xl focus:outline-none cursor-pointer">
-                                    <option value="2">2 Desi - 97,99 ₺</option>
-                                    <option value="3" selected>3 Desi - 110,99 ₺</option>
-                                    <option value="4">4 Desi - 124,99 ₺</option>
-                                    <option value="5">5 Desi - 137,99 ₺</option>
-                                    <option value="6">6 Desi - 150,99 ₺</option>
-                                    <option value="8">8 Desi - 169,99 ₺</option>
+                                <label class="block text-[10px] uppercase font-bold text-emerald-400 mb-1">📦 DHL Desi:</label>
+                                <select id="bundle-desi-select" onchange="updateBundleSimulator()" class="w-full bg-slate-900 border border-emerald-500 text-emerald-300 font-bold text-xs p-1.5 rounded-lg cursor-pointer">
+                                    <option value="2">2 Desi</option>
+                                    <option value="3" selected>3 Desi</option>
+                                    <option value="4">4 Desi</option>
+                                    <option value="5">5 Desi</option>
+                                    <option value="6">6 Desi</option>
                                 </select>
                             </div>
-                            <div class="border-l border-slate-800 pl-3">
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">1. Katman Saf Maliyet Toplamı:</span>
-                                <span id="bundle-total-cost" class="text-sm font-black text-amber-300">0,00 ₺</span>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Kombin Kanal Kârlılık Sonuç Kartları -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5" id="bundle-results-grid">
+                    <!-- Sağ Bölüm: 3 Kanal Kârlılık Kartları (lg:col-span-7) -->
+                    <div class="lg:col-span-7">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 h-full" id="bundle-results-grid">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -453,86 +430,89 @@
             <!-- SEKME 3: 🏷️ TRENDYOL & HEPSİBURADA KAMPANYA TEKLİF SİMÜLATÖRÜ -->
             <!-- ========================================================================= -->
             <div id="l3-view-offers" class="hidden space-y-4">
-                <div class="glass-card bg-slate-900/90 border border-purple-500/30 rounded-2xl p-4 md:p-5 shadow-xl space-y-4">
-                    <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">🏷️</span>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <!-- Sol Bölüm: Teklif Seçim Paneli (lg:col-span-5) -->
+                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-purple-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h4 class="text-xs font-black text-white flex items-center gap-1.5">
+                                <span>🏷️</span> Kampanya Teklif Girişi
+                            </h4>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-700">
+                                🛡️ Kırmızı Çizgi Korumalı
+                            </span>
+                        </div>
+
+                        <div class="space-y-2.5">
                             <div>
-                                <h4 class="text-sm font-extrabold text-white">Trendyol & Hepsiburada Kampanya / Teklif Analizörü</h4>
-                                <p class="text-xs text-slate-400">Pazaryerinden gelen indirim tekliflerini 1. Katman saf üretim maliyetiyle kıyaslayıp kâr/zarar ve kırmızı çizgi analizi yapın</p>
-                            </div>
-                        </div>
-                        <span class="text-[11px] font-bold px-3 py-1 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-500/40">
-                            🛡️ Zarara Karşı Kırmızı Çizgi Koruması
-                        </span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-950/90 p-3.5 rounded-xl border border-slate-800">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Ürün Seçimi:</label>
-                            <select id="offer-product-select" onchange="onOfferProductChange()" class="w-full bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Hacim / Şişe:</label>
-                            <select id="offer-volume-select" onchange="calculateOfferSim()" class="w-full bg-slate-900 border border-sky-500/50 text-sky-300 font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer">
-                                <option value="250ml" selected>250 ml</option>
-                                <option value="500ml">500 ml</option>
-                                <option value="1000ml">1000 ml (1 KG)</option>
-                                <option value="100ml">100 ml</option>
-                                <option value="50ml">50 ml</option>
-                                <option value="30ml">30 ml</option>
-                                <option value="20ml">20 ml</option>
-                                <option value="10ml">10 ml</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Kampanya Kanalı:</label>
-                            <select id="offer-channel-select" onchange="onOfferChannelChange()" class="w-full bg-slate-900 border border-amber-500/50 text-amber-300 font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer">
-                                <option value="trendyol" selected>🧡 Trendyol Satıcı Paneli</option>
-                                <option value="hepsiburada">🟡 Hepsiburada Satıcı Paneli</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Teklif Seviyeleri ve Girişler -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Normal Satış Fiyatınız (₺):</label>
-                            <input type="number" id="offer-base-price" value="250" onchange="calculateOfferSim()" oninput="calculateOfferSim()" class="w-full bg-slate-900 border border-slate-700 text-white font-bold text-xs p-2 rounded-xl">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-purple-300 mb-1">Kampanya Seviyesi:</label>
-                            <select id="offer-level-preset" onchange="applyOfferPreset(this.value)" class="w-full bg-slate-900 border border-purple-500/50 text-purple-300 font-bold text-xs p-2 rounded-xl cursor-pointer">
-                                <option value="custom">✏️ Özel Teklif Fiyatı Gir</option>
-                                <option value="av1" selected>🟢 1. Avantajlı (%10 İndirim)</option>
-                                <option value="av2">🟡 2. Çok Avantajlı (%18 İndirim)</option>
-                                <option value="av3">🔴 3. Süper Avantajlı (%30 İndirim)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-300 mb-1">Teklif Satış Fiyatı (₺):</label>
-                            <input type="number" id="offer-target-price" value="225" step="1" onchange="calculateOfferSim()" oninput="calculateOfferSim()" class="w-full bg-slate-900 border border-emerald-500 text-emerald-300 font-black text-sm p-2 rounded-xl">
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-1/2">
-                                <label class="block text-xs font-bold text-slate-400 mb-1">Komisyon (%):</label>
-                                <input type="number" id="offer-commission" value="19" step="0.5" onchange="calculateOfferSim()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs p-2 rounded-xl text-center">
-                            </div>
-                            <div class="w-1/2">
-                                <label class="block text-xs font-bold text-slate-400 mb-1">DHL Desi:</label>
-                                <select id="offer-desi-select" onchange="calculateOfferSim()" class="w-full bg-slate-900 border border-slate-700 text-sky-300 font-bold text-xs p-2 rounded-xl cursor-pointer">
-                                    <option value="1">1 Desi (97,99 ₺)</option>
-                                    <option value="2" selected>2 Desi (97,99 ₺)</option>
-                                    <option value="3">3 Desi (110,99 ₺)</option>
-                                    <option value="4">4 Desi (124,99 ₺)</option>
+                                <label class="block text-[11px] font-bold text-slate-300 mb-1">Ürün Seçimi:</label>
+                                <select id="offer-product-select" onchange="onOfferProductChange()" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
                                 </select>
                             </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Hacim / Şişe:</label>
+                                    <select id="offer-volume-select" onchange="calculateOfferSim()" class="w-full bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
+                                        <option value="250ml" selected>250 ml</option>
+                                        <option value="500ml">500 ml</option>
+                                        <option value="1000ml">1000 ml (1 KG)</option>
+                                        <option value="100ml">100 ml</option>
+                                        <option value="50ml">50 ml</option>
+                                        <option value="30ml">30 ml</option>
+                                        <option value="20ml">20 ml</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Kampanya Kanalı:</label>
+                                    <select id="offer-channel-select" onchange="onOfferChannelChange()" class="w-full bg-slate-950 border border-amber-500/50 text-amber-300 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
+                                        <option value="trendyol" selected>🧡 Trendyol</option>
+                                        <option value="hepsiburada">🟡 Hepsiburada</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 mb-1">Normal Fiyat (₺):</label>
+                                    <input type="number" id="offer-base-price" value="250" onchange="calculateOfferSim()" oninput="calculateOfferSim()" class="w-full bg-slate-950 border border-slate-700 text-white font-bold text-xs p-1.5 rounded-xl text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-purple-300 mb-1">Hazır Seviye:</label>
+                                    <select id="offer-level-preset" onchange="applyOfferPreset(this.value)" class="w-full bg-slate-950 border border-purple-500/50 text-purple-300 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
+                                        <option value="av1" selected>🟢 1. Avantajlı (%10)</option>
+                                        <option value="av2">🟡 2. Çok Avantajlı (%18)</option>
+                                        <option value="av3">🔴 3. Süper Avantajlı (%30)</option>
+                                        <option value="custom">✏️ Özel Fiyat</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-emerald-400 mb-1">Teklif Fiyat (₺):</label>
+                                    <input type="number" id="offer-target-price" value="225" step="1" onchange="calculateOfferSim()" oninput="calculateOfferSim()" class="w-full bg-slate-900 border border-emerald-500 text-emerald-300 font-black text-xs p-1.5 rounded-lg text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Komisyon (%):</label>
+                                    <input type="number" id="offer-commission" value="19" step="0.5" onchange="calculateOfferSim()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs p-1.5 rounded-lg text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-sky-400 mb-1">DHL Desi:</label>
+                                    <select id="offer-desi-select" onchange="calculateOfferSim()" class="w-full bg-slate-900 border border-slate-700 text-sky-300 font-bold text-xs p-1.5 rounded-lg cursor-pointer">
+                                        <option value="1">1 Desi</option>
+                                        <option value="2" selected>2 Desi</option>
+                                        <option value="3">3 Desi</option>
+                                        <option value="4">4 Desi</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Canlı Sonuç Kartı -->
-                    <div id="offer-analysis-card" class="rounded-2xl p-4 border shadow-xl">
+                    <!-- Sağ Bölüm: Canlı Sonuç Kartı (lg:col-span-7) -->
+                    <div class="lg:col-span-7">
+                        <div id="offer-analysis-card" class="rounded-2xl p-4 border shadow-xl h-full flex flex-col justify-between">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1460,12 +1440,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=3.48"></script>
-    <script src="js/liveSiteData.js?v=3.48"></script>
-    <script src="js/trendyolData.js?v=3.48"></script>
-    <script src="js/storage.js?v=3.48"></script>
-    <script src="js/calculator.js?v=3.48"></script>
-    <script src="js/app.js?v=3.48"></script>
+    <script src="js/productsData.js?v=3.49"></script>
+    <script src="js/liveSiteData.js?v=3.49"></script>
+    <script src="js/trendyolData.js?v=3.49"></script>
+    <script src="js/storage.js?v=3.49"></script>
+    <script src="js/calculator.js?v=3.49"></script>
+    <script src="js/app.js?v=3.49"></script>
 </body>
 
 
