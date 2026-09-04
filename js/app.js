@@ -351,29 +351,29 @@ function renderProductGrid() {
             </div>
 
             <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
-            <div class="grid grid-cols-4 gap-1.5 w-full md:w-6/12 items-center bg-slate-950/90 p-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
+            <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
               <div class="text-center border-r border-slate-800/80 pr-1">
-                <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">1KG Toptan</span>
-                <span class="font-black text-emerald-300 text-xs">${PriceCalculator.formatTL(product.costPerKg)} ₺</span>
+                <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">1KG Toptan</span>
+                <span class="font-black text-emerald-300 text-xs md:text-sm">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
 
               <div class="text-center border-r border-slate-800/80 pr-1">
-                <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">${mainVol} Maliyet</span>
-                <span class="font-bold text-sky-300 text-xs">${PriceCalculator.formatTL(unitCost)} ₺</span>
+                <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">${mainVol} Maliyet</span>
+                <span class="font-bold text-sky-300 text-xs md:text-sm">${PriceCalculator.formatTL(unitCost)}</span>
               </div>
 
               <div class="text-center border-r border-slate-800/80 pr-1">
-                <span class="text-[9px] uppercase font-bold ${showRedLineFloor ? 'text-rose-400 font-black' : 'text-orange-400'} block tracking-tight">
+                <span class="text-[9px] md:text-[10px] uppercase font-bold ${showRedLineFloor ? 'text-rose-400 font-black' : 'text-orange-400'} block tracking-tight">
                   ${showRedLineFloor ? '🔴 Dip Satış' : 'Trendyol Etiket'}
                 </span>
-                <span class="font-bold ${showRedLineFloor ? 'text-rose-300 font-black' : 'text-white'} text-xs">
-                  ${PriceCalculator.formatTL(showRedLineFloor ? breakEvenTy.breakEvenPrice : tyResult.listPrice)} ₺
+                <span class="font-bold ${showRedLineFloor ? 'text-rose-300 font-black' : 'text-white'} text-xs md:text-sm">
+                  ${PriceCalculator.formatTL(showRedLineFloor ? breakEvenTy.breakEvenPrice : tyResult.listPrice)}
                 </span>
               </div>
 
               <div class="text-center">
-                <span class="text-[9px] uppercase font-bold text-emerald-400 block tracking-tight">Hedef Kâr</span>
-                <span class="text-xs font-black text-emerald-300">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)} ₺</span>
+                <span class="text-[9px] md:text-[10px] uppercase font-bold text-emerald-400 block tracking-tight">Hedef Kâr</span>
+                <span class="text-xs md:text-sm font-black text-emerald-300">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)}</span>
               </div>
             </div>
 
@@ -1725,9 +1725,9 @@ function renderLayer3Cards() {
       }
 
       if (netProfitMargin >= 0) {
-        netProfitMarginHtml = `<span class="font-black text-emerald-400 text-xs">+${PriceCalculator.formatTL(netProfitMargin)} ₺</span>`;
+        netProfitMarginHtml = `<span class="font-black text-emerald-400 text-xs md:text-sm">+${PriceCalculator.formatTL(netProfitMargin)}</span>`;
       } else {
-        netProfitMarginHtml = `<span class="font-black text-red-400 text-xs">${PriceCalculator.formatTL(netProfitMargin)} ₺</span>`;
+        netProfitMarginHtml = `<span class="font-black text-red-400 text-xs md:text-sm">${PriceCalculator.formatTL(netProfitMargin)}</span>`;
       }
     }
 
@@ -1803,16 +1803,16 @@ function renderLayer3Cards() {
           }
 
           if (vMargin >= 0) {
-            vNetMarginHtml = `<span class="text-emerald-400 font-black">+${PriceCalculator.formatTL(vMargin)} ₺</span>`;
+            vNetMarginHtml = `<span class="text-emerald-400 font-black">+${PriceCalculator.formatTL(vMargin)}</span>`;
           } else {
-            vNetMarginHtml = `<span class="text-red-400 font-black">${PriceCalculator.formatTL(vMargin)} ₺</span>`;
+            vNetMarginHtml = `<span class="text-red-400 font-black">${PriceCalculator.formatTL(vMargin)}</span>`;
           }
 
           const priceDiff = vLivePrice - vRecommendedPrice;
           if (priceDiff >= 0) {
             vPriceDiffBadge = `
               <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının +${PriceCalculator.formatTL(priceDiff)} ₺ üzerinde">▲ Önerilen Üstünde (+${PriceCalculator.formatTL(priceDiff)} ₺)</span>
+                <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının +${PriceCalculator.formatTL(priceDiff)} üzerinde">▲ Önerilen Üstünde (+${PriceCalculator.formatTL(priceDiff)})</span>
                 <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
                   🧮 Döküm
                 </button>
@@ -1820,7 +1820,7 @@ function renderLayer3Cards() {
           } else {
             vPriceDiffBadge = `
               <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[10px] bg-red-950 text-red-300 border border-red-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının ${PriceCalculator.formatTL(priceDiff)} ₺ altında!">▼ Önerilenden Düşük (${PriceCalculator.formatTL(priceDiff)} ₺)</span>
+                <span class="text-[10px] bg-red-950 text-red-300 border border-red-800 px-1.5 py-0.5 rounded font-extrabold" title="Canlı fiyatınız Katman 1 Önerilen Fiyatının ${PriceCalculator.formatTL(priceDiff)} altında!">▼ Önerilenden Düşük (${PriceCalculator.formatTL(priceDiff)})</span>
                 <button onclick="openLayer3CalculationModal('${product.id}', '${vKey}')" class="px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 hover:text-white border border-purple-800/80 text-[10px] font-bold transition-all cursor-pointer shadow-sm" title="${vKey} Net Kâr Hesap Dökümü Faturası">
                   🧮 Döküm
                 </button>
@@ -1832,11 +1832,11 @@ function renderLayer3Cards() {
           <tr class="hover:bg-slate-900/60 transition-colors ${vKey === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950/30 font-bold' : 'bg-purple-950/30 font-bold') : ''}">
             <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Ön İzlenen)' : ''}</td>
             <td class="p-2 border-b border-slate-800/50 font-black text-amber-300 text-sm">
-              🎯 ${PriceCalculator.formatTL(vRecommendedPrice)} ₺
+              🎯 ${PriceCalculator.formatTL(vRecommendedPrice)}
             </td>
             <td class="p-2 border-b border-slate-800/50 font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'} text-sm">
               <div class="flex items-center gap-1.5">
-                <span>${vHasPrice ? PriceCalculator.formatTL(vLivePrice) + ' ₺' : '⚪ Yok'}</span>
+                <span>${vHasPrice ? PriceCalculator.formatTL(vLivePrice) : '⚪ Yok'}</span>
                 ${vHasPrice ? `
                   <a href="${vRowUrl}" target="_blank" rel="noopener noreferrer" class="p-1 rounded bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-600/60 transition-all text-xs inline-flex items-center justify-center shadow-sm" title="${vKey} Canlı Mağaza Bağlantısına Git">
                     <svg class="w-3.5 h-3.5 text-amber-400 hover:text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -1846,7 +1846,7 @@ function renderLayer3Cards() {
                 ` : ''}
               </div>
             </td>
-            <td class="p-2 text-slate-300 font-semibold border-b border-slate-800/50">${PriceCalculator.formatTL(vEffectiveNetCost)} ₺</td>
+            <td class="p-2 text-slate-300 font-semibold border-b border-slate-800/50">${PriceCalculator.formatTL(vEffectiveNetCost)}</td>
             <td class="p-2 border-b border-slate-800/50">${vNetMarginHtml}</td>
             <td class="p-2 border-b border-slate-800/50">${vPriceDiffBadge}</td>
           </tr>
@@ -1908,25 +1908,25 @@ function renderLayer3Cards() {
           </div>
 
           <!-- 2. Center: Side-by-Side Metrics Preview (Önerilen Fiyat, Canlı Fiyat, Saf Maliyet, Net Kâr) -->
-          <div class="grid grid-cols-4 gap-1.5 w-full md:w-6/12 items-center bg-slate-950/90 p-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
+          <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
             <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[9px] uppercase font-bold ${isLayer3DipFiyatMode ? 'text-rose-400 font-black' : 'text-amber-400'} block tracking-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
-              <span class="font-extrabold ${isLayer3DipFiyatMode ? 'text-rose-300' : 'text-amber-300'} text-xs">${PriceCalculator.formatTL(systemRecommendedPrice)} ₺</span>
+              <span class="text-[9px] md:text-[10px] uppercase font-bold ${isLayer3DipFiyatMode ? 'text-rose-400 font-black' : 'text-amber-400'} block tracking-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
+              <span class="font-extrabold ${isLayer3DipFiyatMode ? 'text-rose-300' : 'text-amber-300'} text-xs md:text-sm">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
             </div>
 
             <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[9px] uppercase font-bold ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-purple-400'} block tracking-tight">${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol' : '🌐 iyzico'} Canlı</span>
-              <span class="font-black text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) + ' ₺' : '⚪ Yok'}</span>
+              <span class="text-[9px] md:text-[10px] uppercase font-bold ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-purple-400'} block tracking-tight">${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol' : '🌐 iyzico'} Canlı</span>
+              <span class="font-black text-xs md:text-sm ${currentLayer3Channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
             </div>
 
             <div class="text-center border-r border-slate-800/80 pr-1">
-              <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">Saf Maliyet</span>
-              <span class="font-bold text-slate-300 text-xs">${PriceCalculator.formatTL(activeEffectiveNetCost)} ₺</span>
+              <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">Saf Maliyet</span>
+              <span class="font-bold text-slate-300 text-xs md:text-sm">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
             </div>
 
             <div class="text-center">
-              <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">Net Kâr</span>
-              <span class="text-xs font-black">${netProfitMarginHtml}</span>
+              <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">Net Kâr</span>
+              <span class="text-xs md:text-sm font-black">${netProfitMarginHtml}</span>
             </div>
           </div>
 
@@ -2594,44 +2594,44 @@ function renderLayer2Cards() {
                 </div>
 
                 <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
-                <div class="grid grid-cols-4 gap-1.5 w-full md:w-6/12 items-center bg-slate-950/90 p-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
+                <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800/80 text-xs shadow-inner">
                   <div class="text-center border-r border-slate-800/80 pr-1">
-                    <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">1KG Hammadde</span>
-                    <span class="font-extrabold ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-amber-300'} text-xs">${PriceCalculator.formatTL(costPerKg)} ₺</span>
+                    <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">1KG Hammadde</span>
+                    <span class="font-extrabold ${isMaceration ? 'text-purple-300' : supplyType === 'wholesale' ? 'text-blue-300' : 'text-amber-300'} text-xs md:text-sm">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
 
                   <div class="text-center border-r border-slate-800/80 pr-1">
-                    <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">Tesis Gideri</span>
-                    <span class="font-bold text-teal-300 text-xs">${PriceCalculator.formatTL(linearOverhead)} ₺</span>
+                    <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">Tesis Gideri</span>
+                    <span class="font-bold text-teal-300 text-xs md:text-sm">${PriceCalculator.formatTL(linearOverhead)}</span>
                   </div>
 
                   <div class="text-center border-r border-slate-800/80 pr-1">
-                    <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-tight">Ambalaj & Sarf</span>
-                    <span class="font-bold text-slate-300 text-xs">${PriceCalculator.formatTL(packCost)} ₺</span>
+                    <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block tracking-tight">Ambalaj & Sarf</span>
+                    <span class="font-bold text-slate-300 text-xs md:text-sm">${PriceCalculator.formatTL(packCost)}</span>
                   </div>
 
                   <div class="text-center">
-                    <span class="text-[9px] uppercase font-bold text-teal-400 block tracking-tight">
+                    <span class="text-[9px] md:text-[10px] uppercase font-bold text-teal-400 block tracking-tight">
                       ${layer2GroupMode === 'wholesale_drums' ? '1KG Teklif' : 'Net Saf Maliyet'}
                     </span>
-                    <span class="text-xs font-black text-teal-300">
-                      ${PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost)} ₺
+                    <span class="text-xs md:text-sm font-black text-teal-300">
+                      ${PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost)}
                     </span>
                   </div>
                 </div>
 
                 <!-- 3. Far Right Action Buttons -->
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-teal-950 text-teal-300 border border-teal-600' : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'}">
+                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-teal-950 text-teal-300 border border-teal-600' : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700'}">
                     <span>⚙️ Reçete / Ayar ${isBreakdownOpen ? '▲' : '▼'}</span>
                   </button>
 
-                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-purple-950 text-purple-300 border border-purple-600' : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'}">
+                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-purple-950 text-purple-300 border border-purple-600' : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700'}">
                     <span>${layer2GroupMode === 'wholesale_drums' ? '🏢 B2B Cetveli' : '⚡ Pazaryeri Sim'} ${isDrawerOpen ? '▲' : '▼'}</span>
                   </button>
 
                   ${layer2GroupMode === 'wholesale_drums' ? `
-                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" title="Müşteri Teklif Metnini Kopyala" class="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow-sm transition-all flex items-center justify-center">
+                    <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" title="Müşteri Teklif Metnini Kopyala" class="p-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center">
                       📋
                     </button>
                   ` : ''}
@@ -2643,14 +2643,14 @@ function renderLayer2Cards() {
               ${isBreakdownOpen ? `
                 <div class="bg-slate-950/95 p-3.5 rounded-xl border border-teal-600/40 text-xs space-y-3 mt-1 shadow-xl animate-slide-up">
                   <!-- Üst Ayar Kontrolleri: Tohum/Maserasyon/Dökme, Dip Fire, KDV Oranları -->
-                  <div class="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-800 bg-slate-900/60 p-2.5 rounded-xl">
+                  <div class="flex flex-wrap items-center gap-2.5 pb-2.5 border-b border-slate-800 bg-slate-900/60 p-2.5 rounded-xl text-xs">
                     <!-- Tedarik / Reçete Türü -->
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-slate-300">Reçete Türü:</span>
+                    <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                      <span class="text-xs font-bold text-slate-400">Reçete:</span>
                       ${isEssentialOil ? `
                         <span class="text-xs font-extrabold text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">📦 Saf Uçucu Yağ</span>
                       ` : `
-                        <div class="flex items-center p-0.5 bg-slate-950 rounded-lg border border-slate-800">
+                        <div class="flex items-center p-0.5 bg-slate-900 rounded border border-slate-800">
                           <button onclick="updateLayer2ProductField('${product.id}', 'supplyType', 'press')" class="px-2 py-0.5 rounded text-[11px] font-bold transition-all ${supplyType !== 'wholesale' ? (isMaceration ? 'bg-purple-600 text-white' : 'bg-amber-500 text-slate-950') : 'text-slate-400 hover:text-white'}">
                             ${isMaceration ? '🌿 Maserasyon' : '🌾 Sıkım'}
                           </button>
@@ -2663,67 +2663,67 @@ function renderLayer2Cards() {
 
                     <!-- Tohum / Ot / Dökme Girdileri -->
                     ${isMaceration && supplyType !== 'wholesale' ? `
-                      <div class="flex items-center gap-2">
-                        <span class="text-emerald-400 font-bold">🫒 Z.Yağı:</span>
-                        <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-14 bg-slate-950 border border-slate-700 text-emerald-300 font-bold text-xs p-1 rounded text-center">
-                        <span class="text-purple-300 font-bold">🌱 Ot:</span>
-                        <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-14 bg-slate-950 border border-slate-700 text-purple-300 font-bold text-xs p-1 rounded text-center">
-                        <span class="text-[10px] text-amber-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">${macerationRes.calculatedRatio} KG Ot / 1 KG</span>
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-emerald-400 font-bold text-xs">🫒 Z.Yağı:</span>
+                        <input type="number" value="${oliveOilCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'oliveOilCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺</span>
+                        <span class="text-purple-300 font-bold text-xs ml-1">🌱 Ot:</span>
+                        <input type="number" value="${herbCost}" step="10" onchange="updateLayer2ProductField('${product.id}', 'herbCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-purple-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺</span>
+                        <span class="text-[10px] text-amber-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">${macerationRes.calculatedRatio} KG Ot / 1 KG</span>
                       </div>
                     ` : supplyType === 'press' ? `
-                      <div class="flex items-center gap-2">
-                        <span class="text-amber-400 font-bold">🌾 Tohum:</span>
-                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-14 bg-slate-950 border border-slate-700 text-amber-300 font-bold text-xs p-1 rounded text-center"> ₺
-                        <span class="text-cyan-400 font-bold ml-1">💧 Verim:</span>
-                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-12 bg-slate-950 border border-slate-700 text-cyan-300 font-bold text-xs p-1 rounded text-center"> %
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-amber-400 font-bold text-xs">🌾 Tohum:</span>
+                        <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
+                        <span class="text-cyan-400 font-bold text-xs ml-1.5">💧 Verim:</span>
+                        <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-cyan-300 font-bold text-xs py-1 px-1 rounded text-center"> <span class="text-slate-400 font-bold">%</span>
                       </div>
                     ` : `
-                      <div class="flex items-center gap-2">
-                        <span class="text-blue-400 font-bold">📦 Dökme Alış:</span>
-                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-950 border border-slate-700 text-blue-300 font-bold text-xs p-1 rounded text-center"> ₺/KG
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-blue-400 font-bold text-xs">📦 Dökme Alış:</span>
+                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-24 bg-slate-900 border border-slate-700 text-blue-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
                       </div>
                     `}
 
                     <!-- Dip / Tortu Fire -->
                     ${supplyType === 'press' ? `
-                      <div class="flex items-center gap-1.5">
+                      <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
                         <span class="text-xs font-bold text-rose-300">Dip Fire:</span>
-                        <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-slate-950 border border-rose-500/50 text-rose-300 font-bold text-xs p-1 rounded">
+                        <select onchange="updateLayer2ProductField('${product.id}', 'dipStatus', this.value)" class="bg-slate-900 border border-rose-500/50 text-rose-300 font-bold text-xs py-1 px-1.5 rounded cursor-pointer">
                           <option value="none" ${dipStatus !== 'has_dip' ? 'selected' : ''}>Dip Yok (%0)</option>
                           <option value="has_dip" ${dipStatus === 'has_dip' ? 'selected' : ''}>🔴 Dip Var</option>
                         </select>
                         ${dipStatus === 'has_dip' ? `
-                          <input type="number" value="${dipPercent}" step="1" min="0" max="90" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-12 bg-slate-950 border border-rose-500 text-rose-300 font-bold text-xs p-1 rounded text-center"> %
+                          <input type="number" value="${dipPercent}" step="1" min="0" max="90" onchange="updateLayer2ProductField('${product.id}', 'dipPercent', this.value)" class="w-16 bg-slate-900 border border-rose-500 text-rose-300 font-bold text-xs py-1 px-1 rounded text-center"> <span class="text-rose-300 font-bold">%</span>
                         ` : ''}
                       </div>
                     ` : ''}
 
                     <!-- KDV Hızlı Seçim -->
-                    <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+                    <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
                       <span class="text-[10px] text-slate-400 font-bold">KDV:</span>
-                      <select onchange="updateProductInputVat('${product.id}', this.value)" class="bg-slate-900 text-amber-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs">
+                      <select onchange="updateProductInputVat('${product.id}', this.value)" class="bg-slate-900 text-amber-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs cursor-pointer">
                         <option value="1" ${inputVatRate === 1 ? 'selected' : ''}>Alış %1</option>
                         <option value="20" ${inputVatRate === 20 ? 'selected' : ''}>Alış %20</option>
                       </select>
-                      <span class="text-slate-600">➔</span>
-                      <select onchange="updateProductSalesVat('${product.id}', this.value)" class="bg-slate-900 text-emerald-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs">
+                      <span class="text-slate-600 font-bold">➔</span>
+                      <select onchange="updateProductSalesVat('${product.id}', this.value)" class="bg-slate-900 text-emerald-300 font-bold border border-slate-700 rounded px-1.5 py-0.5 text-xs cursor-pointer">
                         <option value="1" ${salesVatRate === 1 ? 'selected' : ''}>Satış %1</option>
                         <option value="20" ${salesVatRate === 20 ? 'selected' : ''}>Satış %20</option>
                       </select>
                     </div>
 
                     ${layer2GroupMode === 'wholesale_drums' ? `
-                      <div class="flex items-center gap-1 bg-slate-950 px-2 py-0.5 rounded-lg border border-purple-500/50">
+                      <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-purple-500/50">
                         <span class="text-xs font-bold text-purple-300">Hedef Kâr:</span>
                         <div class="flex items-center p-0.5 bg-slate-900 rounded border border-slate-800 text-xs">
                           <button onclick="updateLayer2ProductField('${product.id}', 'wholesaleMarginMode', 'percent')" class="px-1.5 py-0.5 rounded font-bold transition-all ${wholesaleMarginMode === 'percent' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">%</button>
                           <button onclick="updateLayer2ProductField('${product.id}', 'wholesaleMarginMode', 'amount')" class="px-1.5 py-0.5 rounded font-bold transition-all ${wholesaleMarginMode === 'amount' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">₺/KG</button>
                         </div>
-                        <input type="number" value="${wholesaleMarginValue}" step="${wholesaleMarginMode === 'amount' ? '10' : '5'}" onchange="updateLayer2ProductField('${product.id}', 'wholesaleMarginValue', this.value)" class="w-14 bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs p-1 rounded text-center">
+                        <input type="number" value="${wholesaleMarginValue}" step="${wholesaleMarginMode === 'amount' ? '10' : '5'}" onchange="updateLayer2ProductField('${product.id}', 'wholesaleMarginValue', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs py-1 px-1 rounded text-center">
                       </div>
                     ` : ''}
                   </div>
-                <div class="bg-slate-950/95 p-4 rounded-xl border border-slate-700/80 text-xs space-y-2.5 animate-slide-up max-w-3xl my-2 shadow-xl">
+                <div class="bg-slate-950/95 p-4 rounded-xl border border-slate-700/80 text-xs space-y-2.5 animate-slide-up w-full my-2 shadow-xl">
                   <div class="flex justify-between items-center pb-2 border-b border-slate-800 font-bold text-xs text-teal-400">
                     <span class="flex items-center gap-1.5 tracking-wide">📋 RESMİ FABRİKA MALİYET VE SİPARİŞ HESAP FATURASI</span>
                     <span class="text-[11px] text-slate-400 font-medium bg-slate-900 px-2.5 py-0.5 rounded-lg border border-slate-800">Tıkla Detay Gör ℹ️</span>
@@ -2855,8 +2855,8 @@ function renderLayer2Cards() {
                           <!-- KDV Rozeti ve Kısa Özellik -->
                           <div class="flex items-center gap-1.5 text-[11px]">
                             ${inputVatRate === 1 && salesVatRate === 20 ? `
-                              <span class="px-2 py-0.5 bg-amber-950 text-amber-300 rounded border border-amber-800 font-bold">🛡️ KDV Koruması: +${PriceCalculator.formatTL(taxProtection.taxDiffSurcharge)} ₺</span>
-                              <span class="font-black text-emerald-400">Dip Satış: ${PriceCalculator.formatTL(effectiveNetCost)} ₺</span>
+                              <span class="px-2 py-0.5 bg-amber-950 text-amber-300 rounded border border-amber-800 font-bold">🛡️ KDV Koruması: +${PriceCalculator.formatTL(taxProtection.taxDiffSurcharge)}</span>
+                              <span class="font-black text-emerald-400">Dip Satış: ${PriceCalculator.formatTL(effectiveNetCost)}</span>
                             ` : inputVatRate === 20 && salesVatRate === 1 ? `
                               <span class="px-2 py-0.5 bg-blue-950 text-blue-300 rounded border border-blue-800 font-bold">🛡️ KDV Devri (%20 Alış ➔ %1 Satış)</span>
                             ` : inputVatRate === 20 && salesVatRate === 20 ? `
@@ -4964,7 +4964,7 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="bg-slate-950 p-3 rounded-xl border border-amber-500/40 text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold text-amber-400">1. Tavsiye Edilen Fiyat</div>
           <div class="text-[11px] font-black text-white">🎯 Sistem Önerilen Fiyatı</div>
-          <div class="text-base font-black text-amber-300">${PriceCalculator.formatTL(recPrice)} ₺</div>
+          <div class="text-base font-black text-amber-300">${PriceCalculator.formatTL(recPrice)}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Sistemimizin kârlı satış yapmanız için önerdiği tavsiye Katman 1 satış fiyatı</p>
         </div>
 
@@ -4972,7 +4972,7 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="bg-slate-950 p-3 rounded-xl border border-purple-500/40 text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold ${channel === 'trendyol' ? 'text-orange-400' : 'text-purple-400'}">2. İnternet Satışımız</div>
           <div class="text-[11px] font-black text-white">🛒 ${channelName} Canlı Fiyatı</div>
-          <div class="text-base font-black ${channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${hasLivePrice ? PriceCalculator.formatTL(livePrice) + ' ₺' : '⚪ Canlı Fiyat Yok'}</div>
+          <div class="text-base font-black ${channel === 'trendyol' ? 'text-orange-300' : 'text-purple-300'}">${hasLivePrice ? PriceCalculator.formatTL(livePrice) : '⚪ Canlı Fiyat Yok'}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Şu anda müşterinin internette mağazanızdan satın aldığı canlı fiyat</p>
         </div>
 
@@ -4980,7 +4980,7 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="bg-slate-950 p-3 rounded-xl border border-cyan-500/40 text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold text-cyan-400">3. Başa Baş Dip Maliyet</div>
           <div class="text-[11px] font-black text-white">🏁 0 ₺ Kâr Üretim Maliyetimiz</div>
-          <div class="text-base font-black text-cyan-300">${PriceCalculator.formatTL(calc.effectiveNetCost)} ₺</div>
+          <div class="text-base font-black text-cyan-300">${PriceCalculator.formatTL(calc.effectiveNetCost)}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Hiç kâr etmeden fabrikanın başa baş noktası olan KDV korumalı dip maliyeti</p>
         </div>
 
@@ -4998,24 +4998,24 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="p-3 bg-slate-900/90 rounded-lg text-xs space-y-1.5 border border-slate-800 font-sans">
           <div class="flex justify-between items-center text-slate-300">
             <span>🛒 1. İnternet Canlı Satış Fiyatı (Müşterinin Ödediği):</span>
-            <span class="font-bold text-white">${PriceCalculator.formatTL(livePrice)} ₺</span>
+            <span class="font-bold text-white">${PriceCalculator.formatTL(livePrice)}</span>
           </div>
           <div class="flex justify-between items-center text-rose-400">
             <span>📉 2. Pazaryeri Kesintisi (Komisyon %${commRate} + Kargo):</span>
-            <span class="font-bold">-${PriceCalculator.formatTL(commAmt + cargoFee)} ₺</span>
+            <span class="font-bold">-${PriceCalculator.formatTL(commAmt + cargoFee)}</span>
           </div>
           <div class="flex justify-between items-center text-amber-300 font-extrabold border-t border-slate-800 pt-1">
             <span>➡ Banka Hesabınıza Yatan Net Hakediş:</span>
-            <span>${PriceCalculator.formatTL(payout)} ₺</span>
+            <span>${PriceCalculator.formatTL(payout)}</span>
           </div>
           <div class="flex justify-between items-center text-cyan-300">
             <span>🏁 3. Çıkarılan 0 ₺ Kâr Üretim Maliyetimiz (Katman 2):</span>
-            <span class="font-bold">-${PriceCalculator.formatTL(calc.effectiveNetCost)} ₺</span>
+            <span class="font-bold">-${PriceCalculator.formatTL(calc.effectiveNetCost)}</span>
           </div>
           <div class="flex justify-between items-center text-sm font-black pt-2.5 border-t border-slate-800">
             <span class="text-white">💰 NET KÂR / ZARAR SONUCUNUZ:</span>
             <span class="${netProfit >= 0 ? 'text-emerald-400 font-black' : 'text-rose-400 font-black'} text-base">
-              ${netProfit >= 0 ? '▲ +' + PriceCalculator.formatTL(netProfit) + ' ₺ KÂR' : '▼ ' + PriceCalculator.formatTL(netProfit) + ' ₺ ZARAR'}
+              ${netProfit >= 0 ? '▲ +' + PriceCalculator.formatTL(netProfit) + ' KÂR' : '▼ ' + PriceCalculator.formatTL(netProfit) + ' ZARAR'}
             </span>
           </div>
         </div>
