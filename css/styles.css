@@ -31,12 +31,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tabular Financial Numbers (All numbers align perfectly in tables & cards) */
+/* Soft Modern Financial Numbers (Inter Sans Tabular Figures) */
 .tabular-nums,
-.font-mono,
 input[type="number"],
 .breakdown-row .val,
 span[id^="stat-"] {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: -0.01em;
 }

@@ -354,26 +354,26 @@ function renderProductGrid() {
             <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
               <div class="text-center border-r border-zinc-800/80 pr-1">
                 <span class="text-[11px] font-medium text-zinc-400 block leading-tight">1KG Toptan</span>
-                <span class="font-bold text-zinc-100 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(product.costPerKg)}</span>
+                <span class="font-bold text-zinc-100 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
 
               <div class="text-center border-r border-zinc-800/80 pr-1">
                 <span class="text-[11px] font-medium text-zinc-400 block leading-tight">${mainVol} Maliyet</span>
-                <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(unitCost)}</span>
+                <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(unitCost)}</span>
               </div>
 
               <div class="text-center border-r border-zinc-800/80 pr-1">
                 <span class="text-[11px] font-medium ${showRedLineFloor ? 'text-rose-400 font-bold' : 'text-zinc-400'} block leading-tight">
                   ${showRedLineFloor ? '🔴 Dip Satış' : 'Trendyol Etiket'}
                 </span>
-                <span class="font-bold ${showRedLineFloor ? 'text-rose-300' : 'text-zinc-100'} text-xs block mt-0.5 tabular-nums font-mono">
+                <span class="font-bold ${showRedLineFloor ? 'text-rose-300' : 'text-zinc-100'} text-xs block mt-0.5 tabular-nums">
                   ${PriceCalculator.formatTL(showRedLineFloor ? breakEvenTy.breakEvenPrice : tyResult.listPrice)}
                 </span>
               </div>
 
               <div class="text-center">
                 <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Hedef Kâr</span>
-                <span class="font-bold text-emerald-400 text-xs block mt-0.5 tabular-nums font-mono">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)}</span>
+                <span class="font-bold text-emerald-400 text-xs block mt-0.5 tabular-nums">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)}</span>
               </div>
             </div>
 
@@ -1790,7 +1790,7 @@ function renderLayer3Cards() {
 
         const vHasPrice = vLivePrice !== null && vLivePrice > 0;
         let vNetMarginHtml = `<span class="text-slate-500 font-bold">N/A</span>`;
-        let vPriceDiffBadge = `<span class="text-[10px] bg-slate-900 text-slate-400 border border-slate-800 px-1.5 py-0.5 rounded font-mono">⚪ Canlı Yok</span>`;
+        let vPriceDiffBadge = `<span class="text-[10px] bg-slate-900 text-slate-400 border border-slate-800 px-1.5 py-0.5 rounded">⚪ Canlı Yok</span>`;
 
         if (vHasPrice) {
           let vMargin = 0;
@@ -1803,9 +1803,9 @@ function renderLayer3Cards() {
           }
 
           if (vMargin >= 0) {
-            vNetMarginHtml = `<span class="text-emerald-400 font-black">+${PriceCalculator.formatTL(vMargin)}</span>`;
+            vNetMarginHtml = `<span class="text-emerald-400 font-black tabular-nums">+${PriceCalculator.formatTL(vMargin)}</span>`;
           } else {
-            vNetMarginHtml = `<span class="text-red-400 font-black">${PriceCalculator.formatTL(vMargin)}</span>`;
+            vNetMarginHtml = `<span class="text-red-400 font-black tabular-nums">${PriceCalculator.formatTL(vMargin)}</span>`;
           }
 
           const priceDiff = vLivePrice - vRecommendedPrice;
@@ -1831,10 +1831,10 @@ function renderLayer3Cards() {
         rowsHtml += `
           <tr class="hover:bg-slate-900/60 transition-colors ${vKey === activeVolKey ? (currentLayer3Channel === 'trendyol' ? 'bg-orange-950/30 font-bold' : 'bg-sky-950/30 font-bold') : ''}">
             <td class="p-2 font-bold text-slate-200 border-b border-slate-800/50">${vKey} ${vKey === activeVolKey ? '📌 (Ön İzlenen)' : ''}</td>
-            <td class="p-2 border-b border-slate-800/50 font-black text-amber-400 font-mono text-sm">
+            <td class="p-2 border-b border-slate-800/50 font-black text-amber-400 tabular-nums text-sm">
               🎯 ${PriceCalculator.formatTL(vRecommendedPrice)}
             </td>
-            <td class="p-2 border-b border-slate-800/50 font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'} font-mono text-sm">
+            <td class="p-2 border-b border-slate-800/50 font-black ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'} tabular-nums text-sm">
               <div class="flex items-center gap-1.5">
                 <span>${vHasPrice ? PriceCalculator.formatTL(vLivePrice) : '⚪ Yok'}</span>
                 ${vHasPrice ? `
@@ -1846,8 +1846,8 @@ function renderLayer3Cards() {
                 ` : ''}
               </div>
             </td>
-            <td class="p-2 text-slate-300 font-semibold font-mono border-b border-slate-800/50">${PriceCalculator.formatTL(vEffectiveNetCost)}</td>
-            <td class="p-2 border-b border-slate-800/50 font-mono">${vNetMarginHtml}</td>
+            <td class="p-2 text-slate-300 font-semibold tabular-nums border-b border-slate-800/50">${PriceCalculator.formatTL(vEffectiveNetCost)}</td>
+            <td class="p-2 border-b border-slate-800/50 tabular-nums">${vNetMarginHtml}</td>
             <td class="p-2 border-b border-slate-800/50">${vPriceDiffBadge}</td>
           </tr>
         `;
@@ -1909,22 +1909,22 @@ function renderLayer3Cards() {
           <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#0b1325] px-3 py-2 rounded-xl border border-slate-800 text-xs shadow-inner">
             <div class="text-center border-r border-slate-800 pr-1">
               <span class="text-[11px] font-medium ${isLayer3DipFiyatMode ? 'text-rose-400 font-bold' : 'text-slate-400'} block leading-tight">${isLayer3DipFiyatMode ? '🏁 Dip (0₺ Kâr)' : '🎯 Önerilen'}</span>
-              <span class="font-bold ${isLayer3DipFiyatMode ? 'text-rose-400' : 'text-amber-400'} text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
+              <span class="font-bold ${isLayer3DipFiyatMode ? 'text-rose-400' : 'text-amber-400'} text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(systemRecommendedPrice)}</span>
             </div>
 
             <div class="text-center border-r border-slate-800 pr-1">
               <span class="text-[11px] font-medium text-slate-400 block leading-tight">${currentLayer3Channel === 'trendyol' ? '🧡 Trendyol' : '🌐 iyzico'} Canlı</span>
-              <span class="font-bold text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'} block mt-0.5 tabular-nums font-mono">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
+              <span class="font-bold text-xs ${currentLayer3Channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'} block mt-0.5 tabular-nums">${hasVolPrice ? PriceCalculator.formatTL(activeLivePrice) : '⚪ Yok'}</span>
             </div>
 
             <div class="text-center border-r border-slate-800 pr-1">
               <span class="text-[11px] font-medium text-slate-400 block leading-tight">Saf Maliyet</span>
-              <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
+              <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(activeEffectiveNetCost)}</span>
             </div>
 
             <div class="text-center">
               <span class="text-[11px] font-medium text-slate-400 block leading-tight">Net Kâr</span>
-              <span class="text-xs font-bold block mt-0.5 tabular-nums font-mono">${netProfitMarginHtml}</span>
+              <span class="text-xs font-bold block mt-0.5 tabular-nums">${netProfitMarginHtml}</span>
             </div>
           </div>
 
@@ -2595,24 +2595,24 @@ function renderLayer2Cards() {
                 <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#0b1325] px-3 py-2 rounded-xl border border-slate-800 text-xs shadow-inner">
                   <div class="text-center border-r border-slate-800 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">1KG Hammadde</span>
-                    <span class="font-bold text-slate-100 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(costPerKg)}</span>
+                    <span class="font-bold text-slate-100 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(costPerKg)}</span>
                   </div>
 
                   <div class="text-center border-r border-slate-800 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">Tesis Gideri</span>
-                    <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(linearOverhead)}</span>
+                    <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(linearOverhead)}</span>
                   </div>
 
                   <div class="text-center border-r border-slate-800 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">Ambalaj & Sarf</span>
-                    <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums font-mono">${PriceCalculator.formatTL(packCost)}</span>
+                    <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(packCost)}</span>
                   </div>
 
                   <div class="text-center">
                     <span class="text-[11px] font-semibold text-slate-300 block leading-tight">
                       ${layer2GroupMode === 'wholesale_drums' ? '1KG Teklif' : 'Net Saf Maliyet'}
                     </span>
-                    <span class="text-xs font-extrabold text-emerald-400 block mt-0.5 tabular-nums font-mono">
+                    <span class="text-xs font-extrabold text-emerald-400 block mt-0.5 tabular-nums">
                       ${PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost)}
                     </span>
                   </div>
@@ -2734,7 +2734,7 @@ function renderLayer2Cards() {
                         ${supplyType === 'wholesale' ? `1. 📦 Toptan Dökme Yağ Payı (${vol})` : isMaceration ? `1. 🌿 Maserasyon Yağ Payı (${vol})` : `1. 🌾 Sıkım Yağ Payı (${vol})`}
                         <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Formül / Detay</span>
                       </span>
-                      <span class="font-bold font-mono text-slate-100 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
+                      <span class="font-bold tabular-nums text-slate-100 text-xs">${PriceCalculator.formatTL(rawOilCost)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item1 ? `
                       <div class="mt-2.5 p-3 bg-[#0b1325] rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1.5 animate-slide-up leading-relaxed">
@@ -2765,7 +2765,7 @@ function renderLayer2Cards() {
                         2. 🍾 Ambalaj Maliyeti (${layer2GroupMode === 'wholesale_drums' ? 'Sanayi Bidonları' : 'Şişe + Kapak + Kutu'})
                         <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Detay</span>
                       </span>
-                      <span class="font-bold font-mono text-slate-100 text-xs">${PriceCalculator.formatTL(packCost)}</span>
+                      <span class="font-bold tabular-nums text-slate-100 text-xs">${PriceCalculator.formatTL(packCost)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item2 ? `
                       <div class="mt-2.5 p-3 bg-[#0b1325] rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1.5 animate-slide-up leading-relaxed">
@@ -2782,7 +2782,7 @@ function renderLayer2Cards() {
                         3. ⚡ Tesis & Enerji Masraf Payı ${supplyType === 'wholesale' ? '(0 ₺ Toptan Alış)' : ''}
                         <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Detay</span>
                       </span>
-                      <span class="font-bold font-mono ${supplyType === 'wholesale' ? 'text-slate-500' : 'text-slate-100'} text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
+                      <span class="font-bold tabular-nums ${supplyType === 'wholesale' ? 'text-slate-500' : 'text-slate-100'} text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item3 ? `
                       <div class="mt-2.5 p-3 bg-[#0b1325] rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1.5 animate-slide-up leading-relaxed">
@@ -2804,7 +2804,7 @@ function renderLayer2Cards() {
                         4. 🛠️ Dolum & Paketleme İşçilik Payı
                         <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Formül / Detay</span>
                       </span>
-                      <span class="font-bold font-mono text-slate-100 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
+                      <span class="font-bold tabular-nums text-slate-100 text-xs">${PriceCalculator.formatTL(laborAssemblyFee)}</span>
                     </div>
                     ${openLayer2BreakdownInfos[product.id]?.item4 ? `
                       <div class="mt-2.5 p-3 bg-[#0b1325] rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1.5 animate-slide-up leading-relaxed">
@@ -2904,7 +2904,7 @@ function renderLayer2Cards() {
                         </div>
                       </div>
                       <div class="flex justify-between items-center text-[10px] pt-1 border-t border-emerald-900/60">
-                        <span class="text-purple-200 font-mono">📦 ${wholesalePack?.breakdownText}</span>
+                        <span class="text-purple-200 font-semibold tabular-nums">📦 ${wholesalePack?.breakdownText}</span>
                         ${Math.abs(totalProfitOrLoss) < 0.01 ? `
                           <span class="text-amber-300 font-bold bg-amber-950 px-1.5 py-0.2 rounded border border-amber-800">🏁 DİP MALİYET (0₺ KÂR)</span>
                         ` : totalProfitOrLoss > 0 ? `
@@ -3048,7 +3048,7 @@ function renderLayer2Cards() {
                     <div class="flex items-center gap-2 truncate">
                       <span class="text-base">📋</span>
                       <span class="font-bold text-slate-200 shrink-0">B2B Müşteri Fiyat Teklifi:</span>
-                      <span class="font-mono text-xs text-slate-300 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${wholesalePack?.breakdownText || (kg + ' KG Bidon')} | Birim: ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺/KG (%${kdvRate} KDV Dahil) | Toplam: ${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
+                      <span class="tabular-nums font-semibold text-xs text-slate-300 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 truncate">${product.name} — ${wholesalePack?.breakdownText || (kg + ' KG Bidon')} | Birim: ${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} ₺/KG (%${kdvRate} KDV Dahil) | Toplam: ${PriceCalculator.formatTL(totalOrderPrice)} ₺</span>
                     </div>
                     <button onclick="copyWholesaleProposal('${product.id}', ${kg}, ${finalWholesale1KgQuotePrice}, ${totalOrderPrice}, ${kdvRate})" class="px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
                       📋 Teklif Metnini Kopyala
@@ -4106,13 +4106,13 @@ function calculateMultipackSim() {
         <div class="space-y-2 border-t border-slate-800/80 pt-2">
           <div class="${sim.singleNetProfit >= 0 ? 'bg-slate-900 border-slate-800' : 'bg-rose-950/30 border-rose-900/60'} p-2.5 rounded-xl border flex justify-between items-center text-xs">
             <span class="${sim.singleNetProfit >= 0 ? 'text-slate-400' : 'text-rose-300'} font-bold uppercase text-[10px]">1 Adet Net Kâr:</span>
-            <span class="font-black ${sim.singleNetProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} text-sm font-mono">
+            <span class="font-black ${sim.singleNetProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} text-sm tabular-nums">
               ${sim.singleNetProfit > 0 ? '+' : ''}${PriceCalculator.formatTL(sim.singleNetProfit)}
             </span>
           </div>
           <div class="bg-slate-900/60 p-2 rounded-xl border border-slate-800/60 flex justify-between items-center text-[11px] text-slate-400">
             <span>${qty} Adet Ayrı Satılsaydı Toplam:</span>
-            <span class="font-bold ${sim.singleNetProfit * qty >= 0 ? 'text-slate-300' : 'text-rose-400'} font-mono">
+            <span class="font-bold ${sim.singleNetProfit * qty >= 0 ? 'text-slate-300' : 'text-rose-400'} tabular-nums">
               ${sim.singleNetProfit * qty > 0 ? '+' : ''}${PriceCalculator.formatTL(sim.singleNetProfit * qty)}
             </span>
           </div>
@@ -4131,14 +4131,14 @@ function calculateMultipackSim() {
           </div>
 
           <div class="space-y-1.5 text-xs text-slate-300">
-            <div class="flex justify-between"><span>Müşteri Sepet Toplamı:</span><span class="font-black text-amber-400 font-mono text-sm">${PriceCalculator.formatTL(sim.totalPrice)}</span></div>
-            <div class="flex justify-between"><span>(-) Komisyon (%${comm}):</span><span class="text-rose-400 font-semibold font-mono">-${PriceCalculator.formatTL(sim.commAmount)}</span></div>
+            <div class="flex justify-between"><span>Müşteri Sepet Toplamı:</span><span class="font-black text-amber-400 tabular-nums text-sm">${PriceCalculator.formatTL(sim.totalPrice)}</span></div>
+            <div class="flex justify-between"><span>(-) Komisyon (%${comm}):</span><span class="text-rose-400 font-semibold tabular-nums">-${PriceCalculator.formatTL(sim.commAmount)}</span></div>
             <div class="flex justify-between">
               <span class="flex items-center gap-1">(-) <strong>Tek Kargo (DHL ${desi} Desi):</strong></span>
-              <span class="text-rose-400 font-semibold font-mono">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
+              <span class="text-rose-400 font-semibold tabular-nums">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
             </div>
-            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Toplam Hakediş:</span><span class="text-emerald-300 font-mono text-sm">${PriceCalculator.formatTL(sim.payout)}</span></div>
-            <div class="flex justify-between text-slate-400"><span>(-) ${qty} Adet Saf Maliyet:</span><span class="text-slate-200 font-semibold font-mono">-${PriceCalculator.formatTL(sim.totalCost)}</span></div>
+            <div class="flex justify-between font-bold text-slate-100 border-t border-slate-800 pt-1"><span>(=) Toplam Hakediş:</span><span class="text-emerald-300 tabular-nums text-sm">${PriceCalculator.formatTL(sim.payout)}</span></div>
+            <div class="flex justify-between text-slate-400"><span>(-) ${qty} Adet Saf Maliyet:</span><span class="text-slate-200 font-semibold tabular-nums">-${PriceCalculator.formatTL(sim.totalCost)}</span></div>
           </div>
         </div>
 
@@ -4148,19 +4148,19 @@ function calculateMultipackSim() {
               <span class="${sim.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} uppercase tracking-wider text-[10px] block font-bold">KAMPANYA NET KÂRI:</span>
               <span class="text-[10px] text-slate-300 font-medium">(Birim Başına: ${PriceCalculator.formatTL(sim.profitPerUnit)})</span>
             </div>
-            <span class="${sim.netProfit >= 0 ? 'text-emerald-300' : 'text-rose-300'} font-black text-lg font-mono">
+            <span class="${sim.netProfit >= 0 ? 'text-emerald-300' : 'text-rose-300'} font-black text-lg tabular-nums">
               ${sim.netProfit > 0 ? '+' : ''}${PriceCalculator.formatTL(sim.netProfit)}
             </span>
           </div>
 
           <div class="${extraProfitBadgeBg} p-2 rounded-xl border flex justify-between items-center text-[11px] font-bold">
             <span>📦 Kargo Tasarruf Avantajı:</span>
-            <span class="font-black font-mono">+${PriceCalculator.formatTL(sim.cargoSaved)}</span>
+            <span class="font-black tabular-nums">+${PriceCalculator.formatTL(sim.cargoSaved)}</span>
           </div>
 
           <div class="bg-[#0b1325] border border-slate-700 p-2 rounded-xl flex justify-between items-center text-[11px] text-slate-200">
             <span>💡 Tekli Satışa Göre Net Kâr Farkı:</span>
-            <span class="font-black font-mono ${sim.extraProfitComparedToSingle >= 0 ? 'text-emerald-300' : 'text-rose-300'}">
+            <span class="font-black tabular-nums ${sim.extraProfitComparedToSingle >= 0 ? 'text-emerald-300' : 'text-rose-300'}">
               ${sim.extraProfitComparedToSingle >= 0 ? '+' : ''}${PriceCalculator.formatTL(sim.extraProfitComparedToSingle)}
             </span>
           </div>
@@ -4952,7 +4952,7 @@ function openLayer3CalculationModal(productId, volKey) {
           <span class="text-slate-400 font-mono text-[11px] ml-2">SKU: ${product.sku}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="px-2.5 py-1 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800/60 font-black text-xs font-mono">
+          <span class="px-2.5 py-1 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800/60 font-bold text-xs tabular-nums">
             📌 İncelenen Ambalaj: ${volKey}
           </span>
           <span class="px-2.5 py-1 rounded-lg ${channel === 'trendyol' ? 'bg-orange-950/80 text-orange-300 border border-orange-800' : 'bg-sky-950/80 text-sky-300 border border-sky-800'} font-bold text-xs">
@@ -4968,7 +4968,7 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="bg-[#0b1325] p-3 rounded-xl border border-amber-500/40 text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold text-amber-400">1. Tavsiye Edilen Fiyat</div>
           <div class="text-[11px] font-black text-white">🎯 Sistem Önerilen Fiyatı</div>
-          <div class="text-base font-black text-amber-400 font-mono">${PriceCalculator.formatTL(recPrice)}</div>
+          <div class="text-base font-black text-amber-400 tabular-nums">${PriceCalculator.formatTL(recPrice)}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Sistemimizin kârlı satış yapmanız için önerdiği tavsiye Katman 1 satış fiyatı</p>
         </div>
 
@@ -4976,7 +4976,7 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="bg-[#0b1325] p-3 rounded-xl border ${channel === 'trendyol' ? 'border-orange-500/40' : 'border-sky-500/40'} text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold ${channel === 'trendyol' ? 'text-orange-400' : 'text-sky-400'}">2. İnternet Satışımız</div>
           <div class="text-[11px] font-black text-white">🛒 ${channelName} Canlı Fiyatı</div>
-          <div class="text-base font-black ${channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} font-mono">${hasLivePrice ? PriceCalculator.formatTL(livePrice) : '⚪ Canlı Fiyat Yok'}</div>
+          <div class="text-base font-black ${channel === 'trendyol' ? 'text-orange-300' : 'text-sky-300'} tabular-nums">${hasLivePrice ? PriceCalculator.formatTL(livePrice) : '⚪ Canlı Fiyat Yok'}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Şu anda müşterinin internette mağazanızdan satın aldığı canlı fiyat</p>
         </div>
 
@@ -4984,7 +4984,7 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="bg-[#0b1325] p-3 rounded-xl border border-slate-700 text-xs space-y-1 shadow-sm">
           <div class="text-[10px] uppercase font-bold text-slate-300">3. Başa Baş Dip Maliyet</div>
           <div class="text-[11px] font-black text-white">🏁 0 ₺ Kâr Üretim Maliyetimiz</div>
-          <div class="text-base font-black text-slate-200 font-mono">${PriceCalculator.formatTL(calc.effectiveNetCost)}</div>
+          <div class="text-base font-black text-slate-200 tabular-nums">${PriceCalculator.formatTL(calc.effectiveNetCost)}</div>
           <p class="text-[10px] text-slate-400 leading-tight">Hiç kâr etmeden fabrikanın başa baş noktası olan KDV korumalı dip maliyeti</p>
         </div>
 
@@ -5002,23 +5002,23 @@ function openLayer3CalculationModal(productId, volKey) {
         <div class="p-3 bg-[#0b1325] rounded-lg text-xs space-y-1.5 border border-slate-800 font-sans">
           <div class="flex justify-between items-center text-slate-300">
             <span>🛒 1. İnternet Canlı Satış Fiyatı (Müşterinin Ödediği):</span>
-            <span class="font-bold text-white font-mono">${PriceCalculator.formatTL(livePrice)}</span>
+            <span class="font-bold text-white tabular-nums">${PriceCalculator.formatTL(livePrice)}</span>
           </div>
           <div class="flex justify-between items-center text-rose-400">
             <span>📉 2. Pazaryeri Kesintisi (Komisyon %${commRate} + Kargo):</span>
-            <span class="font-bold font-mono">-${PriceCalculator.formatTL(commAmt + cargoFee)}</span>
+            <span class="font-bold tabular-nums">-${PriceCalculator.formatTL(commAmt + cargoFee)}</span>
           </div>
           <div class="flex justify-between items-center text-amber-400 font-extrabold border-t border-slate-800 pt-1">
             <span>➡ Banka Hesabınıza Yatan Net Hakediş:</span>
-            <span class="font-mono">${PriceCalculator.formatTL(payout)}</span>
+            <span class="tabular-nums">${PriceCalculator.formatTL(payout)}</span>
           </div>
           <div class="flex justify-between items-center text-slate-300">
             <span>🏁 3. Çıkarılan 0 ₺ Kâr Üretim Maliyetimiz (Katman 2):</span>
-            <span class="font-bold text-slate-200 font-mono">-${PriceCalculator.formatTL(calc.effectiveNetCost)}</span>
+            <span class="font-bold text-slate-200 tabular-nums">-${PriceCalculator.formatTL(calc.effectiveNetCost)}</span>
           </div>
           <div class="flex justify-between items-center text-sm font-black pt-2.5 border-t border-slate-800">
             <span class="text-white">💰 NET KÂR / ZARAR SONUCUNUZ:</span>
-            <span class="${netProfit >= 0 ? 'text-emerald-400 font-black' : 'text-rose-400 font-black'} text-base font-mono">
+            <span class="${netProfit >= 0 ? 'text-emerald-400 font-black' : 'text-rose-400 font-black'} text-base tabular-nums">
               ${netProfit >= 0 ? '▲ +' + PriceCalculator.formatTL(netProfit) + ' KÂR' : '▼ ' + PriceCalculator.formatTL(netProfit) + ' ZARAR'}
             </span>
           </div>
