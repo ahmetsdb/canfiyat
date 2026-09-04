@@ -29,13 +29,13 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.00">
+    <link rel="stylesheet" href="css/styles.css?v=4.10">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="p-3 md:p-6 min-h-screen text-slate-100 bg-[#090a0d]">
+<body class="min-h-screen text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white p-3 md:p-6 lg:p-8">
 
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="max-w-[1720px] w-full mx-auto space-y-4">
         
         <!-- Header & Branding -->
         <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-700/80 shadow-sm" title="v4.00: Next-Gen Financial SaaS Mimarisi">
-                            v4.00 (✨ Next-Gen SaaS)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-700/80 shadow-sm" title="v4.10: Executive Split Kokpit Mimarisi">
+                            v4.10 (🎛️ Executive Split Kokpit)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -157,21 +157,21 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                <!-- View Mode Switcher (Satır vs Kart) & Redline Toggle -->
+                <!-- View Mode Switcher (Kokpit Split vs Klasik Liste) & Redline Toggle -->
                 <div class="flex items-center gap-1.5 bg-[#090b10] p-1 rounded-xl border border-zinc-800">
-                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-800 text-white flex items-center gap-1">
+                    <button id="view-btn-split" onclick="setViewMode('split')" class="view-mode-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm flex items-center gap-1.5 cursor-pointer" title="Sol Hızlı Liste + Sağ Çalışma Masası Kokpit Görünümü">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                        </svg>
+                        🎛️ Kokpit (Split)
+                    </button>
+                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-transparent text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer" title="Klasik Geniş Akordiyon Liste Görünümü">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
-                        Satır
+                        📋 Liste
                     </button>
-                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-transparent text-zinc-400 hover:text-white flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                        </svg>
-                        Kartlar
-                    </button>
-                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
+                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-zinc-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
                         🔴 Dip Fiyat
                     </button>
                 </div>
@@ -603,11 +603,35 @@
                 </div>
             </div>
 
+            <!-- Layer 1 Cockpit Split View Container -->
+            <div id="layer2-split-container" class="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full">
+                <!-- Sol Kolon: Hızlı Ürün Gezgini (Scrollable List) -->
+                <div class="lg:col-span-5 xl:col-span-4 flex flex-col min-w-0">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 text-xs px-1">
+                        <span class="font-bold text-slate-300 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            Ürün Listesi
+                        </span>
+                        <span id="layer2-list-count" class="text-[11px] font-mono text-slate-400"></span>
+                    </div>
+                    <div id="layer2-split-list" class="max-h-[calc(100vh-230px)] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                        <!-- Compact product cards render dynamically -->
+                    </div>
+                </div>
+
+                <!-- Sağ Kolon: Aktif Ürün Yönetim Kokpiti / Çalışma Masası -->
+                <div class="lg:col-span-7 xl:col-span-8 flex flex-col min-w-0">
+                    <div id="layer2-split-desk" class="sticky top-2 max-h-[calc(100vh-230px)] overflow-y-auto pr-1 space-y-3.5 custom-scrollbar">
+                        <!-- Selected product detailed cockpit renders dynamically -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Layer 2 Product Stream Containers (Row View vs Card View) -->
             <div id="layer2-product-rows" class="hidden flex flex-col gap-2.5 w-full">
                 <!-- Layer 2 Row View Renders Dynamically -->
             </div>
-            <div id="layer2-product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div id="layer2-product-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Layer 2 Industrial Production Cards Render Dynamically -->
             </div>
         </main>
@@ -657,8 +681,32 @@
                 </div>
             </div>
 
-            <!-- Layer 3 Stream Grid -->
-            <div id="layer3-product-grid" class="flex flex-col gap-3 w-full">
+            <!-- Layer 2 Cockpit Split View Container -->
+            <div id="layer3-split-container" class="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full">
+                <!-- Sol Kolon: Hızlı Ürün Gezgini (Scrollable List) -->
+                <div class="lg:col-span-5 xl:col-span-4 flex flex-col min-w-0">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 text-xs px-1">
+                        <span class="font-bold text-slate-300 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                            Karşılaştırma Listesi
+                        </span>
+                        <span id="layer3-list-count" class="text-[11px] font-mono text-slate-400"></span>
+                    </div>
+                    <div id="layer3-split-list" class="max-h-[calc(100vh-250px)] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                        <!-- Compact comparison cards render dynamically -->
+                    </div>
+                </div>
+
+                <!-- Sağ Kolon: Aktif Ürün Karşılaştırma & Ambalaj Matrisi Kokpiti -->
+                <div class="lg:col-span-7 xl:col-span-8 flex flex-col min-w-0">
+                    <div id="layer3-split-desk" class="sticky top-2 max-h-[calc(100vh-250px)] overflow-y-auto pr-1 space-y-3.5 custom-scrollbar">
+                        <!-- Selected product comparison cockpit & all-volume table render dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 3 Stream Grid (Classic List Fallback) -->
+            <div id="layer3-product-grid" class="hidden flex flex-col gap-3 w-full">
                 <!-- Layer 3 live site comparison rows render dynamically -->
             </div>
         </main>
@@ -1440,12 +1488,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.00"></script>
-    <script src="js/liveSiteData.js?v=4.00"></script>
-    <script src="js/trendyolData.js?v=4.00"></script>
-    <script src="js/storage.js?v=4.00"></script>
-    <script src="js/calculator.js?v=4.00"></script>
-    <script src="js/app.js?v=4.00"></script>
+    <script src="js/productsData.js?v=4.10"></script>
+    <script src="js/liveSiteData.js?v=4.10"></script>
+    <script src="js/trendyolData.js?v=4.10"></script>
+    <script src="js/storage.js?v=4.10"></script>
+    <script src="js/calculator.js?v=4.10"></script>
+    <script src="js/app.js?v=4.10"></script>
 </body>
 
 
