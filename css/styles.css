@@ -1,14 +1,14 @@
-/* CanFiyat Next-Gen Financial SaaS Design System (Linear / Stripe Caliber) */
+/* CanFiyat Harmonized Executive SaaS Design System */
 
 :root {
-  --bg-canvas: #090a0d;
-  --bg-surface: #12151b;
-  --bg-surface-elevated: #181c24;
-  --bg-surface-hover: #1f2430;
+  --bg-canvas: #0a0f1d;
+  --bg-surface: #111a2e;
+  --bg-surface-elevated: #16223b;
+  --bg-surface-hover: #1c2b4a;
   
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-medium: rgba(255, 255, 255, 0.14);
-  --border-active: #3b82f6;
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-medium: rgba(148, 163, 184, 0.22);
+  --border-active: #38bdf8;
 
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
@@ -16,9 +16,9 @@
 
   /* Semantic-only Colors */
   --semantic-profit: #10b981;
-  --semantic-profit-bg: rgba(16, 185, 129, 0.12);
+  --semantic-profit-bg: rgba(16, 185, 129, 0.14);
   --semantic-loss: #f43f5e;
-  --semantic-loss-bg: rgba(244, 63, 94, 0.12);
+  --semantic-loss-bg: rgba(244, 63, 94, 0.14);
   --semantic-warning: #f59e0b;
 }
 
@@ -50,20 +50,20 @@ span[id^="stat-"] {
   background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #232936;
+  background: #233250;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #364b73;
 }
 
 /* Glassmorphism & SaaS Card Surfaces */
 .glass-card {
-  background: rgba(18, 21, 28, 0.88);
+  background: rgba(17, 26, 46, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-card:hover {
@@ -75,7 +75,7 @@ span[id^="stat-"] {
 }
 .glass-card-hover:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(56, 189, 248, 0.35);
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
 }
 
@@ -97,7 +97,7 @@ span[id^="stat-"] {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border-subtle);
   border-radius: 0.625rem;
-  background-color: #0c0e13;
+  background-color: #0b1325;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #f8fafc;
@@ -108,14 +108,14 @@ span[id^="stat-"] {
 .input-group select:focus,
 .input-group textarea:focus {
   outline: none;
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
 }
 
 /* Channel Header Badges (Subdued, Professional) */
-.header-badge-ty { background-color: rgba(249, 115, 22, 0.12); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.25); }
-.header-badge-hb { background-color: rgba(234, 179, 8, 0.12); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.25); }
-.header-badge-iy { background-color: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.25); }
+.header-badge-ty { background-color: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+.header-badge-hb { background-color: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+.header-badge-iy { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
 
 /* Breakdown Accounting Rows */
 .breakdown-row {

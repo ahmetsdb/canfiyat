@@ -29,11 +29,11 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.11">
+    <link rel="stylesheet" href="css/styles.css?v=4.12">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="p-3 md:p-6 min-h-screen text-slate-100 bg-[#090a0d]">
+<body class="p-3 md:p-6 min-h-screen text-slate-100 bg-[#0a0f1d]">
 
     <div class="max-w-7xl mx-auto space-y-6">
         
@@ -41,19 +41,19 @@
         <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
             <!-- Left Side: Brand Logo, Title, Badges & Subtitle -->
             <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-zinc-900 flex items-center justify-center font-black text-xl shadow-md border border-zinc-700/80 shrink-0 mt-0.5 text-blue-400">
+                <div class="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-xl shadow-md border border-slate-700/80 shrink-0 mt-0.5 text-blue-400">
                     💧
                 </div>
                 <div class="space-y-1">
                     <div class="flex flex-wrap items-center gap-2">
                         <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">CanFiyat</h1>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800 shadow-sm">
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 shadow-sm">
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-700/80 shadow-sm" title="v4.11: v4.00 Next-Gen SaaS Görünümüne Dönüş">
-                            v4.11 (✨ v4.00 SaaS Görünümü)
+                        <span class="whitespace-nowrap text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-900 text-slate-200 border border-slate-700/80 shadow-sm" title="v4.12: Harmonized Executive SaaS Tasarımı">
+                            v4.12 (🎨 Harmonized Executive SaaS)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -76,7 +76,7 @@
                 </button>
 
                 <!-- User Profile & Logout Badge -->
-                <div id="user-header-badge" class="hidden flex items-center gap-2 bg-[#12151b] px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
+                <div id="user-header-badge" class="hidden flex items-center gap-2 bg-[#111a2e] px-3 py-1.5 rounded-xl border border-slate-700/80 shadow-sm">
                     <span class="text-xs font-bold text-slate-200 flex items-center gap-1">👤 Ahmet</span>
                     <button onclick="handleLogout()" title="Çıkış Yap" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-md transition-all cursor-pointer">
                         🚪 Çıkış
@@ -88,18 +88,18 @@
 
                 <!-- Quick Stats Pill Cards -->
                 <div class="flex items-center gap-1.5">
-                    <div class="bg-[#12151b] border border-zinc-800/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
-                        <span class="text-[9px] uppercase font-bold text-zinc-400 block tracking-wider">Toplam</span>
+                    <div class="bg-[#111a2e] border border-slate-700/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Toplam</span>
                         <span class="text-sm font-extrabold text-white font-mono tabular-nums" id="stat-total-count">0</span>
                     </div>
 
-                    <div class="bg-[#12151b] border border-zinc-800/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
-                        <span class="text-[9px] uppercase font-bold text-zinc-400 block tracking-wider">Uçucu</span>
-                        <span class="text-sm font-extrabold text-zinc-200 font-mono tabular-nums" id="stat-ucucu-count">0</span>
+                    <div class="bg-[#111a2e] border border-slate-700/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Uçucu</span>
+                        <span class="text-sm font-extrabold text-slate-200 font-mono tabular-nums" id="stat-ucucu-count">0</span>
                     </div>
 
-                    <div class="bg-[#12151b] border border-zinc-800/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
-                        <span class="text-[9px] uppercase font-bold text-zinc-400 block tracking-wider">Sabit</span>
+                    <div class="bg-[#111a2e] border border-slate-700/80 px-3 py-1.5 text-center rounded-xl min-w-[72px] shadow-sm">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Sabit</span>
                         <span class="text-sm font-extrabold text-zinc-200 font-mono tabular-nums" id="stat-sabit-count">0</span>
                     </div>
                 </div>
@@ -107,11 +107,11 @@
         </header>
 
         <!-- Executive Segmented Control Dock Bar (Katman Seçici Navigation Bar) -->
-        <nav class="w-full bg-[#0d1017] p-1.5 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl my-3">
+        <nav class="w-full bg-[#0f172a] p-1.5 rounded-2xl border border-slate-700/60 shadow-xl backdrop-blur-xl my-3">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 
                 <!-- Katman 1 Button (Saf Maliyet) -->
-                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#161a24] text-white border border-white/20 shadow-md">
+                <button id="layer-btn-1" onclick="switchLayerMode(1)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#1e293b] text-white border border-slate-600/80 shadow-md">
                     <div class="flex items-center gap-2.5">
                         <span id="dot-1" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50 shrink-0"></span>
                         <span class="tracking-tight text-left font-bold">1. KATMAN: Saf Maliyet</span>
@@ -120,28 +120,28 @@
                 </button>
 
                 <!-- Katman 2 Button (Karşılaştırma / Teklif) -->
-                <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#0f1218]/90 text-zinc-400 border border-white/5 hover:border-white/10 hover:text-zinc-200 hover:bg-[#151922]">
+                <button id="layer-btn-2" onclick="switchLayerMode(2)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#131d33]/90 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200 hover:bg-[#1a2744]">
                     <div class="flex items-center gap-2.5">
-                        <span id="dot-2" class="w-2.5 h-2.5 rounded-full bg-zinc-600 shrink-0"></span>
+                        <span id="dot-2" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
                         <span class="tracking-tight text-left font-bold">2. KATMAN: Karşılaştırma / Teklif</span>
                     </div>
-                    <span id="badge-2" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-500 border border-zinc-800 shrink-0">KATMANA GEÇ</span>
+                    <span id="badge-2" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-900 text-slate-500 border border-slate-800 shrink-0">KATMANA GEÇ</span>
                 </button>
 
                 <!-- Katman 3 Button (Kampanya & Set) -->
-                <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#0f1218]/90 text-zinc-400 border border-white/5 hover:border-white/10 hover:text-zinc-200 hover:bg-[#151922]">
+                <button id="layer-btn-3" onclick="switchLayerMode(3)" class="layer-tab-btn px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center justify-between transition-all duration-200 bg-[#131d33]/90 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200 hover:bg-[#1a2744]">
                     <div class="flex items-center gap-2.5">
-                        <span id="dot-3" class="w-2.5 h-2.5 rounded-full bg-zinc-600 shrink-0"></span>
+                        <span id="dot-3" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
                         <span class="tracking-tight text-left font-bold">3. KATMAN: Kampanya & Set</span>
                     </div>
-                    <span id="badge-3" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-500 border border-zinc-800 shrink-0">KATMANA GEÇ</span>
+                    <span id="badge-3" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-900 text-slate-500 border border-slate-800 shrink-0">KATMANA GEÇ</span>
                 </button>
 
             </div>
         </nav>
 
         <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
-        <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#11141b] p-3 rounded-2xl border border-zinc-800/80 shadow-sm">
+        <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#111a2e] p-3 rounded-2xl border border-slate-800/80 shadow-sm">
             
             <!-- Category Tabs -->
             <div class="flex flex-wrap gap-1.5 w-full lg:w-auto">
@@ -305,9 +305,9 @@
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
                                         <label class="text-[10px] uppercase font-bold text-slate-400">2. Ürüne İndirim:</label>
-                                        <span id="mp-discount-val-badge" class="text-[11px] font-black text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">%25 İndirim</span>
+                                        <span id="mp-discount-val-badge" class="text-[11px] font-black text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/80">%25 İndirim</span>
                                     </div>
-                                    <input type="range" id="mp-discount-range" min="0" max="60" step="5" value="25" oninput="onMultipackDiscountChange(this.value)" class="w-full cursor-pointer accent-purple-500">
+                                    <input type="range" id="mp-discount-range" min="0" max="60" step="5" value="25" oninput="onMultipackDiscountChange(this.value)" class="w-full cursor-pointer accent-amber-500">
                                 </div>
                             </div>
                         </div>
@@ -327,19 +327,19 @@
             <div id="l3-view-bundle" class="hidden space-y-4">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     <!-- Sol Bölüm: Set Seçim Paneli (lg:col-span-5) -->
-                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-purple-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 shadow-xl space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                             <h4 class="text-xs font-black text-white flex items-center gap-1.5">
                                 <span>🎁</span> Set İçeriği & Fiyatlandırma
                             </h4>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-700" id="l3-bundle-cargo-savings">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/70 text-emerald-300 border border-emerald-700/80" id="l3-bundle-cargo-savings">
                                 🚀 Tek Kargo Tasarrufu
                             </span>
                         </div>
 
                         <!-- 1. Ürün -->
                         <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-                            <label class="block text-[11px] font-bold text-purple-300">1. Ürün & Hacim:</label>
+                            <label class="block text-[11px] font-bold text-slate-300">1. Ürün & Hacim:</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <select id="bundle-item-1" onchange="onBundleItemProductChange(1); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
                                 </select>
@@ -358,7 +358,7 @@
 
                         <!-- 2. Ürün -->
                         <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-                            <label class="block text-[11px] font-bold text-purple-300">2. Ürün & Hacim:</label>
+                            <label class="block text-[11px] font-bold text-slate-300">2. Ürün & Hacim:</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <select id="bundle-item-2" onchange="onBundleItemProductChange(2); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
                                 </select>
@@ -396,10 +396,10 @@
                         </div>
 
                         <!-- Set Satış Fiyatı & Kutu & Desi -->
-                        <div class="grid grid-cols-3 gap-2 bg-slate-950/80 p-2.5 rounded-xl border border-purple-500/30">
+                        <div class="grid grid-cols-3 gap-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-700/80">
                             <div>
-                                <label class="block text-[10px] uppercase font-bold text-purple-300 mb-1">Set Fiyatı (₺):</label>
-                                <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-full bg-slate-900 border border-purple-500 text-purple-200 font-extrabold text-xs p-1.5 rounded-lg text-center">
+                                <label class="block text-[10px] uppercase font-bold text-amber-400 mb-1">Set Fiyatı (₺):</label>
+                                <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-full bg-slate-900 border border-amber-500/70 text-amber-300 font-extrabold text-xs p-1.5 rounded-lg text-center">
                             </div>
                             <div>
                                 <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Kutu / Sarf (₺):</label>
@@ -432,12 +432,12 @@
             <div id="l3-view-offers" class="hidden space-y-4">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     <!-- Sol Bölüm: Teklif Seçim Paneli (lg:col-span-5) -->
-                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-purple-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+                    <div class="lg:col-span-5 glass-card bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 shadow-xl space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                             <h4 class="text-xs font-black text-white flex items-center gap-1.5">
                                 <span>🏷️</span> Kampanya Teklif Girişi
                             </h4>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-700">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-950/60 text-rose-300 border border-rose-800/80">
                                 🛡️ Kırmızı Çizgi Korumalı
                             </span>
                         </div>
@@ -477,8 +477,8 @@
                                     <input type="number" id="offer-base-price" value="250" onchange="calculateOfferSim()" oninput="calculateOfferSim()" class="w-full bg-slate-950 border border-slate-700 text-white font-bold text-xs p-1.5 rounded-xl text-center">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-purple-300 mb-1">Hazır Seviye:</label>
-                                    <select id="offer-level-preset" onchange="applyOfferPreset(this.value)" class="w-full bg-slate-950 border border-purple-500/50 text-purple-300 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
+                                    <label class="block text-[11px] font-bold text-sky-400 mb-1">Hazır Seviye:</label>
+                                    <select id="offer-level-preset" onchange="applyOfferPreset(this.value)" class="w-full bg-slate-950 border border-sky-500/50 text-sky-200 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
                                         <option value="av1" selected>🟢 1. Avantajlı (%10)</option>
                                         <option value="av2">🟡 2. Çok Avantajlı (%18)</option>
                                         <option value="av3">🔴 3. Süper Avantajlı (%30)</option>
@@ -1056,7 +1056,7 @@
 
     <!-- 🎁 KOMBİN SET KÂRLILIK SİMÜLATÖRÜ MODAL (BODY SEVİYESİNDE BAĞIMSIZ MODAL) -->
     <div id="modal-bundle-simulator" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden animate-fade-in p-4">
-        <div class="glass-card bg-slate-900 border border-purple-800/60 rounded-2xl w-full max-w-4xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+        <div class="glass-card bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-4xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="text-2xl">🎁</span>
@@ -1074,7 +1074,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <!-- 1. ÜRÜN KUTUSU -->
                 <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs font-extrabold text-purple-300">1. Ürün Seçimi:</label>
+                    <label class="block text-xs font-extrabold text-slate-300">1. Ürün Seçimi:</label>
                     <select id="bundle-item-1" onchange="onBundleItemProductChange(1); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
                         <!-- Populated dynamically via JS -->
                     </select>
@@ -1098,7 +1098,7 @@
 
                 <!-- 2. ÜRÜN KUTUSU -->
                 <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs font-extrabold text-purple-300">2. Ürün Seçimi:</label>
+                    <label class="block text-xs font-extrabold text-slate-300">2. Ürün Seçimi:</label>
                     <select id="bundle-item-2" onchange="onBundleItemProductChange(2); updateBundleSimulator();" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none">
                         <!-- Populated dynamically via JS -->
                     </select>
@@ -1147,11 +1147,11 @@
             </div>
 
             <!-- Set Satış Fiyatı & Kargo Avantaj Özeti -->
-            <div class="flex flex-wrap items-center justify-between bg-slate-950/80 p-3.5 rounded-xl border border-purple-500/40 gap-3">
+            <div class="flex flex-wrap items-center justify-between bg-slate-950/80 p-3.5 rounded-xl border border-slate-700/80 gap-3">
                 <div class="flex items-center gap-3">
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Kombin Set Satış Fiyatınız (₺):</span>
-                        <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-32 bg-slate-900 border border-purple-500 text-purple-300 font-extrabold text-base px-3 py-1 rounded-xl text-center focus:outline-none">
+                        <input type="number" id="bundle-target-price" value="500" step="10" onchange="updateBundleSimulator()" oninput="updateBundleSimulator()" class="w-32 bg-slate-900 border border-amber-500/70 text-amber-300 font-extrabold text-base px-3 py-1 rounded-xl text-center focus:outline-none">
                     </div>
                     <div class="border-l border-slate-800 pl-3">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Katman 2 Saf Maliyet Toplamı:</span>
@@ -1185,7 +1185,7 @@
         <div class="glass-card w-full max-w-md p-6 md:p-8 rounded-3xl border border-blue-500/40 shadow-2xl space-y-6 relative overflow-hidden bg-slate-900/90">
             <!-- Arka Plan Parlama Efekti -->
             <div class="absolute -top-16 -right-16 w-36 h-36 bg-blue-600/30 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-purple-600/30 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-sky-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="text-center space-y-2">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center text-2xl font-black shadow-xl shadow-blue-500/30">
@@ -1235,11 +1235,11 @@
 
     <!-- Unified Operator Settings Control Panel Modal -->
     <div id="operator-settings-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-5 animate-slide-up">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-5 animate-slide-up">
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-purple-950 text-purple-300 flex items-center justify-center font-black text-base border border-purple-800/60">
+                    <div class="w-9 h-9 rounded-xl bg-slate-800 text-teal-300 flex items-center justify-center font-black text-base border border-slate-700">
                         ⚙️
                     </div>
                     <div>
@@ -1312,8 +1312,8 @@
                             <span class="text-[10px] text-slate-400">Küçük Toptan</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <input type="number" id="tier-discount-1" value="5" min="0" max="100" class="w-14 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-1.5 rounded-xl text-center">
-                            <span class="text-xs font-bold text-purple-400">% İsk.</span>
+                            <input type="number" id="tier-discount-1" value="5" min="0" max="100" class="w-14 bg-slate-900 border border-slate-700 text-sky-300 font-black text-xs p-1.5 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-400">% İsk.</span>
                         </div>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
@@ -1322,8 +1322,8 @@
                             <span class="text-[10px] text-slate-400">Orta Toptan</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <input type="number" id="tier-discount-2" value="10" min="0" max="100" class="w-14 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-1.5 rounded-xl text-center">
-                            <span class="text-xs font-bold text-purple-400">% İsk.</span>
+                            <input type="number" id="tier-discount-2" value="10" min="0" max="100" class="w-14 bg-slate-900 border border-slate-700 text-sky-300 font-black text-xs p-1.5 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-400">% İsk.</span>
                         </div>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
@@ -1332,8 +1332,8 @@
                             <span class="text-[10px] text-slate-400">Büyük Toptan</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <input type="number" id="tier-discount-3" value="15" min="0" max="100" class="w-14 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-1.5 rounded-xl text-center">
-                            <span class="text-xs font-bold text-purple-400">% İsk.</span>
+                            <input type="number" id="tier-discount-3" value="15" min="0" max="100" class="w-14 bg-slate-900 border border-slate-700 text-sky-300 font-black text-xs p-1.5 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-400">% İsk.</span>
                         </div>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
@@ -1342,8 +1342,8 @@
                             <span class="text-[10px] text-slate-400">Sanayi Tonaj</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <input type="number" id="tier-discount-4" value="20" min="0" max="100" class="w-14 bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-xs p-1.5 rounded-xl text-center">
-                            <span class="text-xs font-bold text-purple-400">% İsk.</span>
+                            <input type="number" id="tier-discount-4" value="20" min="0" max="100" class="w-14 bg-slate-900 border border-slate-700 text-sky-300 font-black text-xs p-1.5 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-400">% İsk.</span>
                         </div>
                     </div>
                 </div>
@@ -1351,10 +1351,10 @@
 
             <!-- TAB 3: ÜRÜN ALIŞ VE SATIŞ KDV PARAMETRELERİ -->
             <div id="operator-tab-vat" class="space-y-3 hidden">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                <div class="flex flex-col sm:row items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                     <input type="text" id="operator-vat-search" placeholder="🔍 Ürün SKU veya Adı Ara..." oninput="renderOperatorVatList()" class="w-full sm:w-64 bg-slate-900 border border-slate-700 text-white text-xs px-3 py-1.5 rounded-lg focus:outline-none">
                     <div class="flex items-center gap-1.5 text-xs text-slate-400">
-                        <button onclick="filterOperatorVatCategory('all')" id="btn-vat-filter-all" class="px-2 py-1 bg-purple-600 text-white rounded font-bold shadow-sm">Tümü</button>
+                        <button onclick="filterOperatorVatCategory('all')" id="btn-vat-filter-all" class="px-2 py-1 bg-sky-600 text-white rounded font-bold shadow-sm">Tümü</button>
                         <button onclick="filterOperatorVatCategory('mismatch')" id="btn-vat-filter-mismatch" class="px-2 py-1 bg-slate-800 text-amber-300 rounded font-bold hover:bg-amber-950 border border-amber-800/80">🛡️ KDV Farkı Olanlar (%1 ➔ %20)</button>
                     </div>
                 </div>
@@ -1367,7 +1367,7 @@
             <!-- Modal Footer Actions -->
             <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
                 <button onclick="closeOperatorSettingsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all">İptal</button>
-                <button onclick="saveOperatorSettingsModal()" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black rounded-xl shadow-lg shadow-purple-500/20 transition-all">💾 Tüm Ayarları Kaydet</button>
+                <button onclick="saveOperatorSettingsModal()" class="px-5 py-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-black rounded-xl shadow-lg shadow-sky-500/20 transition-all">💾 Tüm Ayarları Kaydet</button>
             </div>
         </div>
     </div>
@@ -1417,10 +1417,10 @@
     <!-- KATMAN 3 NET KÂR HESAPLAMA FATURASI MODAL  -->
     <!-- ========================================== -->
     <div id="layer3-calc-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-        <div class="bg-slate-900 border border-purple-500/40 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
+        <div class="bg-slate-900 border border-slate-700/80 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden my-auto animate-slide-up">
             <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-lg border border-purple-500/30 shadow-md">🧾</span>
+                    <span class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-black text-lg border border-sky-500/30 shadow-md">🧾</span>
                     <div>
                         <h2 id="l3-calc-modal-title" class="text-sm font-extrabold text-white tracking-tight">Net Kâr Hesaplama Dökümü & Faturası</h2>
                         <p id="l3-calc-modal-subtitle" class="text-[11px] text-slate-400">Katman 1 Pazaryeri Hakedişi ve Katman 2 Saf Üretim Maliyeti Detayı</p>
@@ -1440,12 +1440,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.11"></script>
-    <script src="js/liveSiteData.js?v=4.11"></script>
-    <script src="js/trendyolData.js?v=4.11"></script>
-    <script src="js/storage.js?v=4.11"></script>
-    <script src="js/calculator.js?v=4.11"></script>
-    <script src="js/app.js?v=4.11"></script>
+    <script src="js/productsData.js?v=4.12"></script>
+    <script src="js/liveSiteData.js?v=4.12"></script>
+    <script src="js/trendyolData.js?v=4.12"></script>
+    <script src="js/storage.js?v=4.12"></script>
+    <script src="js/calculator.js?v=4.12"></script>
+    <script src="js/app.js?v=4.12"></script>
 </body>
 
 
