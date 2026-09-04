@@ -332,19 +332,19 @@ function renderProductGrid() {
             
             <!-- 1. Left: Product Title, SKU, Category Badge -->
             <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-              <span class="font-mono text-[10px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded border border-slate-800 shrink-0">
+              <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
                 ${product.sku}
               </span>
               <div class="truncate">
-                <h3 class="text-xs font-extrabold text-white group-hover:text-blue-300 transition-colors truncate" title="${product.name}">
+                <h3 class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors truncate" title="${product.name}">
                   ${product.name}
                 </h3>
-                <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                  <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${badgeClass}">
+                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
                     ${product.category}
                   </span>
-                  <span class="text-[9px] font-extrabold text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
-                    📌 Ambalaj: <span class="text-sky-300 font-bold">${mainVol}</span>
+                  <span class="text-[11px] font-medium text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">
+                    📌 Ambalaj: <span class="text-sky-300 font-bold text-xs">${mainVol}</span>
                   </span>
                 </div>
               </div>
@@ -1889,19 +1889,19 @@ function renderLayer3Cards() {
           
           <!-- 1. Left: Product Title, SKU, Category Badge -->
           <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-            <span class="font-mono text-[10px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded border border-slate-800 shrink-0">
+            <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
               ${product.sku}
             </span>
             <div class="truncate">
-              <h3 class="text-xs font-extrabold text-white group-hover:text-amber-300 transition-colors truncate">
+              <h3 class="text-sm font-bold text-white group-hover:text-amber-300 transition-colors truncate" title="${product.name}">
                 ${product.name}
               </h3>
-              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${catBadge}">
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${catBadge}">
                   ${product.category}
                 </span>
-                <span class="text-[9px] font-extrabold text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
-                  📌 Ambalaj: <span class="text-amber-300 font-bold">${activeVolKey}</span>
+                <span class="text-[11px] font-medium text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">
+                  📌 Ambalaj: <span class="text-amber-300 font-bold text-xs">${activeVolKey}</span>
                 </span>
               </div>
             </div>
@@ -2564,29 +2564,29 @@ function renderLayer2Cards() {
                 
                 <!-- 1. Left: Product Title, SKU, Category Badge, Ambalaj -->
                 <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-                  <span class="font-mono text-[10px] font-bold text-slate-300 bg-slate-950 px-2 py-1 rounded border border-slate-800 shrink-0">
+                  <span class="font-mono text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0 shadow-sm">
                     ${product.sku}
                   </span>
                   <div class="truncate">
                     <div class="flex items-center gap-1.5 truncate">
-                      <h3 class="text-xs font-extrabold text-white group-hover:text-teal-300 transition-colors truncate" title="${product.name}">
+                      <h3 class="text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate" title="${product.name}">
                         ${product.name}
                       </h3>
                       ${isAnyModified ? `
-                        <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-[9px] bg-amber-950 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded border border-amber-800/80 shrink-0">
+                        <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded-md border border-amber-800/80 shrink-0">
                           ↺
                         </button>
                       ` : ''}
                     </div>
-                    <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                      <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${badgeClass}">
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                      <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
                         ${product.category}
                       </span>
-                      <span class="text-[9px] font-extrabold text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 flex items-center gap-1">
+                      <span class="text-[11px] font-medium text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800 flex items-center gap-1.5">
                         📌 Ambalaj: 
                         ${layer2GroupMode === 'wholesale_drums' 
-                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-12 bg-slate-900 text-teal-300 font-bold px-1 py-0.5 rounded border border-slate-700 text-center"> KG`
-                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 text-sky-300 font-bold px-1 py-0.5 rounded border border-slate-700 cursor-pointer">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
+                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-slate-900 text-teal-300 font-bold px-1.5 py-0.5 rounded border border-slate-700 text-center text-xs"> KG`
+                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-slate-900 text-sky-300 font-bold px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer text-xs">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
                         }
                       </span>
                     </div>
