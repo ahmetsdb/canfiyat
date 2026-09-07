@@ -16,7 +16,8 @@ const STORAGE_KEYS = {
   SITE_OVERRIDES: "canfiyat_site_overrides_v1", // Katman 3 Store Price Overrides
   LAYER2_SIM: "canfiyat_layer2_sim_v2", // Katman 2 Isolated Simulation State
   TRENDYOL_CUSTOM: "canfiyat_trendyol_custom_v1",
-  AUTH_SESSION: "canfiyat_auth_session_v1"
+  AUTH_SESSION: "canfiyat_auth_session_v1",
+  GLOBAL_TARGET_PROFIT: "canfiyat_global_target_profit"
 };
 
 class StorageManager {
@@ -155,7 +156,7 @@ class StorageManager {
           initialHerbCostPerKg: herbCost,
           initialOliveOilCostPerKg: oliveOilCost,
           initialHerbRatioKg: p.herbRatioKg !== undefined ? p.herbRatioKg : 0.20,
-          initialTargetProfit: 70,
+          initialTargetProfit: this.getGlobalTargetProfit(),
           activeVolume: defaultVol,
           volumes: this.createDefaultVolumeConfigs(),
           updatedAt: new Date().toISOString()
@@ -470,4 +471,60 @@ class StorageManager {
       localStorage.setItem(STORAGE_KEYS.LAYER2_SIM, JSON.stringify(map));
     } catch(e) {}
   }
+
+  // ==========================================
+  // GLOBAL & BULK TARGET NET PROFIT MANAGEMENT
+  // ==========================================
+  static getGlobalTargetProfit() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.GLOBAL_TARGET_PROFIT);
+      if (stored !== null && !isNaN(parseFloat(stored))) {
+        return parseFloat(stored);
+      }
+    } catch (e) {}
+    return 70;
+  }
+
+  static setGlobalTargetProfit(val) {
+    try {
+      const num = (val !== null && val !== undefined && !isNaN(parseFloat(val))) ? parseFloat(val) : 70;
+      localStorage.setItem(STORAGE_KEYS.GLOBAL_TARGET_PROFIT, num.toString());
+      return num;
+    } catch (e) {
+      console.error("Save global target profit error:", e);
+      return 70;
+    }
+  }
+
+  static applyBulkTargetProfit(newProfit, category = "all") {
+    const profitNum = (newProfit !== null && newProfit !== undefined && !isNaN(parseFloat(newProfit))) ? parseFloat(newProfit) : 70;
+    if (category === "all") {
+      this.setGlobalTargetProfit(profitNum);
+    }
+
+    const simMap = this.getLayer2SimData();
+    const products = this.getProducts();
+
+    let affectedCount = 0;
+    Object.values(products).forEach(p => {
+      if (category === "all" || p.category === category) {
+        if (!simMap[p.id]) {
+          simMap[p.id] = {};
+        }
+        simMap[p.id].layer2Profit = profitNum;
+        p.layer2Profit = profitNum;
+        affectedCount++;
+      }
+    });
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.LAYER2_SIM, JSON.stringify(simMap));
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    } catch (e) {
+      console.error("applyBulkTargetProfit save error:", e);
+    }
+
+    return { affectedCount, profitNum };
+  }
 }
+

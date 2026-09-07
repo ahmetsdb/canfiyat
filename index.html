@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.14">
+    <link rel="stylesheet" href="css/styles.css?v=4.15">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.14: Resmi Fabrika Verileri & Eksik Veri Sıfırlama">
-                            v4.14 (💎 Resmi Fabrika Verileri)
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.15: Toplu & Tekil Hedef Net Kâr Yönetimi">
+                            v4.15 (🚀 Toplu Net Kâr Yönetimi)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -174,6 +174,92 @@
                     <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
                         🔴 Dip Fiyat
                     </button>
+                </div>
+
+                <!-- Toplu Hedef Net Kâr Aracı (Bulk Target Net Profit Widget) -->
+                <div class="relative inline-flex items-center bg-[#090b10] p-1 rounded-xl border border-emerald-900/70 shadow-sm" id="bulk-profit-widget-container">
+                    <div class="flex items-center gap-1.5 pl-2 pr-1 text-emerald-400 font-bold text-xs shrink-0 select-none">
+                        <span class="text-sm">🎯</span>
+                        <span class="text-[11px] text-zinc-300 font-semibold hidden md:inline">Toplu Kâr:</span>
+                    </div>
+                    
+                    <div class="relative flex items-center">
+                        <input type="number" id="global-bulk-profit-input" min="0" step="5" value="70"
+                            class="w-16 sm:w-20 bg-[#111928] border border-emerald-600/50 rounded-lg text-xs font-extrabold text-emerald-300 px-2 py-1 text-center outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
+                            placeholder="70"
+                            onkeydown="if(event.key === 'Enter') handleApplyBulkProfit()"
+                            title="Tüm ürünlere veya kategoriye uygulanacak hedef net kâr tutarı (₺)">
+                        <span class="text-[11px] font-bold text-emerald-500 ml-1 mr-1.5">₺</span>
+                    </div>
+
+                    <button id="btn-apply-bulk-profit" onclick="handleApplyBulkProfit()"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white shadow flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                        title="Hedef kârı ürünlere uygula">
+                        <span>✓</span>
+                        <span class="hidden sm:inline">Uygula</span>
+                    </button>
+
+                    <button id="btn-bulk-profit-menu-toggle" onclick="toggleBulkProfitMenu(event)"
+                        class="px-1.5 py-1 text-zinc-400 hover:text-emerald-300 rounded-lg hover:bg-zinc-800 transition-all text-xs font-bold ml-0.5 cursor-pointer"
+                        title="Hızlı Kâr Şablonları ve Kapsam Seçimi">
+                        ▼
+                    </button>
+
+                    <!-- Dropdown Menu / Presets & Scope -->
+                    <div id="bulk-profit-dropdown" class="hidden absolute top-full mt-2 right-0 sm:right-auto sm:left-0 z-50 w-72 bg-[#0d1424] border border-emerald-800/80 rounded-2xl shadow-2xl p-3.5 space-y-3 backdrop-blur-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="text-xs font-extrabold text-white flex items-center gap-1.5">
+                                🎯 Toplu Net Kâr Yönetimi
+                            </span>
+                            <button onclick="closeBulkProfitMenu()" class="text-zinc-500 hover:text-zinc-300 text-xs font-bold p-1 cursor-pointer">✕</button>
+                        </div>
+
+                        <!-- Scope Selector -->
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Uygulama Kapsamı:</label>
+                            <div class="grid grid-cols-2 gap-1.5 bg-[#080d1a] p-1 rounded-xl border border-slate-800">
+                                <button type="button" id="scope-btn-all" onclick="setBulkProfitScope('all')"
+                                    class="bulk-scope-btn px-2 py-1.5 rounded-lg text-[11px] font-bold text-center transition-all bg-emerald-600 text-white shadow-sm cursor-pointer">
+                                    🌐 Tüm Ürünler (65)
+                                </button>
+                                <button type="button" id="scope-btn-category" onclick="setBulkProfitScope('category')"
+                                    class="bulk-scope-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold text-center transition-all bg-transparent text-zinc-400 hover:text-white cursor-pointer">
+                                    🎯 Seçili Kategori
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Presets -->
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Hızlı Kâr Şablonları:</label>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <button type="button" onclick="quickApplyBulkProfit(50)" class="px-2 py-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-950/60 text-emerald-400 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-700 text-xs font-bold transition-all text-center cursor-pointer">
+                                    50 ₺
+                                </button>
+                                <button type="button" onclick="quickApplyBulkProfit(70)" class="px-2 py-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-950/60 text-emerald-400 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-700 text-xs font-bold transition-all text-center cursor-pointer">
+                                    70 ₺ <span class="text-[9px] text-zinc-500 font-normal">(Std)</span>
+                                </button>
+                                <button type="button" onclick="quickApplyBulkProfit(85)" class="px-2 py-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-950/60 text-emerald-400 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-700 text-xs font-bold transition-all text-center cursor-pointer">
+                                    85 ₺
+                                </button>
+                                <button type="button" onclick="quickApplyBulkProfit(100)" class="px-2 py-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-950/60 text-emerald-400 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-700 text-xs font-bold transition-all text-center cursor-pointer">
+                                    100 ₺
+                                </button>
+                                <button type="button" onclick="quickApplyBulkProfit(120)" class="px-2 py-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-950/60 text-emerald-400 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-700 text-xs font-bold transition-all text-center cursor-pointer">
+                                    120 ₺
+                                </button>
+                                <button type="button" onclick="quickApplyBulkProfit(150)" class="px-2 py-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-950/60 text-emerald-400 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-700 text-xs font-bold transition-all text-center cursor-pointer">
+                                    150 ₺
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Info Footer -->
+                        <div class="pt-2 border-t border-slate-800/80 text-[10px] text-zinc-400 leading-relaxed flex items-start gap-1.5">
+                            <span class="text-amber-400 text-xs shrink-0">💡</span>
+                            <span><strong>Tekil Kâr Serbestisi:</strong> Toplu güncelleme yaptıktan sonra da herhangi bir ürünün kartından kârını dilediğiniz gibi tek tek değiştirebilirsiniz.</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Search Input -->
@@ -1440,12 +1526,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.14"></script>
-    <script src="js/liveSiteData.js?v=4.14"></script>
-    <script src="js/trendyolData.js?v=4.14"></script>
-    <script src="js/storage.js?v=4.14"></script>
-    <script src="js/calculator.js?v=4.14"></script>
-    <script src="js/app.js?v=4.14"></script>
+    <script src="js/productsData.js?v=4.15"></script>
+    <script src="js/liveSiteData.js?v=4.15"></script>
+    <script src="js/trendyolData.js?v=4.15"></script>
+    <script src="js/storage.js?v=4.15"></script>
+    <script src="js/calculator.js?v=4.15"></script>
+    <script src="js/app.js?v=4.15"></script>
 </body>
 
 

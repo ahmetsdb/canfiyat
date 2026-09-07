@@ -117,6 +117,11 @@ function initApp() {
   } else if (currentLayerMode === 3) {
     initLayer3Hub();
   }
+  const globalProfitInput = document.getElementById("global-bulk-profit-input");
+  if (globalProfitInput && typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) {
+    globalProfitInput.value = StorageManager.getGlobalTargetProfit();
+  }
+
   setupEventListeners();
 
   // Async sync with Supabase Cloud DB
@@ -157,6 +162,17 @@ function setupEventListeners() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && selectedProductId) {
       calculateCurrentModal();
+    }
+  });
+
+  // Close bulk profit dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    const dropdown = document.getElementById("bulk-profit-dropdown");
+    const container = document.getElementById("bulk-profit-widget-container");
+    if (dropdown && !dropdown.classList.contains("hidden")) {
+      if (container && !container.contains(e.target)) {
+        closeBulkProfitMenu();
+      }
     }
   });
 }
@@ -1179,6 +1195,121 @@ function updateTopDipFiyatBtnState() {
   }
 }
 
+// ==========================================
+// BULK TARGET NET PROFIT CONTROLLERS
+// ==========================================
+let currentBulkProfitScope = "all"; // 'all' | 'category'
+
+function toggleBulkProfitMenu(event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  const dropdown = document.getElementById("bulk-profit-dropdown");
+  if (!dropdown) return;
+  const isHidden = dropdown.classList.contains("hidden");
+  if (isHidden) {
+    dropdown.classList.remove("hidden");
+    updateBulkProfitScopeUI();
+  } else {
+    dropdown.classList.add("hidden");
+  }
+}
+
+function closeBulkProfitMenu() {
+  const dropdown = document.getElementById("bulk-profit-dropdown");
+  if (dropdown) dropdown.classList.add("hidden");
+}
+
+function setBulkProfitScope(scope) {
+  currentBulkProfitScope = scope;
+  updateBulkProfitScopeUI();
+}
+
+function updateBulkProfitScopeUI() {
+  const btnAll = document.getElementById("scope-btn-all");
+  const btnCat = document.getElementById("scope-btn-category");
+  if (!btnAll || !btnCat) return;
+
+  const currentCat = (typeof activeCategory !== "undefined" && activeCategory) ? activeCategory : "all";
+  btnCat.innerHTML = `🎯 Sadece ${currentCat === "all" ? "Kategori" : currentCat}`;
+
+  if (currentBulkProfitScope === "all") {
+    btnAll.className = "bulk-scope-btn px-2 py-1.5 rounded-lg text-[11px] font-bold text-center transition-all bg-emerald-600 text-white shadow-sm cursor-pointer";
+    btnCat.className = "bulk-scope-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold text-center transition-all bg-transparent text-zinc-400 hover:text-white cursor-pointer";
+  } else {
+    btnCat.className = "bulk-scope-btn px-2 py-1.5 rounded-lg text-[11px] font-bold text-center transition-all bg-emerald-600 text-white shadow-sm cursor-pointer";
+    btnAll.className = "bulk-scope-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold text-center transition-all bg-transparent text-zinc-400 hover:text-white cursor-pointer";
+  }
+}
+
+function handleApplyBulkProfit() {
+  const inputEl = document.getElementById("global-bulk-profit-input");
+  const val = inputEl ? inputEl.value : 70;
+  applyBulkTargetProfit(val, currentBulkProfitScope);
+}
+
+function quickApplyBulkProfit(val) {
+  const inputEl = document.getElementById("global-bulk-profit-input");
+  if (inputEl) inputEl.value = val;
+  applyBulkTargetProfit(val, currentBulkProfitScope);
+}
+
+function applyBulkTargetProfit(customProfit, scope) {
+  const inputEl = document.getElementById("global-bulk-profit-input");
+  let profitVal = customProfit;
+  if (profitVal === undefined || profitVal === null || profitVal === "") {
+    profitVal = inputEl ? inputEl.value : 70;
+  }
+  const profitNum = parseFloat(profitVal);
+  if (isNaN(profitNum) || profitNum < 0) {
+    if (typeof showToast !== "undefined") {
+      showToast("Lütfen geçerli bir kâr tutarı girin (ör: 70 ₺)", "error");
+    }
+    return;
+  }
+
+  const activeScope = scope || currentBulkProfitScope || "all";
+  const currentCat = (typeof activeCategory !== "undefined" && activeCategory) ? activeCategory : "all";
+  const categoryParam = activeScope === "category" ? (currentCat === "all" ? "all" : currentCat) : "all";
+
+  const result = StorageManager.applyBulkTargetProfit(profitNum, categoryParam);
+
+  // Sync in-memory currentProducts
+  if (typeof currentProducts !== "undefined" && currentProducts) {
+    Object.values(currentProducts).forEach(p => {
+      if (categoryParam === "all" || p.category === categoryParam) {
+        p.layer2Profit = profitNum;
+      }
+    });
+  }
+
+  if (inputEl) {
+    inputEl.value = profitNum;
+  }
+
+  closeBulkProfitMenu();
+
+  // Re-render views
+  if (currentLayerMode === 1) {
+    renderLayer2Cards();
+  } else if (currentLayerMode === 2) {
+    if (typeof renderLayer3Cards === "function") renderLayer3Cards();
+  } else if (currentLayerMode === 3) {
+    if (currentLayer3SubTab === "multipack" && typeof calculateMultipackSim === "function") {
+      calculateMultipackSim();
+    } else if (currentLayer3SubTab === "offers" && typeof calculateOfferSim === "function") {
+      calculateOfferSim();
+    } else if (currentLayer3SubTab === "catalog" && typeof renderProductGrid === "function") {
+      renderProductGrid();
+    }
+  }
+
+  const scopeLabel = categoryParam === "all" ? `Tüm Ürünler (${result.affectedCount || 65} Ürün)` : `${categoryParam} (${result.affectedCount} Ürün)`;
+  if (typeof showToast !== "undefined") {
+    showToast(`🎯 ${scopeLabel} için hedef net kâr ${PriceCalculator.formatTL(profitNum)} ₺ olarak uygulandı!`);
+  }
+}
+
 function toggleLayer3DipFiyatMode() {
   isLayer3DipFiyatMode = !isLayer3DipFiyatMode;
   updateTopDipFiyatBtnState();
@@ -1509,7 +1640,8 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
   });
 
   const effectiveNetCost = hasOilData ? taxProtection.taxNeutralBreakEvenCost : 0;
-  const targetProfit = (prodMerged.layer2Profit !== undefined && prodMerged.layer2Profit !== null) ? prodMerged.layer2Profit : 70;
+  const defaultProfit = (typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) ? StorageManager.getGlobalTargetProfit() : 70;
+  const targetProfit = (prodMerged.layer2Profit !== undefined && prodMerged.layer2Profit !== null) ? prodMerged.layer2Profit : defaultProfit;
 
   return {
     costPerKg,
@@ -2388,7 +2520,8 @@ function renderLayer2Cards() {
           kg = ml / 1000;
         }
 
-        const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : 70;
+        const defaultProfit = (typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) ? StorageManager.getGlobalTargetProfit() : 70;
+        const targetProfitInput = (product.layer2Profit !== undefined && product.layer2Profit !== null) ? product.layer2Profit : defaultProfit;
         const isBreakdownOpen = !!openLayer2Breakdowns[product.id];
         const isDrawerOpen = !!openLayer2Drawers[product.id];
 
@@ -3488,7 +3621,7 @@ async function resetProductField(productId, field) {
   else if (field === "herbKg") product.herbKg = null;
   else if (field === "oilKg") product.oilKg = null;
   else if (field === "wholesaleCostPerKg") product.wholesaleCostPerKg = initialCost;
-  else if (field === "layer2Profit") product.layer2Profit = 70;
+  else if (field === "layer2Profit") product.layer2Profit = (typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) ? StorageManager.getGlobalTargetProfit() : 70;
   else if (field === "all") {
     product.seedCostPerKg = initialSeed;
     product.yieldPercent = initialYield;
@@ -3501,7 +3634,7 @@ async function resetProductField(productId, field) {
     product.oilKg = null;
     product.wholesaleCostPerKg = initialCost;
     product.supplyType = product.category === "Uçucu Yağlar" ? "wholesale" : (product.supplyType || "press");
-    product.layer2Profit = 70;
+    product.layer2Profit = (typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) ? StorageManager.getGlobalTargetProfit() : 70;
   }
 
   const isMaceration = isMacerationOil(product);
@@ -3596,7 +3729,12 @@ async function updateLayer2ProductField(productId, field, value) {
   if (field === "wholesaleMarginPct") product.wholesaleMarginPct = parseFloat(value) || 20;
   if (field === "wholesaleMarginMode") product.wholesaleMarginMode = value; // 'percent' | 'amount'
   if (field === "wholesaleMarginValue") product.wholesaleMarginValue = parseFloat(value) || 0;
-  if (field === "layer2Margin" || field === "layer2Profit") product.layer2Profit = parseFloat(value) || 0;
+  if (field === "layer2Margin" || field === "layer2Profit") {
+    product.layer2Profit = parseFloat(value) || 0;
+    if (typeof currentProducts !== "undefined" && currentProducts && currentProducts[productId]) {
+      currentProducts[productId].layer2Profit = product.layer2Profit;
+    }
+  }
 
   const isMaceration = isMacerationOil(product);
   const isEssentialOil = product.category === "Uçucu Yağlar";
@@ -3656,6 +3794,11 @@ async function updateLayer2ProductField(productId, field, value) {
   });
 
   renderLayer2Cards();
+  if (field === "layer2Margin" || field === "layer2Profit") {
+    if (typeof showToast !== "undefined") {
+      showToast(`🎯 ${product.name} hedef net kârı ${PriceCalculator.formatTL(product.layer2Profit)} ₺ olarak güncellendi!`);
+    }
+  }
 }
 
 function copyWholesaleProposal(productId, kg, unitPrice, totalPrice, kdvRate) {
@@ -3707,11 +3850,12 @@ function setZeroProfitFloor() {
 
 function setDefaultProfit70() {
   const profitInput = document.getElementById("slot-target-profit");
+  const defProfit = (typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) ? StorageManager.getGlobalTargetProfit() : 70;
   if (profitInput) {
-    profitInput.value = 70;
+    profitInput.value = defProfit;
     calculateCurrentModal();
     if (typeof showToast !== "undefined") {
-      showToast("🟢 Standart Hedef Kâr (70 ₺) Aktif", "info");
+      showToast(`🟢 Standart Hedef Kâr (${PriceCalculator.formatTL(defProfit)} ₺) Aktif`, "info");
     }
   }
 }
@@ -4688,8 +4832,8 @@ function generateLayer3PdfReport() {
         const calc = getLayer2EffectiveCostForVolume(prod, vk, dynamicOverheadPerKg);
         const netCost = calc.effectiveNetCost;
 
-        // Katman 1 Recommended Sale Price (Target Profit = 70 TL or 0 TL in Dip Fiyat Mode)
-        const targetProfitForReport = isLayer3DipFiyatMode ? 0 : 70;
+        // Katman 1 Recommended Sale Price (Target Profit = calc.targetProfit or 0 TL in Dip Fiyat Mode)
+        const targetProfitForReport = isLayer3DipFiyatMode ? 0 : (calc.targetProfit !== undefined && calc.targetProfit !== null ? calc.targetProfit : ((typeof StorageManager !== "undefined" && StorageManager.getGlobalTargetProfit) ? StorageManager.getGlobalTargetProfit() : 70));
         const recSim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: netCost, targetProfit: targetProfitForReport, commission: commRate, cargo: cargoFee });
         const recPrice = recSim.salePrice;
 
