@@ -1449,22 +1449,20 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
 
   const dipStatus = prodMerged.dipStatus || "none";
   const dipPercent = (prodMerged.dipPercent !== undefined && prodMerged.dipPercent !== null) ? prodMerged.dipPercent : 0;
-  const yieldPct = (prodMerged.yieldPercent !== undefined && prodMerged.yieldPercent !== null) ? prodMerged.yieldPercent : 25;
-  const seedCost = (prodMerged.seedCostPerKg !== undefined && prodMerged.seedCostPerKg !== null)
-    ? prodMerged.seedCostPerKg
-    : parseFloat(((prodMerged.costPerKg || 1212.00) * 0.25).toFixed(2));
+  const yieldPct = (prodMerged.yieldPercent !== undefined && prodMerged.yieldPercent !== null) ? prodMerged.yieldPercent : 0;
+  const seedCost = (prodMerged.seedCostPerKg !== undefined && prodMerged.seedCostPerKg !== null) ? prodMerged.seedCostPerKg : 0;
 
   const herbCost = (prodMerged.herbCostPerKg !== undefined && prodMerged.herbCostPerKg !== null) ? prodMerged.herbCostPerKg : 0;
-  const oliveOilCost = (prodMerged.oliveOilCostPerKg !== undefined && prodMerged.oliveOilCostPerKg !== null) ? prodMerged.oliveOilCostPerKg : 454.50;
+  const oliveOilCost = (prodMerged.oliveOilCostPerKg !== undefined && prodMerged.oliveOilCostPerKg !== null) ? prodMerged.oliveOilCostPerKg : 240.00;
 
   const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
     seedCostPerKg: seedCost,
     yieldPercent: yieldPct,
-    wholesaleCostPerKg: prodMerged.wholesaleCostPerKg,
+    wholesaleCostPerKg: prodMerged.wholesaleCostPerKg || 0,
     supplyType: supplyType,
     dipStatus: dipStatus,
     dipPercent: dipPercent,
-    fallbackCostPerKg: prodMerged.costPerKg || 1200
+    fallbackCostPerKg: 0
   }) : null;
 
   const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
@@ -1474,15 +1472,16 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
     herbKg: prodMerged.herbKg,
     oilKg: prodMerged.oilKg,
     supplyType: supplyType,
-    wholesaleCostPerKg: prodMerged.wholesaleCostPerKg,
-    fallbackCostPerKg: prodMerged.costPerKg || 600
+    wholesaleCostPerKg: prodMerged.wholesaleCostPerKg || 0,
+    fallbackCostPerKg: 0
   }) : null;
 
   const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
+  const hasOilData = costPerKg > 0;
 
   const ml = PriceCalculator.getVolumeMl(volKey);
   const volInKg = ml / 1000;
-  const rawOilCost = parseFloat((costPerKg * volInKg).toFixed(2));
+  const rawOilCost = hasOilData ? parseFloat((costPerKg * volInKg).toFixed(2)) : 0;
 
   const packCost = (typeof DEFAULT_PACKAGING_COSTS !== "undefined" && DEFAULT_PACKAGING_COSTS[volKey] !== undefined)
     ? DEFAULT_PACKAGING_COSTS[volKey]
@@ -1497,7 +1496,7 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
     : (parseFloat(prodMerged.kdv) || 1);
   const salesVatRate = parseFloat(prodMerged.kdv) || 1;
 
-  const netCost = parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2));
+  const netCost = hasOilData ? parseFloat((rawOilCost + packCost + linearOverhead + laborAssemblyFee).toFixed(2)) : 0;
 
   const taxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost({
     netCost: netCost,
@@ -1509,11 +1508,12 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
     laborAssemblyFee: laborAssemblyFee
   });
 
-  const effectiveNetCost = taxProtection.taxNeutralBreakEvenCost;
+  const effectiveNetCost = hasOilData ? taxProtection.taxNeutralBreakEvenCost : 0;
   const targetProfit = (prodMerged.layer2Profit !== undefined && prodMerged.layer2Profit !== null) ? prodMerged.layer2Profit : 70;
 
   return {
     costPerKg,
+    hasOilData,
     volInKg,
     rawOilCost,
     packCost,
@@ -1664,22 +1664,24 @@ function renderLayer3Cards() {
     const activeTargetProfit = isLayer3DipFiyatMode ? 0 : activeCalc.targetProfit;
 
     let systemRecommendedPrice = 0;
-    if (currentLayer3Channel === "trendyol") {
-      const sys1Ty = PriceCalculator.calculateSystem1Channel({
-        wholesaleCost: activeEffectiveNetCost,
-        targetProfit: activeTargetProfit,
-        commission: 19,
-        cargo: 110
-      });
-      systemRecommendedPrice = sys1Ty.salePrice;
-    } else {
-      const sys1Iy = PriceCalculator.calculateSystem1Channel({
-        wholesaleCost: activeEffectiveNetCost,
-        targetProfit: activeTargetProfit,
-        commission: 4,
-        cargo: 82.50
-      });
-      systemRecommendedPrice = sys1Iy.salePrice;
+    if (activeCalc.hasOilData) {
+      if (currentLayer3Channel === "trendyol") {
+        const sys1Ty = PriceCalculator.calculateSystem1Channel({
+          wholesaleCost: activeEffectiveNetCost,
+          targetProfit: activeTargetProfit,
+          commission: 19,
+          cargo: 110
+        });
+        systemRecommendedPrice = sys1Ty.salePrice;
+      } else {
+        const sys1Iy = PriceCalculator.calculateSystem1Channel({
+          wholesaleCost: activeEffectiveNetCost,
+          targetProfit: activeTargetProfit,
+          commission: 4,
+          cargo: 82.50
+        });
+        systemRecommendedPrice = sys1Iy.salePrice;
+      }
     }
 
     const overridePrice = StorageManager.getSiteOverride(product.id, activeVolKey);
@@ -1712,7 +1714,9 @@ function renderLayer3Cards() {
 
     let netProfitMarginHtml = `<span class="font-bold text-slate-500 text-xs">N/A</span>`;
 
-    if (hasVolPrice) {
+    if (!activeCalc.hasOilData) {
+      netProfitMarginHtml = `<span class="font-bold text-amber-400 text-xs" title="Hammadde verisi bekleniyor">Veri Bekleniyor</span>`;
+    } else if (hasVolPrice) {
       const livePrice = activeLivePrice;
       let netProfitMargin = 0;
 
@@ -1748,22 +1752,24 @@ function renderLayer3Cards() {
         const vTargetProfit = isLayer3DipFiyatMode ? 0 : vCalc.targetProfit;
 
         let vRecommendedPrice = 0;
-        if (currentLayer3Channel === "trendyol") {
-          const sys1Ty = PriceCalculator.calculateSystem1Channel({
-            wholesaleCost: vEffectiveNetCost,
-            targetProfit: vTargetProfit,
-            commission: 19,
-            cargo: 110
-          });
-          vRecommendedPrice = sys1Ty.salePrice;
-        } else {
-          const sys1Iy = PriceCalculator.calculateSystem1Channel({
-            wholesaleCost: vEffectiveNetCost,
-            targetProfit: vTargetProfit,
-            commission: 4,
-            cargo: 82.50
-          });
-          vRecommendedPrice = sys1Iy.salePrice;
+        if (vCalc.hasOilData) {
+          if (currentLayer3Channel === "trendyol") {
+            const sys1Ty = PriceCalculator.calculateSystem1Channel({
+              wholesaleCost: vEffectiveNetCost,
+              targetProfit: vTargetProfit,
+              commission: 19,
+              cargo: 110
+            });
+            vRecommendedPrice = sys1Ty.salePrice;
+          } else {
+            const sys1Iy = PriceCalculator.calculateSystem1Channel({
+              wholesaleCost: vEffectiveNetCost,
+              targetProfit: vTargetProfit,
+              commission: 4,
+              cargo: 82.50
+            });
+            vRecommendedPrice = sys1Iy.salePrice;
+          }
         }
 
         let vLivePrice = null;
@@ -1792,7 +1798,10 @@ function renderLayer3Cards() {
         let vNetMarginHtml = `<span class="text-slate-500 font-bold">N/A</span>`;
         let vPriceDiffBadge = `<span class="text-[10px] bg-slate-900 text-slate-400 border border-slate-800 px-1.5 py-0.5 rounded">⚪ Canlı Yok</span>`;
 
-        if (vHasPrice) {
+        if (!vCalc.hasOilData) {
+          vNetMarginHtml = `<span class="text-amber-400 font-bold text-[11px]">Veri Bekleniyor</span>`;
+          vPriceDiffBadge = `<span class="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-1.5 py-0.5 rounded font-bold">Veri Yok</span>`;
+        } else if (vHasPrice) {
           let vMargin = 0;
           if (currentLayer3Channel === "trendyol") {
             const payout = vLivePrice * (1 - 0.19) - 110;
@@ -2398,19 +2407,19 @@ function renderLayer2Cards() {
         const dipStatus = product.dipStatus || "none";
         const dipPercent = (product.dipPercent !== undefined && product.dipPercent !== null) ? product.dipPercent : 0;
 
-        const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 25;
+        const yieldPct = (product.yieldPercent !== undefined && product.yieldPercent !== null) ? product.yieldPercent : 0;
         const seedCost = (product.seedCostPerKg !== undefined && product.seedCostPerKg !== null)
           ? product.seedCostPerKg
-          : parseFloat(((product.costPerKg || 1212.00) * 0.25).toFixed(2));
+          : 0;
 
         const herbCost = (product.herbCostPerKg !== undefined && product.herbCostPerKg !== null) ? product.herbCostPerKg : 0;
-        const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 454.50;
+        const oliveOilCost = (product.oliveOilCostPerKg !== undefined && product.oliveOilCostPerKg !== null) ? product.oliveOilCostPerKg : 240.00;
         const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
-        const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
-        const initialSeedCost = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
-        const initialYield = 25;
-        const initialHerbCost = 0;
-        const initialOliveOilCost = 454.50;
+        const initialCost = product.initialCostPerKg !== undefined ? product.initialCostPerKg : (product.costPerKg || 0);
+        const initialSeedCost = product.initialSeedCostPerKg || 0;
+        const initialYield = product.initialYieldPercent !== undefined ? product.initialYieldPercent : 0;
+        const initialHerbCost = product.initialHerbCostPerKg || 0;
+        const initialOliveOilCost = product.initialOliveOilCostPerKg || 240.00;
 
         const currentWholesale = (product.wholesaleCostPerKg !== undefined && product.wholesaleCostPerKg !== null && product.wholesaleCostPerKg > 0)
           ? parseFloat(product.wholesaleCostPerKg)
@@ -2432,11 +2441,11 @@ function renderLayer2Cards() {
         const coldPressRes = !isMaceration ? PriceCalculator.calculateColdPressCost({
           seedCostPerKg: seedCost,
           yieldPercent: yieldPct,
-          wholesaleCostPerKg: product.wholesaleCostPerKg,
+          wholesaleCostPerKg: product.wholesaleCostPerKg || 0,
           supplyType: supplyType,
           dipStatus: dipStatus,
           dipPercent: dipPercent,
-          fallbackCostPerKg: product.costPerKg || 1200
+          fallbackCostPerKg: 0
         }) : null;
 
         const macerationRes = isMaceration ? PriceCalculator.calculateMacerationCost({
@@ -2446,13 +2455,14 @@ function renderLayer2Cards() {
           herbKg: product.herbKg,
           oilKg: product.oilKg,
           supplyType: supplyType,
-          wholesaleCostPerKg: product.wholesaleCostPerKg,
-          fallbackCostPerKg: product.costPerKg || 600
+          wholesaleCostPerKg: product.wholesaleCostPerKg || 0,
+          fallbackCostPerKg: 0
         }) : null;
 
         const costPerKg = isMaceration ? macerationRes.netCostPerKg : coldPressRes.netCostPerKg;
+        const hasOilData = costPerKg > 0;
 
-        const rawOilCost = parseFloat((costPerKg * kg).toFixed(2));
+        const rawOilCost = hasOilData ? parseFloat((costPerKg * kg).toFixed(2)) : 0;
         const wholesalePack = (layer2GroupMode === "wholesale_drums")
           ? PriceCalculator.calculateWholesalePackagingBreakdown(kg)
           : null;
@@ -2488,7 +2498,7 @@ function renderLayer2Cards() {
           : (parseFloat(product.kdv) || 1);
         const salesVatRate = parseFloat(product.kdv) || 1;
 
-        const netCost = parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2));
+        const netCost = hasOilData ? parseFloat((rawOilCost + packCost + totalOverhead).toFixed(2)) : 0;
 
         // 🛡️ İki Yönlü KDV Koruma Motoru (VAT Rate Mismatch Tax Neutralization Engine)
         const taxProtection = PriceCalculator.calculateTaxNeutralBreakEvenCost({
@@ -2501,8 +2511,8 @@ function renderLayer2Cards() {
           laborAssemblyFee: laborAssemblyFee
         });
 
-        const effectiveNetCost = taxProtection.taxNeutralBreakEvenCost;
-        const unitNetCost = effectiveNetCost / (kg > 0 ? kg : 1);
+        const effectiveNetCost = hasOilData ? taxProtection.taxNeutralBreakEvenCost : 0;
+        const unitNetCost = hasOilData ? (effectiveNetCost / (kg > 0 ? kg : 1)) : 0;
         const tierInfo = PriceCalculator.getWholesaleDiscountForKg(kg, StorageManager.getWholesaleTiers());
         const discountPct = tierInfo.discount || 0;
 
@@ -2516,40 +2526,40 @@ function renderLayer2Cards() {
           }
         }
 
-        const baseSellingUnitCost = unitNetCost + marginAmountPerKg;
-        const discountedUnitCost = baseSellingUnitCost * (1 - (discountPct / 100));
+        const baseSellingUnitCost = hasOilData ? (unitNetCost + marginAmountPerKg) : 0;
+        const discountedUnitCost = hasOilData ? (baseSellingUnitCost * (1 - (discountPct / 100))) : 0;
         const finalWholesale1KgQuotePrice = parseFloat(discountedUnitCost.toFixed(2));
         const totalOrderPrice = parseFloat((finalWholesale1KgQuotePrice * kg).toFixed(2));
 
         // Profit or Loss Calculation
-        const profitPerKg = parseFloat((finalWholesale1KgQuotePrice - unitNetCost).toFixed(2));
+        const profitPerKg = hasOilData ? parseFloat((finalWholesale1KgQuotePrice - unitNetCost).toFixed(2)) : 0;
         const totalProfitOrLoss = parseFloat((profitPerKg * kg).toFixed(2));
         const isProfit = profitPerKg >= 0;
 
         // B2B Wholesale Tier Calculations (based on baseSellingUnitCost and unitNetCost)
-        const b2bTier1Price = parseFloat((baseSellingUnitCost * 0.95).toFixed(2));
-        const b2bTier1ProfitPerKg = parseFloat((b2bTier1Price - unitNetCost).toFixed(2));
+        const b2bTier1Price = hasOilData ? parseFloat((baseSellingUnitCost * 0.95).toFixed(2)) : 0;
+        const b2bTier1ProfitPerKg = hasOilData ? parseFloat((b2bTier1Price - unitNetCost).toFixed(2)) : 0;
         const b2bTier1IsProfit = b2bTier1ProfitPerKg >= 0;
 
-        const b2bTier2Price = parseFloat((baseSellingUnitCost * 0.90).toFixed(2));
-        const b2bTier2ProfitPerKg = parseFloat((b2bTier2Price - unitNetCost).toFixed(2));
+        const b2bTier2Price = hasOilData ? parseFloat((baseSellingUnitCost * 0.90).toFixed(2)) : 0;
+        const b2bTier2ProfitPerKg = hasOilData ? parseFloat((b2bTier2Price - unitNetCost).toFixed(2)) : 0;
         const b2bTier2IsProfit = b2bTier2ProfitPerKg >= 0;
 
-        const b2bTier3Price = parseFloat((baseSellingUnitCost * 0.85).toFixed(2));
-        const b2bTier3ProfitPerKg = parseFloat((b2bTier3Price - unitNetCost).toFixed(2));
+        const b2bTier3Price = hasOilData ? parseFloat((baseSellingUnitCost * 0.85).toFixed(2)) : 0;
+        const b2bTier3ProfitPerKg = hasOilData ? parseFloat((b2bTier3Price - unitNetCost).toFixed(2)) : 0;
         const b2bTier3IsProfit = b2bTier3ProfitPerKg >= 0;
 
-        const b2bTier4Price = parseFloat((baseSellingUnitCost * 0.80).toFixed(2));
-        const b2bTier4ProfitPerKg = parseFloat((b2bTier4Price - unitNetCost).toFixed(2));
+        const b2bTier4Price = hasOilData ? parseFloat((baseSellingUnitCost * 0.80).toFixed(2)) : 0;
+        const b2bTier4ProfitPerKg = hasOilData ? parseFloat((b2bTier4Price - unitNetCost).toFixed(2)) : 0;
         const b2bTier4IsProfit = b2bTier4ProfitPerKg >= 0;
 
         // Katman 1 Pazaryeri Simülatörüne KDV Korumalı Dip Maliyeti Aktar
-        const tySim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 });
-        const hbSim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 });
-        const iySim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 });
-        const storeSim = PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 0, discount: 0, cargo: 0 });
+        const tySim = hasOilData ? PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 19, discount: 0, cargo: 110 }) : { salePrice: 0, payout: 0, netProfit: 0 };
+        const hbSim = hasOilData ? PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 17, discount: 0, cargo: 110 }) : { salePrice: 0, payout: 0, netProfit: 0 };
+        const iySim = hasOilData ? PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 4, discount: 0, cargo: 82.50 }) : { salePrice: 0, payout: 0, netProfit: 0 };
+        const storeSim = hasOilData ? PriceCalculator.calculateSystem1Channel({ salesVatRate: (typeof product !== 'undefined' && product ? parseFloat(product.kdv) : (typeof item !== 'undefined' && item ? parseFloat(item.kdv) : 20)) || 20, wholesaleCost: effectiveNetCost, targetProfit: targetProfitInput, commission: 0, discount: 0, cargo: 0 }) : { salePrice: 0, payout: 0, netProfit: 0 };
 
-        const storePrice = effectiveNetCost + targetProfitInput;
+        const storePrice = hasOilData ? (effectiveNetCost + targetProfitInput) : 0;
 
         const badgeClass = product.category === "Uçucu Yağlar"
           ? "bg-purple-950/40 text-purple-300 border-purple-800/50"
@@ -2570,6 +2580,9 @@ function renderLayer2Cards() {
                       <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
                         ${product.name}
                       </h3>
+                      ${product.isHybrid ? `
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60 shrink-0" title="Hem Sıkım Hem Toptan Dökme Tedarik Edilebilir">🌾📦 Hibrit</span>
+                      ` : ''}
                       ${isAnyModified ? `
                         <button onclick="resetProductField('${product.id}', 'all')" title="Tüm Girdileri Orijinal Başlangıç Fiyatlarına Dön" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-bold px-1.5 py-0.5 rounded-md border border-amber-800/80 shrink-0 cursor-pointer">
                           ↺
@@ -2595,7 +2608,9 @@ function renderLayer2Cards() {
                 <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#0b1325] px-3 py-2 rounded-xl border border-slate-800 text-xs shadow-inner">
                   <div class="text-center border-r border-slate-800 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">1KG Hammadde</span>
-                    <span class="font-bold text-slate-100 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(costPerKg)}</span>
+                    <span class="font-bold ${hasOilData ? 'text-slate-100' : 'text-amber-400'} text-xs block mt-0.5 tabular-nums">
+                      ${hasOilData ? PriceCalculator.formatTL(costPerKg) : '0,00 ₺ <span class="text-[9px] block font-normal text-amber-400/80">(Veri Yok)</span>'}
+                    </span>
                   </div>
 
                   <div class="text-center border-r border-slate-800 pr-1">
@@ -2612,8 +2627,8 @@ function renderLayer2Cards() {
                     <span class="text-[11px] font-semibold text-slate-300 block leading-tight">
                       ${layer2GroupMode === 'wholesale_drums' ? '1KG Teklif' : 'Net Saf Maliyet'}
                     </span>
-                    <span class="text-xs font-extrabold text-emerald-400 block mt-0.5 tabular-nums">
-                      ${PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost)}
+                    <span class="text-xs font-extrabold ${hasOilData ? 'text-emerald-400' : 'text-amber-400/90'} block mt-0.5 tabular-nums">
+                      ${hasOilData ? PriceCalculator.formatTL(layer2GroupMode === 'wholesale_drums' ? finalWholesale1KgQuotePrice : effectiveNetCost) : '-- (Veri Yok)'}
                     </span>
                   </div>
                 </div>
@@ -2669,16 +2684,22 @@ function renderLayer2Cards() {
                         <span class="text-[10px] text-amber-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">${macerationRes.calculatedRatio} KG Ot / 1 KG</span>
                       </div>
                     ` : supplyType === 'press' ? `
-                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                      <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 flex-wrap">
                         <span class="text-amber-400 font-bold text-xs">🌾 Tohum:</span>
                         <input type="number" value="${seedCost}" step="5" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
+                        ${product.id === "T.0209" ? `
+                          <div class="flex items-center gap-1 bg-slate-900 p-0.5 rounded border border-slate-800">
+                            <button onclick="updateLayer2ProductField('T.0209', 'seedCostPerKg', 250)" class="px-2 py-0.5 rounded text-[10px] font-bold ${seedCost === 250 ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}">🇹🇷 Yerli (250₺)</button>
+                            <button onclick="updateLayer2ProductField('T.0209', 'seedCostPerKg', 154)" class="px-2 py-0.5 rounded text-[10px] font-bold ${seedCost === 154 ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}">🌍 İthal (154₺)</button>
+                          </div>
+                        ` : ''}
                         <span class="text-cyan-400 font-bold text-xs ml-1.5">💧 Verim:</span>
                         <input type="number" value="${yieldPct}" step="1" min="1" max="100" onchange="updateLayer2ProductField('${product.id}', 'yieldPercent', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-cyan-300 font-bold text-xs py-1 px-1 rounded text-center"> <span class="text-slate-400 font-bold">%</span>
                       </div>
                     ` : `
                       <div class="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
                         <span class="text-blue-400 font-bold text-xs">📦 Dökme Alış:</span>
-                        <input type="number" value="${costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-24 bg-slate-900 border border-slate-700 text-blue-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
+                        <input type="number" value="${product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : costPerKg}" step="10" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-24 bg-slate-900 border border-slate-700 text-blue-300 font-bold text-xs py-1 px-1.5 rounded text-center"> <span class="text-slate-400 font-bold">₺/KG</span>
                       </div>
                     `}
 
@@ -3194,9 +3215,14 @@ function renderLayer2Cards() {
                   </span>
                 </div>
 
-                <h3 class="text-sm font-extrabold text-white tracking-tight mb-2 truncate">
-                  ${product.name}
-                </h3>
+                <div class="flex items-center gap-1.5 mb-2 truncate">
+                  <h3 class="text-sm font-extrabold text-white tracking-tight truncate">
+                    ${product.name}
+                  </h3>
+                  ${product.isHybrid ? `
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60 shrink-0" title="Hem Sıkım Hem Toptan Dökme Tedarik Edilebilir">🌾📦 Hibrit</span>
+                  ` : ''}
+                </div>
 
                 <!-- TEDARİK TÜRÜ & HAMMADDE/TOPTAN GİRDİLERİ (CARD VIEW) -->
                 <div class="my-2 bg-slate-950/90 p-2.5 rounded-xl border ${supplyType === 'wholesale' ? 'border-blue-500/40' : 'border-amber-500/30'} space-y-2">
@@ -3218,19 +3244,25 @@ function renderLayer2Cards() {
                     <div class="flex items-center justify-between">
                       <span class="text-xs font-bold text-blue-400">📦 Toptan Alış:</span>
                       <div class="flex items-center gap-1">
-                        <input type="number" value="${costPerKg}" step="10" title="Orijinal Varsayılan: ${initialCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
+                        <input type="number" value="${product.wholesaleCostPerKg !== undefined ? product.wholesaleCostPerKg : costPerKg}" step="10" title="Orijinal Varsayılan: ${initialCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'wholesaleCostPerKg', this.value)" class="w-20 bg-slate-900 border border-blue-500/50 text-blue-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-blue-400">₺/KG</span>
                         ${isWholesaleModified ? `<button onclick="resetProductField('${product.id}', 'wholesaleCostPerKg')" title="Varsayılana Dön (${initialCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
                     </div>
                   ` : `
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap gap-1">
                       <span class="text-xs font-bold text-amber-400">🌾 Tohum Alış:</span>
                       <div class="flex items-center gap-1">
                         <input type="number" value="${seedCost}" step="5" title="Orijinal Varsayılan: ${initialSeedCost} ₺/KG (Çift tıkla sıfırla)" ondblclick="resetProductField('${product.id}', 'seedCostPerKg')" onchange="updateLayer2ProductField('${product.id}', 'seedCostPerKg', this.value)" class="w-20 bg-slate-900 border border-amber-500/50 text-amber-300 font-extrabold text-xs px-2 py-0.5 rounded text-center focus:outline-none">
                         <span class="text-xs font-bold text-amber-400">₺/KG</span>
                         ${isSeedModified ? `<button onclick="resetProductField('${product.id}', 'seedCostPerKg')" title="Varsayılana Dön (${initialSeedCost} ₺)" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/80 px-1 rounded border border-amber-800/60 font-bold">↺</button>` : ''}
                       </div>
+                      ${product.id === "T.0209" ? `
+                        <div class="w-full flex items-center justify-end gap-1 mt-1">
+                          <button onclick="updateLayer2ProductField('T.0209', 'seedCostPerKg', 250)" class="px-1.5 py-0.5 rounded text-[9px] font-bold ${seedCost === 250 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'}">🇹🇷 Yerli (250₺)</button>
+                          <button onclick="updateLayer2ProductField('T.0209', 'seedCostPerKg', 154)" class="px-1.5 py-0.5 rounded text-[9px] font-bold ${seedCost === 154 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}">🌍 İthal (154₺)</button>
+                        </div>
+                      ` : ''}
                     </div>
                     <div class="flex items-center justify-between">
                       <span class="text-xs font-bold text-cyan-400">💧 Pres Verimi:</span>
@@ -3244,7 +3276,9 @@ function renderLayer2Cards() {
 
                   <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between">
                     <span class="text-[10px] text-slate-400 uppercase font-semibold">1KG Yağ Maliyeti:</span>
-                    <span class="text-xs font-black ${supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">${PriceCalculator.formatTL(costPerKg)}</span>
+                    <span class="text-xs font-black ${supplyType === 'wholesale' ? 'text-blue-300' : 'text-cyan-300'}">
+                      ${hasOilData ? PriceCalculator.formatTL(costPerKg) : '<span class="text-amber-400 font-bold">0,00 ₺ (Veri Yok)</span>'}
+                    </span>
                   </div>
                 </div>
 
@@ -3255,11 +3289,13 @@ function renderLayer2Cards() {
                     <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-800/80">%${kdvRate} KDV</span>
                   </div>
                   <div class="flex justify-between items-baseline">
-                    <span class="font-black text-emerald-300 text-lg tracking-tight">${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-xs text-emerald-400">/ KG</span></span>
+                    <span class="font-black text-emerald-300 text-lg tracking-tight">
+                      ${hasOilData ? `${PriceCalculator.formatTL(finalWholesale1KgQuotePrice)} <span class="text-xs text-emerald-400">/ KG</span>` : `<span class="text-amber-400 text-sm font-bold">-- (Veri Yok)</span>`}
+                    </span>
                     <span class="text-[10px] font-bold text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-800/80">%${discountPct} İsk.</span>
                   </div>
                   <div class="flex justify-between items-center text-[10px] text-slate-300 font-bold border-t border-emerald-900/60 pt-1">
-                    <span>Sipariş Toplamı: <strong class="text-emerald-300">${PriceCalculator.formatTL(totalOrderPrice)} ₺</strong></span>
+                    <span>Sipariş Toplamı: <strong class="text-emerald-300">${hasOilData ? PriceCalculator.formatTL(totalOrderPrice) + ' ₺' : '--'}</strong></span>
                     <span>(${kg} KG)</span>
                   </div>
                 </div>
@@ -3434,17 +3470,20 @@ async function resetProductField(productId, field) {
   if (!product) return;
 
   const kdvRate = product.kdv || (product.category === "Uçucu Yağlar" ? 20 : 1);
-  const initialCost = product.initialCostPerKg || product.costPerKg || 1200;
-  const initialSeed = product.initialSeedCostPerKg || parseFloat((initialCost * 0.25).toFixed(2));
+  const initialCost = product.initialCostPerKg !== undefined ? product.initialCostPerKg : (product.costPerKg || 0);
+  const initialSeed = product.initialSeedCostPerKg !== undefined ? product.initialSeedCostPerKg : 0;
+  const initialYield = product.initialYieldPercent !== undefined ? product.initialYieldPercent : 0;
+  const initialHerb = product.initialHerbCostPerKg !== undefined ? product.initialHerbCostPerKg : 0;
+  const initialOliveOil = product.initialOliveOilCostPerKg !== undefined ? product.initialOliveOilCostPerKg : 240.00;
 
   if (field === "seedCostPerKg") product.seedCostPerKg = initialSeed;
-  else if (field === "yieldPercent") product.yieldPercent = 25;
+  else if (field === "yieldPercent") product.yieldPercent = initialYield;
   else if (field === "dipPercent") {
     product.dipPercent = 0;
     product.dipStatus = "none";
   }
-  else if (field === "herbCostPerKg") product.herbCostPerKg = 0;
-  else if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = 454.50;
+  else if (field === "herbCostPerKg") product.herbCostPerKg = initialHerb;
+  else if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = initialOliveOil;
   else if (field === "herbRatioKg") product.herbRatioKg = 0.20;
   else if (field === "herbKg") product.herbKg = null;
   else if (field === "oilKg") product.oilKg = null;
@@ -3452,16 +3491,16 @@ async function resetProductField(productId, field) {
   else if (field === "layer2Profit") product.layer2Profit = 70;
   else if (field === "all") {
     product.seedCostPerKg = initialSeed;
-    product.yieldPercent = 25;
+    product.yieldPercent = initialYield;
     product.dipPercent = 0;
     product.dipStatus = "none";
-    product.herbCostPerKg = 0;
-    product.oliveOilCostPerKg = 454.50;
+    product.herbCostPerKg = initialHerb;
+    product.oliveOilCostPerKg = initialOliveOil;
     product.herbRatioKg = 0.20;
     product.herbKg = null;
     product.oilKg = null;
     product.wholesaleCostPerKg = initialCost;
-    product.supplyType = product.category === "Uçucu Yağlar" ? "wholesale" : "press";
+    product.supplyType = product.category === "Uçucu Yağlar" ? "wholesale" : (product.supplyType || "press");
     product.layer2Profit = 70;
   }
 
@@ -3479,25 +3518,25 @@ async function resetProductField(productId, field) {
   if (isMaceration) {
     const macerationRes = PriceCalculator.calculateMacerationCost({
       herbCostPerKg: product.herbCostPerKg || 0,
-      oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 459.05,
+      oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 240.00,
       herbRatioKg: product.herbRatioKg,
       herbKg: product.herbKg,
       oilKg: product.oilKg,
       supplyType: supplyType,
       wholesaleCostPerKg: product.wholesaleCostPerKg,
-      fallbackCostPerKg: initialCost
+      fallbackCostPerKg: 0
     });
     product.herbRatioKg = macerationRes.calculatedRatio;
     product.layer2NetCostPerKg = macerationRes.netCostPerKg;
   } else {
     const coldPressRes = PriceCalculator.calculateColdPressCost({
       seedCostPerKg: product.seedCostPerKg !== undefined ? product.seedCostPerKg : initialSeed,
-      yieldPercent: product.yieldPercent || 25,
+      yieldPercent: product.yieldPercent !== undefined ? product.yieldPercent : initialYield,
       wholesaleCostPerKg: product.wholesaleCostPerKg,
       supplyType: supplyType,
       dipStatus: product.dipStatus || "none",
       dipPercent: product.dipPercent || 0,
-      fallbackCostPerKg: initialCost
+      fallbackCostPerKg: 0
     });
     product.layer2NetCostPerKg = coldPressRes.netCostPerKg;
   }
@@ -3505,7 +3544,7 @@ async function resetProductField(productId, field) {
   // Isolate Katman 2 reset: Clear Katman 2 Sim override data only!
   StorageManager.resetLayer2SimProduct(product.id);
   renderLayer2Cards();
-  showToast(`Sıfırlandı: ${product.name} (Orijinal %${kdvRate} KDV Dahil: ${PriceCalculator.formatTL(initialCost)} ₺ Fiyata Döndü ↺)`);
+  showToast(`Sıfırlandı: ${product.name} (Fabrika Değerlerine Döndü ↺)`);
 }
 
 function toggleLayer2Drawer(productId) {
@@ -3542,12 +3581,12 @@ async function updateLayer2ProductField(productId, field, value) {
   }
 
   if (field === "seedCostPerKg") product.seedCostPerKg = parseFloat(value) || 0;
-  if (field === "yieldPercent") product.yieldPercent = parseFloat(value) || 25;
+  if (field === "yieldPercent") product.yieldPercent = parseFloat(value) || 0;
   if (field === "dipStatus") product.dipStatus = value;
   if (field === "dipPercent") product.dipPercent = parseFloat(value) || 0;
 
   if (field === "herbCostPerKg") product.herbCostPerKg = parseFloat(value) || 0;
-  if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = parseFloat(value) || 454.50;
+  if (field === "oliveOilCostPerKg") product.oliveOilCostPerKg = parseFloat(value) || 240.00;
   if (field === "herbRatioKg") product.herbRatioKg = parseFloat(value) || 0.2;
   if (field === "herbKg") product.herbKg = value !== "" ? parseFloat(value) : null;
   if (field === "oilKg") product.oilKg = value !== "" ? parseFloat(value) : null;
@@ -3573,28 +3612,25 @@ async function updateLayer2ProductField(productId, field, value) {
   if (isMaceration) {
     const macerationRes = PriceCalculator.calculateMacerationCost({
       herbCostPerKg: product.herbCostPerKg || 0,
-      oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 454.50,
+      oliveOilCostPerKg: product.oliveOilCostPerKg !== undefined ? product.oliveOilCostPerKg : 240.00,
       herbRatioKg: product.herbRatioKg,
       herbKg: product.herbKg,
       oilKg: product.oilKg,
       supplyType: supplyType,
       wholesaleCostPerKg: product.wholesaleCostPerKg,
-      fallbackCostPerKg: masterProduct.costPerKg || 600
+      fallbackCostPerKg: 0
     });
     product.herbRatioKg = macerationRes.calculatedRatio;
     product.layer2NetCostPerKg = macerationRes.netCostPerKg;
   } else {
-    if (product.seedCostPerKg === undefined || product.seedCostPerKg === null) {
-      product.seedCostPerKg = parseFloat(((masterProduct.costPerKg || 1212.00) * 0.25).toFixed(2));
-    }
     const coldPressRes = PriceCalculator.calculateColdPressCost({
-      seedCostPerKg: product.seedCostPerKg,
-      yieldPercent: product.yieldPercent || 25,
+      seedCostPerKg: product.seedCostPerKg !== undefined ? product.seedCostPerKg : 0,
+      yieldPercent: product.yieldPercent !== undefined ? product.yieldPercent : 0,
       wholesaleCostPerKg: product.wholesaleCostPerKg,
       supplyType: supplyType,
       dipStatus: product.dipStatus || "none",
       dipPercent: product.dipPercent || 0,
-      fallbackCostPerKg: masterProduct.costPerKg || 1200
+      fallbackCostPerKg: 0
     });
     product.layer2NetCostPerKg = coldPressRes.netCostPerKg;
   }

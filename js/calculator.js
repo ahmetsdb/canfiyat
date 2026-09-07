@@ -159,25 +159,25 @@ class PriceCalculator {
   }
 
   // Endüstriyel Soğuk Sıkım Yağ Maliyeti (Tohum, Verim, Toptan ve Dip/Tortu Loss Hesabı)
-  static calculateColdPressCost({ seedCostPerKg = 0, yieldPercent = 25, wholesaleCostPerKg = 0, supplyType = "press", dipStatus = "none", dipPercent = 0, fallbackCostPerKg = 1200 }) {
+  static calculateColdPressCost({ seedCostPerKg = 0, yieldPercent = 25, wholesaleCostPerKg = 0, supplyType = "press", dipStatus = "none", dipPercent = 0, fallbackCostPerKg = 0 }) {
     let rawCostPerKg = 0;
 
     if (supplyType === "wholesale") {
-      rawCostPerKg = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 1200;
+      rawCostPerKg = parseFloat(wholesaleCostPerKg) || 0;
     } else {
       const seedCost = parseFloat(seedCostPerKg) || 0;
       const yieldPct = parseFloat(yieldPercent) || 0;
       if (yieldPct > 0 && seedCost > 0) {
         rawCostPerKg = parseFloat((seedCost / (yieldPct / 100)).toFixed(2));
       } else {
-        rawCostPerKg = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 1200;
+        rawCostPerKg = 0;
       }
     }
 
     // Dip / Tortu Fire Loss Adjustment
     let netCostPerKg = rawCostPerKg;
     const dipPct = parseFloat(dipPercent) || 0;
-    if ((dipStatus === "has_dip" || dipStatus === "dip" || dipStatus === true) && dipPct > 0 && dipPct < 100) {
+    if (netCostPerKg > 0 && (dipStatus === "has_dip" || dipStatus === "dip" || dipStatus === true) && dipPct > 0 && dipPct < 100) {
       netCostPerKg = parseFloat((rawCostPerKg / (1 - (dipPct / 100))).toFixed(2));
     }
 
@@ -189,9 +189,9 @@ class PriceCalculator {
   }
 
   // Endüstriyel Maserasyon Yağ Maliyeti (Hammadde KG & Zeytinyağı KG Oranlı Otomatik Maliyet Motoru)
-  static calculateMacerationCost({ herbCostPerKg = 0, oliveOilCostPerKg = 454.50, herbRatioKg = null, herbKg = null, oilKg = null, supplyType = "press", wholesaleCostPerKg = 0, fallbackCostPerKg = 600 }) {
+  static calculateMacerationCost({ herbCostPerKg = 0, oliveOilCostPerKg = 240.00, herbRatioKg = null, herbKg = null, oilKg = null, supplyType = "press", wholesaleCostPerKg = 0, fallbackCostPerKg = 0 }) {
     if (supplyType === "wholesale") {
-      const net = parseFloat(wholesaleCostPerKg) || parseFloat(fallbackCostPerKg) || 600;
+      const net = parseFloat(wholesaleCostPerKg) || 0;
       return {
         herbCostComponent: 0,
         oliveOilCostComponent: net,
@@ -201,7 +201,7 @@ class PriceCalculator {
     }
 
     const hCost = parseFloat(herbCostPerKg) || 0;
-    const ooCost = parseFloat(oliveOilCostPerKg) || 454.50;
+    const ooCost = parseFloat(oliveOilCostPerKg) || 0;
     
     let ratio = 0.2;
     const hKg = parseFloat(herbKg);
@@ -214,7 +214,8 @@ class PriceCalculator {
     }
 
     const herbComp = parseFloat((hCost * ratio).toFixed(2));
-    const netCostPerKg = parseFloat((herbComp + ooCost).toFixed(2));
+    // Eğer ot/bitki maliyeti girilmemişse (0 ise) hayali maliyet üretilmez, 0 döner
+    const netCostPerKg = (hCost === 0) ? 0 : parseFloat((herbComp + ooCost).toFixed(2));
 
     return {
       herbCostComponent: herbComp,

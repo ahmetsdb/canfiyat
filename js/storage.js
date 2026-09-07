@@ -11,10 +11,10 @@ const DEFAULT_USER = "ahmet";
 const DEFAULT_PASS = "Ahmet123.";
 
 const STORAGE_KEYS = {
-  PRODUCTS: "canfiyat_products_v16", // Katman 1 Master Products Catalog
+  PRODUCTS: "canfiyat_products_v17", // Katman 1 Master Products Catalog
   GLOBAL_SETTINGS: "canfiyat_global_settings_v1",
   SITE_OVERRIDES: "canfiyat_site_overrides_v1", // Katman 3 Store Price Overrides
-  LAYER2_SIM: "canfiyat_layer2_sim_v1", // Katman 2 Isolated Simulation State
+  LAYER2_SIM: "canfiyat_layer2_sim_v2", // Katman 2 Isolated Simulation State
   TRENDYOL_CUSTOM: "canfiyat_trendyol_custom_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1"
 };
@@ -101,7 +101,12 @@ class StorageManager {
 
   static getProducts() {
     try {
-      ["canfiyat_products_v1", "canfiyat_products_v2", "canfiyat_products_v10", "canfiyat_products_v11", "canfiyat_products_v12", "canfiyat_products_v13"].forEach(oldKey => {
+      [
+        "canfiyat_products_v1", "canfiyat_products_v2", "canfiyat_products_v10",
+        "canfiyat_products_v11", "canfiyat_products_v12", "canfiyat_products_v13",
+        "canfiyat_products_v14", "canfiyat_products_v15", "canfiyat_products_v16",
+        "canfiyat_layer2_sim_v1"
+      ].forEach(oldKey => {
         localStorage.removeItem(oldKey);
       });
     } catch(e) {}
@@ -110,10 +115,14 @@ class StorageManager {
     if (typeof INITIAL_PRODUCTS !== "undefined" && Array.isArray(INITIAL_PRODUCTS)) {
       INITIAL_PRODUCTS.forEach(p => {
         const defaultVol = p.defaultVolume || "1000ml";
-        const kdvRate = p.kdv || (p.category === "Uçucu Yağlar" ? 20 : 1);
-        const rawNetPrice = p.listPriceKdvHaric || 1000.00;
-        const costKdvDahil = parseFloat((rawNetPrice * (1 + (kdvRate / 100))).toFixed(2));
-        const defaultSeedCostKdvDahil = parseFloat((costKdvDahil * 0.25).toFixed(2));
+        const kdvRate = p.kdv !== undefined ? p.kdv : (p.category === "Uçucu Yağlar" ? 20 : 1);
+        const costPerKg = p.costPerKg !== undefined ? p.costPerKg : 0;
+        const seedCost = p.seedCostPerKg !== undefined ? p.seedCostPerKg : 0;
+        const wholesaleCost = p.wholesaleCostPerKg !== undefined ? p.wholesaleCostPerKg : 0;
+        const herbCost = p.herbCostPerKg !== undefined ? p.herbCostPerKg : 0;
+        const oliveOilCost = p.oliveOilCostPerKg !== undefined ? p.oliveOilCostPerKg : 240.00;
+        const yieldPercent = p.yieldPercent !== undefined ? p.yieldPercent : (p.category === "Uçucu Yağlar" ? 0 : 25);
+        const dipPercent = p.dipPercent !== undefined ? p.dipPercent : 0;
 
         baseMap[p.id] = {
           id: p.id,
@@ -122,16 +131,30 @@ class StorageManager {
           category: p.category,
           kdv: kdvRate,
           unit: "1KG",
-          listPriceKdvHaric: rawNetPrice,
-          rawNetCostPerKg: rawNetPrice,
-          costPerKg: costKdvDahil,
-          initialCostPerKg: costKdvDahil,
-          initialSeedCostPerKg: defaultSeedCostKdvDahil,
-          initialYieldPercent: 25,
-          initialDipPercent: 0,
-          initialHerbCostPerKg: 0,
-          initialOliveOilCostPerKg: 454.50,
-          initialHerbRatioKg: 0.20,
+          supplyType: p.supplyType || (p.category === "Uçucu Yağlar" ? "wholesale" : "press"),
+          isHybrid: !!p.isHybrid,
+          isMaceration: !!p.isMaceration,
+          inputVatRate: p.inputVatRate !== undefined ? p.inputVatRate : kdvRate,
+          seedCostPerKg: seedCost,
+          seedCostPerKgLocal: p.seedCostPerKgLocal,
+          seedCostPerKgImported: p.seedCostPerKgImported,
+          yieldPercent: yieldPercent,
+          wholesaleCostPerKg: wholesaleCost,
+          dipStatus: p.dipStatus || "none",
+          dipPercent: dipPercent,
+          herbCostPerKg: herbCost,
+          oliveOilCostPerKg: oliveOilCost,
+          herbRatioKg: p.herbRatioKg !== undefined ? p.herbRatioKg : 0.20,
+          listPriceKdvHaric: costPerKg,
+          rawNetCostPerKg: costPerKg,
+          costPerKg: costPerKg,
+          initialCostPerKg: costPerKg,
+          initialSeedCostPerKg: seedCost,
+          initialYieldPercent: yieldPercent,
+          initialDipPercent: dipPercent,
+          initialHerbCostPerKg: herbCost,
+          initialOliveOilCostPerKg: oliveOilCost,
+          initialHerbRatioKg: p.herbRatioKg !== undefined ? p.herbRatioKg : 0.20,
           initialTargetProfit: 70,
           activeVolume: defaultVol,
           volumes: this.createDefaultVolumeConfigs(),
@@ -149,30 +172,28 @@ class StorageManager {
             if (baseMap[id]) {
               delete parsed[id].layer2DrawerOpen;
               const kdvRate = baseMap[id].kdv;
-              const defaultNet = baseMap[id].listPriceKdvHaric;
-              const defaultKdvDahil = baseMap[id].initialCostPerKg;
+              const defaultCost = baseMap[id].initialCostPerKg;
 
-              if (parsed[id].isUserEdited && parsed[id].listPriceKdvHaric) {
-                const userNet = parsed[id].listPriceKdvHaric;
-                const userKdvDahil = parseFloat((userNet * (1 + (kdvRate / 100))).toFixed(2));
+              if (parsed[id].isUserEdited && parsed[id].costPerKg !== undefined) {
+                const userCost = parsed[id].costPerKg;
                 baseMap[id] = {
                   ...baseMap[id],
                   ...parsed[id],
                   kdv: kdvRate,
-                  listPriceKdvHaric: userNet,
-                  rawNetCostPerKg: userNet,
-                  costPerKg: userKdvDahil,
-                  initialCostPerKg: defaultKdvDahil
+                  listPriceKdvHaric: userCost,
+                  rawNetCostPerKg: userCost,
+                  costPerKg: userCost,
+                  initialCostPerKg: defaultCost
                 };
               } else {
                 baseMap[id] = {
                   ...baseMap[id],
                   ...parsed[id],
                   kdv: kdvRate,
-                  listPriceKdvHaric: defaultNet,
-                  rawNetCostPerKg: defaultNet,
-                  costPerKg: defaultKdvDahil,
-                  initialCostPerKg: defaultKdvDahil
+                  listPriceKdvHaric: defaultCost,
+                  rawNetCostPerKg: defaultCost,
+                  costPerKg: defaultCost,
+                  initialCostPerKg: defaultCost
                 };
               }
             } else if (parsed[id] && parsed[id].name) {
