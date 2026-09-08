@@ -397,23 +397,39 @@ class StorageManager {
     }
   }
 
-  static getSiteOverride(productId, volKey) {
+  static getChannelSiteOverride(channel, productId, volKey) {
     const map = this.getSiteOverrides();
-    const key = `${productId}_${volKey}`;
-    return (map && map[key] !== undefined) ? map[key] : null;
+    const ch = channel || "iyzico";
+    const key = `${ch}_${productId}_${volKey}`;
+    if (map && map[key] !== undefined) return map[key];
+    if (ch === "iyzico") {
+      const oldKey = `${productId}_${volKey}`;
+      if (map && map[oldKey] !== undefined) return map[oldKey];
+    }
+    return null;
   }
 
-  static setSiteOverride(productId, volKey, price) {
+  static setChannelSiteOverride(channel, productId, volKey, price) {
     try {
       const map = this.getSiteOverrides();
-      const key = `${productId}_${volKey}`;
+      const ch = channel || "iyzico";
+      const key = `${ch}_${productId}_${volKey}`;
       if (price === null || price === "" || isNaN(parseFloat(price))) {
         delete map[key];
+        if (ch === "iyzico") delete map[`${productId}_${volKey}`];
       } else {
         map[key] = parseFloat(price);
       }
       localStorage.setItem(STORAGE_KEYS.SITE_OVERRIDES, JSON.stringify(map));
     } catch(e) {}
+  }
+
+  static getSiteOverride(productId, volKey) {
+    return this.getChannelSiteOverride("iyzico", productId, volKey);
+  }
+
+  static setSiteOverride(productId, volKey, price) {
+    return this.setChannelSiteOverride("iyzico", productId, volKey, price);
   }
 
   static getTrendyolCustomProducts() {
