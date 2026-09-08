@@ -1643,13 +1643,14 @@ function getLayer2EffectiveCostForVolume(product, volKey, dynamicOverheadPerKg) 
 
   const isWholesaleSupply = (supplyType === "wholesale");
   
-  // Factory overhead calculation - 100% matched with Katman 1
-  const factoryOverheadConfig = StorageManager.getFactoryOverhead();
-  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(factoryOverheadConfig);
-  const energyOverheadToUse = isWholesaleSupply ? 0 : overheadRes.energyOverheadPerKg;
-  const laborOverheadToUse = overheadRes.laborOverheadPerKg;
+  // Factory overhead calculation:
+  // Tesis Payı: Sadece bizim sıktığımız yağlar için (isWholesaleSupply === false),
+  // toptan dökme yağlar için 0.00 TL!
+  const overheadConfig = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
+  const overheadRate = (dynamicOverheadPerKg !== undefined && dynamicOverheadPerKg !== null) ? dynamicOverheadPerKg : overheadRes.overheadPerKg;
 
-  const overheadData = PriceCalculator.getOverheadForVolume(volKey, energyOverheadToUse, laborOverheadToUse);
+  const overheadData = PriceCalculator.getOverheadForVolume(volKey, overheadRate, isWholesaleSupply);
   const linearOverhead = overheadData.linearVolumeOverhead;
   const laborAssemblyFee = overheadData.laborAssemblyFee;
   const totalOverhead = overheadData.totalOverhead;
@@ -2676,15 +2677,13 @@ function renderLayer2Cards() {
 
         const isWholesaleSupply = (supplyType === "wholesale");
         
-        // Toptan alım (dışarıdan tedarik) ise fabrika presi çalışmaz (Enerji Payı = 0),
-        // Ama işçiler bu yağı şişelemek zorundadır, bu yüzden İşçilik Payı hesaplanmalıdır!
-        const energyOverheadToUse = isWholesaleSupply ? 0 : overheadRes.energyOverheadPerKg;
-        const laborOverheadToUse = overheadRes.laborOverheadPerKg;
-
+        // Toptan alım (dışarıdan tedarik) ise fabrika presi ve tesis makineleri çalışmaz (Tesis Payı = 0).
+        // Sadece bizim sıktığımız yağlar için operatör ayarındaki 1KG gider payı hacme göre uygulanır!
         const overheadData = PriceCalculator.getOverheadForVolume(
             vol,
-            energyOverheadToUse,
-            laborOverheadToUse
+            overheadRes.overheadPerKg,
+            isWholesaleSupply,
+            wholesalePack
         );
         
         const linearOverhead = overheadData.linearVolumeOverhead;
@@ -2998,7 +2997,7 @@ function renderLayer2Cards() {
                   <div onclick="toggleLayer2BreakdownInfo('${product.id}', 'item3')" class="cursor-pointer hover:bg-slate-800/60 py-2 px-3 rounded-lg transition-all border border-slate-800/80 shadow-sm">
                     <div class="flex items-center justify-between text-slate-200 font-medium text-xs">
                       <span class="flex items-center gap-2">
-                        3. ⚡ Tesis & Enerji Masraf Payı ${supplyType === 'wholesale' ? '(0 ₺ Toptan Alış)' : ''}
+                        3. ⚡ Tesis & Fabrika Masraf Payı ${supplyType === 'wholesale' ? '(0 ₺ Toptan Alış)' : ''}
                         <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">ℹ️ Detay</span>
                       </span>
                       <span class="font-bold tabular-nums ${supplyType === 'wholesale' ? 'text-slate-500' : 'text-slate-100'} text-xs">${PriceCalculator.formatTL(linearOverhead)}</span>
@@ -3007,10 +3006,10 @@ function renderLayer2Cards() {
                       <div class="mt-2.5 p-3 bg-[#0b1325] rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1.5 animate-slide-up leading-relaxed">
                         <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 text-xs">💡 3. KALEM NASIL HESAPLANDI?</div>
                         ${supplyType === 'wholesale' ? `
-                          <p>• <strong>Toptan Alınan Yağlarda Tesis Payı:</strong> <strong>0,00 ₺</strong> (Dışarıdan dökme alındığı için fabrika presi çalışmaz).</p>
+                          <p>• <strong>Toptan Alınan Yağlarda Tesis Payı:</strong> <strong>0,00 ₺</strong> (Dışarıdan dökme hazır alındığı için fabrika presi ve tesis makineleri çalışmaz).</p>
                         ` : `
-                          <p>• <strong>Aylık Tesis & Enerji Masraf Payı (Elektrik+Kira):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} / KG</p>
-                          <p>• <strong>Sipariş Tesis Payı (Lineer Hacim):</strong> ${PriceCalculator.formatTL(overheadRes.energyOverheadPerKg)} × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)}</strong></p>
+                          <p>• <strong>Fabrika Tesis & Genel Gider Payı (Operatör Ayarı):</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} ₺ / KG</p>
+                          <p>• <strong>Bu Ambalajın Tesis Payı (${vol}):</strong> ${PriceCalculator.formatTL(overheadRes.overheadPerKg)} ₺ × ${kg} KG = <strong>${PriceCalculator.formatTL(linearOverhead)}</strong></p>
                         `}
                       </div>
                     ` : ''}
@@ -3028,9 +3027,9 @@ function renderLayer2Cards() {
                     ${openLayer2BreakdownInfos[product.id]?.item4 ? `
                       <div class="mt-2.5 p-3 bg-[#0b1325] rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1.5 animate-slide-up leading-relaxed">
                         <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 text-xs">💡 4. KALEM (İŞÇİLİK HİZMETİ) NASIL HESAPLANDI?</div>
-                        <p>• <strong>Taban İşçilik Payı (Maaş+SGK vb.):</strong> ${PriceCalculator.formatTL(overheadRes.laborOverheadPerKg)} / KG</p>
-                        <p>• <strong>Ambalaj Zorluk Katsayısı (${vol}):</strong> ×${(overheadRes.laborOverheadPerKg > 0 && kg > 0) ? (laborAssemblyFee / (overheadRes.laborOverheadPerKg * kg)).toFixed(1) : "0.0"} Çarpan</p>
-                        <p>• <strong>Sipariş İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)}</strong></p>
+                        <p>• <strong>Ambalaj Tipi:</strong> ${layer2GroupMode === 'wholesale_drums' ? (wholesalePack?.breakdownText || `${kg} KG Bidon`) : `1 Adet ${vol} Şişe / Bidon`}</p>
+                        <p>• <strong>Dolum & Paketleme İşçilik Payı:</strong> <strong>${PriceCalculator.formatTL(laborAssemblyFee)}</strong></p>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">• <strong>Zaman & Hareket Mantığı:</strong> 1000ml (1 KG) şişe dolumu seri ve hızlıdır (${PriceCalculator.formatTL(PriceCalculator.getLaborAssemblyFee('1000ml'))} ₺). 250ml ve altındaki küçük hacimler daha çok el işçiliği, kapaklama ve zaman ister (örneğin 1 KG için 4 adet 250ml = 30,00 ₺ işçilik payıdır).</p>
                       </div>
                     ` : ''}
                   </div>

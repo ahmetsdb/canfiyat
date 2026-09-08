@@ -103,10 +103,12 @@ const INITIAL_PRODUCTS = [
 
 // Exact Packaging Costs (Şişe + Kapak + Tıpa + Sanayi Bidonu)
 const DEFAULT_PACKAGING_COSTS = {
-  "20ml": 6.00,    // 20ml tahmini
+  "10ml": 5.50,    // 10ml cam şişe + damlalık / tıpa
+  "20ml": 6.00,    // 20ml cam şişe + damlalık
   "30ml": 6.75,    // Şişe: 2.50 TL + Kapak+Tıpa: 4.25 TL = 6.75 TL
   "50ml": 7.25,    // Şişe: 3.00 TL + Kapak+Tıpa: 4.25 TL = 7.25 TL
   "100ml": 8.35,   // Şişe: 4.10 TL + Kapak+Tıpa: 4.25 TL = 8.35 TL
+  "150ml": 10.50,  // 150ml şişe + kapak
   "250ml": 14.50,  // Toplam: 14.50 TL
   "300ml": 18.00,  // 300ml kavanoz / ambalaj
   "500ml": 25.00,  // 500ml

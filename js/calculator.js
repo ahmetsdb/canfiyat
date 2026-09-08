@@ -55,37 +55,60 @@ class PriceCalculator {
   }
 
   // Time & Motion Labor Assembly Fee Matrix per Bottle/Container Volume
-  static getLaborAssemblyFee(volKey, laborOverheadPerKg = 0) {
+  // Kullanıcı Kuralı: 1000ml şişe doldurması hızlı ve kolaydır (10.00 TL).
+  // 250ml ve küçük hacimler daha çok el işçiliği, kapaklama, etiketleme ve zaman ister (4 adet 250ml = 30.00 TL işçilik).
+  static getLaborAssemblyFee(volKey) {
     const keyUpper = String(volKey || "").toUpperCase().trim();
     const ml = this.getVolumeMl(volKey);
     const kg = ml / 1000;
-    
-    // YENİ MİMARİ: Sabit koda gömülü rakamlar yerine Zorluk Çarpanı (Difficulty Multiplier)
-    let multiplier = 1.0; // Varsayılan 1000ml (1 KG) referansı
 
-    if (keyUpper === "10ML" || keyUpper === "20ML") multiplier = 8.0; // Mikro dolum, çok zahmetli
-    else if (keyUpper === "30ML" || keyUpper === "50ML") multiplier = 5.0; // Damlalık/valf takma zahmeti
-    else if (keyUpper === "100ML" || keyUpper === "150ML") multiplier = 3.0; // Standart tıpa + kapak
-    else if (keyUpper === "250ML" || keyUpper === "500ML") multiplier = 1.5; // Hızlı geniş ağız dolum
-    else if (keyUpper === "1000ML" || keyUpper === "1KG") multiplier = 1.0; // Standart 1 Litre referansı
-    else if (keyUpper === "5000ML" || keyUpper === "5KG") multiplier = 0.5; // Toptan hızlı hacimli dolum
-    else if (keyUpper === "10KG") multiplier = 0.3; // Sanayi bidonu
-    else if (keyUpper === "25KG" || keyUpper === "30KG") multiplier = 0.2; // Büyük sanayi dökme
+    if (keyUpper === "10ML") return 14.50; // Mikro hassas dolum + emniyetli damlalık/pipet + tekli kutulama (75s)
+    if (keyUpper === "20ML") return 14.50; // Mikro hassas dolum + damlalık + kutulama (75s)
+    if (keyUpper === "30ML") return 13.50; // Hassas damlalık + cam pipet montajı + tekli kutulama (70s)
+    if (keyUpper === "50ML") return 11.00; // Damlalık / sprey valf montajı + kutulama (55s)
+    if (keyUpper === "100ML") return 8.50;  // Tıpa takma + sıvı dolum + etiketleme (35s)
+    if (keyUpper === "150ML") return 8.00;  // Tıpa + dolum + etiket (32s)
+    if (keyUpper === "250ML") return 7.50;  // Hızlı nozul dolum + vidalı kapak + rulo etiket (25s)
+    if (keyUpper === "500ML") return 8.50;  // Hızlı nozul dolum + kapak + etiket (30s)
+    if (keyUpper === "1000ML" || keyUpper === "1KG") return 10.00; // Standart 1 Litre şişe dolumu + emniyet kapağı + etiket + koli (40s)
+    if (keyUpper === "5000ML" || keyUpper === "5KG") return 15.00; // 5L bidon hortum dolum + emniyet kapağı + kulp (65s)
+    if (keyUpper === "10KG") return 18.00; // Sanayi bidonu terazi dolumu + sızdırmaz tapa + bidon etiketi (100s)
+    if (keyUpper === "25KG") return 25.00; // Ağır sanayi bidonu terazi dolumu + çember kilit + paletleme (140s)
+    if (keyUpper === "30KG") return 25.00; // Ağır sanayi bidonu terazi dolumu + çember kilit + paletleme (140s)
 
-    // Hacim (KG) başına düşen taban işçilik payının katsayı ile çarpımı
-    return parseFloat((laborOverheadPerKg * kg * multiplier).toFixed(2));
+    if (kg >= 5) return Math.min(kg * 1.00, 60.00);
+    return 8.50;
+  }
+
+  // Toptan Sanayi Bidon Siparişleri İçin Toplu İşçilik Hesabı (25KG, 10KG, 5KG vb.)
+  static getWholesaleLaborAssemblyFee(wholesalePack, totalKg) {
+    if (wholesalePack && wholesalePack.containers && wholesalePack.containers.length > 0) {
+      return wholesalePack.containers.reduce((sum, c) => {
+        const fee = c.sizeKg >= 25 ? 25.00 : (c.sizeKg >= 10 ? 18.00 : (c.sizeKg >= 5 ? 15.00 : 10.00));
+        return sum + (c.count * fee);
+      }, 0);
+    }
+    const kg = parseFloat(totalKg) || 1;
+    return parseFloat(Math.min(kg * 1.00, 150.00).toFixed(2));
   }
 
   // Time & Labor Handling Overhead Matrix per Bottle / Drum Volume Size
-  static getOverheadForVolume(volKey, energyOverheadPerKg = 0, laborOverheadPerKg = 0) {
+  // 1. Tesis Gideri: Sadece bizim sıktığımız yağlar için (isWholesale === false) operatör ayarındaki 1KG gider payı hacme oranlanır. Toptan yağlarda 0 TL'dir!
+  // 2. Dolum & Paketleme İşçiliği: İster sıkım ister toptan olsun, her şişe doldurulup etiketlenmek zorunda olduğu için adet başı işçilik uygulanır.
+  static getOverheadForVolume(volKey, overheadPerKg = 0, isWholesale = false, wholesalePack = null) {
     const ml = this.getVolumeMl(volKey);
     const kg = ml / 1000;
     
-    // 1. Tesis ve Enerji Payı (Lineer Hacim Dağılımı - Zorluk Çarpanı YOK)
-    const linearVolumeOverhead = parseFloat((energyOverheadPerKg * kg).toFixed(2));
+    // 1. Tesis Payı (Lineer Hacim Dağılımı - Sadece Bizim Sıktığımız Yağlar)
+    const linearVolumeOverhead = isWholesale ? 0.00 : parseFloat((overheadPerKg * kg).toFixed(2));
     
-    // 2. Dolum & Paketleme İşçilik Payı (Zorluk Çarpanı VAR)
-    const laborAssemblyFee = this.getLaborAssemblyFee(volKey, laborOverheadPerKg);
+    // 2. Dolum & Paketleme İşçilik Payı (Şişe Adet Başı Zaman ve Emek)
+    let laborAssemblyFee = 0;
+    if (wholesalePack && wholesalePack.containers && wholesalePack.containers.length > 0) {
+      laborAssemblyFee = this.getWholesaleLaborAssemblyFee(wholesalePack, kg);
+    } else {
+      laborAssemblyFee = this.getLaborAssemblyFee(volKey);
+    }
 
     return {
       linearVolumeOverhead,
@@ -478,12 +501,8 @@ class PriceCalculator {
     const totalMonthlyOverhead = salaries + sgk + electricity + catering + rentSarf;
     const calculatedOverheadPerKg = monthlyCapacityKg > 0 ? parseFloat((totalMonthlyOverhead / monthlyCapacityKg).toFixed(2)) : 0;
 
-    // YENİ MİMARİ: Tesis ve İşçilik Havuzlarının Ayrıştırılması
-    const totalEnergyFacility = electricity + rentSarf;
-    const energyOverheadPerKg = monthlyCapacityKg > 0 ? parseFloat((totalEnergyFacility / monthlyCapacityKg).toFixed(2)) : 0;
-
-    const totalLabor = salaries + sgk + catering;
-    const laborOverheadPerKg = monthlyCapacityKg > 0 ? parseFloat((totalLabor / monthlyCapacityKg).toFixed(2)) : 0;
+    // Operatör Ayarlarında girilen aylık toplam fabrika giderlerinin aylık kapasiteye bölünmesiyle 1 KG Tesis Payı bulunur
+    const overheadPerKg = calculatedOverheadPerKg;
 
     return {
       salaries,
@@ -493,9 +512,9 @@ class PriceCalculator {
       rentSarf,
       monthlyCapacityKg,
       totalMonthlyOverhead,
-      overheadPerKg: calculatedOverheadPerKg, // Geriye dönük uyumluluk için
-      energyOverheadPerKg,
-      laborOverheadPerKg
+      overheadPerKg,
+      energyOverheadPerKg: overheadPerKg,
+      laborOverheadPerKg: 0
     };
   }
 
