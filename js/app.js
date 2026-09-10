@@ -4389,7 +4389,11 @@ function filterLayer3ProductSelect(inputId, selectId, onChangeCallback, allowEmp
   const prevValue = selectEl.value;
   let optionsHtml = "";
 
-  if (allowEmpty) {
+  const isOfferSelect = (selectId === "offer-product-select");
+
+  if (isOfferSelect) {
+    optionsHtml += `<option value="" disabled ${!prevValue && !query ? 'selected' : ''}>🔍 Lütfen Bir Yağ Seçiniz (veya yukarıdan arayınız)...</option>`;
+  } else if (allowEmpty) {
     optionsHtml += `<option value="">-- Ürün Yok (2'li Set) --</option>`;
   }
 
@@ -4404,12 +4408,28 @@ function filterLayer3ProductSelect(inputId, selectId, onChangeCallback, allowEmp
     }).join("");
     selectEl.innerHTML = optionsHtml;
 
-    // Önceki seçim hala filtrelenen listede varsa koru, yoksa ilk eşleşeni otomatik seç
-    const stillExists = filtered.some(p => (p.id === prevValue || p.sku === prevValue));
-    if (stillExists) {
-      selectEl.value = prevValue;
+    if (isOfferSelect) {
+      if (!query && !prevValue) {
+        selectEl.value = "";
+      } else if (query) {
+        const stillExists = filtered.some(p => (p.id === prevValue || p.sku === prevValue));
+        if (stillExists) {
+          selectEl.value = prevValue;
+        } else {
+          selectEl.value = filtered[0].id || filtered[0].sku;
+        }
+      } else {
+        const stillExists = filtered.some(p => (p.id === prevValue || p.sku === prevValue));
+        selectEl.value = stillExists ? prevValue : "";
+      }
     } else {
-      selectEl.value = filtered[0].id || filtered[0].sku;
+      // Önceki seçim hala filtrelenen listede varsa koru, yoksa ilk eşleşeni otomatik seç
+      const stillExists = filtered.some(p => (p.id === prevValue || p.sku === prevValue));
+      if (stillExists) {
+        selectEl.value = prevValue;
+      } else {
+        selectEl.value = filtered[0].id || filtered[0].sku;
+      }
     }
   }
 
@@ -4421,6 +4441,10 @@ function filterLayer3ProductSelect(inputId, selectId, onChangeCallback, allowEmp
 function clearLayer3ProductSearch(inputId, selectId, onChangeCallback, allowEmpty = false) {
   const inputEl = document.getElementById(inputId);
   if (inputEl) inputEl.value = "";
+  if (selectId === "offer-product-select") {
+    const selectEl = document.getElementById(selectId);
+    if (selectEl) selectEl.value = "";
+  }
   filterLayer3ProductSelect(inputId, selectId, onChangeCallback, allowEmpty);
 }
 
@@ -4655,7 +4679,12 @@ function calculateMultipackSim() {
 // -------------------------------------------------------------------------
 function initOfferSimulator() {
   const sel = document.getElementById("offer-product-select");
+  const volSel = document.getElementById("offer-volume-select");
   if (!sel) return;
+
+  if (volSel) {
+    volSel.value = "1000ml";
+  }
 
   if (!currentProducts || Object.keys(currentProducts).length === 0) {
     currentProducts = StorageManager.getProducts();
@@ -4663,11 +4692,14 @@ function initOfferSimulator() {
   const pList = Object.values(currentProducts || {});
   if (pList.length === 0) return;
 
-  if (sel.options.length === 0) {
-    sel.innerHTML = pList.map(p => {
+  if (sel.options.length <= 1) {
+    let opts = `<option value="" disabled selected>🔍 Lütfen Bir Yağ / Ürün Seçiniz veya Arayınız...</option>`;
+    opts += pList.map(p => {
       const idKey = p.id || p.sku;
       return `<option value="${idKey}">${p.sku} - ${p.name} (${p.category})</option>`;
     }).join("");
+    sel.innerHTML = opts;
+    sel.value = "";
   }
 
   onOfferProductChange();
@@ -4677,13 +4709,26 @@ function onOfferProductChange() {
   const sel = document.getElementById("offer-product-select");
   const volSel = document.getElementById("offer-volume-select");
   const baseInput = document.getElementById("offer-base-price");
+  const targetInput = document.getElementById("offer-target-price");
   const channelSel = document.getElementById("offer-channel-select");
   if (!sel) return;
 
-  const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
-  if (!p) return;
+  if (!sel.value) {
+    if (baseInput) baseInput.value = "";
+    if (targetInput) targetInput.value = "";
+    calculateOfferSim();
+    return;
+  }
 
-  const vol = volSel ? volSel.value : "250ml";
+  const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
+  if (!p) {
+    if (baseInput) baseInput.value = "";
+    if (targetInput) targetInput.value = "";
+    calculateOfferSim();
+    return;
+  }
+
+  const vol = volSel ? volSel.value : "1000ml";
   const ch = channelSel ? channelSel.value : "trendyol";
   
   let defaultPrice = 0;
@@ -4700,7 +4745,7 @@ function onOfferProductChange() {
     } else if (p.prices && p.prices[vol]) {
       defaultPrice = p.prices[vol];
     } else {
-      defaultPrice = 250;
+      defaultPrice = 500;
     }
   }
 
@@ -4708,6 +4753,8 @@ function onOfferProductChange() {
 
   applyOfferPreset("av1");
 }
+window.onOfferProductChange = onOfferProductChange;
+window.onOfferVolumeChange = onOfferProductChange;
 
 function onOfferChannelChange() {
   const channel = document.getElementById("offer-channel-select")?.value || "trendyol";
@@ -4737,7 +4784,7 @@ function applyOfferPreset(preset) {
     if (sel && volSel) {
       const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
       if (p) {
-        const vol = volSel.value || "250ml";
+        const vol = volSel.value || "1000ml";
         const comm = parseFloat(commInput?.value) || 19;
         const desi = parseInt(desiSel?.value, 10) || 2;
         const dhlCargo = PriceCalculator.getDhlRateByDesi(desi);
@@ -4762,15 +4809,47 @@ function calculateOfferSim() {
     const targetInput = document.getElementById("offer-target-price");
     const commInput = document.getElementById("offer-commission");
     const desiSel = document.getElementById("offer-desi-select");
+    const cardEl = document.getElementById("offer-analysis-card");
 
-    if (!sel || !volSel || !targetInput) return;
+    if (!sel || !volSel || !cardEl) return;
+
+    if (!sel.value) {
+      cardEl.className = "bg-slate-950/70 border border-dashed border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center text-center min-h-[240px]";
+      cardEl.innerHTML = `
+        <div class="space-y-3 max-w-md mx-auto py-3">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-2xl shadow-inner">
+            🏷️
+          </div>
+          <div>
+            <h5 class="text-sm md:text-base font-bold text-slate-200">Lütfen Bir Yağ / Ürün Seçiniz</h5>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+              Sol taraftaki arama kutusuna yağ ismini yazarak (örn: <em>Kekik, Biberiye, Çörek Otu</em>) veya açılır listeden ürünü seçiniz. Kârlılık analizi ve fabrika maliyet faturası anında hesaplanacaktır.
+            </p>
+          </div>
+          <div class="pt-1">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-950/70 border border-sky-800/70 rounded-lg text-[11px] text-sky-300 font-bold">
+              ⚖️ Standart Hacim: <strong>1000 ml (1 KG)</strong>
+            </span>
+          </div>
+        </div>
+      `;
+      return;
+    }
 
     const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
-    if (!p) return;
+    if (!p) {
+      cardEl.className = "bg-slate-950/70 border border-dashed border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center text-center min-h-[240px]";
+      cardEl.innerHTML = `
+        <div class="space-y-2 text-center text-xs text-slate-400 py-6">
+          <p>Seçilen ürün bulunamadı. Lütfen listeden başka bir ürün seçiniz.</p>
+        </div>
+      `;
+      return;
+    }
 
-    const vol = volSel.value || "250ml";
+    const vol = volSel.value || "1000ml";
     const basePrice = parseFloat(baseInput?.value) || 0;
-    const offerPrice = parseFloat(targetInput.value) || 0;
+    const offerPrice = parseFloat(targetInput?.value) || 0;
     const comm = parseFloat(commInput?.value) || 19;
     const desi = parseInt(desiSel?.value, 10) || 2;
     const dhlCargo = PriceCalculator.getDhlRateByDesi(desi);
@@ -4807,9 +4886,6 @@ function calculateOfferSim() {
       commissionPercent: comm,
       cargoFee: dhlCargo
     });
-
-    const cardEl = document.getElementById("offer-analysis-card");
-    if (!cardEl) return;
 
     const isZeroOffer = offerPrice <= 0;
     const isProfit = sim.isProfitable;

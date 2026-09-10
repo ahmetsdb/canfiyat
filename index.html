@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.23">
+    <link rel="stylesheet" href="css/styles.css?v=4.24">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.23: Kompakt Teklif Simülatörü & Sadeleştirilmiş Görünüm">
-                            v4.23 (⚡ Kompakt Teklif Simülatörü & Sadeleştirilmiş Görünüm)
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.24: 1 KG Varsayılan & Akıllı Ürün Seçici">
+                            v4.24 (⚡ 1 KG Varsayılan & Akıllı Ürün Seçici)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -614,16 +614,17 @@
                                         class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 text-xs font-bold cursor-pointer" title="Aramayı Temizle">✕</button>
                                 </div>
                                 <select id="offer-product-select" onchange="onOfferProductChange()" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
+                                    <option value="" disabled selected>🔍 Lütfen Bir Yağ / Ürün Seçiniz veya Arayınız...</option>
                                 </select>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-300 mb-1">Hacim / Şişe:</label>
-                                    <select id="offer-volume-select" onchange="calculateOfferSim()" class="w-full bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
-                                        <option value="250ml" selected>250 ml</option>
+                                    <select id="offer-volume-select" onchange="onOfferVolumeChange()" class="w-full bg-slate-950 border border-sky-500/50 text-sky-300 font-bold text-xs p-1.5 rounded-xl cursor-pointer">
+                                        <option value="1000ml" selected>1000 ml (1 KG)</option>
                                         <option value="500ml">500 ml</option>
-                                        <option value="1000ml">1000 ml (1 KG)</option>
+                                        <option value="250ml">250 ml</option>
                                         <option value="100ml">100 ml</option>
                                         <option value="50ml">50 ml</option>
                                         <option value="30ml">30 ml</option>
@@ -1634,12 +1635,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.23"></script>
-    <script src="js/liveSiteData.js?v=4.23"></script>
-    <script src="js/trendyolData.js?v=4.23"></script>
-    <script src="js/storage.js?v=4.23"></script>
-    <script src="js/calculator.js?v=4.23"></script>
-    <script src="js/app.js?v=4.23"></script>
+    <script src="js/productsData.js?v=4.24"></script>
+    <script src="js/liveSiteData.js?v=4.24"></script>
+    <script src="js/trendyolData.js?v=4.24"></script>
+    <script src="js/storage.js?v=4.24"></script>
+    <script src="js/calculator.js?v=4.24"></script>
+    <script src="js/app.js?v=4.24"></script>
 </body>
 
 
