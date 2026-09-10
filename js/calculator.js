@@ -670,7 +670,7 @@ class PriceCalculator {
     const commAmount = parseFloat((p * commDec).toFixed(2));
     const payout = parseFloat((p - commAmount - cargo).toFixed(2));
     const netProfit = parseFloat((payout - c).toFixed(2));
-    const profitMargin = p > 0 ? parseFloat(((netProfit / p) * 100).toFixed(1)) : 0;
+    const profitMargin = p > 0 ? parseFloat(((netProfit / p) * 100).toFixed(1)) : null;
 
     // Başa-baş (0 TL kâr için gereken minimum kırmızı çizgi fiyatı)
     const redlineFloorPrice = commDec < 1 ? parseFloat(((c + cargo) / (1 - commDec)).toFixed(2)) : 0;
@@ -684,7 +684,8 @@ class PriceCalculator {
       payout: payout,
       netProfit: netProfit,
       profitMargin: profitMargin,
-      isProfitable: netProfit >= 0,
+      isProfitable: p > 0 && netProfit >= 0,
+      isZeroOffer: p <= 0,
       redlineFloorPrice: redlineFloorPrice
     };
   }

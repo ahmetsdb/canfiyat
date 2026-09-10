@@ -4804,16 +4804,25 @@ function calculateOfferSim() {
     const cardEl = document.getElementById("offer-analysis-card");
     if (!cardEl) return;
 
+    const isZeroOffer = offerPrice <= 0;
     const isProfit = sim.isProfitable;
+    const isNegativePayout = sim.payout < 0;
+
     const cardBg = isProfit 
       ? "bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/30 border-emerald-500/50 shadow-emerald-950/30" 
-      : "bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950/40 border-rose-500/60 shadow-rose-950/30";
+      : isZeroOffer
+        ? "bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950/50 border-rose-500/80 shadow-rose-950/40"
+        : "bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950/40 border-rose-500/60 shadow-rose-950/30";
 
     const badgeStatus = isProfit
       ? `<span class="px-3 py-1 rounded-xl text-xs font-black bg-emerald-950 text-emerald-300 border border-emerald-500/60 flex items-center gap-1.5 shadow-sm">🟢 KÂRLI TEKLİF (+${PriceCalculator.formatTL(sim.netProfit)})</span>`
-      : `<span class="px-3 py-1 rounded-xl text-xs font-black bg-rose-950 text-rose-300 border border-rose-500/60 flex items-center gap-1.5 shadow-sm">🔴 ZARARLI TEKLİF (${PriceCalculator.formatTL(sim.netProfit)})</span>`;
+      : isZeroOffer
+        ? `<span class="px-3 py-1 rounded-xl text-xs font-black bg-rose-950 text-rose-300 border border-rose-500/80 flex items-center gap-1.5 shadow-sm">⚠️ GEÇERSİZ / 0 ₺ TEKLİF (${PriceCalculator.formatTL(sim.netProfit)})</span>`
+        : `<span class="px-3 py-1 rounded-xl text-xs font-black bg-rose-950 text-rose-300 border border-rose-500/60 flex items-center gap-1.5 shadow-sm">🔴 ZARARLI TEKLİF (${PriceCalculator.formatTL(sim.netProfit)})</span>`;
 
-    const discountRateFromBase = basePrice > 0 ? Math.round(((basePrice - offerPrice) / basePrice) * 100) : 0;
+    const discountRateFromBase = basePrice > 0
+      ? (isZeroOffer ? "100 (Bedava)" : Math.round(((basePrice - offerPrice) / basePrice) * 100))
+      : 0;
 
     cardEl.className = `${cardBg} rounded-2xl p-5 border shadow-2xl space-y-4 transition-all`;
     cardEl.innerHTML = `
@@ -4832,12 +4841,12 @@ function calculateOfferSim() {
       <div class="space-y-1.5">
         <div class="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
           <span class="flex items-center gap-1.5">💰 BÖLÜM 1: PAZARYERİ NAKİT AKIŞI</span>
-          <span class="text-sky-400 font-bold">Banka Net Hakedişi</span>
+          <span class="${isNegativePayout ? 'text-rose-400' : 'text-sky-400'} font-bold">${isNegativePayout ? 'Pazaryerine Kargo Borcu' : 'Banka Net Hakedişi'}</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-950/90 p-3 rounded-xl border border-slate-800 text-xs shadow-inner">
           <div>
             <span class="text-slate-400 text-[10px] uppercase font-bold block">Teklif Satış Fiyatı:</span>
-            <span class="font-black text-white text-base">${PriceCalculator.formatTL(sim.offerPrice)}</span>
+            <span class="font-black ${isZeroOffer ? 'text-rose-400' : 'text-white'} text-base">${PriceCalculator.formatTL(sim.offerPrice)}</span>
           </div>
           <div>
             <span class="text-slate-400 text-[10px] uppercase font-bold block">Pazaryeri Komisyonu (%${comm}):</span>
@@ -4847,9 +4856,9 @@ function calculateOfferSim() {
             <span class="text-slate-400 text-[10px] uppercase font-bold block">DHL Kargo (${desi} Desi):</span>
             <span class="font-bold text-rose-400 text-sm">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
           </div>
-          <div class="bg-sky-950/50 p-1.5 rounded-lg border border-sky-800/60">
-            <span class="text-sky-300 text-[10px] uppercase font-bold block">Bankaya Geçecek Tutar:</span>
-            <span class="font-black text-sky-200 text-base">${PriceCalculator.formatTL(sim.payout)}</span>
+          <div class="${isNegativePayout ? 'bg-rose-950/60 border border-rose-600/70' : 'bg-sky-950/50 border border-sky-800/60'} p-1.5 rounded-lg">
+            <span class="${isNegativePayout ? 'text-rose-300' : 'text-sky-300'} text-[10px] uppercase font-bold block">${isNegativePayout ? '⚠️ Kargo Borcunuz:' : 'Bankaya Geçecek Tutar:'}</span>
+            <span class="font-black ${isNegativePayout ? 'text-rose-200' : 'text-sky-200'} text-base">${isNegativePayout ? '-' : ''}${PriceCalculator.formatTL(Math.abs(sim.payout))}</span>
           </div>
         </div>
       </div>
@@ -4975,10 +4984,14 @@ function calculateOfferSim() {
       <div class="space-y-3 p-4 rounded-xl ${isProfit ? 'bg-emerald-950/70 border border-emerald-500/60 shadow-emerald-950/50' : 'bg-rose-950/70 border border-rose-500/60 shadow-rose-950/50'} shadow-lg">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b ${isProfit ? 'border-emerald-800/60' : 'border-rose-800/60'} pb-2">
           <span class="text-xs font-black uppercase tracking-wider ${isProfit ? 'text-emerald-300' : 'text-rose-300'} flex items-center gap-2">
-            ${isProfit ? '⚖️ BÖLÜM 3: FİNANSAL MUTABAKAT — KÂRLILIK ONAYLANDI' : '⚠️ BÖLÜM 3: FİNANSAL MUTABAKAT — TEKLİF ZARAR YAZIYOR'}
+            ${isProfit 
+              ? '⚖️ BÖLÜM 3: FİNANSAL MUTABAKAT — KÂRLILIK ONAYLANDI' 
+              : isZeroOffer 
+                ? '⚠️ BÖLÜM 3: FİNANSAL MUTABAKAT — 0 ₺ GEÇERSİZ SATIŞ (BEDAVA ÜRÜN)' 
+                : '⚠️ BÖLÜM 3: FİNANSAL MUTABAKAT — TEKLİF ZARAR YAZIYOR'}
           </span>
           <span class="text-[11px] font-bold ${isProfit ? 'text-emerald-300 bg-emerald-900/60 border border-emerald-700/60' : 'text-rose-300 bg-rose-900/60 border border-rose-700/60'} px-2 py-0.5 rounded-lg">
-            Kâr Marjı: %${sim.profitMargin}
+            ${sim.profitMargin !== null ? `Kâr Marjı: %${sim.profitMargin}` : 'Marj: N/A (0 ₺ Bedava Satış)'}
           </span>
         </div>
 
@@ -4986,9 +4999,9 @@ function calculateOfferSim() {
         <div class="bg-slate-950/90 p-3 rounded-xl border border-slate-800 space-y-1.5">
           <span class="text-[10px] text-slate-400 uppercase font-bold block">💡 Neye Göre Kârdayım, Neye Göre Zararda? (Net Finansal Denklem):</span>
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="text-center px-2.5 py-1.5 bg-sky-950/40 rounded-lg border border-sky-800/40">
-              <span class="text-[9px] text-slate-400 block font-bold">Banka Net Hakedişi</span>
-              <span class="font-black text-sky-300 text-sm">${PriceCalculator.formatTL(sim.payout)}</span>
+            <div class="text-center px-2.5 py-1.5 ${isNegativePayout ? 'bg-rose-950/60 border border-rose-700/60' : 'bg-sky-950/40 border border-sky-800/40'} rounded-lg">
+              <span class="text-[9px] ${isNegativePayout ? 'text-rose-300' : 'text-slate-400'} block font-bold">${isNegativePayout ? 'Kargo Borcunuz' : 'Banka Net Hakedişi'}</span>
+              <span class="font-black ${isNegativePayout ? 'text-rose-300' : 'text-sky-300'} text-sm">${isNegativePayout ? '-' : ''}${PriceCalculator.formatTL(Math.abs(sim.payout))}</span>
             </div>
             <span class="text-base font-black text-slate-500">−</span>
             <div class="text-center px-2.5 py-1.5 bg-amber-950/40 rounded-lg border border-amber-800/40">
@@ -5007,22 +5020,36 @@ function calculateOfferSim() {
         <div class="text-xs leading-relaxed ${isProfit ? 'text-emerald-200' : 'text-rose-200'}">
           ${isProfit ? `
             <p>✅ <strong>KÂRLI VE GÜVENLİ TEKLİF:</strong> Pazaryerinden komisyon ve kargo kesildikten sonra banka hesabınıza yatacak olan <strong>${PriceCalculator.formatTL(sim.payout)}</strong> tutar; fabrikanızın bu ürün için harcadığı tüm ham yağ, ambalaj, tesis ve işçilik masraflarını (<strong>${PriceCalculator.formatTL(sim.unitCost)}</strong>) eksiksiz karşılamakta ve cebinize net <strong>+${PriceCalculator.formatTL(sim.netProfit)}</strong> kâr bırakmaktadır.</p>
+          ` : isZeroOffer ? `
+            <div class="p-2.5 bg-rose-950/90 rounded-xl border border-rose-600/70 text-rose-200 space-y-1">
+              <p>⚠️ <strong>0 ₺ BEDAVA ÜRÜN SENARYOSU:</strong> Teklif fiyatına 0 ₺ girdiğinizde müşteriye ürünü 0 TL'ye hediye etmiş olursunuz.</p>
+              <p>• <strong>Kargo Masrafı:</strong> DHL kargo bu ürünü bedava taşımaz. <strong>${PriceCalculator.formatTL(sim.cargoFee)}</strong> kargo ücreti pazaryeri tarafından doğrudan sizin cari hesabınıza <strong>borç</strong> kaydedilir (Bankaya Geçecek Tutar: -${PriceCalculator.formatTL(sim.cargoFee)}).</p>
+              <p>• <strong>Toplam Zarar:</strong> Fabrikanızın harcadığı <strong>${PriceCalculator.formatTL(sim.unitCost)}</strong> imalat maliyeti ile kargo borcu toplanır ve cebinizden toplam <strong>${PriceCalculator.formatTL(Math.abs(sim.netProfit))} net zarar</strong> çıkar!</p>
+            </div>
           ` : `
             <p>⛔ <strong>ZARARLI TEKLİF — KABUL EDİLEMEZ:</strong> Pazaryerinden komisyon ve kargo kesildikten sonra banka hesabınıza geçecek olan <strong>${PriceCalculator.formatTL(sim.payout)}</strong> tutar, fabrikanızın <strong>${PriceCalculator.formatTL(sim.unitCost)}</strong> saf üretim maliyetini bile <strong>kurtarmamaktadır!</strong> Bu teklif kabul edilirse satılan her bir adette cebinizden <strong>${PriceCalculator.formatTL(Math.abs(sim.netProfit))} zarar</strong> edersiniz.</p>
           `}
         </div>
 
         <!-- Kırmızı Çizgi Asgari Başa-Baş Satırı -->
-        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/90 px-3.5 py-2 rounded-xl border border-slate-800 text-xs">
-          <div>
-            <span class="text-[10px] uppercase font-extrabold text-slate-300 flex items-center gap-1">
-              🛡️ KIRMIZI ÇİZGİ ASGARİ TEKLİF (0 ₺ KÂR TABANI):
-            </span>
-            <span class="text-[10px] text-slate-500">Zarar etmemek için girilebilecek en düşük teklif fiyatı</span>
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/90 px-3.5 py-2 rounded-xl border border-slate-800 text-xs">
+            <div>
+              <span class="text-[10px] uppercase font-extrabold text-slate-300 flex items-center gap-1">
+                🛡️ KIRMIZI ÇİZGİ ASGARİ TEKLİF (0 ₺ KÂR TABANI):
+              </span>
+              <span class="text-[10px] text-slate-500">Zarar etmemek için girilebilecek en düşük teklif fiyatı</span>
+            </div>
+            <div class="text-right">
+              <span class="text-base font-black text-amber-300">${PriceCalculator.formatTL(sim.redlineFloorPrice)}</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-base font-black text-amber-300">${PriceCalculator.formatTL(sim.redlineFloorPrice)}</span>
-          </div>
+
+          ${!isProfit ? `
+            <button type="button" onclick="document.getElementById('offer-target-price').value = Math.ceil(${sim.redlineFloorPrice}); calculateOfferSim();" class="w-full py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+              🛡️ Asgari Kurtaran Taban Fiyatı (${PriceCalculator.formatTL(Math.ceil(sim.redlineFloorPrice))}) Teklife Uygula
+            </button>
+          ` : ''}
         </div>
       </div>
     `;
