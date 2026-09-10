@@ -272,6 +272,41 @@ function sortProductsByCategoryAndName(arr) {
   });
 }
 
+// -------------------------------------------------------------------------
+// 📋 3. KATMAN 4. SEKME: ÖZEL KATALOG FİLTRE VE ARAMA YÖNETİMİ
+// -------------------------------------------------------------------------
+let catalogActiveCategory = "all";
+let catalogSearchQuery = "";
+
+function filterCatalogCategory(cat) {
+  catalogActiveCategory = cat;
+
+  const btnAll = document.getElementById("catalog-cat-all");
+  const btnUcucu = document.getElementById("catalog-cat-ucucu");
+  const btnSabit = document.getElementById("catalog-cat-sabit");
+
+  const activeClass = "catalog-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm cursor-pointer";
+  const inactiveClass = "catalog-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 cursor-pointer";
+
+  if (btnAll) btnAll.className = cat === "all" ? activeClass : inactiveClass;
+  if (btnUcucu) btnUcucu.className = cat === "Uçucu Yağlar" ? activeClass : inactiveClass;
+  if (btnSabit) btnSabit.className = cat === "Sabit Yağlar" ? activeClass : inactiveClass;
+
+  renderProductGrid();
+}
+
+function onCatalogSearchInput(val) {
+  catalogSearchQuery = (val || "").trim();
+  renderProductGrid();
+}
+
+function clearCatalogSearch() {
+  const input = document.getElementById("catalog-search-input");
+  if (input) input.value = "";
+  catalogSearchQuery = "";
+  renderProductGrid();
+}
+
 function renderProductGrid() {
   const container = document.getElementById("product-grid");
   if (!container) return;
@@ -285,10 +320,20 @@ function renderProductGrid() {
   const productsArr = Object.values(currentProducts || {});
   const filteredRaw = productsArr.filter(p => {
     if (!p || typeof p.name !== "string" || typeof p.sku !== "string") return false;
-    const matchesCat = (activeCategory === "all") || (p.category === activeCategory);
-    const pName = (p.name || "").toLowerCase();
-    const pSku = (p.sku || "").toLowerCase();
-    const matchesSearch = !searchQuery || pName.includes(searchQuery) || pSku.includes(searchQuery);
+    
+    const effectiveCat = (currentLayerMode === 3 && typeof catalogActiveCategory !== "undefined")
+      ? catalogActiveCategory
+      : activeCategory;
+    const matchesCat = (effectiveCat === "all") || (p.category === effectiveCat);
+
+    const pName = (p.name || "").toLocaleLowerCase("tr");
+    const pSku = (p.sku || "").toLocaleLowerCase("tr");
+
+    const effectiveSearch = (currentLayerMode === 3 && typeof catalogSearchQuery !== "undefined" && catalogSearchQuery)
+      ? catalogSearchQuery.toLocaleLowerCase("tr")
+      : (searchQuery ? searchQuery.toLocaleLowerCase("tr") : "");
+
+    const matchesSearch = !effectiveSearch || pName.includes(effectiveSearch) || pSku.includes(effectiveSearch);
     return matchesCat && matchesSearch;
   });
 
@@ -301,7 +346,7 @@ function renderProductGrid() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
         <p class="text-xs font-medium">Aramanıza uygun Cansızzade ürünü bulunamadı.</p>
-        <button onclick="clearSearch()" class="mt-2 text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-1.5 rounded-lg">Aramayı Temizle</button>
+        <button onclick="${currentLayerMode === 3 ? 'clearCatalogSearch()' : 'clearSearch()'}" class="mt-2 text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-1.5 rounded-lg cursor-pointer">Aramayı Temizle</button>
       </div>
     `;
     return;
@@ -1145,6 +1190,17 @@ function switchLayerMode(mode) {
 
     initLayer3Hub();
   }
+  
+  // Katman 3'te işlevsiz olan üst genel filtre çubuğunu gizle, Katman 1 ve 2'de göster
+  const globalControls = document.getElementById("global-layer-controls");
+  if (globalControls) {
+    if (mode === 3) {
+      globalControls.classList.add("hidden");
+    } else {
+      globalControls.classList.remove("hidden");
+    }
+  }
+
   updateTopDipFiyatBtnState();
 }
 
@@ -4118,6 +4174,13 @@ function updateBundleSimulator() {
     const costEl = document.getElementById("bundle-total-cost");
     if (costEl) costEl.textContent = PriceCalculator.formatTL(totalCost);
 
+    const totalCostBadge = document.getElementById("bundle-total-cost-badge");
+    if (totalCostBadge) totalCostBadge.textContent = PriceCalculator.formatTL(totalCost) + " ₺";
+
+    const tyFloorPrice = (totalCost + dhlCargo) / (1 - 0.19);
+    const tyFloorBadge = document.getElementById("bundle-ty-floor-badge");
+    if (tyFloorBadge) tyFloorBadge.textContent = PriceCalculator.formatTL(tyFloorPrice) + " ₺";
+
     const cargoSavingsEl = document.getElementById("l3-bundle-cargo-savings") || document.getElementById("bundle-cargo-savings");
     const savedCargo = (itemEntries.length - 1) * dhlCargo;
     if (cargoSavingsEl) cargoSavingsEl.textContent = `🚀 Tek Kargo: +${PriceCalculator.formatTL(savedCargo)} Kargo Tasarrufu!`;
@@ -4285,6 +4348,68 @@ function initLayer3Hub() {
 }
 
 // -------------------------------------------------------------------------
+// 🚀 3. KATMAN GENEL: ANLIK CANLI ÜRÜN ARAMA & SEÇİCİ YARDIMCISI
+// -------------------------------------------------------------------------
+function filterLayer3ProductSelect(inputId, selectId, onChangeCallback, allowEmpty = false) {
+  const inputEl = document.getElementById(inputId);
+  const selectEl = document.getElementById(selectId);
+  if (!selectEl) return;
+
+  if (!currentProducts || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+  const pList = Object.values(currentProducts || {});
+  if (pList.length === 0) return;
+
+  const query = (inputEl ? inputEl.value : "").trim().toLocaleLowerCase("tr");
+
+  const filtered = pList.filter(p => {
+    if (!query) return true;
+    const nameStr = (p.name || "").toLocaleLowerCase("tr");
+    const skuStr = (p.sku || "").toLocaleLowerCase("tr");
+    const catStr = (p.category || "").toLocaleLowerCase("tr");
+    return nameStr.includes(query) || skuStr.includes(query) || catStr.includes(query);
+  });
+
+  const prevValue = selectEl.value;
+  let optionsHtml = "";
+
+  if (allowEmpty) {
+    optionsHtml += `<option value="">-- Ürün Yok (2'li Set) --</option>`;
+  }
+
+  if (filtered.length === 0) {
+    optionsHtml += `<option value="" disabled>Eşleşen ürün bulunamadı</option>`;
+    selectEl.innerHTML = optionsHtml;
+    selectEl.value = "";
+  } else {
+    optionsHtml += filtered.map(p => {
+      const idKey = p.id || p.sku;
+      return `<option value="${idKey}">${p.sku} - ${p.name} (${p.category})</option>`;
+    }).join("");
+    selectEl.innerHTML = optionsHtml;
+
+    // Önceki seçim hala filtrelenen listede varsa koru, yoksa ilk eşleşeni otomatik seç
+    const stillExists = filtered.some(p => (p.id === prevValue || p.sku === prevValue));
+    if (stillExists) {
+      selectEl.value = prevValue;
+    } else {
+      selectEl.value = filtered[0].id || filtered[0].sku;
+    }
+  }
+
+  if (typeof onChangeCallback === "function") {
+    onChangeCallback();
+  }
+}
+
+function clearLayer3ProductSearch(inputId, selectId, onChangeCallback, allowEmpty = false) {
+  const inputEl = document.getElementById(inputId);
+  if (inputEl) inputEl.value = "";
+  filterLayer3ProductSelect(inputId, selectId, onChangeCallback, allowEmpty);
+}
+
+// -------------------------------------------------------------------------
 // 1. SEKME: 📦 2'Lİ & ÇOKLU ADET KAMPANYA SİMÜLATÖRÜ
 // -------------------------------------------------------------------------
 function initMultipackSimulator() {
@@ -4351,19 +4476,22 @@ function setMultipackQty(qty) {
 
   const btn2 = document.getElementById("mp-qty-btn-2");
   const btn3 = document.getElementById("mp-qty-btn-3");
+  const btn4 = document.getElementById("mp-qty-btn-4");
 
-  if (btn2) {
-    btn2.className = qty === 2 
-      ? "flex-1 py-1.5 px-3 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer"
-      : "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer";
-  }
-  if (btn3) {
-    btn3.className = qty === 3
-      ? "flex-1 py-1.5 px-3 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer"
-      : "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer";
-  }
+  const activeClass = "flex-1 py-1 px-2 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer";
+  const inactiveClass = "flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer";
+
+  if (btn2) btn2.className = qty === 2 ? activeClass : inactiveClass;
+  if (btn3) btn3.className = qty === 3 ? activeClass : inactiveClass;
+  if (btn4) btn4.className = qty === 4 ? activeClass : inactiveClass;
 
   calculateMultipackSim();
+}
+
+function setMultipackDiscount(val) {
+  const range = document.getElementById("mp-discount-range");
+  if (range) range.value = val;
+  onMultipackDiscountChange(val);
 }
 
 function onMultipackDiscountChange(val) {
@@ -4586,6 +4714,26 @@ function applyOfferPreset(preset) {
     targetInput.value = Math.round(basePrice * 0.82); // 2. Çok Avantajlı %18 indirim
   } else if (preset === "av3") {
     targetInput.value = Math.round(basePrice * 0.70); // 3. Süper Avantajlı %30 indirim
+  } else if (preset === "redline") {
+    const sel = document.getElementById("offer-product-select");
+    const volSel = document.getElementById("offer-volume-select");
+    const commInput = document.getElementById("offer-commission");
+    const desiSel = document.getElementById("offer-desi-select");
+    if (sel && volSel) {
+      const p = currentProducts[sel.value] || Object.values(currentProducts).find(item => item.id === sel.value || item.sku === sel.value);
+      if (p) {
+        const vol = volSel.value || "250ml";
+        const comm = parseFloat(commInput?.value) || 19;
+        const desi = parseInt(desiSel?.value, 10) || 2;
+        const dhlCargo = PriceCalculator.getDhlRateByDesi(desi);
+        const overheadConfig = StorageManager.getFactoryOverhead();
+        const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
+        const costCalc = getLayer2EffectiveCostForVolume(p, vol, overheadRes.overheadPerKg);
+        const unitCost = costCalc.effectiveNetCost;
+        const redline = (unitCost + dhlCargo) / (1 - (comm / 100));
+        targetInput.value = Math.ceil(redline);
+      }
+    }
   }
 
   calculateOfferSim();

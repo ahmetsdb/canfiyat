@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.18">
+    <link rel="stylesheet" href="css/styles.css?v=4.19">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -52,8 +52,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.18: Gerçekçi Zaman & Hareket Dolum İşçiliği & Tesis Masraf Payı">
-                            v4.18 (⚡ Gerçekçi Dolum İşçiliği & Tesis Masraf Payı)
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.19: 3. Katman Optimizasyonu, Canlı Arama ve 4 Alt Sekmenin Düzenlenmesi">
+                            v4.19 (🚀 3. Katman Revizyonu & Canlı Ürün Arama)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -141,7 +141,7 @@
         </nav>
 
         <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
-        <div class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#111a2e] p-3 rounded-2xl border border-slate-800/80 shadow-sm">
+        <div id="global-layer-controls" class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#111a2e] p-3 rounded-2xl border border-slate-800/80 shadow-sm">
             
             <!-- Category Tabs -->
             <div class="flex flex-wrap gap-1.5 w-full lg:w-auto">
@@ -327,7 +327,19 @@
 
                         <div class="space-y-2.5">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-300 mb-1">Ürün Seçimi:</label>
+                                <label class="block text-[11px] font-bold text-slate-300 mb-1">Ürün Seçimi & Canlı Arama:</label>
+                                <div class="relative mb-1.5">
+                                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <input type="text" id="mp-search-input" placeholder="🔍 Ürün ara (örn: Çörek, Kantaron, SKU)..."
+                                        oninput="filterLayer3ProductSelect('mp-search-input', 'mp-product-select', onMultipackProductChange)"
+                                        class="w-full pl-8 pr-7 py-1.5 bg-slate-950 border border-slate-700/90 rounded-xl text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all">
+                                    <button type="button" onclick="clearLayer3ProductSearch('mp-search-input', 'mp-product-select', onMultipackProductChange)"
+                                        class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 text-xs font-bold cursor-pointer" title="Aramayı Temizle">✕</button>
+                                </div>
                                 <select id="mp-product-select" onchange="onMultipackProductChange()" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none focus:border-blue-500 cursor-pointer">
                                 </select>
                             </div>
@@ -384,6 +396,7 @@
                                     <div class="flex gap-1.5">
                                         <button type="button" onclick="setMultipackQty(2)" id="mp-qty-btn-2" class="flex-1 py-1 px-2 rounded-lg text-xs font-black bg-blue-600 text-white border border-blue-400 cursor-pointer">2 Adet</button>
                                         <button type="button" onclick="setMultipackQty(3)" id="mp-qty-btn-3" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer">3 Adet</button>
+                                        <button type="button" onclick="setMultipackQty(4)" id="mp-qty-btn-4" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-700 hover:text-white cursor-pointer">4 Adet</button>
                                         <input type="number" id="mp-custom-qty" value="2" min="1" max="20" onchange="calculateMultipackSim()" class="w-12 bg-slate-900 border border-slate-700 text-center text-xs font-extrabold text-white rounded-lg focus:outline-none">
                                     </div>
                                 </div>
@@ -394,6 +407,15 @@
                                         <span id="mp-discount-val-badge" class="text-[11px] font-black text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/80">%25 İndirim</span>
                                     </div>
                                     <input type="range" id="mp-discount-range" min="0" max="60" step="5" value="25" oninput="onMultipackDiscountChange(this.value)" class="w-full cursor-pointer accent-amber-500">
+                                    
+                                    <!-- Hızlı İndirim Şablonları -->
+                                    <div class="grid grid-cols-5 gap-1 mt-1.5">
+                                        <button type="button" onclick="setMultipackDiscount(15)" class="px-1 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-bold text-amber-300 border border-slate-700 transition-all text-center cursor-pointer">%15</button>
+                                        <button type="button" onclick="setMultipackDiscount(20)" class="px-1 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-bold text-amber-300 border border-slate-700 transition-all text-center cursor-pointer">%20</button>
+                                        <button type="button" onclick="setMultipackDiscount(25)" class="px-1 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-bold text-amber-300 border border-slate-700 transition-all text-center cursor-pointer">%25</button>
+                                        <button type="button" onclick="setMultipackDiscount(30)" class="px-1 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-bold text-amber-300 border border-slate-700 transition-all text-center cursor-pointer">%30</button>
+                                        <button type="button" onclick="setMultipackDiscount(50)" class="px-1 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-bold text-amber-300 border border-slate-700 transition-all text-center cursor-pointer">%50</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -425,7 +447,20 @@
 
                         <!-- 1. Ürün -->
                         <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-                            <label class="block text-[11px] font-bold text-slate-300">1. Ürün & Hacim:</label>
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold text-slate-300">1. Ürün & Hacim:</label>
+                                <span class="text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-1" class="text-amber-300">0,00 ₺</strong></span>
+                            </div>
+                            <div class="relative mb-1">
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input type="text" id="bundle-search-1" placeholder="🔍 1. Ürünü ara (örn: Kantaron, Kekik)..."
+                                    oninput="filterLayer3ProductSelect('bundle-search-1', 'bundle-item-1', () => { onBundleItemProductChange(1); updateBundleSimulator(); })"
+                                    class="w-full pl-7 pr-6 py-1 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                                <button type="button" onclick="clearLayer3ProductSearch('bundle-search-1', 'bundle-item-1', () => { onBundleItemProductChange(1); updateBundleSimulator(); })"
+                                    class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-500 hover:text-slate-300 text-xs font-bold cursor-pointer" title="Temizle">✕</button>
+                            </div>
                             <div class="grid grid-cols-3 gap-2">
                                 <select id="bundle-item-1" onchange="onBundleItemProductChange(1); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
                                 </select>
@@ -439,12 +474,24 @@
                                     <option value="20ml">20 ml</option>
                                 </select>
                             </div>
-                            <div class="text-right text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-1" class="text-amber-300">0,00 ₺</strong></div>
                         </div>
 
                         <!-- 2. Ürün -->
                         <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-                            <label class="block text-[11px] font-bold text-slate-300">2. Ürün & Hacim:</label>
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold text-slate-300">2. Ürün & Hacim:</label>
+                                <span class="text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-2" class="text-amber-300">0,00 ₺</strong></span>
+                            </div>
+                            <div class="relative mb-1">
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input type="text" id="bundle-search-2" placeholder="🔍 2. Ürünü ara (örn: Biberiye, Çörek)..."
+                                    oninput="filterLayer3ProductSelect('bundle-search-2', 'bundle-item-2', () => { onBundleItemProductChange(2); updateBundleSimulator(); })"
+                                    class="w-full pl-7 pr-6 py-1 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                                <button type="button" onclick="clearLayer3ProductSearch('bundle-search-2', 'bundle-item-2', () => { onBundleItemProductChange(2); updateBundleSimulator(); })"
+                                    class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-500 hover:text-slate-300 text-xs font-bold cursor-pointer" title="Temizle">✕</button>
+                            </div>
                             <div class="grid grid-cols-3 gap-2">
                                 <select id="bundle-item-2" onchange="onBundleItemProductChange(2); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
                                 </select>
@@ -458,12 +505,24 @@
                                     <option value="20ml">20 ml</option>
                                 </select>
                             </div>
-                            <div class="text-right text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-2" class="text-amber-300">0,00 ₺</strong></div>
                         </div>
 
                         <!-- 3. Ürün (Opsiyonel) -->
                         <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-                            <label class="block text-[11px] font-bold text-slate-400">3. Ürün (Opsiyonel):</label>
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[11px] font-bold text-slate-400">3. Ürün (Opsiyonel):</label>
+                                <span class="text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-3" class="text-amber-300">0,00 ₺</strong></span>
+                            </div>
+                            <div class="relative mb-1">
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input type="text" id="bundle-search-3" placeholder="🔍 3. Ürünü ara (opsiyonel)..."
+                                    oninput="filterLayer3ProductSelect('bundle-search-3', 'bundle-item-3', () => { onBundleItemProductChange(3); updateBundleSimulator(); }, true)"
+                                    class="w-full pl-7 pr-6 py-1 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                                <button type="button" onclick="clearLayer3ProductSearch('bundle-search-3', 'bundle-item-3', () => { onBundleItemProductChange(3); updateBundleSimulator(); }, true)"
+                                    class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-500 hover:text-slate-300 text-xs font-bold cursor-pointer" title="Temizle">✕</button>
+                            </div>
                             <div class="grid grid-cols-3 gap-2">
                                 <select id="bundle-item-3" onchange="onBundleItemProductChange(3); updateBundleSimulator();" class="col-span-2 bg-slate-900 border border-slate-700 text-white text-xs font-semibold p-1.5 rounded-lg focus:outline-none cursor-pointer">
                                     <option value="">-- Ürün Yok (2'li Set) --</option>
@@ -478,7 +537,6 @@
                                     <option value="20ml">20 ml</option>
                                 </select>
                             </div>
-                            <div class="text-right text-[10px] text-slate-400">Saf Maliyet: <strong id="bundle-item-cost-3" class="text-amber-300">0,00 ₺</strong></div>
                         </div>
 
                         <!-- Set Satış Fiyatı & Kutu & Desi -->
@@ -500,6 +558,18 @@
                                     <option value="5">5 Desi</option>
                                     <option value="6">6 Desi</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- Set Maliyet & Taban Fiyat Özeti -->
+                        <div class="bg-[#0c1220] p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1.5">
+                            <div class="flex justify-between items-center text-slate-300">
+                                <span>Toplam Ürün & Kutu Saf Maliyeti:</span>
+                                <strong id="bundle-total-cost-badge" class="text-amber-300 font-black">0,00 ₺</strong>
+                            </div>
+                            <div class="flex justify-between items-center text-slate-400 text-[10.5px]">
+                                <span>🛡️ Trendyol Asgari Taban (0 ₺ Kâr):</span>
+                                <strong id="bundle-ty-floor-badge" class="text-slate-200 font-bold">0,00 ₺</strong>
                             </div>
                         </div>
                     </div>
@@ -530,7 +600,19 @@
 
                         <div class="space-y-2.5">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-300 mb-1">Ürün Seçimi:</label>
+                                <label class="block text-[11px] font-bold text-slate-300 mb-1">Ürün Seçimi & Canlı Arama:</label>
+                                <div class="relative mb-1.5">
+                                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <input type="text" id="offer-search-input" placeholder="🔍 Teklif ürünü ara (örn: Biberiye, Kekik, SKU)..."
+                                        oninput="filterLayer3ProductSelect('offer-search-input', 'offer-product-select', onOfferProductChange)"
+                                        class="w-full pl-8 pr-7 py-1.5 bg-slate-950 border border-slate-700/90 rounded-xl text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all">
+                                    <button type="button" onclick="clearLayer3ProductSearch('offer-search-input', 'offer-product-select', onOfferProductChange)"
+                                        class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 text-xs font-bold cursor-pointer" title="Aramayı Temizle">✕</button>
+                                </div>
                                 <select id="offer-product-select" onchange="onOfferProductChange()" class="w-full bg-slate-950 border border-slate-700 text-white text-xs font-semibold p-2 rounded-xl focus:outline-none cursor-pointer">
                                 </select>
                             </div>
@@ -568,6 +650,7 @@
                                         <option value="av1" selected>🟢 1. Avantajlı (%10)</option>
                                         <option value="av2">🟡 2. Çok Avantajlı (%18)</option>
                                         <option value="av3">🔴 3. Süper Avantajlı (%30)</option>
+                                        <option value="redline">🛡️ Dip Fiyat (0 ₺ Kâr)</option>
                                         <option value="custom">✏️ Özel Fiyat</option>
                                     </select>
                                 </div>
@@ -619,6 +702,31 @@
                                 Fatura listenizdeki KDV Hariç tutarlara ürünün yasal KDV oranı eklenmiş olup tüm fiyatlar <strong>KDV DAHİL</strong> gösterilmektedir.
                             </p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Dedicated Catalog Filters & Search Toolbar -->
+                <div class="flex flex-col sm:flex-row gap-2.5 justify-between items-center bg-[#111a2e] p-2.5 rounded-2xl border border-slate-800/90 shadow-sm">
+                    <div class="flex flex-wrap gap-1.5 w-full sm:w-auto">
+                        <button id="catalog-cat-all" onclick="filterCatalogCategory('all')" class="catalog-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm cursor-pointer">
+                            Tüm Ürünler (65)
+                        </button>
+                        <button id="catalog-cat-ucucu" onclick="filterCatalogCategory('Uçucu Yağlar')" class="catalog-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 cursor-pointer">
+                            🌿 Uçucu Yağlar (23)
+                        </button>
+                        <button id="catalog-cat-sabit" onclick="filterCatalogCategory('Sabit Yağlar')" class="catalog-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 cursor-pointer">
+                            🌻 Sabit Yağlar (42)
+                        </button>
+                    </div>
+
+                    <div class="relative w-full sm:w-72">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" id="catalog-search-input" placeholder="Katalogda ürün veya SKU ara..." oninput="onCatalogSearchInput(this.value)" class="w-full pl-9 pr-8 py-1.5 bg-[#090b10] border border-zinc-800 rounded-xl text-xs font-medium text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-all">
+                        <button type="button" onclick="clearCatalogSearch()" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-500 hover:text-zinc-300 text-xs font-bold cursor-pointer" title="Temizle">✕</button>
                     </div>
                 </div>
 
@@ -1526,12 +1634,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.18"></script>
-    <script src="js/liveSiteData.js?v=4.18"></script>
-    <script src="js/trendyolData.js?v=4.18"></script>
-    <script src="js/storage.js?v=4.18"></script>
-    <script src="js/calculator.js?v=4.18"></script>
-    <script src="js/app.js?v=4.18"></script>
+    <script src="js/productsData.js?v=4.19"></script>
+    <script src="js/liveSiteData.js?v=4.19"></script>
+    <script src="js/trendyolData.js?v=4.19"></script>
+    <script src="js/storage.js?v=4.19"></script>
+    <script src="js/calculator.js?v=4.19"></script>
+    <script src="js/app.js?v=4.19"></script>
 </body>
 
 
