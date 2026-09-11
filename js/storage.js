@@ -17,7 +17,8 @@ const STORAGE_KEYS = {
   LAYER2_SIM: "canfiyat_layer2_sim_v2", // Katman 2 Isolated Simulation State
   TRENDYOL_CUSTOM: "canfiyat_trendyol_custom_v1",
   AUTH_SESSION: "canfiyat_auth_session_v1",
-  GLOBAL_TARGET_PROFIT: "canfiyat_global_target_profit"
+  GLOBAL_TARGET_PROFIT: "canfiyat_global_target_profit",
+  BULK_OFFER_CUSTOMS: "canfiyat_bulk_offer_customs_v1"
 };
 
 class StorageManager {
@@ -541,6 +542,30 @@ class StorageManager {
     }
 
     return { affectedCount, profitNum };
+  }
+
+  // ==========================================
+  // KATMAN 3 TRENDYOL AVANTAJLI TEKLİFLER ÖZEL GİRDİLERİ
+  // ==========================================
+  static getBulkOfferCustoms() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.BULK_OFFER_CUSTOMS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === "object") return parsed;
+      }
+    } catch (e) {
+      console.error("getBulkOfferCustoms error:", e);
+    }
+    return {};
+  }
+
+  static setBulkOfferCustoms(data) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.BULK_OFFER_CUSTOMS, JSON.stringify(data || {}));
+    } catch (e) {
+      console.error("setBulkOfferCustoms error:", e);
+    }
   }
 }
 

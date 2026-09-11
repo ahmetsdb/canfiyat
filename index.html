@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.27">
+    <link rel="stylesheet" href="css/styles.css?v=4.28">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -50,8 +50,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.27: Gerçek Trendyol Komisyonu & %5-%14-%23 Avantajlı Masası">
-                            v4.27 (⚡ Gerçek Trendyol Komisyonu & %5-%14-%23 Avantajlı Masası)
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.28: Avantajlı Masasında Tüm Hacimler & Birebir Hedef Teklif Fiyatları">
+                            v4.28 (⚡ Tüm Hacimler Eşleşmesi & "... ₺ ve altı" Birebir Teklif Masası)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -735,15 +735,17 @@
                         <div class="flex items-center gap-1.5">
                             <label class="text-[11px] font-bold text-slate-300">Hacim:</label>
                             <select id="bulk-volume-select" onchange="onBulkVolumeChange()" class="bg-slate-950 border border-sky-500/60 text-sky-300 font-bold text-xs px-2.5 py-1.5 rounded-xl cursor-pointer">
-                                <option value="1000ml" selected>1000 ml (1 KG)</option>
+                                <option value="all" selected>⚡ Tüm Aktif İlanlar (Tüm Hacimler - 78 Ürün)</option>
+                                <option value="1000ml">1000 ml (1 KG)</option>
                                 <option value="500ml">500 ml</option>
-                                <option value="250ml">250 ml</option>
+                                <option value="300ml">300 ml</option>
+                                <option value="250ml">250 ml (ve 2x250 Adet)</option>
+                                <option value="150ml">150 ml</option>
                                 <option value="100ml">100 ml</option>
                                 <option value="50ml">50 ml</option>
                                 <option value="30ml">30 ml</option>
                                 <option value="20ml">20 ml</option>
-                                <option value="10ml">10 ml</option>
-                                <option value="all">⚡ Tüm Hacimler (Tüm Trendyol Kataloğu)</option>
+                                <option value="10ml">10 ml (ve 3x10 Adet)</option>
                             </select>
                         </div>
 
@@ -1739,12 +1741,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.27"></script>
-    <script src="js/liveSiteData.js?v=4.27"></script>
-    <script src="js/trendyolData.js?v=4.27"></script>
-    <script src="js/storage.js?v=4.27"></script>
-    <script src="js/calculator.js?v=4.27"></script>
-    <script src="js/app.js?v=4.27"></script>
+    <script src="js/productsData.js?v=4.28"></script>
+    <script src="js/liveSiteData.js?v=4.28"></script>
+    <script src="js/trendyolData.js?v=4.28"></script>
+    <script src="js/storage.js?v=4.28"></script>
+    <script src="js/calculator.js?v=4.28"></script>
+    <script src="js/app.js?v=4.28"></script>
 </body>
 
 
