@@ -5065,6 +5065,12 @@ let currentBulkSearchQuery = "";
 let bulkOfferCustomValues = {}; // { [prodId]: { av1: { price, comm }, av2: ..., av3: ... } }
 let bulkOpenInvoices = {}; // { [prodId]: boolean }
 
+// Trendyol Kampanyasında özel komisyon desteği tanımlanmış ürünlerin haritası
+// Eğer ürün burada tanımlı değilse Trendyol komisyonu indirmez, ürünün temel komisyonu (%19) sabit kalır!
+const TRENDYOL_SPECIAL_PROMO_COMMISSIONS = {
+  "8681608251005-2": { av1: 13.9, av2: 11.4, av3: 8.3 } // Zeytinyağlı Kudret Narı 250 gr x 2
+};
+
 function initBulkOffersTable() {
   const volSel = document.getElementById("bulk-volume-select");
   if (volSel) volSel.value = currentBulkVolume;
@@ -5203,6 +5209,72 @@ function renderBulkOffersTable() {
   const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
   const dhlCargo = PriceCalculator.getDhlRateByDesi(currentBulkDesi);
 
+  const calculateTiersForProduct = (p, vk, lp, custom, idKey) => {
+    const basePrice = lp.price;
+    const costCalc = getLayer2EffectiveCostForVolume(p, vk, overheadRes.overheadPerKg);
+    const unitCost = costCalc.effectiveNetCost;
+
+    const barcode = (lp && lp.barcode) || p.barcode || "";
+    const promoComm = TRENDYOL_SPECIAL_PROMO_COMMISSIONS[barcode] || null;
+    const baseComm = (lp && lp.item && lp.item.commissionPercent) ? lp.item.commissionPercent : (p.commissionPercent || 19);
+
+    // 1. Avantajlı: %5 İndirim (0.95). Komisyon: Varsa özel destek oranı, yoksa temel komisyon (%19 sabit)
+    const defAv1Price = Math.round(basePrice * 0.95 * 100) / 100;
+    const defAv1Comm = promoComm ? promoComm.av1 : baseComm;
+    const av1Price = custom.av1?.price ?? defAv1Price;
+    const av1Comm = custom.av1?.comm ?? defAv1Comm;
+    const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice,
+      offerPrice: av1Price,
+      unitCost,
+      commissionPercent: av1Comm,
+      cargoFee: dhlCargo
+    });
+
+    // 2. Çok Avantajlı: %14 İndirim (0.86). Komisyon: Varsa özel destek oranı, yoksa temel komisyon (%19 sabit)
+    const defAv2Price = Math.round(basePrice * 0.86 * 100) / 100;
+    const defAv2Comm = promoComm ? promoComm.av2 : baseComm;
+    const av2Price = custom.av2?.price ?? defAv2Price;
+    const av2Comm = custom.av2?.comm ?? defAv2Comm;
+    const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice,
+      offerPrice: av2Price,
+      unitCost,
+      commissionPercent: av2Comm,
+      cargoFee: dhlCargo
+    });
+
+    // 3. Süper Avantajlı: %23 İndirim (0.77). Komisyon: Varsa özel destek oranı, yoksa temel komisyon (%19 sabit)
+    const defAv3Price = Math.round(basePrice * 0.77 * 100) / 100;
+    const defAv3Comm = promoComm ? promoComm.av3 : baseComm;
+    const av3Price = custom.av3?.price ?? defAv3Price;
+    const av3Comm = custom.av3?.comm ?? defAv3Comm;
+    const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice,
+      offerPrice: av3Price,
+      unitCost,
+      commissionPercent: av3Comm,
+      cargoFee: dhlCargo
+    });
+
+    return {
+      product: p,
+      idKey,
+      rawId: p.id || p.sku,
+      volKey: vk,
+      barcode,
+      url: lp.url || "",
+      basePrice,
+      baseComm,
+      hasSpecialPromoComm: !!promoComm,
+      unitCost,
+      costCalc,
+      av1: { price: av1Price, comm: av1Comm, isSpecial: !!(promoComm && promoComm.av1), sim: sim1 },
+      av2: { price: av2Price, comm: av2Comm, isSpecial: !!(promoComm && promoComm.av2), sim: sim2 },
+      av3: { price: av3Price, comm: av3Comm, isSpecial: !!(promoComm && promoComm.av3), sim: sim3 }
+    };
+  };
+
   const evaluated = [];
 
   if (currentBulkVolume === "all") {
@@ -5211,58 +5283,8 @@ function renderBulkOffersTable() {
         const lp = getPlatformLivePrice("trendyol", p, vk);
         if (lp && lp.price !== null && lp.price > 0) {
           const idKey = `${p.id || p.sku}_${vk}`;
-          const basePrice = lp.price;
-          const costCalc = getLayer2EffectiveCostForVolume(p, vk, overheadRes.overheadPerKg);
-          const unitCost = costCalc.effectiveNetCost;
           const custom = bulkOfferCustomValues[idKey] || {};
-
-          // 1. Avantajlı: %10 indirim, %10 komisyon
-          const av1Price = custom.av1?.price ?? Math.round(basePrice * 0.90);
-          const av1Comm = custom.av1?.comm ?? 10;
-          const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
-            basePrice,
-            offerPrice: av1Price,
-            unitCost,
-            commissionPercent: av1Comm,
-            cargoFee: dhlCargo
-          });
-
-          // 2. Çok Avantajlı: %18 indirim, %8 komisyon
-          const av2Price = custom.av2?.price ?? Math.round(basePrice * 0.82);
-          const av2Comm = custom.av2?.comm ?? 8;
-          const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
-            basePrice,
-            offerPrice: av2Price,
-            unitCost,
-            commissionPercent: av2Comm,
-            cargoFee: dhlCargo
-          });
-
-          // 3. Süper Avantajlı: %30 indirim, %6 komisyon
-          const av3Price = custom.av3?.price ?? Math.round(basePrice * 0.70);
-          const av3Comm = custom.av3?.comm ?? 6;
-          const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
-            basePrice,
-            offerPrice: av3Price,
-            unitCost,
-            commissionPercent: av3Comm,
-            cargoFee: dhlCargo
-          });
-
-          evaluated.push({
-            product: p,
-            idKey,
-            rawId: p.id || p.sku,
-            volKey: vk,
-            barcode: lp.barcode || p.barcode || "",
-            url: lp.url || "",
-            basePrice,
-            unitCost,
-            costCalc,
-            av1: { price: av1Price, comm: av1Comm, sim: sim1 },
-            av2: { price: av2Price, comm: av2Comm, sim: sim2 },
-            av3: { price: av3Price, comm: av3Comm, sim: sim3 }
-          });
+          evaluated.push(calculateTiersForProduct(p, vk, lp, custom, idKey));
         }
       });
     });
@@ -5270,58 +5292,10 @@ function renderBulkOffersTable() {
     pList.forEach(p => {
       const idKey = p.id || p.sku;
       const lp = getPlatformLivePrice("trendyol", p, currentBulkVolume);
-      const basePrice = (lp && lp.price) ? lp.price : 0;
-      const costCalc = getLayer2EffectiveCostForVolume(p, currentBulkVolume, overheadRes.overheadPerKg);
-      const unitCost = costCalc.effectiveNetCost;
-      const custom = bulkOfferCustomValues[idKey] || {};
-
-      // 1. Avantajlı: %10 indirim, %10 komisyon
-      const av1Price = custom.av1?.price ?? Math.round(basePrice * 0.90);
-      const av1Comm = custom.av1?.comm ?? 10;
-      const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
-        basePrice,
-        offerPrice: av1Price,
-        unitCost,
-        commissionPercent: av1Comm,
-        cargoFee: dhlCargo
-      });
-
-      // 2. Çok Avantajlı: %18 indirim, %8 komisyon
-      const av2Price = custom.av2?.price ?? Math.round(basePrice * 0.82);
-      const av2Comm = custom.av2?.comm ?? 8;
-      const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
-        basePrice,
-        offerPrice: av2Price,
-        unitCost,
-        commissionPercent: av2Comm,
-        cargoFee: dhlCargo
-      });
-
-      // 3. Süper Avantajlı: %30 indirim, %6 komisyon
-      const av3Price = custom.av3?.price ?? Math.round(basePrice * 0.70);
-      const av3Comm = custom.av3?.comm ?? 6;
-      const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
-        basePrice,
-        offerPrice: av3Price,
-        unitCost,
-        commissionPercent: av3Comm,
-        cargoFee: dhlCargo
-      });
-
-      evaluated.push({
-        product: p,
-        idKey,
-        rawId: p.id || p.sku,
-        volKey: currentBulkVolume,
-        barcode: (lp && lp.barcode) || p.barcode || "",
-        url: (lp && lp.url) || "",
-        basePrice,
-        unitCost,
-        costCalc,
-        av1: { price: av1Price, comm: av1Comm, sim: sim1 },
-        av2: { price: av2Price, comm: av2Comm, sim: sim2 },
-        av3: { price: av3Price, comm: av3Comm, sim: sim3 }
-      });
+      if (lp && lp.price !== null && lp.price > 0) {
+        const custom = bulkOfferCustomValues[idKey] || {};
+        evaluated.push(calculateTiersForProduct(p, currentBulkVolume, lp, custom, idKey));
+      }
     });
   }
 
@@ -5420,16 +5394,25 @@ function renderBulkOffersTable() {
 
           <div class="grid grid-cols-2 gap-1.5 text-xs">
             <div>
-              <label class="text-[9.5px] text-slate-400 font-bold block mb-0.5">Teklif Fiyatı (₺):</label>
-              <input type="number" value="${data.price}" 
+              <div class="flex items-center justify-between mb-0.5">
+                <label class="text-[9.5px] text-slate-400 font-bold">Teklif Fiyatı (₺):</label>
+              </div>
+              <input type="number" step="0.01" value="${data.price}" 
                      onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'price', this.value)"
                      class="w-full bg-slate-950 border border-slate-700 text-white font-black text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
             </div>
             <div>
-              <label class="text-[9.5px] text-slate-400 font-bold block mb-0.5">Komisyon (%):</label>
-              <input type="number" value="${data.comm}" 
+              <div class="flex items-center justify-between mb-0.5">
+                <label class="text-[9.5px] text-slate-400 font-bold">Komisyon (%):</label>
+                ${data.isSpecial ? `
+                  <span class="text-[8.5px] font-black text-amber-400">🏷️ Destekli</span>
+                ` : `
+                  <span class="text-[8.5px] font-medium text-slate-500">Sabit %${data.comm}</span>
+                `}
+              </div>
+              <input type="number" step="0.1" value="${data.comm}" 
                      onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'comm', this.value)"
-                     class="w-full bg-slate-950 border border-slate-700 text-white font-bold text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
+                     class="w-full bg-slate-950 border ${data.isSpecial ? 'border-amber-500/80 text-amber-300 font-black' : 'border-slate-700 text-white font-bold'} text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
             </div>
           </div>
 
@@ -5484,7 +5467,14 @@ function renderBulkOffersTable() {
               <span class="text-[11px] text-slate-400 block mt-0.5 flex flex-wrap items-center gap-1.5">
                 <span>${p.category}</span>
                 <span>•</span>
-                <span>Trendyol Canlı Fiyatı: <strong class="text-orange-400 font-bold">${PriceCalculator.formatTL(item.basePrice)}</strong></span>
+                <span>Trendyol Satış: <strong class="text-orange-400 font-bold">${PriceCalculator.formatTL(item.basePrice)}</strong></span>
+                <span>•</span>
+                <span>Güncel Komisyon: <strong class="text-slate-300 font-bold">%${item.baseComm}</strong></span>
+                ${item.hasSpecialPromoComm ? `
+                  <span class="px-1.5 py-0.2 bg-amber-950/80 border border-amber-800 text-amber-300 rounded text-[9.5px] font-bold">
+                    🏷️ Ürün Komisyon Desteği
+                  </span>
+                ` : ''}
                 ${item.url ? `
                   <span>•</span>
                   <a href="${item.url}" target="_blank" class="text-orange-400 hover:text-orange-300 underline font-semibold flex items-center gap-0.5">
@@ -5550,9 +5540,9 @@ function renderBulkOffersTable() {
 
         <!-- 3 Kampanya Seviyesi Izgarası -->
         <div class="grid ${currentBulkTierMode === 'all' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'} gap-2.5">
-          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderTierBox('🏷️ 1. Avantajlı (%10 İndirim)', 'av1', item.av1, 'text-amber-400') : ''}
-          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderTierBox('💎 2. Çok Avantajlı (%18 İndirim)', 'av2', item.av2, 'text-sky-400') : ''}
-          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderTierBox('🚀 3. Süper Avantajlı (%30 İndirim)', 'av3', item.av3, 'text-purple-400') : ''}
+          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderTierBox('🏷️ 1. Avantajlı (%5 İndirim)', 'av1', item.av1, 'text-amber-400') : ''}
+          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderTierBox('💎 2. Çok Avantajlı (%14 İndirim)', 'av2', item.av2, 'text-sky-400') : ''}
+          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderTierBox('🚀 3. Süper Avantajlı (%23 İndirim)', 'av3', item.av3, 'text-purple-400') : ''}
         </div>
       </div>
     `;
