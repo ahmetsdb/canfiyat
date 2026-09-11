@@ -4317,7 +4317,7 @@ function updateBundleSimulator() {
 // 🚀 3. KATMAN: E-TİCARET KAMPANYA, ÇOKLU SEPET & KOMBİN SET LABORATUVARI
 // =========================================================================
 
-let currentLayer3SubTab = "multipack"; // 'multipack' | 'bundle' | 'offers' | 'catalog'
+let currentLayer3SubTab = "multipack"; // 'multipack' | 'bundle' | 'offers' | 'bulk-offers' | 'catalog'
 let currentMultipackQty = 2;
 
 function switchLayer3SubTab(tab) {
@@ -4326,16 +4326,19 @@ function switchLayer3SubTab(tab) {
   const vMulti = document.getElementById("l3-view-multipack");
   const vBundle = document.getElementById("l3-view-bundle");
   const vOffers = document.getElementById("l3-view-offers");
+  const vBulk = document.getElementById("l3-view-bulk-offers");
   const vCatalog = document.getElementById("l3-view-catalog");
 
   if (vMulti) vMulti.classList.toggle("hidden", tab !== "multipack");
   if (vBundle) vBundle.classList.toggle("hidden", tab !== "bundle");
   if (vOffers) vOffers.classList.toggle("hidden", tab !== "offers");
+  if (vBulk) vBulk.classList.toggle("hidden", tab !== "bulk-offers");
   if (vCatalog) vCatalog.classList.toggle("hidden", tab !== "catalog");
 
   const btnMulti = document.getElementById("l3-tab-btn-multipack");
   const btnBundle = document.getElementById("l3-tab-btn-bundle");
   const btnOffers = document.getElementById("l3-tab-btn-offers");
+  const btnBulk = document.getElementById("l3-tab-btn-bulk-offers");
   const btnCatalog = document.getElementById("l3-tab-btn-catalog");
 
   const activeClass = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm cursor-pointer flex items-center gap-1.5";
@@ -4344,6 +4347,7 @@ function switchLayer3SubTab(tab) {
   if (btnMulti) btnMulti.className = tab === "multipack" ? activeClass : inactiveClass;
   if (btnBundle) btnBundle.className = tab === "bundle" ? activeClass : inactiveClass;
   if (btnOffers) btnOffers.className = tab === "offers" ? activeClass : inactiveClass;
+  if (btnBulk) btnBulk.className = tab === "bulk-offers" ? activeClass : inactiveClass;
   if (btnCatalog) btnCatalog.className = tab === "catalog" ? activeClass : inactiveClass;
 
   if (tab === "multipack") {
@@ -4353,6 +4357,8 @@ function switchLayer3SubTab(tab) {
     updateBundleSimulator();
   } else if (tab === "offers") {
     initOfferSimulator();
+  } else if (tab === "bulk-offers") {
+    initBulkOffersTable();
   } else if (tab === "catalog") {
     renderProductGrid();
   }
@@ -5047,6 +5053,441 @@ function calculateOfferSim() {
     console.error("Offer calc error:", err);
   }
 }
+
+// -------------------------------------------------------------------------
+// 5. SEKME: ⚡ TRENDYOL AVANTAJLI ÜRÜNLER & TOPLU KAMPANYA KARAR MASASI
+// -------------------------------------------------------------------------
+let currentBulkVolume = "1000ml";
+let currentBulkDesi = 2;
+let currentBulkTierMode = "all"; // 'all' | 'av1' | 'av2' | 'av3'
+let currentBulkProfitFilter = "all"; // 'all' | 'profit' | 'loss'
+let currentBulkSearchQuery = "";
+let bulkOfferCustomValues = {}; // { [prodId]: { av1: { price, comm }, av2: ..., av3: ... } }
+let bulkOpenInvoices = {}; // { [prodId]: boolean }
+
+function initBulkOffersTable() {
+  const volSel = document.getElementById("bulk-volume-select");
+  if (volSel) volSel.value = currentBulkVolume;
+  const desiSel = document.getElementById("bulk-desi-select");
+  if (desiSel) desiSel.value = String(currentBulkDesi);
+  renderBulkOffersTable();
+}
+
+function onBulkVolumeChange() {
+  const volSel = document.getElementById("bulk-volume-select");
+  if (volSel) currentBulkVolume = volSel.value;
+  renderBulkOffersTable();
+}
+
+function onBulkDesiChange() {
+  const desiSel = document.getElementById("bulk-desi-select");
+  if (desiSel) currentBulkDesi = parseInt(desiSel.value, 10) || 2;
+  renderBulkOffersTable();
+}
+
+function setBulkTierMode(mode) {
+  currentBulkTierMode = mode;
+  ["all", "av1", "av2", "av3"].forEach(m => {
+    const btn = document.getElementById(`bulk-tier-btn-${m}`);
+    if (btn) {
+      if (m === mode) {
+        btn.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500 text-slate-950 shadow-sm transition-all cursor-pointer";
+      } else {
+        btn.className = "px-2.5 py-1 text-[11px] font-semibold text-slate-400 hover:text-white rounded-lg transition-all cursor-pointer";
+      }
+    }
+  });
+  renderBulkOffersTable();
+}
+
+function setBulkProfitFilter(filter) {
+  currentBulkProfitFilter = filter;
+  ["all", "profit", "loss"].forEach(f => {
+    const btn = document.getElementById(`bulk-filter-btn-${f}`);
+    if (btn) {
+      if (f === filter) {
+        btn.className = "px-2.5 py-1 font-bold rounded-lg bg-white text-slate-950 shadow-sm transition-all cursor-pointer";
+      } else {
+        const colorClass = f === "profit" ? "text-emerald-400 hover:text-emerald-300" : (f === "loss" ? "text-rose-400 hover:text-rose-300" : "text-slate-400 hover:text-white");
+        btn.className = `px-2.5 py-1 font-semibold ${colorClass} rounded-lg transition-all cursor-pointer`;
+      }
+    }
+  });
+  renderBulkOffersTable();
+}
+
+function onBulkSearchInput(val) {
+  currentBulkSearchQuery = (val || "").trim().toLocaleLowerCase("tr");
+  renderBulkOffersTable();
+}
+
+function clearBulkSearch() {
+  const inputEl = document.getElementById("bulk-search-input");
+  if (inputEl) inputEl.value = "";
+  currentBulkSearchQuery = "";
+  renderBulkOffersTable();
+}
+
+function toggleBulkRowInvoice(prodId) {
+  bulkOpenInvoices[prodId] = !bulkOpenInvoices[prodId];
+  renderBulkOffersTable();
+}
+
+function onBulkCustomInput(prodId, tierKey, field, val) {
+  if (!bulkOfferCustomValues[prodId]) bulkOfferCustomValues[prodId] = {};
+  if (!bulkOfferCustomValues[prodId][tierKey]) bulkOfferCustomValues[prodId][tierKey] = {};
+  const num = parseFloat(val);
+  if (!isNaN(num)) {
+    bulkOfferCustomValues[prodId][tierKey][field] = num;
+  }
+  renderBulkOffersTable();
+}
+
+function applyBulkRedlinePrice(prodId, tierKey, redlinePrice) {
+  if (!bulkOfferCustomValues[prodId]) bulkOfferCustomValues[prodId] = {};
+  if (!bulkOfferCustomValues[prodId][tierKey]) bulkOfferCustomValues[prodId][tierKey] = {};
+  bulkOfferCustomValues[prodId][tierKey].price = Math.ceil(redlinePrice);
+  renderBulkOffersTable();
+}
+
+function resetBulkRowCustoms(prodId) {
+  if (bulkOfferCustomValues[prodId]) {
+    delete bulkOfferCustomValues[prodId];
+  }
+  renderBulkOffersTable();
+}
+
+function renderBulkOffersTable() {
+  const container = document.getElementById("bulk-offers-table-container");
+  if (!container) return;
+
+  if (!currentProducts || Object.keys(currentProducts).length === 0) {
+    currentProducts = StorageManager.getProducts();
+  }
+  let pList = Object.values(currentProducts || {});
+
+  // 1. Kural: ENDORA MARKALI ÜRÜNLERİ KESİNLİKLE LİSTEDEN ÇIKAR
+  pList = pList.filter(p => {
+    const nameStr = (p.name || "").toLocaleLowerCase("tr");
+    const skuStr = (p.sku || "").toLocaleLowerCase("tr");
+    const brandStr = (p.brand || "").toLocaleLowerCase("tr");
+    return !nameStr.includes("endora") && !skuStr.includes("endora") && !brandStr.includes("endora");
+  });
+
+  // Arama Filtresi
+  if (currentBulkSearchQuery) {
+    pList = pList.filter(p => {
+      const nameStr = (p.name || "").toLocaleLowerCase("tr");
+      const skuStr = (p.sku || "").toLocaleLowerCase("tr");
+      const catStr = (p.category || "").toLocaleLowerCase("tr");
+      return nameStr.includes(currentBulkSearchQuery) || skuStr.includes(currentBulkSearchQuery) || catStr.includes(currentBulkSearchQuery);
+    });
+  }
+
+  const overheadConfig = StorageManager.getFactoryOverhead();
+  const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
+  const dhlCargo = PriceCalculator.getDhlRateByDesi(currentBulkDesi);
+
+  const evaluated = pList.map(p => {
+    const idKey = p.id || p.sku;
+    const lp = getPlatformLivePrice("trendyol", p, currentBulkVolume);
+    let basePrice = 0;
+    if (lp.price !== null && lp.price > 0) {
+      basePrice = lp.price;
+    } else {
+      const costCalc = getLayer2EffectiveCostForVolume(p, currentBulkVolume, overheadRes.overheadPerKg);
+      if (costCalc.trendyolRecommended && costCalc.trendyolRecommended.salePrice > 0) {
+        basePrice = costCalc.trendyolRecommended.salePrice;
+      } else if (p.prices && p.prices[currentBulkVolume]) {
+        basePrice = p.prices[currentBulkVolume];
+      } else {
+        basePrice = 500;
+      }
+    }
+
+    const costCalc = getLayer2EffectiveCostForVolume(p, currentBulkVolume, overheadRes.overheadPerKg);
+    const unitCost = costCalc.effectiveNetCost;
+
+    const custom = bulkOfferCustomValues[idKey] || {};
+
+    // 1. Avantajlı: %10 indirim, %10 komisyon
+    const av1Price = custom.av1?.price ?? Math.round(basePrice * 0.90);
+    const av1Comm = custom.av1?.comm ?? 10;
+    const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice,
+      offerPrice: av1Price,
+      unitCost,
+      commissionPercent: av1Comm,
+      cargoFee: dhlCargo
+    });
+
+    // 2. Çok Avantajlı: %18 indirim, %8 komisyon
+    const av2Price = custom.av2?.price ?? Math.round(basePrice * 0.82);
+    const av2Comm = custom.av2?.comm ?? 8;
+    const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice,
+      offerPrice: av2Price,
+      unitCost,
+      commissionPercent: av2Comm,
+      cargoFee: dhlCargo
+    });
+
+    // 3. Süper Avantajlı: %30 indirim, %6 komisyon
+    const av3Price = custom.av3?.price ?? Math.round(basePrice * 0.70);
+    const av3Comm = custom.av3?.comm ?? 6;
+    const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
+      basePrice,
+      offerPrice: av3Price,
+      unitCost,
+      commissionPercent: av3Comm,
+      cargoFee: dhlCargo
+    });
+
+    return {
+      product: p,
+      idKey,
+      basePrice,
+      unitCost,
+      costCalc,
+      av1: { price: av1Price, comm: av1Comm, sim: sim1 },
+      av2: { price: av2Price, comm: av2Comm, sim: sim2 },
+      av3: { price: av3Price, comm: av3Comm, sim: sim3 }
+    };
+  });
+
+  // İstatistikleri Hesapla (Tüm Cansızzade ürünleri üzerinden)
+  const totalCount = evaluated.length;
+  let profitableCount = 0;
+  let lossCount = 0;
+  let totalNetProfit = 0;
+
+  evaluated.forEach(item => {
+    const activeSim = currentBulkTierMode === "av2" ? item.av2.sim : (currentBulkTierMode === "av3" ? item.av3.sim : item.av1.sim);
+    if (activeSim.isProfitable) {
+      profitableCount++;
+    } else {
+      lossCount++;
+    }
+    totalNetProfit += activeSim.netProfit;
+  });
+
+  const avgProfit = totalCount > 0 ? (totalNetProfit / totalCount) : 0;
+
+  const statTotal = document.getElementById("bulk-stat-total");
+  const statProfitable = document.getElementById("bulk-stat-profitable");
+  const statLoss = document.getElementById("bulk-stat-loss");
+  const statAvg = document.getElementById("bulk-stat-avg-profit");
+
+  if (statTotal) statTotal.textContent = totalCount;
+  if (statProfitable) statProfitable.textContent = profitableCount;
+  if (statLoss) statLoss.textContent = lossCount;
+  if (statAvg) {
+    statAvg.textContent = `${avgProfit >= 0 ? '+' : ''}${PriceCalculator.formatTL(avgProfit)}`;
+    statAvg.className = `text-base font-black ${avgProfit >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
+  }
+
+  // Kârlılık Filtresi Uygula
+  let filteredList = evaluated;
+  if (currentBulkProfitFilter === "profit") {
+    filteredList = evaluated.filter(item => {
+      if (currentBulkTierMode === "all") return item.av1.sim.isProfitable || item.av2.sim.isProfitable || item.av3.sim.isProfitable;
+      if (currentBulkTierMode === "av1") return item.av1.sim.isProfitable;
+      if (currentBulkTierMode === "av2") return item.av2.sim.isProfitable;
+      if (currentBulkTierMode === "av3") return item.av3.sim.isProfitable;
+      return true;
+    });
+  } else if (currentBulkProfitFilter === "loss") {
+    filteredList = evaluated.filter(item => {
+      if (currentBulkTierMode === "all") return !item.av1.sim.isProfitable && !item.av2.sim.isProfitable && !item.av3.sim.isProfitable;
+      if (currentBulkTierMode === "av1") return !item.av1.sim.isProfitable;
+      if (currentBulkTierMode === "av2") return !item.av2.sim.isProfitable;
+      if (currentBulkTierMode === "av3") return !item.av3.sim.isProfitable;
+      return true;
+    });
+  }
+
+  if (filteredList.length === 0) {
+    container.innerHTML = `
+      <div class="p-8 text-center bg-slate-950/60 rounded-2xl border border-dashed border-slate-800 space-y-2">
+        <span class="text-3xl">🔍</span>
+        <h5 class="text-sm font-bold text-slate-300">Filtreye Uygun Ürün Bulunamadı</h5>
+        <p class="text-xs text-slate-500">Arama teriminizi veya kârlılık filtrenizi değiştirerek tekrar deneyiniz.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filteredList.map(item => {
+    const p = item.product;
+    const idKey = item.idKey;
+    const isCustomized = !!bulkOfferCustomValues[idKey];
+    const isInvoiceOpen = !!bulkOpenInvoices[idKey];
+
+    const isMaceration = isMacerationOil(p);
+    const isEssential = p.category === "Uçucu Yağlar";
+    let supplyType = p.supplyType;
+    if (isEssential && (!supplyType || supplyType === "press")) supplyType = "wholesale";
+    if (!supplyType) supplyType = isEssential ? "wholesale" : "press";
+    const isWholesale = (supplyType === "wholesale");
+    const yieldPct = (p.yieldPercent !== undefined && p.yieldPercent !== null) ? parseFloat(p.yieldPercent) : 0;
+
+    const renderTierBox = (title, tierKey, data, colorTheme) => {
+      const isProfit = data.sim.isProfitable;
+      const isZero = data.price <= 0;
+      const borderClr = isProfit ? 'border-emerald-500/40 bg-emerald-950/20' : (isZero ? 'border-rose-500/70 bg-rose-950/40' : 'border-rose-500/50 bg-rose-950/20');
+      const badgeBg = isProfit ? 'bg-emerald-950 text-emerald-300 border-emerald-500/60' : 'bg-rose-950 text-rose-300 border-rose-500/60';
+
+      return `
+        <div class="p-2.5 rounded-xl border ${borderClr} flex flex-col justify-between space-y-2 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+            <span class="text-[11px] font-black ${colorTheme} flex items-center gap-1">
+              ${title}
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeBg}">
+              ${isProfit ? `+${PriceCalculator.formatTL(data.sim.netProfit)}` : `${PriceCalculator.formatTL(data.sim.netProfit)} Zarar`}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 text-xs">
+            <div>
+              <label class="text-[9.5px] text-slate-400 font-bold block mb-0.5">Teklif Fiyatı (₺):</label>
+              <input type="number" value="${data.price}" 
+                     onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'price', this.value)"
+                     class="w-full bg-slate-950 border border-slate-700 text-white font-black text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="text-[9.5px] text-slate-400 font-bold block mb-0.5">Komisyon (%):</label>
+              <input type="number" value="${data.comm}" 
+                     onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'comm', this.value)"
+                     class="w-full bg-slate-950 border border-slate-700 text-white font-bold text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
+            </div>
+          </div>
+
+          <div class="bg-slate-950/80 p-1.5 rounded-lg border border-slate-800 text-[10.5px] space-y-0.5">
+            <div class="flex justify-between items-center text-slate-400">
+              <span>Banka Hakedişi:</span>
+              <strong class="${data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-400'}">${PriceCalculator.formatTL(data.sim.payout)}</strong>
+            </div>
+            <div class="flex justify-between items-center text-slate-400 border-t border-slate-800/60 pt-0.5">
+              <span>Kurtaran Taban:</span>
+              <strong class="text-amber-300 font-black">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
+            </div>
+          </div>
+
+          ${!isProfit ? `
+            <button type="button" onclick="applyBulkRedlinePrice('${idKey}', '${tierKey}', ${data.sim.redlineFloorPrice})" 
+                    class="w-full py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10.5px] rounded-lg shadow transition-all cursor-pointer flex items-center justify-center gap-1">
+              🛡️ Tabanı Uygula (${PriceCalculator.formatTL(Math.ceil(data.sim.redlineFloorPrice))})
+            </button>
+          ` : `
+            <div class="text-center text-[10px] text-emerald-400 font-bold py-0.5">
+              ✅ Güvenle Onaylanabilir
+            </div>
+          `}
+        </div>
+      `;
+    };
+
+    return `
+      <div class="glass-card bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3 transition-all hover:border-slate-700">
+        <!-- Üst Satır: Ürün Kimliği, Fiyatlar ve Fatura Butonu -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-base shrink-0">
+              🌿
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h5 class="text-sm font-black text-white">${p.name}</h5>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-sky-950 text-sky-300 border border-sky-800/80">
+                  ${currentBulkVolume}
+                </span>
+                <span class="text-[9.5px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800">
+                  ${p.sku}
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-400 block mt-0.5">
+                ${p.category} • Normal Satış: <strong class="text-slate-200">${PriceCalculator.formatTL(item.basePrice)}</strong>
+              </span>
+            </div>
+          </div>
+
+          <!-- Fabrika Maliyet Hapı ve Aksiyonlar -->
+          <div class="flex items-center gap-2">
+            <div class="bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded-xl text-right">
+              <span class="text-[9px] text-amber-300 block font-bold uppercase">1. Katman Fabrika Maliyeti</span>
+              <span class="text-xs font-black text-amber-300">${PriceCalculator.formatTL(item.unitCost)}</span>
+            </div>
+
+            <button type="button" onclick="toggleBulkRowInvoice('${idKey}')" 
+                    class="px-2 py-1 bg-slate-950 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-[11px] font-bold rounded-xl transition-all cursor-pointer">
+              ${isInvoiceOpen ? 'Faturayı Kapat ▲' : '📋 Fatura Detayı ▼'}
+            </button>
+
+            ${isCustomized ? `
+              <button type="button" onclick="resetBulkRowCustoms('${idKey}')" 
+                      class="px-2 py-1 bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer" title="Teklifleri Varsayılana Döndür">
+                ↺ Sıfırla
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Açılır / Kapanır 1. Katman Fabrika Faturası Detayı -->
+        ${isInvoiceOpen ? `
+          <div class="bg-[#0c1324] p-2.5 rounded-xl border border-slate-800 text-xs animate-slide-up space-y-2">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px]">
+              <div>
+                <span class="text-slate-400 block font-bold">1. Ham Yağ Payı:</span>
+                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.rawOilCost)}</span>
+                <span class="text-[9.5px] text-slate-500 block">${isWholesale ? 'Toptan Dökme' : `Sıkım (%${yieldPct} Verim)`}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block font-bold">2. Ambalaj Payı:</span>
+                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.packCost)}</span>
+                <span class="text-[9.5px] text-slate-500 block">${currentBulkVolume} Şişe + Kapak + Kutu</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block font-bold">3. Tesis Masrafı:</span>
+                <span class="font-bold ${isWholesale ? 'text-slate-500' : 'text-slate-200'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(item.costCalc.linearOverhead)}</span>
+                <span class="text-[9.5px] text-slate-500 block">${isWholesale ? 'Toptan pres yok' : 'Elektrik/Kira/Makine'}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block font-bold">4. Dolum İşçiliği:</span>
+                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.laborAssemblyFee)}</span>
+                <span class="text-[9.5px] text-slate-500 block">Dolum & Paketleme</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between border-t border-slate-800/80 pt-1 text-xs">
+              <span class="font-bold text-amber-300">Toplam Saf Üretim Maliyeti:</span>
+              <span class="font-black text-amber-300">${PriceCalculator.formatTL(item.unitCost)}</span>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- 3 Kampanya Seviyesi Izgarası -->
+        <div class="grid ${currentBulkTierMode === 'all' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'} gap-2.5">
+          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderTierBox('🏷️ 1. Avantajlı (%10 İndirim)', 'av1', item.av1, 'text-amber-400') : ''}
+          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderTierBox('💎 2. Çok Avantajlı (%18 İndirim)', 'av2', item.av2, 'text-sky-400') : ''}
+          ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderTierBox('🚀 3. Süper Avantajlı (%30 İndirim)', 'av3', item.av3, 'text-purple-400') : ''}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.initBulkOffersTable = initBulkOffersTable;
+window.renderBulkOffersTable = renderBulkOffersTable;
+window.onBulkVolumeChange = onBulkVolumeChange;
+window.onBulkDesiChange = onBulkDesiChange;
+window.setBulkTierMode = setBulkTierMode;
+window.setBulkProfitFilter = setBulkProfitFilter;
+window.onBulkSearchInput = onBulkSearchInput;
+window.clearBulkSearch = clearBulkSearch;
+window.toggleBulkRowInvoice = toggleBulkRowInvoice;
+window.onBulkCustomInput = onBulkCustomInput;
+window.applyBulkRedlinePrice = applyBulkRedlinePrice;
+window.resetBulkRowCustoms = resetBulkRowCustoms;
 
 // ----------------------------------------------------
 // 📄 KATMAN 2 SAF FABRİKA MALİYETİ PDF RAPORU OLUŞTURUCU (REÇETE & DÖKÜM ENTEGRELİ)
