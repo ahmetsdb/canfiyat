@@ -5204,13 +5204,17 @@ function setBulkTierMode(mode) {
 
 function setBulkProfitFilter(filter) {
   currentBulkProfitFilter = filter;
-  ["all", "profit", "loss"].forEach(f => {
+  ["all", "profit", "loss", "unknown"].forEach(f => {
     const btn = document.getElementById(`bulk-filter-btn-${f}`);
     if (btn) {
       if (f === filter) {
         btn.className = "px-2.5 py-1 font-bold rounded-lg bg-white text-slate-950 shadow-sm transition-all cursor-pointer";
       } else {
-        const colorClass = f === "profit" ? "text-emerald-400 hover:text-emerald-300" : (f === "loss" ? "text-rose-400 hover:text-rose-300" : "text-slate-400 hover:text-white");
+        const colorClass = f === "profit" 
+          ? "text-emerald-400 hover:text-emerald-300" 
+          : (f === "loss" 
+              ? "text-rose-400 hover:text-rose-300" 
+              : (f === "unknown" ? "text-amber-400 hover:text-amber-300" : "text-slate-400 hover:text-white"));
         btn.className = `px-2.5 py-1 font-semibold ${colorClass} rounded-lg transition-all cursor-pointer`;
       }
     }
@@ -5396,28 +5400,37 @@ function renderBulkOffersTable() {
   const totalCount = evaluated.length;
   let profitableCount = 0;
   let lossCount = 0;
+  let unknownCount = 0;
   let totalNetProfit = 0;
+  let knownItemsCount = 0;
 
   evaluated.forEach(item => {
     const activeSim = currentBulkTierMode === "av2" ? item.av2.sim : (currentBulkTierMode === "av3" ? item.av3.sim : item.av1.sim);
-    if (activeSim.isProfitable) {
+    if (!activeSim.hasKnownCost || item.unitCost <= 0) {
+      unknownCount++;
+    } else if (activeSim.isProfitable) {
       profitableCount++;
+      totalNetProfit += activeSim.netProfit;
+      knownItemsCount++;
     } else {
       lossCount++;
+      totalNetProfit += activeSim.netProfit;
+      knownItemsCount++;
     }
-    totalNetProfit += activeSim.netProfit;
   });
 
-  const avgProfit = totalCount > 0 ? (totalNetProfit / totalCount) : 0;
+  const avgProfit = knownItemsCount > 0 ? (totalNetProfit / knownItemsCount) : 0;
 
   const statTotal = document.getElementById("bulk-stat-total");
   const statProfitable = document.getElementById("bulk-stat-profitable");
   const statLoss = document.getElementById("bulk-stat-loss");
+  const statUnknown = document.getElementById("bulk-stat-unknown");
   const statAvg = document.getElementById("bulk-stat-avg-profit");
 
   if (statTotal) statTotal.textContent = totalCount;
   if (statProfitable) statProfitable.textContent = profitableCount;
   if (statLoss) statLoss.textContent = lossCount;
+  if (statUnknown) statUnknown.textContent = unknownCount;
   if (statAvg) {
     statAvg.textContent = `${avgProfit >= 0 ? '+' : ''}${PriceCalculator.formatTL(avgProfit)}`;
     statAvg.className = `text-base font-black ${avgProfit >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
@@ -5427,6 +5440,7 @@ function renderBulkOffersTable() {
   let filteredList = evaluated;
   if (currentBulkProfitFilter === "profit") {
     filteredList = evaluated.filter(item => {
+      if (item.unitCost <= 0) return false;
       if (currentBulkTierMode === "all") return item.av1.sim.isProfitable || item.av2.sim.isProfitable || item.av3.sim.isProfitable;
       if (currentBulkTierMode === "av1") return item.av1.sim.isProfitable;
       if (currentBulkTierMode === "av2") return item.av2.sim.isProfitable;
@@ -5435,11 +5449,16 @@ function renderBulkOffersTable() {
     });
   } else if (currentBulkProfitFilter === "loss") {
     filteredList = evaluated.filter(item => {
-      if (currentBulkTierMode === "all") return !item.av1.sim.isProfitable && !item.av2.sim.isProfitable && !item.av3.sim.isProfitable;
-      if (currentBulkTierMode === "av1") return !item.av1.sim.isProfitable;
-      if (currentBulkTierMode === "av2") return !item.av2.sim.isProfitable;
-      if (currentBulkTierMode === "av3") return !item.av3.sim.isProfitable;
+      if (item.unitCost <= 0) return false;
+      if (currentBulkTierMode === "all") return item.av1.sim.isLoss || item.av2.sim.isLoss || item.av3.sim.isLoss;
+      if (currentBulkTierMode === "av1") return item.av1.sim.isLoss;
+      if (currentBulkTierMode === "av2") return item.av2.sim.isLoss;
+      if (currentBulkTierMode === "av3") return item.av3.sim.isLoss;
       return true;
+    });
+  } else if (currentBulkProfitFilter === "unknown") {
+    filteredList = evaluated.filter(item => {
+      return item.unitCost <= 0;
     });
   }
 
@@ -5470,10 +5489,26 @@ function renderBulkOffersTable() {
     const yieldPct = (p.yieldPercent !== undefined && p.yieldPercent !== null) ? parseFloat(p.yieldPercent) : 0;
 
     const renderTierBox = (title, tierKey, data, colorTheme) => {
-      const isProfit = data.sim.isProfitable;
+      const hasKnownCost = item.unitCost > 0;
+      const isProfit = hasKnownCost && data.sim.isProfitable;
+      const isLoss = hasKnownCost && data.sim.isLoss;
       const isZero = data.price <= 0;
-      const borderClr = isProfit ? 'border-emerald-500/40 bg-emerald-950/20' : (isZero ? 'border-rose-500/70 bg-rose-950/40' : 'border-rose-500/50 bg-rose-950/20');
-      const badgeBg = isProfit ? 'bg-emerald-950 text-emerald-300 border-emerald-500/60' : 'bg-rose-950 text-rose-300 border-rose-500/60';
+
+      let borderClr = 'border-slate-800 bg-slate-950/40';
+      let badgeBg = 'bg-amber-950/40 text-amber-300 border-amber-500/40';
+      let badgeText = '⚠️ Maliyet Bilinmiyor';
+
+      if (hasKnownCost) {
+        if (isProfit) {
+          borderClr = 'border-emerald-500/40 bg-emerald-950/20';
+          badgeBg = 'bg-emerald-950 text-emerald-300 border-emerald-500/60';
+          badgeText = `+${PriceCalculator.formatTL(data.sim.netProfit)}`;
+        } else {
+          borderClr = isZero ? 'border-rose-500/70 bg-rose-950/40' : 'border-rose-500/50 bg-rose-950/20';
+          badgeBg = 'bg-rose-950 text-rose-300 border-rose-500/60';
+          badgeText = `${PriceCalculator.formatTL(data.sim.netProfit)} Zarar`;
+        }
+      }
 
       return `
         <div class="p-2.5 rounded-xl border ${borderClr} flex flex-col justify-between space-y-2 shadow-sm">
@@ -5482,7 +5517,7 @@ function renderBulkOffersTable() {
               ${title}
             </span>
             <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeBg}">
-              ${isProfit ? `+${PriceCalculator.formatTL(data.sim.netProfit)}` : `${PriceCalculator.formatTL(data.sim.netProfit)} Zarar`}
+              ${badgeText}
             </span>
           </div>
 
@@ -5517,20 +5552,28 @@ function renderBulkOffersTable() {
             </div>
             <div class="flex justify-between items-center text-slate-400 border-t border-slate-800/60 pt-0.5">
               <span>Kurtaran Taban:</span>
-              <strong class="text-amber-300 font-black">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
+              ${hasKnownCost && data.sim.redlineFloorPrice !== null ? `
+                <strong class="text-amber-300 font-black">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
+              ` : `
+                <strong class="text-amber-400/80 font-bold">Bilinmiyor</strong>
+              `}
             </div>
           </div>
 
-          ${!isProfit ? `
+          ${!hasKnownCost ? `
+            <div class="text-center text-[10px] text-amber-400 font-bold py-1 bg-amber-950/30 rounded-lg border border-amber-800/40">
+              ⚠️ Ham Maliyet Bilinmiyor
+            </div>
+          ` : (isProfit ? `
+            <div class="text-center text-[10px] text-emerald-400 font-bold py-0.5">
+              ✅ Güvenle Onaylanabilir
+            </div>
+          ` : `
             <button type="button" onclick="applyBulkRedlinePrice('${idKey}', '${tierKey}', ${data.sim.redlineFloorPrice})" 
                     class="w-full py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10.5px] rounded-lg shadow transition-all cursor-pointer flex items-center justify-center gap-1">
               🛡️ Tabanı Uygula (${PriceCalculator.formatTL(Math.ceil(data.sim.redlineFloorPrice))})
             </button>
-          ` : `
-            <div class="text-center text-[10px] text-emerald-400 font-bold py-0.5">
-              ✅ Güvenle Onaylanabilir
-            </div>
-          `}
+          `)}
         </div>
       `;
     };
@@ -5583,9 +5626,9 @@ function renderBulkOffersTable() {
 
           <!-- Fabrika Maliyet Hapı ve Aksiyonlar -->
           <div class="flex items-center gap-2">
-            <div class="bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded-xl text-right">
-              <span class="text-[9px] text-amber-300 block font-bold uppercase">1. Katman Fabrika Maliyeti</span>
-              <span class="text-xs font-black text-amber-300">${PriceCalculator.formatTL(item.unitCost)}</span>
+            <div class="${item.unitCost > 0 ? 'bg-amber-950/40 border-amber-800/60' : 'bg-slate-950 border-slate-800'} border px-2.5 py-1 rounded-xl text-right">
+              <span class="text-[9px] ${item.unitCost > 0 ? 'text-amber-300' : 'text-slate-400'} block font-bold uppercase">1. Katman Fabrika Maliyeti</span>
+              <span class="text-xs font-black ${item.unitCost > 0 ? 'text-amber-300' : 'text-amber-400'}">${item.unitCost > 0 ? PriceCalculator.formatTL(item.unitCost) : '⚠️ Bilinmiyor'}</span>
             </div>
 
             <button type="button" onclick="toggleBulkRowInvoice('${idKey}')" 
@@ -5605,6 +5648,12 @@ function renderBulkOffersTable() {
         <!-- Açılır / Kapanır 1. Katman Fabrika Faturası Detayı -->
         ${isInvoiceOpen ? `
           <div class="bg-[#0c1324] p-2.5 rounded-xl border border-slate-800 text-xs animate-slide-up space-y-2">
+            ${item.unitCost <= 0 ? `
+              <div class="p-2 bg-amber-950/30 rounded-lg border border-amber-800/50 text-[11px] text-amber-300 flex items-center gap-2">
+                <span>⚠️</span>
+                <span>Bu ürünün Katman 1'de ham hammadde veya tohum maliyeti tanımlanmadığı için saf fabrika maliyeti hesaplanamamaktadır (0 ₺ görünmektedir). Lütfen Katman 1 veya Katman 2'den hammadde maliyetini giriniz.</span>
+              </div>
+            ` : ''}
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px]">
               <div>
                 <span class="text-slate-400 block font-bold">1. Ham Yağ Payı:</span>
@@ -5629,7 +5678,7 @@ function renderBulkOffersTable() {
             </div>
             <div class="flex items-center justify-between border-t border-slate-800/80 pt-1 text-xs">
               <span class="font-bold text-amber-300">Toplam Saf Üretim Maliyeti:</span>
-              <span class="font-black text-amber-300">${PriceCalculator.formatTL(item.unitCost)}</span>
+              <span class="font-black text-amber-300">${item.unitCost > 0 ? PriceCalculator.formatTL(item.unitCost) : '0,00 ₺ (Maliyet Bilinmiyor)'}</span>
             </div>
           </div>
         ` : ''}

@@ -664,27 +664,30 @@ class PriceCalculator {
   }) {
     const p = parseFloat(offerPrice) || 0;
     const c = parseFloat(unitCost) || 0;
+    const hasKnownCost = c > 0;
     const commDec = (parseFloat(commissionPercent) || 0) / 100;
     const cargo = parseFloat(cargoFee) || 0;
 
     const commAmount = parseFloat((p * commDec).toFixed(2));
     const payout = parseFloat((p - commAmount - cargo).toFixed(2));
-    const netProfit = parseFloat((payout - c).toFixed(2));
-    const profitMargin = p > 0 ? parseFloat(((netProfit / p) * 100).toFixed(1)) : null;
+    const netProfit = hasKnownCost ? parseFloat((payout - c).toFixed(2)) : null;
+    const profitMargin = (hasKnownCost && p > 0) ? parseFloat(((netProfit / p) * 100).toFixed(1)) : null;
 
     // Başa-baş (0 TL kâr için gereken minimum kırmızı çizgi fiyatı)
-    const redlineFloorPrice = commDec < 1 ? parseFloat(((c + cargo) / (1 - commDec)).toFixed(2)) : 0;
+    const redlineFloorPrice = (hasKnownCost && commDec < 1) ? parseFloat(((c + cargo) / (1 - commDec)).toFixed(2)) : null;
 
     return {
       basePrice: parseFloat(basePrice) || 0,
       offerPrice: p,
       unitCost: c,
+      hasKnownCost: hasKnownCost,
       commAmount: commAmount,
       cargoFee: cargo,
       payout: payout,
       netProfit: netProfit,
       profitMargin: profitMargin,
-      isProfitable: p > 0 && netProfit >= 0,
+      isProfitable: hasKnownCost && p > 0 && netProfit >= 0,
+      isLoss: hasKnownCost && p > 0 && netProfit < 0,
       isZeroOffer: p <= 0,
       redlineFloorPrice: redlineFloorPrice
     };

@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.28">
+    <link rel="stylesheet" href="css/styles.css?v=4.29">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -50,8 +50,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.28: Avantajlı Masasında Tüm Hacimler & Birebir Hedef Teklif Fiyatları">
-                            v4.28 (⚡ Tüm Hacimler Eşleşmesi & "... ₺ ve altı" Birebir Teklif Masası)
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.29: Ham Maliyeti Bilinmeyen Ürünler İçin Güvenlik Koruması & Bilinmiyor Etiketi">
+                            v4.29 (🛡️ Maliyeti Bilinmeyen Ürün Koruması & 5'li Karar Masası)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -709,9 +709,10 @@
                 </div>
 
                 <!-- 4'lü İstatistik & Karar Özet Kartları -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <!-- 5'li İstatistik & Karar Özet Kartları -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                     <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl text-center shadow-inner">
-                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Toplam Cansızzade Ürün</span>
+                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Toplam Cansızzade İlan</span>
                         <span id="bulk-stat-total" class="text-base font-black text-white">0</span>
                     </div>
                     <div class="bg-emerald-950/50 border border-emerald-800/80 p-2.5 rounded-xl text-center shadow-inner">
@@ -722,7 +723,11 @@
                         <span class="text-[10px] text-rose-400 font-bold block uppercase">🔴 Reddedilmeli (Zararlı)</span>
                         <span id="bulk-stat-loss" class="text-base font-black text-rose-300">0</span>
                     </div>
-                    <div class="bg-sky-950/50 border border-sky-800/80 p-2.5 rounded-xl text-center shadow-inner">
+                    <div class="bg-amber-950/40 border border-amber-800/80 p-2.5 rounded-xl text-center shadow-inner">
+                        <span class="text-[10px] text-amber-400 font-bold block uppercase">⚠️ Maliyeti Bilinmeyen</span>
+                        <span id="bulk-stat-unknown" class="text-base font-black text-amber-300">0</span>
+                    </div>
+                    <div class="bg-sky-950/50 border border-sky-800/80 p-2.5 rounded-xl text-center shadow-inner col-span-2 sm:col-span-1">
                         <span class="text-[10px] text-sky-400 font-bold block uppercase">Ortalama Net Kâr (Birim)</span>
                         <span id="bulk-stat-avg-profit" class="text-base font-black text-sky-300">0,00 ₺</span>
                     </div>
@@ -777,6 +782,7 @@
                             <button type="button" id="bulk-filter-btn-all" onclick="setBulkProfitFilter('all')" class="px-2.5 py-1 font-bold rounded-lg bg-white text-slate-950 shadow-sm transition-all cursor-pointer">Tümü</button>
                             <button type="button" id="bulk-filter-btn-profit" onclick="setBulkProfitFilter('profit')" class="px-2.5 py-1 font-semibold text-emerald-400 hover:text-emerald-300 rounded-lg transition-all cursor-pointer">🟢 Kârlılar</button>
                             <button type="button" id="bulk-filter-btn-loss" onclick="setBulkProfitFilter('loss')" class="px-2.5 py-1 font-semibold text-rose-400 hover:text-rose-300 rounded-lg transition-all cursor-pointer">🔴 Zararlılar</button>
+                            <button type="button" id="bulk-filter-btn-unknown" onclick="setBulkProfitFilter('unknown')" class="px-2.5 py-1 font-semibold text-amber-400 hover:text-amber-300 rounded-lg transition-all cursor-pointer">⚠️ Bilinmeyenler</button>
                         </div>
 
                         <div class="relative flex-1 sm:w-60">
@@ -1741,12 +1747,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.28"></script>
-    <script src="js/liveSiteData.js?v=4.28"></script>
-    <script src="js/trendyolData.js?v=4.28"></script>
-    <script src="js/storage.js?v=4.28"></script>
-    <script src="js/calculator.js?v=4.28"></script>
-    <script src="js/app.js?v=4.28"></script>
+    <script src="js/productsData.js?v=4.29"></script>
+    <script src="js/liveSiteData.js?v=4.29"></script>
+    <script src="js/trendyolData.js?v=4.29"></script>
+    <script src="js/storage.js?v=4.29"></script>
+    <script src="js/calculator.js?v=4.29"></script>
+    <script src="js/app.js?v=4.29"></script>
 </body>
 
 
