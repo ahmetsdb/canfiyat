@@ -1816,7 +1816,7 @@ function getPlatformLivePrice(channel, product, volKey) {
   if (ch === "trendyol") {
     const tyMatch = findTrendyolProduct(product.name, volKey);
     if (tyMatch && tyMatch.price > 0) {
-      return { price: tyMatch.price, isOverride: false, url: tyMatch.url || null };
+      return { price: tyMatch.price, isOverride: false, url: tyMatch.url || null, barcode: tyMatch.barcode || null, item: tyMatch };
     }
   } else {
     const siteData = (typeof LIVE_SITE_SCRAPED_DATA !== "undefined") ? LIVE_SITE_SCRAPED_DATA[product.id] : null;
@@ -5174,6 +5174,21 @@ function renderBulkOffersTable() {
     return !nameStr.includes("endora") && !skuStr.includes("endora") && !brandStr.includes("endora");
   });
 
+  const allVols = ["10ml", "20ml", "30ml", "50ml", "100ml", "150ml", "250ml", "500ml", "1000ml", "5000ml"];
+
+  // 2. Kural: YALNIZCA KATMAN 2 TRENDYOL ÜRÜNLERİ
+  // (Yasemin, Bergamot, Citronella vb. Trendyol'da olmayan ürünleri KESİNLİKLE dahil etme)
+  pList = pList.filter(p => {
+    if (currentBulkVolume && currentBulkVolume !== "all") {
+      const lp = getPlatformLivePrice("trendyol", p, currentBulkVolume);
+      return lp && lp.price !== null && lp.price > 0;
+    }
+    return allVols.some(vk => {
+      const lp = getPlatformLivePrice("trendyol", p, vk);
+      return lp && lp.price !== null && lp.price > 0;
+    });
+  });
+
   // Arama Filtresi
   if (currentBulkSearchQuery) {
     pList = pList.filter(p => {
@@ -5188,72 +5203,127 @@ function renderBulkOffersTable() {
   const overheadRes = PriceCalculator.calculateFactoryOverheadPerKg(overheadConfig);
   const dhlCargo = PriceCalculator.getDhlRateByDesi(currentBulkDesi);
 
-  const evaluated = pList.map(p => {
-    const idKey = p.id || p.sku;
-    const lp = getPlatformLivePrice("trendyol", p, currentBulkVolume);
-    let basePrice = 0;
-    if (lp.price !== null && lp.price > 0) {
-      basePrice = lp.price;
-    } else {
+  const evaluated = [];
+
+  if (currentBulkVolume === "all") {
+    pList.forEach(p => {
+      allVols.forEach(vk => {
+        const lp = getPlatformLivePrice("trendyol", p, vk);
+        if (lp && lp.price !== null && lp.price > 0) {
+          const idKey = `${p.id || p.sku}_${vk}`;
+          const basePrice = lp.price;
+          const costCalc = getLayer2EffectiveCostForVolume(p, vk, overheadRes.overheadPerKg);
+          const unitCost = costCalc.effectiveNetCost;
+          const custom = bulkOfferCustomValues[idKey] || {};
+
+          // 1. Avantajlı: %10 indirim, %10 komisyon
+          const av1Price = custom.av1?.price ?? Math.round(basePrice * 0.90);
+          const av1Comm = custom.av1?.comm ?? 10;
+          const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
+            basePrice,
+            offerPrice: av1Price,
+            unitCost,
+            commissionPercent: av1Comm,
+            cargoFee: dhlCargo
+          });
+
+          // 2. Çok Avantajlı: %18 indirim, %8 komisyon
+          const av2Price = custom.av2?.price ?? Math.round(basePrice * 0.82);
+          const av2Comm = custom.av2?.comm ?? 8;
+          const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
+            basePrice,
+            offerPrice: av2Price,
+            unitCost,
+            commissionPercent: av2Comm,
+            cargoFee: dhlCargo
+          });
+
+          // 3. Süper Avantajlı: %30 indirim, %6 komisyon
+          const av3Price = custom.av3?.price ?? Math.round(basePrice * 0.70);
+          const av3Comm = custom.av3?.comm ?? 6;
+          const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
+            basePrice,
+            offerPrice: av3Price,
+            unitCost,
+            commissionPercent: av3Comm,
+            cargoFee: dhlCargo
+          });
+
+          evaluated.push({
+            product: p,
+            idKey,
+            rawId: p.id || p.sku,
+            volKey: vk,
+            barcode: lp.barcode || p.barcode || "",
+            url: lp.url || "",
+            basePrice,
+            unitCost,
+            costCalc,
+            av1: { price: av1Price, comm: av1Comm, sim: sim1 },
+            av2: { price: av2Price, comm: av2Comm, sim: sim2 },
+            av3: { price: av3Price, comm: av3Comm, sim: sim3 }
+          });
+        }
+      });
+    });
+  } else {
+    pList.forEach(p => {
+      const idKey = p.id || p.sku;
+      const lp = getPlatformLivePrice("trendyol", p, currentBulkVolume);
+      const basePrice = (lp && lp.price) ? lp.price : 0;
       const costCalc = getLayer2EffectiveCostForVolume(p, currentBulkVolume, overheadRes.overheadPerKg);
-      if (costCalc.trendyolRecommended && costCalc.trendyolRecommended.salePrice > 0) {
-        basePrice = costCalc.trendyolRecommended.salePrice;
-      } else if (p.prices && p.prices[currentBulkVolume]) {
-        basePrice = p.prices[currentBulkVolume];
-      } else {
-        basePrice = 500;
-      }
-    }
+      const unitCost = costCalc.effectiveNetCost;
+      const custom = bulkOfferCustomValues[idKey] || {};
 
-    const costCalc = getLayer2EffectiveCostForVolume(p, currentBulkVolume, overheadRes.overheadPerKg);
-    const unitCost = costCalc.effectiveNetCost;
+      // 1. Avantajlı: %10 indirim, %10 komisyon
+      const av1Price = custom.av1?.price ?? Math.round(basePrice * 0.90);
+      const av1Comm = custom.av1?.comm ?? 10;
+      const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
+        basePrice,
+        offerPrice: av1Price,
+        unitCost,
+        commissionPercent: av1Comm,
+        cargoFee: dhlCargo
+      });
 
-    const custom = bulkOfferCustomValues[idKey] || {};
+      // 2. Çok Avantajlı: %18 indirim, %8 komisyon
+      const av2Price = custom.av2?.price ?? Math.round(basePrice * 0.82);
+      const av2Comm = custom.av2?.comm ?? 8;
+      const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
+        basePrice,
+        offerPrice: av2Price,
+        unitCost,
+        commissionPercent: av2Comm,
+        cargoFee: dhlCargo
+      });
 
-    // 1. Avantajlı: %10 indirim, %10 komisyon
-    const av1Price = custom.av1?.price ?? Math.round(basePrice * 0.90);
-    const av1Comm = custom.av1?.comm ?? 10;
-    const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
-      basePrice,
-      offerPrice: av1Price,
-      unitCost,
-      commissionPercent: av1Comm,
-      cargoFee: dhlCargo
+      // 3. Süper Avantajlı: %30 indirim, %6 komisyon
+      const av3Price = custom.av3?.price ?? Math.round(basePrice * 0.70);
+      const av3Comm = custom.av3?.comm ?? 6;
+      const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
+        basePrice,
+        offerPrice: av3Price,
+        unitCost,
+        commissionPercent: av3Comm,
+        cargoFee: dhlCargo
+      });
+
+      evaluated.push({
+        product: p,
+        idKey,
+        rawId: p.id || p.sku,
+        volKey: currentBulkVolume,
+        barcode: (lp && lp.barcode) || p.barcode || "",
+        url: (lp && lp.url) || "",
+        basePrice,
+        unitCost,
+        costCalc,
+        av1: { price: av1Price, comm: av1Comm, sim: sim1 },
+        av2: { price: av2Price, comm: av2Comm, sim: sim2 },
+        av3: { price: av3Price, comm: av3Comm, sim: sim3 }
+      });
     });
-
-    // 2. Çok Avantajlı: %18 indirim, %8 komisyon
-    const av2Price = custom.av2?.price ?? Math.round(basePrice * 0.82);
-    const av2Comm = custom.av2?.comm ?? 8;
-    const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
-      basePrice,
-      offerPrice: av2Price,
-      unitCost,
-      commissionPercent: av2Comm,
-      cargoFee: dhlCargo
-    });
-
-    // 3. Süper Avantajlı: %30 indirim, %6 komisyon
-    const av3Price = custom.av3?.price ?? Math.round(basePrice * 0.70);
-    const av3Comm = custom.av3?.comm ?? 6;
-    const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
-      basePrice,
-      offerPrice: av3Price,
-      unitCost,
-      commissionPercent: av3Comm,
-      cargoFee: dhlCargo
-    });
-
-    return {
-      product: p,
-      idKey,
-      basePrice,
-      unitCost,
-      costCalc,
-      av1: { price: av1Price, comm: av1Comm, sim: sim1 },
-      av2: { price: av2Price, comm: av2Comm, sim: sim2 },
-      av3: { price: av3Price, comm: av3Comm, sim: sim3 }
-    };
-  });
+  }
 
   // İstatistikleri Hesapla (Tüm Cansızzade ürünleri üzerinden)
   const totalCount = evaluated.length;
@@ -5397,17 +5467,30 @@ function renderBulkOffersTable() {
               🌿
             </div>
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 <h5 class="text-sm font-black text-white">${p.name}</h5>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-sky-950 text-sky-300 border border-sky-800/80">
-                  ${currentBulkVolume}
+                  ${item.volKey || currentBulkVolume}
                 </span>
                 <span class="text-[9.5px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800">
                   ${p.sku}
                 </span>
+                ${item.barcode ? `
+                  <span class="text-[9.5px] font-mono text-amber-300 px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-800/80">
+                    Barkod: ${item.barcode}
+                  </span>
+                ` : ''}
               </div>
-              <span class="text-[11px] text-slate-400 block mt-0.5">
-                ${p.category} • Normal Satış: <strong class="text-slate-200">${PriceCalculator.formatTL(item.basePrice)}</strong>
+              <span class="text-[11px] text-slate-400 block mt-0.5 flex flex-wrap items-center gap-1.5">
+                <span>${p.category}</span>
+                <span>•</span>
+                <span>Trendyol Canlı Fiyatı: <strong class="text-orange-400 font-bold">${PriceCalculator.formatTL(item.basePrice)}</strong></span>
+                ${item.url ? `
+                  <span>•</span>
+                  <a href="${item.url}" target="_blank" class="text-orange-400 hover:text-orange-300 underline font-semibold flex items-center gap-0.5">
+                    Trendyol'da Gör ↗
+                  </a>
+                ` : ''}
               </span>
             </div>
           </div>
@@ -5445,7 +5528,7 @@ function renderBulkOffersTable() {
               <div>
                 <span class="text-slate-400 block font-bold">2. Ambalaj Payı:</span>
                 <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.packCost)}</span>
-                <span class="text-[9.5px] text-slate-500 block">${currentBulkVolume} Şişe + Kapak + Kutu</span>
+                <span class="text-[9.5px] text-slate-500 block">${item.volKey || currentBulkVolume} Şişe + Kapak + Kutu</span>
               </div>
               <div>
                 <span class="text-slate-400 block font-bold">3. Tesis Masrafı:</span>
