@@ -5545,13 +5545,67 @@ function renderBulkOffersTable() {
             </div>
           </div>
 
-          <div class="bg-slate-950/80 p-1.5 rounded-lg border border-slate-800 text-[10.5px] space-y-0.5">
-            <div class="flex justify-between items-center text-slate-400">
-              <span>Banka Hakedişi:</span>
-              <strong class="${data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-400'}">${PriceCalculator.formatTL(data.sim.payout)}</strong>
+          <!-- KATMAN 1 PAZARYERİ SİMÜLASYONU & HAKEDİŞ HESAP CETVELİ (ŞEFFAF VE ANLAŞILIR) -->
+          <div class="bg-slate-950/90 p-2 rounded-xl border border-slate-800 text-[11px] space-y-1.5 shadow-inner">
+            <!-- 1. Pazaryeri Kesintileri -->
+            <div class="space-y-1 pb-1 border-b border-slate-800/70">
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">1. Teklif Satış:</span>
+                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(data.sim.offerPrice)}</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">(-) Komisyon (%${data.comm}):</span>
+                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(data.sim.commAmount)}</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">(-) Kargo (${currentBulkDesi} Desi):</span>
+                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(data.sim.cargoFee)}</span>
+              </div>
             </div>
-            <div class="flex justify-between items-center text-slate-400 border-t border-slate-800/60 pt-0.5">
-              <span>Kurtaran Taban:</span>
+
+            <!-- 2. Banka Hakedişi (Nasıl Çıktı Dökümü) -->
+            <div class="py-1 px-1.5 rounded-lg ${data.sim.payout >= 0 ? 'bg-sky-950/40 border border-sky-900/50' : 'bg-rose-950/40 border border-rose-900/50'} space-y-0.5">
+              <div class="flex justify-between items-center">
+                <span class="font-extrabold ${data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300'} flex items-center gap-1">
+                  🏦 (=) Banka Hakedişi:
+                </span>
+                <strong class="font-black text-xs ${data.sim.payout >= 0 ? 'text-sky-200' : 'text-rose-200'}">
+                  ${PriceCalculator.formatTL(data.sim.payout)}
+                </strong>
+              </div>
+              <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between">
+                <span>Hakediş Hesabı:</span>
+                <span>${PriceCalculator.formatTL(data.sim.offerPrice)} − ${PriceCalculator.formatTL(data.sim.commAmount)} − ${PriceCalculator.formatTL(data.sim.cargoFee)}</span>
+              </div>
+            </div>
+
+            <!-- 3. Fabrika Maliyeti ve Net Kâr/Zarar Çıkarımı -->
+            <div class="space-y-1 pt-1 border-t border-slate-800/70">
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">(-) 1. Katman Fabrika:</span>
+                <span class="font-bold ${hasKnownCost ? 'text-amber-300' : 'text-amber-400'}">
+                  ${hasKnownCost ? `-${PriceCalculator.formatTL(item.unitCost)}` : '⚠️ Bilinmiyor'}
+                </span>
+              </div>
+              <div class="flex justify-between items-center pt-0.5 border-t border-slate-800/50">
+                <span class="font-black ${hasKnownCost ? (isProfit ? 'text-emerald-400' : 'text-rose-400') : 'text-amber-400'}">
+                  💰 (=) Net Kâr/Zarar:
+                </span>
+                <strong class="font-black text-xs ${hasKnownCost ? (isProfit ? 'text-emerald-300' : 'text-rose-300') : 'text-amber-400'}">
+                  ${hasKnownCost ? `${isProfit ? '+' : ''}${PriceCalculator.formatTL(data.sim.netProfit)}` : 'Bilinmiyor'}
+                </strong>
+              </div>
+              ${hasKnownCost ? `
+                <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between">
+                  <span>Net Kâr Hesabı:</span>
+                  <span>${PriceCalculator.formatTL(data.sim.payout)} (Banka) − ${PriceCalculator.formatTL(item.unitCost)} (Maliyet)</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 4. Kurtaran Taban Fiyatı -->
+            <div class="flex justify-between items-center text-slate-300 pt-1 border-t border-slate-800/70 text-[10.5px]">
+              <span class="text-slate-400 font-bold">🛡️ Kurtaran Taban:</span>
               ${hasKnownCost && data.sim.redlineFloorPrice !== null ? `
                 <strong class="text-amber-300 font-black">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
               ` : `
