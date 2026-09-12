@@ -29,7 +29,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=4.33">
+    <link rel="stylesheet" href="css/styles.css?v=4.34">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -50,8 +50,8 @@
                             Cansızzade Özel
                         </span>
                         
-                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.33: Yeni Kampanya Fiyatı & Katman 1 Şelale Tasarımı">
-                            v4.33 (⚡ Yeni Kampanya Fiyatı & Katman 1 Şelale Simülatörü)
+                        <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-purple-950/80 text-purple-300 border border-purple-800/80 shadow-sm" title="v4.34: Sadeleştirilmiş Görünüm & Ferah Navy-Slate Renk Düzeni">
+                            v4.34 (🎨 Sadeleştirilmiş Görünüm & Ferah Navy-Slate Renk Düzeni)
                         </span>
 
                         <span class="whitespace-nowrap text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 shadow-sm flex items-center gap-1.5">
@@ -139,51 +139,51 @@
         </nav>
 
         <!-- Controls: Category Filter & Search Bar & View Mode Toggle -->
-        <div id="global-layer-controls" class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#111a2e] p-3 rounded-2xl border border-slate-800/80 shadow-sm">
+        <div id="global-layer-controls" class="flex flex-col lg:flex-row gap-3 justify-between items-center bg-[#131d35] p-3 rounded-2xl border border-slate-700/80 shadow-md">
             
             <!-- Category Tabs -->
             <div class="flex flex-wrap gap-1.5 w-full lg:w-auto">
                 <button id="cat-tab-all" onclick="filterCategory('all')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm">
                     Tüm Ürünler (65)
                 </button>
-                <button id="cat-tab-Uçucu Yağlar" onclick="filterCategory('Uçucu Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">
+                <button id="cat-tab-Uçucu Yağlar" onclick="filterCategory('Uçucu Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-[#182442] text-slate-300 hover:text-white border border-slate-700">
                     🌿 Uçucu Yağlar (23)
                 </button>
-                <button id="cat-tab-Sabit Yağlar" onclick="filterCategory('Sabit Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">
+                <button id="cat-tab-Sabit Yağlar" onclick="filterCategory('Sabit Yağlar')" class="cat-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-[#182442] text-slate-300 hover:text-white border border-slate-700">
                     🌻 Sabit Yağlar (42)
                 </button>
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
                 <!-- View Mode Switcher (Satır vs Kart) & Redline Toggle -->
-                <div class="flex items-center gap-1.5 bg-[#090b10] p-1 rounded-xl border border-zinc-800">
-                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-800 text-white flex items-center gap-1">
+                <div class="flex items-center gap-1.5 bg-[#10182b] p-1 rounded-xl border border-slate-700">
+                    <button id="view-btn-rows" onclick="setViewMode('rows')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-[#1c2948] text-white flex items-center gap-1 shadow-sm">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                         Satır
                     </button>
-                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-transparent text-zinc-400 hover:text-white flex items-center gap-1">
+                    <button id="view-btn-cards" onclick="setViewMode('cards')" class="view-mode-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-transparent text-slate-400 hover:text-white flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                         Kartlar
                     </button>
-                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-zinc-900 text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
+                    <button id="btn-toggle-redline" onclick="handleDipFiyatToggle()" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-[#182442] text-rose-400 border border-rose-900/60 hover:bg-rose-950/40 flex items-center gap-1 cursor-pointer" title="Dip Fiyat (0 ₺ Kâr) Modunu Aç / Kapat">
                         🔴 Dip Fiyat
                     </button>
                 </div>
 
                 <!-- Toplu Hedef Net Kâr Aracı (Bulk Target Net Profit Widget) -->
-                <div class="relative inline-flex items-center bg-[#090b10] p-1 rounded-xl border border-emerald-900/70 shadow-sm" id="bulk-profit-widget-container">
+                <div class="relative inline-flex items-center bg-[#10182b] p-1 rounded-xl border border-emerald-800/70 shadow-sm" id="bulk-profit-widget-container">
                     <div class="flex items-center gap-1.5 pl-2 pr-1 text-emerald-400 font-bold text-xs shrink-0 select-none">
                         <span class="text-sm">🎯</span>
-                        <span class="text-[11px] text-zinc-300 font-semibold hidden md:inline">Toplu Kâr:</span>
+                        <span class="text-[11px] text-slate-300 font-semibold hidden md:inline">Toplu Kâr:</span>
                     </div>
                     
                     <div class="relative flex items-center">
                         <input type="number" id="global-bulk-profit-input" min="0" step="5" value="70"
-                            class="w-16 sm:w-20 bg-[#111928] border border-emerald-600/50 rounded-lg text-xs font-extrabold text-emerald-300 px-2 py-1 text-center outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
+                            class="w-16 sm:w-20 bg-[#182442] border border-emerald-600/50 rounded-lg text-xs font-extrabold text-emerald-300 px-2 py-1 text-center outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
                             placeholder="70"
                             onkeydown="if(event.key === 'Enter') handleApplyBulkProfit()"
                             title="Tüm ürünlere veya kategoriye uygulanacak hedef net kâr tutarı (₺)">
@@ -198,7 +198,7 @@
                     </button>
 
                     <button id="btn-bulk-profit-menu-toggle" onclick="toggleBulkProfitMenu(event)"
-                        class="px-1.5 py-1 text-zinc-400 hover:text-emerald-300 rounded-lg hover:bg-zinc-800 transition-all text-xs font-bold ml-0.5 cursor-pointer"
+                        class="px-1.5 py-1 text-slate-400 hover:text-emerald-300 rounded-lg hover:bg-[#182442] transition-all text-xs font-bold ml-0.5 cursor-pointer"
                         title="Hızlı Kâr Şablonları ve Kapsam Seçimi">
                         ▼
                     </button>
@@ -262,12 +262,12 @@
 
                 <!-- Search Input -->
                 <div class="relative w-full sm:w-64">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-9 pr-3 py-1.5 bg-[#090b10] border border-zinc-800 rounded-xl text-xs font-medium text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all">
+                    <input type="text" id="search-input" placeholder="Ürün veya SKU ara..." class="w-full pl-9 pr-3 py-1.5 bg-[#10182b] border border-slate-700 rounded-xl text-xs font-medium text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
                 </div>
             </div>
 
@@ -276,35 +276,35 @@
         <!-- Main Container for Layer 3: E-Ticaret Kampanya, Çoklu Sepet & Kombin Set Laboratuvarı -->
         <main id="layer1-main-view" class="hidden space-y-4">
             <!-- Katman 3 Executive Hub Toolbar & Sub-Tabs -->
-            <div class="glass-card rounded-2xl p-3 border border-white/10 bg-[#11141b] flex flex-wrap items-center justify-between gap-3 shadow-md">
+            <div class="glass-card rounded-2xl p-3 border border-slate-700/80 bg-[#131d35] flex flex-wrap items-center justify-between gap-3 shadow-md">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-xl bg-zinc-900 text-indigo-400 flex items-center justify-center font-black text-xl border border-zinc-800 shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-[#1c2948] text-indigo-400 flex items-center justify-center font-black text-xl border border-slate-600 shrink-0">
                         🚀
                     </div>
                     <div>
                         <h3 class="text-xs font-black text-white flex items-center gap-2">
                             E-Ticaret Kampanya, Çoklu Sepet & Kombin Set Laboratuvarı
-                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">3. Katman Aktif</span>
+                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#182442] text-slate-200 border border-slate-600">3. Katman Aktif</span>
                         </h3>
-                        <p class="text-[11px] text-zinc-400 mt-0.5">DHL eCommerce Anlaşmalı Desi Baremleri & 1. Katman Saf Fabrika Maliyet Entegrasyonu</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">DHL eCommerce Anlaşmalı Desi Baremleri & 1. Katman Saf Fabrika Maliyet Entegrasyonu</p>
                     </div>
                 </div>
 
                 <!-- 3. Katman Alt Sekmeleri (Sub-Tabs) -->
-                <div class="flex flex-wrap gap-1.5 p-1 bg-[#090b10] rounded-xl border border-zinc-800">
+                <div class="flex flex-wrap gap-1.5 p-1 bg-[#10182b] rounded-xl border border-slate-700">
                     <button id="l3-tab-btn-multipack" onclick="switchLayer3SubTab('multipack')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm cursor-pointer flex items-center gap-1.5">
                         📦 2'li / Çoklu Alım
                     </button>
-                    <button id="l3-tab-btn-bundle" onclick="switchLayer3SubTab('bundle')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-bundle" onclick="switchLayer3SubTab('bundle')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-[#182442] cursor-pointer flex items-center gap-1.5">
                         🎁 Kombin Set Laboratuvarı
                     </button>
-                    <button id="l3-tab-btn-offers" onclick="switchLayer3SubTab('offers')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-offers" onclick="switchLayer3SubTab('offers')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-[#182442] cursor-pointer flex items-center gap-1.5">
                         🏷️ Trendyol & HB Teklif Sim
                     </button>
-                    <button id="l3-tab-btn-bulk-offers" onclick="switchLayer3SubTab('bulk-offers')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-bulk-offers" onclick="switchLayer3SubTab('bulk-offers')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-[#182442] cursor-pointer flex items-center gap-1.5">
                         ⚡ Avantajlı Ürünler Masası
                     </button>
-                    <button id="l3-tab-btn-catalog" onclick="switchLayer3SubTab('catalog')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5">
+                    <button id="l3-tab-btn-catalog" onclick="switchLayer3SubTab('catalog')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-[#182442] cursor-pointer flex items-center gap-1.5">
                         📋 Ürün Kataloğu & Kasa
                     </button>
                 </div>
@@ -852,20 +852,20 @@
         <!-- Layer 1: True Production Cost Workspace Container (1. Katman: Saf Maliyet Simülatörü) -->
         <main id="layer2-main-view">
             <!-- Compact Industrial Overhead & Action Toolbar (1-Row Ergonomic Design) -->
-            <div class="glass-card rounded-xl p-3.5 mb-4 border border-white/10 bg-[#11141b] shadow-md flex flex-wrap items-center justify-between gap-3">
+            <div class="glass-card rounded-xl p-3.5 mb-4 border border-slate-700/80 bg-[#131d35] shadow-md flex flex-wrap items-center justify-between gap-3">
                 <!-- Left Section: Title & Inline Stat Badges -->
                 <div class="flex flex-wrap items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-zinc-900 text-emerald-400 flex items-center justify-center font-black text-xl border border-zinc-800 shrink-0">
+                    <div class="w-9 h-9 rounded-lg bg-[#1c2948] text-emerald-400 flex items-center justify-center font-black text-xl border border-slate-600 shrink-0">
                         🏭
                     </div>
                     <div>
                         <h3 class="text-xs font-extrabold text-white flex items-center gap-2">
                             Fabrika Saf Maliyet Paneli
-                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">1. Katman Aktif</span>
+                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#182442] text-slate-200 border border-slate-600">1. Katman Aktif</span>
                         </h3>
                         <div class="flex items-center gap-2 mt-0.5 text-[10.5px]">
-                            <span class="text-zinc-400">Aylık Tesis Gideri: <strong class="text-zinc-100 font-bold tabular-nums" id="l2-stat-total-overhead">330.000,00 ₺</strong></span>
-                            <span class="text-zinc-600">•</span>
+                            <span class="text-slate-400">Aylık Tesis Gideri: <strong class="text-slate-100 font-bold tabular-nums" id="l2-stat-total-overhead">330.000,00 ₺</strong></span>
+                            <span class="text-slate-600">•</span>
                             <span class="text-emerald-400 font-bold">1KG Gider Payı: <strong class="text-emerald-300 font-extrabold tabular-nums" id="l2-stat-overhead-per-kg">110,00 ₺/KG</strong></span>
                         </div>
                     </div>
@@ -874,18 +874,18 @@
                 <!-- Right Section: Mode Switcher, PDF Report Bar, and Operator Settings -->
                 <div class="flex flex-wrap items-center gap-2.5">
                     <!-- Mode Switcher -->
-                    <div class="inline-flex p-1 rounded-lg bg-[#090b10] border border-zinc-800">
+                    <div class="inline-flex p-1 rounded-lg bg-[#10182b] border border-slate-700">
                         <button id="btn-layer2-group-retail" onclick="setLayer2GroupMode('retail')" class="px-3 py-1 rounded-md text-[11px] font-bold transition-all bg-white text-zinc-950 shadow-sm flex items-center gap-1 cursor-pointer">
                             🛍️ Perakende Şişe
                         </button>
-                        <button id="btn-layer2-group-drums" onclick="setLayer2GroupMode('wholesale_drums')" class="px-3 py-1 rounded-md text-[11px] font-semibold transition-all text-zinc-400 hover:text-white flex items-center gap-1 cursor-pointer">
+                        <button id="btn-layer2-group-drums" onclick="setLayer2GroupMode('wholesale_drums')" class="px-3 py-1 rounded-md text-[11px] font-semibold transition-all text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer">
                             📦 Toptan KG
                         </button>
                     </div>
 
                     <!-- PDF Cost Report Generator Bar (Prominently Placed on Top Right Action Cluster) -->
-                    <div class="flex items-center gap-1.5 bg-[#090b10] p-1 rounded-lg border border-zinc-800 shadow-sm">
-                        <select id="pdf-report-volume-select" class="bg-[#12151b] text-zinc-200 font-bold text-[11px] px-2.5 py-1 rounded-md border border-zinc-700 outline-none cursor-pointer focus:ring-1 focus:ring-zinc-500">
+                    <div class="flex items-center gap-1.5 bg-[#10182b] p-1 rounded-lg border border-slate-700 shadow-sm">
+                        <select id="pdf-report-volume-select" class="bg-[#182442] text-slate-200 font-bold text-[11px] px-2.5 py-1 rounded-md border border-slate-600 outline-none cursor-pointer focus:ring-1 focus:ring-sky-500">
                             <option value="1000ml" selected>1000ml (1 KG)</option>
                             <option value="250ml">250ml Şişe</option>
                             <option value="500ml">500ml Şişe</option>
@@ -898,13 +898,13 @@
                             <option value="25KG">25 KG Bidon</option>
                             <option value="30KG">30 KG Bidon</option>
                         </select>
-                        <button onclick="generateLayer2PdfReport()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3 py-1 rounded-md shadow-sm transition-all flex items-center gap-1 text-[11px] border border-zinc-700 cursor-pointer whitespace-nowrap">
+                        <button onclick="generateLayer2PdfReport()" class="bg-[#1c2948] hover:bg-[#233358] text-white font-bold px-3 py-1 rounded-md shadow-sm transition-all flex items-center gap-1 text-[11px] border border-slate-600 cursor-pointer whitespace-nowrap">
                             📄 RAPOR OLUŞTUR (PDF)
                         </button>
                     </div>
 
                     <!-- Operator Settings Button -->
-                    <button id="btn-operator-settings" onclick="openOperatorSettingsModal()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white font-bold px-3 py-1.5 rounded-lg shadow transition-all flex items-center gap-1 text-[11px] border border-zinc-700/80 cursor-pointer">
+                    <button id="btn-operator-settings" onclick="openOperatorSettingsModal()" class="bg-[#182442] hover:bg-[#203056] text-slate-200 hover:text-white font-bold px-3 py-1.5 rounded-lg shadow transition-all flex items-center gap-1 text-[11px] border border-slate-600 cursor-pointer">
                         ⚙️ OPERATÖR AYARLARI
                     </button>
                 </div>
@@ -922,25 +922,25 @@
         <!-- Layer 3: Live Retail Channel Price Comparison Workspace -->
         <main id="layer3-main-view" class="hidden space-y-4">
             <!-- Summary Multi-Channel Comparison Banner -->
-            <div id="l3-summary-banner" class="glass-card rounded-2xl p-4 border border-white/10 bg-[#11141b] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-md transition-all">
+            <div id="l3-summary-banner" class="glass-card rounded-2xl p-4 border border-slate-700/80 bg-[#131d35] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-md transition-all">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-zinc-900 text-sky-400 flex items-center justify-center font-black text-xl border border-zinc-800 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-[#1c2948] text-sky-400 flex items-center justify-center font-black text-xl border border-slate-600 shadow-sm">
                         📊
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-white flex flex-wrap items-center gap-2">
                             Çoklu Perakende Satış Karşılaştırma Portalı
-                            <span id="l3-active-channel-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">🌐 iyzico Canlı Sitede</span>
+                            <span id="l3-active-channel-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#182442] text-slate-200 border border-slate-600">🌐 iyzico Canlı Sitede</span>
                         </h3>
-                        <p class="text-zinc-400 text-xs mt-0.5">Pazar yeri canlı satış fiyatları ile CanFiyat saf maliyetlerinin birebir kârlılık kıyaslaması</p>
+                        <p class="text-slate-400 text-xs mt-0.5">Pazar yeri canlı satış fiyatları ile CanFiyat saf maliyetlerinin birebir kârlılık kıyaslaması</p>
                     </div>
                 </div>
 
                 <!-- Controls & Action Cluster (Spacious & Distinctly Grouped) -->
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end text-xs">
                     <!-- Channel Switcher Group -->
-                    <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#090b10] border border-zinc-800 shadow-inner">
-                        <span class="text-[10px] font-bold uppercase text-zinc-400 px-2 tracking-wider">Kanal:</span>
+                    <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#10182b] border border-slate-700 shadow-inner">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 px-2 tracking-wider">Kanal:</span>
                         <button id="btn-l3-channel-iyzico" onclick="setLayer3Channel('iyzico')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-zinc-950 shadow-sm flex items-center gap-1.5 cursor-pointer">
                             🌐 iyzico (Sitemiz)
                         </button>
@@ -1747,12 +1747,12 @@
     </div>
 
     <!-- Application JS Files -->
-    <script src="js/productsData.js?v=4.33"></script>
-    <script src="js/liveSiteData.js?v=4.33"></script>
-    <script src="js/trendyolData.js?v=4.33"></script>
-    <script src="js/storage.js?v=4.33"></script>
-    <script src="js/calculator.js?v=4.33"></script>
-    <script src="js/app.js?v=4.33"></script>
+    <script src="js/productsData.js?v=4.34"></script>
+    <script src="js/liveSiteData.js?v=4.34"></script>
+    <script src="js/trendyolData.js?v=4.34"></script>
+    <script src="js/storage.js?v=4.34"></script>
+    <script src="js/calculator.js?v=4.34"></script>
+    <script src="js/app.js?v=4.34"></script>
 </body>
 
 

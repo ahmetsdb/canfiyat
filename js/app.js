@@ -403,59 +403,59 @@ function renderProductGrid() {
 
     if (viewMode === "rows") {
       const rowHtml = `
-        <div class="glass-card rounded-xl p-3 border ${showRedLineFloor ? 'border-rose-600/60 bg-rose-950/20' : 'border-white/5 hover:border-white/15 bg-[#12151b]'} transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
+        <div class="glass-card rounded-xl p-3 border ${showRedLineFloor ? 'border-rose-600/60 bg-rose-950/20' : 'border-slate-700/80 hover:border-slate-600 bg-[#131d35] hover:bg-[#172340]'} transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
             
             <!-- 1. Left: Product Title, SKU, Category Badge -->
             <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-              <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
+              <span class="font-mono text-xs font-bold text-sky-200 bg-[#1c2948] px-2.5 py-1 rounded-lg border border-slate-600/80 shrink-0 shadow-sm">
                 ${product.sku}
               </span>
               <div class="truncate">
-                <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
+                <h3 class="text-sm font-bold text-white group-hover:text-sky-200 transition-colors truncate" title="${product.name}">
                   ${product.name}
                 </h3>
                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                   <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
                     ${product.category}
                   </span>
-                  <span class="text-[11px] font-medium text-zinc-400 bg-[#0a0c10] px-2 py-0.5 rounded-md border border-zinc-800">
-                    📌 Ambalaj: <span class="text-zinc-200 font-bold text-xs">${mainVol}</span>
+                  <span class="text-[11px] font-medium text-slate-300 bg-[#182442] px-2 py-0.5 rounded-md border border-slate-700">
+                    📌 Ambalaj: <span class="text-slate-100 font-bold text-xs">${mainVol}</span>
                   </span>
                 </div>
               </div>
             </div>
 
             <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
-            <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#090b10] px-3 py-2 rounded-xl border border-zinc-800/80 text-xs shadow-inner">
-              <div class="text-center border-r border-zinc-800/80 pr-1">
-                <span class="text-[11px] font-medium text-zinc-400 block leading-tight">1KG Toptan</span>
-                <span class="font-bold text-zinc-100 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(product.costPerKg)}</span>
+            <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#182442] px-3 py-2 rounded-xl border border-slate-700/90 text-xs shadow-inner">
+              <div class="text-center border-r border-slate-700/80 pr-1">
+                <span class="text-[11px] font-medium text-slate-400 block leading-tight">1KG Toptan</span>
+                <span class="font-bold text-slate-100 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(product.costPerKg)}</span>
               </div>
 
-              <div class="text-center border-r border-zinc-800/80 pr-1">
-                <span class="text-[11px] font-medium text-zinc-400 block leading-tight">${mainVol} Maliyet</span>
-                <span class="font-bold text-zinc-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(unitCost)}</span>
+              <div class="text-center border-r border-slate-700/80 pr-1">
+                <span class="text-[11px] font-medium text-slate-400 block leading-tight">${mainVol} Maliyet</span>
+                <span class="font-bold text-slate-200 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(unitCost)}</span>
               </div>
 
-              <div class="text-center border-r border-zinc-800/80 pr-1">
-                <span class="text-[11px] font-medium ${showRedLineFloor ? 'text-rose-400 font-bold' : 'text-zinc-400'} block leading-tight">
+              <div class="text-center border-r border-slate-700/80 pr-1">
+                <span class="text-[11px] font-medium ${showRedLineFloor ? 'text-rose-400 font-bold' : 'text-slate-400'} block leading-tight">
                   ${showRedLineFloor ? '🔴 Dip Satış' : 'Trendyol Etiket'}
                 </span>
-                <span class="font-bold ${showRedLineFloor ? 'text-rose-300' : 'text-zinc-100'} text-xs block mt-0.5 tabular-nums">
+                <span class="font-bold ${showRedLineFloor ? 'text-rose-300' : 'text-slate-100'} text-xs block mt-0.5 tabular-nums">
                   ${PriceCalculator.formatTL(showRedLineFloor ? breakEvenTy.breakEvenPrice : tyResult.listPrice)}
                 </span>
               </div>
 
               <div class="text-center">
-                <span class="text-[11px] font-medium text-zinc-400 block leading-tight">Hedef Kâr</span>
+                <span class="text-[11px] font-medium text-slate-400 block leading-tight">Hedef Kâr</span>
                 <span class="font-bold text-emerald-400 text-xs block mt-0.5 tabular-nums">+${PriceCalculator.formatTL(volConfig?.targetProfit ?? 70)}</span>
               </div>
             </div>
 
             <!-- 3. Far Right Action Button: Kasa & Detay Modal Açıcı -->
             <div class="flex items-center gap-2 shrink-0">
-              <button onclick="openProductSlot('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#181c24] text-zinc-300 hover:text-white border border-zinc-700/80 hover:bg-zinc-800 transition-all cursor-pointer shadow-sm flex items-center gap-1">
+              <button onclick="openProductSlot('${product.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1c2948] text-slate-200 hover:text-white border border-slate-600 hover:bg-[#233358] transition-all cursor-pointer shadow-sm flex items-center gap-1">
                 <span>🧮 5'li Sistem Kasa ▼</span>
               </button>
             </div>
@@ -2835,17 +2835,17 @@ function renderLayer2Cards() {
 
         if (activeView === "rows") {
           const rowHtml = `
-            <div class="glass-card rounded-xl p-3 border border-white/5 hover:border-white/15 bg-[#12151b] transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
+            <div class="glass-card rounded-xl p-3 border border-slate-700/80 hover:border-slate-600 bg-[#131d35] hover:bg-[#172340] transition-all shadow-sm hover:shadow-md group flex flex-col gap-2">
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 
                 <!-- 1. Left: Product Title, SKU, Category Badge, Ambalaj -->
                 <div class="flex items-center gap-3 w-full md:w-4/12 min-w-[240px]">
-                  <span class="font-mono text-xs font-bold text-zinc-300 bg-[#0a0c10] px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0 shadow-sm">
+                  <span class="font-mono text-xs font-bold text-sky-200 bg-[#1c2948] px-2.5 py-1 rounded-lg border border-slate-600/80 shrink-0 shadow-sm">
                     ${product.sku}
                   </span>
                   <div class="truncate">
                     <div class="flex items-center gap-1.5 truncate">
-                      <h3 class="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors truncate" title="${product.name}">
+                      <h3 class="text-sm font-bold text-white group-hover:text-sky-200 transition-colors truncate" title="${product.name}">
                         ${product.name}
                       </h3>
                       ${product.isHybrid ? `
@@ -2861,11 +2861,11 @@ function renderLayer2Cards() {
                       <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
                         ${product.category}
                       </span>
-                      <span class="text-[11px] font-medium text-slate-400 bg-[#0e172a] px-2 py-0.5 rounded-md border border-slate-800 flex items-center gap-1.5">
+                      <span class="text-[11px] font-medium text-slate-300 bg-[#182442] px-2 py-0.5 rounded-md border border-slate-700 flex items-center gap-1.5">
                         📌 Ambalaj: 
                         ${layer2GroupMode === 'wholesale_drums' 
-                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-[#0b1325] text-slate-200 font-bold px-1.5 py-0.5 rounded border border-slate-700 text-center text-xs"> KG`
-                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-[#0b1325] text-slate-200 font-bold px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer text-xs">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
+                          ? `<input type="number" value="${kg}" min="1" step="1" onchange="updateLayer2ProductField('${product.id}', 'layer2WholesaleKg', this.value)" class="w-14 bg-[#10182b] text-slate-100 font-bold px-1.5 py-0.5 rounded border border-slate-600 text-center text-xs"> KG`
+                          : `<select onchange="updateLayer2ProductField('${product.id}', 'layer2Volume', this.value)" class="bg-[#10182b] text-slate-100 font-bold px-1.5 py-0.5 rounded border border-slate-600 cursor-pointer text-xs">${getLayer2VolumeOptionsHtml(vol, product)}</select>`
                         }
                       </span>
                     </div>
@@ -2873,22 +2873,22 @@ function renderLayer2Cards() {
                 </div>
 
                 <!-- 2. Center: 4-Column Balanced Tabular Metrics (Katman 2 Birebir Standardı) -->
-                <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#0b1325] px-3 py-2 rounded-xl border border-slate-800 text-xs shadow-inner">
-                  <div class="text-center border-r border-slate-800 pr-1">
+                <div class="grid grid-cols-4 gap-2 w-full md:w-5/12 items-center bg-[#182442] px-3 py-2 rounded-xl border border-slate-700/90 text-xs shadow-inner">
+                  <div class="text-center border-r border-slate-700/80 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">1KG Hammadde</span>
                     <span class="font-bold ${hasOilData ? 'text-slate-100' : 'text-amber-400'} text-xs block mt-0.5 tabular-nums">
                       ${hasOilData ? PriceCalculator.formatTL(costPerKg) : '0,00 ₺ <span class="text-[9px] block font-normal text-amber-400/80">(Veri Yok)</span>'}
                     </span>
                   </div>
 
-                  <div class="text-center border-r border-slate-800 pr-1">
+                  <div class="text-center border-r border-slate-700/80 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">Tesis Gideri</span>
-                    <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(linearOverhead)}</span>
+                    <span class="font-bold text-slate-200 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(linearOverhead)}</span>
                   </div>
 
-                  <div class="text-center border-r border-slate-800 pr-1">
+                  <div class="text-center border-r border-slate-700/80 pr-1">
                     <span class="text-[11px] font-medium text-slate-400 block leading-tight">Ambalaj & Sarf</span>
-                    <span class="font-bold text-slate-300 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(packCost)}</span>
+                    <span class="font-bold text-slate-200 text-xs block mt-0.5 tabular-nums">${PriceCalculator.formatTL(packCost)}</span>
                   </div>
 
                   <div class="text-center">
@@ -2903,11 +2903,11 @@ function renderLayer2Cards() {
 
                 <!-- 3. Far Right Action Buttons -->
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-slate-800 text-white border border-slate-600' : 'bg-[#16223b] text-slate-300 hover:text-white border border-slate-700 hover:bg-slate-800'}">
+                  <button onclick="toggleLayer2Breakdown('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isBreakdownOpen ? 'bg-sky-700 text-white border border-sky-500' : 'bg-[#1c2948] text-slate-200 hover:text-white border border-slate-600 hover:bg-[#233358]'}">
                     <span>⚙️ Reçete / Ayar ${isBreakdownOpen ? '▲' : '▼'}</span>
                   </button>
 
-                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-slate-800 text-white border border-slate-600' : 'bg-[#16223b] text-slate-300 hover:text-white border border-slate-700 hover:bg-slate-800'}">
+                  <button onclick="toggleLayer2Drawer('${product.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1 ${isDrawerOpen ? 'bg-sky-700 text-white border border-sky-500' : 'bg-[#1c2948] text-slate-200 hover:text-white border border-slate-600 hover:bg-[#233358]'}">
                     <span>${layer2GroupMode === 'wholesale_drums' ? '🏢 B2B Cetveli' : '⚡ Pazaryeri Sim'} ${isDrawerOpen ? '▲' : '▼'}</span>
                   </button>
 
@@ -5641,21 +5641,21 @@ function renderBulkOffersTable() {
       const isLoss = hasKnownCost && hasPrice && data.sim.isLoss;
       const isZero = data.price <= 0;
 
-      let borderClr = 'border-slate-800 bg-slate-950/40';
-      let badgeBg = 'bg-amber-950/40 text-amber-300 border-amber-500/40';
-      let badgeText = '⚠️ Maliyet Bilinmiyor';
+      let borderClr = 'border-slate-700/80 bg-[#10182b]';
+      let badgeBg = 'bg-amber-950/60 text-amber-300 border-amber-500/40';
+      let badgeText = '⚠️ Maliyet Bekleniyor';
 
       if (hasKnownCost) {
         if (!hasPrice) {
-          borderClr = 'border-amber-900/40 bg-amber-950/10';
-          badgeBg = 'bg-slate-900 text-amber-300 border-slate-700';
+          borderClr = 'border-slate-700/80 bg-[#10182b]';
+          badgeBg = 'bg-[#182442] text-slate-300 border-slate-700';
           badgeText = 'Fiyat Yok';
         } else if (isProfit) {
-          borderClr = 'border-emerald-500/40 bg-emerald-950/20';
+          borderClr = 'border-emerald-500/40 bg-[#10182b]';
           badgeBg = 'bg-emerald-950 text-emerald-300 border-emerald-500/60';
           badgeText = `+${PriceCalculator.formatTL(data.sim.netProfit)}`;
         } else {
-          borderClr = isZero ? 'border-rose-500/70 bg-rose-950/40' : 'border-rose-500/50 bg-rose-950/20';
+          borderClr = isZero ? 'border-rose-500/70 bg-[#10182b]' : 'border-rose-500/50 bg-[#10182b]';
           badgeBg = 'bg-rose-950 text-rose-300 border-rose-500/60';
           badgeText = `${PriceCalculator.formatTL(data.sim.netProfit)} Zarar`;
         }
@@ -5679,9 +5679,9 @@ function renderBulkOffersTable() {
               </div>
               <input type="number" step="0.01" 
                      value="${hasPrice ? data.price : ''}" 
-                     placeholder="${hasKnownCost ? '0.00' : 'Maliyet Bilinmiyor'}"
+                     placeholder="${hasKnownCost ? '0.00' : 'Maliyet Bekleniyor'}"
                      onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'price', this.value)"
-                     class="w-full bg-slate-950 border ${hasKnownCost ? 'border-slate-700 text-white' : 'border-amber-900/60 text-amber-300'} font-black text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
+                     class="w-full bg-[#141f36] border ${hasKnownCost ? 'border-slate-600 text-white' : 'border-amber-800/60 text-amber-300'} font-black text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
             </div>
             <div>
               <div class="flex items-center justify-between mb-0.5">
@@ -5694,46 +5694,48 @@ function renderBulkOffersTable() {
               </div>
               <input type="number" step="0.1" value="${data.comm}" 
                      onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'comm', this.value)"
-                     class="w-full bg-slate-950 border ${data.isSpecial ? 'border-amber-500/80 text-amber-300 font-black' : 'border-slate-700 text-white font-bold'} text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
-            </div>
-          </div>
-
-          <!-- Sade ve Kompakt Özet Kutusu -->
-          <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-slate-400">🏦 Banka Hakedişi:</span>
-              <strong class="font-black text-xs ${hasKnownCost && hasPrice ? (data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300') : 'text-slate-500'}">
-                ${hasKnownCost && hasPrice ? PriceCalculator.formatTL(data.sim.payout) : 'Hesaplanamaz'}
-              </strong>
-            </div>
-            <div class="flex justify-between items-center text-[10.5px]">
-              <span class="text-slate-400">🛡️ Kurtaran Taban:</span>
-              ${hasKnownCost && data.sim.redlineFloorPrice !== null ? `
-                <strong class="text-amber-300 font-bold">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
-              ` : `
-                <span class="text-slate-500 font-medium">Bilinmiyor</span>
-              `}
+                     class="w-full bg-[#141f36] border ${data.isSpecial ? 'border-amber-500/80 text-amber-300 font-black' : 'border-slate-600 text-white font-bold'} text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
             </div>
           </div>
 
           ${!hasKnownCost ? `
-            <div class="text-center text-[10px] text-amber-400 font-bold py-1 bg-amber-950/30 rounded-lg border border-amber-800/40">
-              ⚠️ Ham Maliyet Bilinmiyor
-            </div>
-          ` : (!hasPrice ? `
-            <div class="text-center text-[10px] text-slate-400 font-bold py-1 bg-slate-900 rounded-lg border border-slate-800">
-              Fiyat Girilmedi
-            </div>
-          ` : (isProfit ? `
-            <div class="text-center text-[10px] text-emerald-400 font-bold py-1 bg-emerald-950/30 rounded-lg border border-emerald-800/40">
-              ✅ Güvenle Onaylanabilir
+            <div class="text-center text-[10.5px] text-amber-400/90 font-medium py-1.5 bg-[#141f36] rounded-lg border border-amber-800/40">
+              ⚠️ Katman 1 Maliyeti Bekleniyor
             </div>
           ` : `
-            <button type="button" onclick="applyBulkRedlinePrice('${idKey}', '${tierKey}', ${data.sim.redlineFloorPrice})" 
-                    class="w-full py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10.5px] rounded-lg shadow transition-all cursor-pointer flex items-center justify-center gap-1">
-              🛡️ Tabanı Uygula (${PriceCalculator.formatTL(Math.ceil(data.sim.redlineFloorPrice))})
-            </button>
-          `))}
+            <!-- Sade ve Kompakt Özet Kutusu -->
+            <div class="bg-[#141f36] p-2 rounded-xl border border-slate-700/80 text-[11px] space-y-1">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">🏦 Banka Hakedişi:</span>
+                <strong class="font-black text-xs ${hasPrice ? (data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300') : 'text-slate-500'}">
+                  ${hasPrice ? PriceCalculator.formatTL(data.sim.payout) : 'Fiyat Girilmedi'}
+                </strong>
+              </div>
+              <div class="flex justify-between items-center text-[10.5px]">
+                <span class="text-slate-400">🛡️ Kurtaran Taban:</span>
+                ${data.sim.redlineFloorPrice !== null ? `
+                  <strong class="text-amber-300 font-bold">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
+                ` : `
+                  <span class="text-slate-500 font-medium">Bilinmiyor</span>
+                `}
+              </div>
+            </div>
+
+            ${!hasPrice ? `
+              <div class="text-center text-[10px] text-slate-400 font-bold py-1 bg-[#182442] rounded-lg border border-slate-700">
+                Fiyat Girilmedi
+              </div>
+            ` : (isProfit ? `
+              <div class="text-center text-[10px] text-emerald-400 font-bold py-1 bg-emerald-950/40 rounded-lg border border-emerald-800/50">
+                ✅ Güvenle Onaylanabilir
+              </div>
+            ` : `
+              <button type="button" onclick="applyBulkRedlinePrice('${idKey}', '${tierKey}', ${data.sim.redlineFloorPrice})" 
+                      class="w-full py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10.5px] rounded-lg shadow transition-all cursor-pointer flex items-center justify-center gap-1">
+                🛡️ Tabanı Uygula (${PriceCalculator.formatTL(Math.ceil(data.sim.redlineFloorPrice))})
+              </button>
+            `)}
+          `}
         </div>
       `;
     };
@@ -5741,11 +5743,11 @@ function renderBulkOffersTable() {
     const volumeBadge = item.packQty > 1 ? `${item.volKey} x ${item.packQty} Adet` : item.volKey;
 
     return `
-      <div class="glass-card bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3 transition-all hover:border-slate-700">
+      <div class="glass-card bg-[#131d35] border border-slate-700/80 rounded-2xl p-3.5 shadow-md space-y-3 transition-all hover:border-slate-600">
         <!-- Üst Satır: Ürün Kimliği, Fiyatlar ve Fatura Butonu -->
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-base shrink-0">
+            <div class="w-8 h-8 rounded-xl bg-[#1c2948] border border-slate-600 flex items-center justify-center text-base shrink-0">
               🌿
             </div>
             <div>
@@ -5754,7 +5756,7 @@ function renderBulkOffersTable() {
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-sky-950 text-sky-300 border border-sky-800/80">
                   ${volumeBadge}
                 </span>
-                <span class="text-[9.5px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800">
+                <span class="text-[9.5px] font-mono text-sky-200 px-1.5 py-0.5 rounded bg-[#1c2948] border border-slate-600">
                   ${p.sku}
                 </span>
                 ${item.barcode ? `
@@ -5786,18 +5788,18 @@ function renderBulkOffersTable() {
 
           <!-- Fabrika Maliyet Hapı ve Aksiyonlar -->
           <div class="flex items-center gap-2">
-            <div class="${item.unitCost > 0 ? 'bg-amber-950/40 border-amber-800/60' : 'bg-slate-950 border-slate-800'} border px-2.5 py-1 rounded-xl text-right">
+            <div class="${item.unitCost > 0 ? 'bg-amber-950/40 border-amber-800/60' : 'bg-[#182442] border-slate-700'} border px-2.5 py-1 rounded-xl text-right">
               <span class="text-[9px] ${item.unitCost > 0 ? 'text-amber-300' : 'text-slate-400'} block font-bold uppercase">1. Katman Fabrika Maliyeti</span>
               <span class="text-xs font-black ${item.unitCost > 0 ? 'text-amber-300' : 'text-amber-400'}">${item.unitCost > 0 ? PriceCalculator.formatTL(item.unitCost) : '⚠️ Bilinmiyor'}</span>
             </div>
 
             <button type="button" onclick="toggleBulkRowInvoice('${idKey}')" 
-                    class="px-2 py-1 bg-slate-950 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-[11px] font-bold rounded-xl transition-all cursor-pointer">
+                    class="px-2 py-1 ${isInvoiceOpen ? 'bg-sky-700 text-white border-sky-500' : 'bg-[#182442] hover:bg-[#203056] border-slate-600 text-slate-200 hover:text-white'} border text-[11px] font-bold rounded-xl transition-all cursor-pointer">
               ${isInvoiceOpen ? 'Faturayı Kapat ▲' : '📋 Fatura Detayı ▼'}
             </button>
 
             <button type="button" onclick="toggleBulkRowSim('${idKey}')" 
-                    class="px-2 py-1 ${isSimOpen ? 'bg-indigo-950 hover:bg-indigo-900 border-indigo-500/80 text-indigo-300' : 'bg-slate-950 hover:bg-slate-800 border-slate-700 text-indigo-300 hover:text-white'} border text-[11px] font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1">
+                    class="px-2 py-1 ${isSimOpen ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-[#182442] hover:bg-[#203056] border-slate-600 text-indigo-300 hover:text-white'} border text-[11px] font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1">
               <span>⚡</span> ${isSimOpen ? 'Simülasyonu Kapat ▲' : 'Simülasyon Detayı ▼'}
             </button>
 
@@ -5812,36 +5814,36 @@ function renderBulkOffersTable() {
 
         <!-- Açılır / Kapanır 1. Katman Fabrika Faturası Detayı -->
         ${isInvoiceOpen ? `
-          <div class="bg-[#0c1324] p-2.5 rounded-xl border border-slate-800 text-xs animate-slide-up space-y-2">
+          <div class="bg-[#0f172a] p-3 rounded-xl border border-slate-700 text-xs animate-slide-up space-y-2">
             ${item.unitCost <= 0 ? `
-              <div class="p-2 bg-amber-950/30 rounded-lg border border-amber-800/50 text-[11px] text-amber-300 flex items-center gap-2">
+              <div class="p-2.5 bg-amber-950/40 rounded-lg border border-amber-800/60 text-[11px] text-amber-300 flex items-center gap-2">
                 <span>⚠️</span>
                 <span>Bu ürünün Katman 1'de ham hammadde veya tohum maliyeti tanımlanmadığı için saf fabrika maliyeti hesaplanamamaktadır (0 ₺ görünmektedir). Lütfen Katman 1 veya Katman 2'den hammadde maliyetini giriniz.</span>
               </div>
             ` : ''}
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px]">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#141f36] p-2.5 rounded-lg border border-slate-700 text-[11px]">
               <div>
                 <span class="text-slate-400 block font-bold">1. Ham Yağ Payı:</span>
-                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.rawOilCost * item.packQty)}</span>
-                <span class="text-[9.5px] text-slate-500 block">${isWholesale ? 'Toptan Dökme' : `Sıkım (%${yieldPct} Verim)`}${item.packQty > 1 ? ` (${item.packQty} Adet)` : ''}</span>
+                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(item.costCalc.rawOilCost * item.packQty)}</span>
+                <span class="text-[9.5px] text-slate-400 block">${isWholesale ? 'Toptan Dökme' : `Sıkım (%${yieldPct} Verim)`}${item.packQty > 1 ? ` (${item.packQty} Adet)` : ''}</span>
               </div>
               <div>
                 <span class="text-slate-400 block font-bold">2. Ambalaj Payı:</span>
-                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.packCost * item.packQty)}</span>
-                <span class="text-[9.5px] text-slate-500 block">${item.volKey} Şişe + Kapak + Kutu${item.packQty > 1 ? ` (x${item.packQty})` : ''}</span>
+                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(item.costCalc.packCost * item.packQty)}</span>
+                <span class="text-[9.5px] text-slate-400 block">${item.volKey} Şişe + Kapak + Kutu${item.packQty > 1 ? ` (x${item.packQty})` : ''}</span>
               </div>
               <div>
                 <span class="text-slate-400 block font-bold">3. Tesis Masrafı:</span>
-                <span class="font-bold ${isWholesale ? 'text-slate-500' : 'text-slate-200'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(item.costCalc.linearOverhead * item.packQty)}</span>
-                <span class="text-[9.5px] text-slate-500 block">${isWholesale ? 'Toptan pres yok' : 'Elektrik/Kira/Makine'}</span>
+                <span class="font-bold ${isWholesale ? 'text-slate-400' : 'text-slate-100'}">${isWholesale ? '0,00 ₺ (Dış)' : PriceCalculator.formatTL(item.costCalc.linearOverhead * item.packQty)}</span>
+                <span class="text-[9.5px] text-slate-400 block">${isWholesale ? 'Toptan pres yok' : 'Elektrik/Kira/Makine'}</span>
               </div>
               <div>
                 <span class="text-slate-400 block font-bold">4. Dolum İşçiliği:</span>
-                <span class="font-bold text-slate-200">${PriceCalculator.formatTL(item.costCalc.laborAssemblyFee * item.packQty)}</span>
-                <span class="text-[9.5px] text-slate-500 block">Dolum & Paketleme${item.packQty > 1 ? ` (x${item.packQty})` : ''}</span>
+                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(item.costCalc.laborAssemblyFee * item.packQty)}</span>
+                <span class="text-[9.5px] text-slate-400 block">Dolum & Paketleme${item.packQty > 1 ? ` (x${item.packQty})` : ''}</span>
               </div>
             </div>
-            <div class="flex items-center justify-between border-t border-slate-800/80 pt-1 text-xs">
+            <div class="flex items-center justify-between border-t border-slate-700 pt-1 text-xs">
               <span class="font-bold text-amber-300">Toplam Saf Üretim Maliyeti:</span>
               <span class="font-black text-amber-300">${item.unitCost > 0 ? PriceCalculator.formatTL(item.unitCost) : '0,00 ₺ (Maliyet Bilinmiyor)'}</span>
             </div>
@@ -5850,15 +5852,15 @@ function renderBulkOffersTable() {
 
         <!-- Açılır / Kapanır Katman 1 Tasarımlı Pazaryeri Simülasyon Çekmecesi -->
         ${isSimOpen ? `
-          <div class="bg-[#0e172a] p-4 rounded-xl border border-slate-800 space-y-3.5 animate-slide-up shadow-xl">
-            <div class="flex flex-wrap items-center justify-between bg-[#0b1325] p-3 rounded-xl border border-slate-800 gap-3">
+          <div class="bg-[#0f172a] p-4 rounded-xl border border-slate-700/80 space-y-3.5 animate-slide-up shadow-xl">
+            <div class="flex flex-wrap items-center justify-between bg-[#141f36] p-3 rounded-xl border border-slate-700 gap-3">
               <div class="flex items-center gap-2">
                 <span class="text-sm font-extrabold text-amber-400 flex items-center gap-1.5">⚡ KATMAN 1 ENTEGRE PAZARYERİ KAMPANYA SİMÜLATÖRÜ</span>
                 <span class="text-xs text-slate-400">(Saf Fabrika Maliyeti & Kargo/Komisyon Kesintileri)</span>
               </div>
               <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-slate-400 font-semibold">1. Katman Fabrika Maliyeti:</span>
-                <span class="font-black ${item.unitCost > 0 ? 'text-amber-300 bg-amber-950/80 border-amber-800' : 'text-amber-400 bg-slate-900 border-slate-800'} px-2.5 py-1 rounded-lg border">
+                <span class="font-black ${item.unitCost > 0 ? 'text-amber-300 bg-amber-950/80 border-amber-800' : 'text-amber-400 bg-[#182442] border-slate-700'} px-2.5 py-1 rounded-lg border">
                   ${item.unitCost > 0 ? PriceCalculator.formatTL(item.unitCost) : '⚠️ Bilinmiyor'}
                 </span>
                 <span class="text-slate-600 font-bold">•</span>
@@ -5869,11 +5871,25 @@ function renderBulkOffersTable() {
               </div>
             </div>
 
-            <div class="grid grid-cols-1 ${currentBulkTierMode === 'all' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-3.5 text-xs">
-              ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderSimDetailCol('🏷️ 1. Avantajlı (%5 İndirim)', item.av1, 'amber', item.unitCost) : ''}
-              ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderSimDetailCol('💎 2. Çok Avantajlı (%14 İndirim)', item.av2, 'sky', item.unitCost) : ''}
-              ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderSimDetailCol('🚀 3. Süper Avantajlı (%23 İndirim)', item.av3, 'purple', item.unitCost) : ''}
-            </div>
+            ${item.unitCost <= 0 ? `
+              <div class="bg-[#141f36] p-5 rounded-xl border border-amber-800/60 text-center space-y-2 shadow-lg">
+                <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-lg">
+                  ⚠️
+                </div>
+                <div class="space-y-1">
+                  <h4 class="text-sm font-bold text-amber-300">1. Katman Fabrika Üretim Maliyeti Tanımlanmamış</h4>
+                  <p class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
+                    Bu ürünün saf fabrika maliyeti Katman 1'de bulunmadığı için kâr/zarar simülasyonu ve başa baş taban fiyatı hesaplanamamaktadır. Lütfen Katman 1'den maliyet tanımlayınız.
+                  </p>
+                </div>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 ${currentBulkTierMode === 'all' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-3.5 text-xs">
+                ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderSimDetailCol('🏷️ 1. Avantajlı (%5 İndirim)', item.av1, 'amber', item.unitCost) : ''}
+                ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderSimDetailCol('💎 2. Çok Avantajlı (%14 İndirim)', item.av2, 'sky', item.unitCost) : ''}
+                ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderSimDetailCol('🚀 3. Süper Avantajlı (%23 İndirim)', item.av3, 'purple', item.unitCost) : ''}
+              </div>
+            `}
           </div>
         ` : ''}
 
