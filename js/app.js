@@ -5374,9 +5374,10 @@ function renderBulkOffersTable() {
     const baseComm = (tyItem.commissionPercent !== undefined && tyItem.commissionPercent !== null) ? tyItem.commissionPercent : (p.commissionPercent || 19);
 
     // 1. Avantajlı: %5 İndirim (0.95). Komisyon: Varsa özel destek, yoksa %19 sabit
-    const defAv1Price = Math.round(basePrice * 0.95 * 100) / 100;
+    // Ham maliyet bilinmiyorsa (unitCost <= 0) otomatik yeni fiyat hesaplanmaz/yazılmaz (0 kalır).
+    const defAv1Price = (unitCost > 0) ? (Math.round(basePrice * 0.95 * 100) / 100) : 0;
     const defAv1Comm = promoComm ? promoComm.av1 : baseComm;
-    const av1Price = custom.av1?.price ?? defAv1Price;
+    const av1Price = (custom.av1?.price !== undefined && custom.av1?.price !== null) ? custom.av1.price : defAv1Price;
     const av1Comm = custom.av1?.comm ?? defAv1Comm;
     const sim1 = PriceCalculator.calculateMarketplaceOfferSim({
       basePrice,
@@ -5387,9 +5388,9 @@ function renderBulkOffersTable() {
     });
 
     // 2. Çok Avantajlı: %14 İndirim (0.86). Komisyon: Varsa özel destek, yoksa %19 sabit
-    const defAv2Price = Math.round(basePrice * 0.86 * 100) / 100;
+    const defAv2Price = (unitCost > 0) ? (Math.round(basePrice * 0.86 * 100) / 100) : 0;
     const defAv2Comm = promoComm ? promoComm.av2 : baseComm;
-    const av2Price = custom.av2?.price ?? defAv2Price;
+    const av2Price = (custom.av2?.price !== undefined && custom.av2?.price !== null) ? custom.av2.price : defAv2Price;
     const av2Comm = custom.av2?.comm ?? defAv2Comm;
     const sim2 = PriceCalculator.calculateMarketplaceOfferSim({
       basePrice,
@@ -5400,9 +5401,9 @@ function renderBulkOffersTable() {
     });
 
     // 3. Süper Avantajlı: %23 İndirim (0.77). Komisyon: Varsa özel destek, yoksa %19 sabit
-    const defAv3Price = Math.round(basePrice * 0.77 * 100) / 100;
+    const defAv3Price = (unitCost > 0) ? (Math.round(basePrice * 0.77 * 100) / 100) : 0;
     const defAv3Comm = promoComm ? promoComm.av3 : baseComm;
-    const av3Price = custom.av3?.price ?? defAv3Price;
+    const av3Price = (custom.av3?.price !== undefined && custom.av3?.price !== null) ? custom.av3.price : defAv3Price;
     const av3Comm = custom.av3?.comm ?? defAv3Comm;
     const sim3 = PriceCalculator.calculateMarketplaceOfferSim({
       basePrice,
@@ -5527,80 +5528,107 @@ function renderBulkOffersTable() {
     const renderSimDetailCol = (colTitle, data, theme, unitCost) => {
       const sim = data.sim;
       const hasKnownCost = unitCost > 0;
-      let themeBorder = 'border-amber-800/40 bg-amber-950/20';
-      let themeTitle = 'text-amber-400';
+      const hasPrice = sim.offerPrice > 0;
+
+      let bgGrad = 'to-amber-950/25';
+      let borderCls = 'border-amber-800/50';
+      let titleCls = 'text-amber-400';
+      let badgeCls = 'text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800';
+      let priceCls = 'text-amber-300';
+
       if (theme === 'sky') {
-        themeBorder = 'border-sky-800/40 bg-sky-950/20';
-        themeTitle = 'text-sky-400';
+        bgGrad = 'to-sky-950/25';
+        borderCls = 'border-sky-800/50';
+        titleCls = 'text-sky-400';
+        badgeCls = 'text-sky-300 bg-sky-950 px-2 py-0.5 rounded border border-sky-800';
+        priceCls = 'text-sky-300';
       } else if (theme === 'purple') {
-        themeBorder = 'border-purple-800/40 bg-purple-950/20';
-        themeTitle = 'text-purple-400';
+        bgGrad = 'to-purple-950/25';
+        borderCls = 'border-purple-800/50';
+        titleCls = 'text-purple-400';
+        badgeCls = 'text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800';
+        priceCls = 'text-purple-300';
       }
 
       return `
-        <div class="p-3 rounded-xl border ${themeBorder} space-y-2 bg-slate-950/90 shadow-sm flex flex-col justify-between">
-          <div class="space-y-2">
-            <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
-              <span class="font-black text-xs ${themeTitle}">${colTitle}</span>
-              <span class="font-mono text-xs font-black text-white px-2 py-0.5 rounded bg-slate-900 border border-slate-800">${PriceCalculator.formatTL(sim.offerPrice)}</span>
+        <div class="bg-gradient-to-b from-slate-900 ${bgGrad} p-3.5 rounded-xl border ${borderCls} space-y-2 flex flex-col justify-between shadow-lg">
+          <div>
+            <!-- Başlık & Komisyon Rozeti -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+              <span class="font-extrabold ${titleCls} text-xs flex items-center gap-1">
+                ${colTitle}
+              </span>
+              <span class="text-xs font-bold ${badgeCls}">
+                ${data.isSpecial ? '🏷️ Destekli ' : ''}%${data.comm} Kom.
+              </span>
             </div>
 
-            <!-- Kesinti Şelalesi -->
-            <div class="space-y-1 text-[11px] pb-1 border-b border-slate-800/80">
-              <div class="flex justify-between text-slate-300">
-                <span class="text-slate-400">1. Teklif Satış:</span>
-                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(sim.offerPrice)}</span>
-              </div>
-              <div class="flex justify-between text-slate-300">
-                <span class="text-slate-400">(-) Komisyon (%${data.comm}):</span>
-                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(sim.commAmount)}</span>
-              </div>
-              <div class="flex justify-between text-slate-300">
-                <span class="text-slate-400">(-) Kargo (${currentBulkDesi} Desi):</span>
-                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
-              </div>
+            <!-- Yeni Kampanya Fiyatı (Katman 1 Tavsiye Fiyatı Tasarımında) -->
+            <div class="flex justify-between items-center text-slate-200 text-xs mb-2">
+              <span class="font-semibold text-slate-400">Yeni Kampanya Fiyatı:</span>
+              <span class="font-black ${priceCls} text-base tabular-nums">
+                ${hasKnownCost && hasPrice ? PriceCalculator.formatTL(sim.offerPrice) : 'Maliyet Bilinmiyor'}
+              </span>
             </div>
 
-            <!-- Banka Net Hakedişi -->
-            <div class="p-2 rounded-lg ${sim.payout >= 0 ? 'bg-sky-950/50 border border-sky-800/70 text-sky-200' : 'bg-rose-950/50 border border-rose-800/70 text-rose-200'} space-y-1">
-              <div class="flex justify-between items-center text-xs">
-                <span class="font-black flex items-center gap-1">🏦 Banka Hakedişi:</span>
-                <strong class="text-sm font-black">${PriceCalculator.formatTL(sim.payout)}</strong>
-              </div>
-              <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between pt-0.5 border-t border-slate-800/60">
-                <span>Hakediş Formülü:</span>
-                <span>${PriceCalculator.formatTL(sim.offerPrice)} − ${PriceCalculator.formatTL(sim.commAmount)} − ${PriceCalculator.formatTL(sim.cargoFee)}</span>
-              </div>
-            </div>
-
-            <!-- 1. Katman Fabrika Maliyeti & Net Kâr/Zarar -->
-            <div class="space-y-1 pt-1 border-t border-slate-800/80">
-              <div class="flex justify-between text-slate-300 text-[11px]">
-                <span class="text-slate-400">(-) 1. Katman Fabrika Maliyeti:</span>
-                <span class="font-bold ${hasKnownCost ? 'text-amber-300' : 'text-amber-400'}">
-                  ${hasKnownCost ? `-${PriceCalculator.formatTL(unitCost)}` : '⚠️ Bilinmiyor'}
-                </span>
-              </div>
-
-              <div class="p-2 rounded-lg ${hasKnownCost ? (sim.isProfitable ? 'bg-emerald-950/50 border border-emerald-800/70 text-emerald-200' : 'bg-rose-950/50 border border-rose-800/70 text-rose-200') : 'bg-slate-900 border border-slate-800 text-amber-300'} space-y-1">
-                <div class="flex justify-between items-center text-xs">
-                  <span class="font-black flex items-center gap-1">💰 Net Kâr / Zarar:</span>
-                  <strong class="text-sm font-black">${hasKnownCost ? `${sim.isProfitable ? '+' : ''}${PriceCalculator.formatTL(sim.netProfit)}` : 'Bilinmiyor'}</strong>
+            ${(!hasKnownCost || !hasPrice) ? `
+              <div class="p-3 bg-amber-950/30 rounded-lg border border-amber-800/50 text-[11px] text-amber-300 space-y-1.5 my-2">
+                <div class="font-bold flex items-center gap-1.5">
+                  <span>⚠️</span> 1. Katman Fabrika Maliyeti Yok
                 </div>
-                ${hasKnownCost ? `
-                  <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between pt-0.5 border-t border-slate-800/60">
-                    <span>Net Kâr Formülü:</span>
-                    <span>${PriceCalculator.formatTL(sim.payout)} (Banka) − ${PriceCalculator.formatTL(unitCost)} (Fabrika)</span>
-                  </div>
-                ` : ''}
+                <p class="text-slate-400 text-[10.5px] leading-relaxed">
+                  Bu ürünün hammadde maliyeti tanımlanmadığı için yeni kampanya fiyatı önerilmemiştir ve simülasyon hesaplanamamaktadır.
+                </p>
               </div>
-            </div>
+            ` : `
+              <!-- Katman 1 Kesinti Döküm Listesi -->
+              <div class="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2">
+                <div class="flex justify-between items-center">
+                  <span>(-) Komisyon (%${data.comm}):</span>
+                  <span class="text-rose-400 font-bold tabular-nums">-${PriceCalculator.formatTL(sim.commAmount)}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>(-) Kargo Ücreti (${currentBulkDesi} Desi):</span>
+                  <span class="text-rose-400 font-bold tabular-nums">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
+                </div>
+                <div class="flex justify-between items-center font-bold text-slate-100 border-t border-slate-800/60 pt-1.5">
+                  <span class="flex items-center gap-1">🏦 (=) Hakediş (Payout):</span>
+                  <span class="${sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300'} font-extrabold tabular-nums">${PriceCalculator.formatTL(sim.payout)}</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-400">
+                  <span>(-) Saf Fabrika Maliyeti:</span>
+                  <span class="text-amber-300 font-bold tabular-nums">-${PriceCalculator.formatTL(unitCost)}</span>
+                </div>
+              </div>
+            `}
           </div>
 
-          <!-- Kurtaran Taban Fiyat -->
-          <div class="pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10.5px]">
-            <span class="text-slate-400 font-bold">🛡️ Başa Baş Taban Fiyat:</span>
-            <span class="font-mono font-black text-amber-300">${hasKnownCost && sim.redlineFloorPrice !== null ? PriceCalculator.formatTL(sim.redlineFloorPrice) : 'Bilinmiyor'}</span>
+          <!-- Katman 1 NET KÂRINIZ / ZARARINIZ Alt Bannerı -->
+          <div class="mt-2 space-y-2">
+            ${(!hasKnownCost || !hasPrice) ? `
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center font-bold text-xs">
+                <span class="text-slate-400 uppercase tracking-wider text-xs">KÂR HESABI:</span>
+                <span class="text-amber-400 font-bold text-xs">Maliyet Bekleniyor</span>
+              </div>
+            ` : (sim.isProfitable ? `
+              <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-500/40 flex justify-between items-center font-bold text-xs shadow-sm">
+                <span class="text-emerald-400 uppercase tracking-wider text-xs flex items-center gap-1">💰 NET KÂRINIZ:</span>
+                <span class="text-emerald-300 font-black text-base tabular-nums">+${PriceCalculator.formatTL(sim.netProfit)}</span>
+              </div>
+            ` : `
+              <div class="bg-rose-950/80 p-2.5 rounded-lg border border-rose-500/40 flex justify-between items-center font-bold text-xs shadow-sm">
+                <span class="text-rose-400 uppercase tracking-wider text-xs flex items-center gap-1">🔴 NET ZARARINIZ:</span>
+                <span class="text-rose-300 font-black text-base tabular-nums">${PriceCalculator.formatTL(sim.netProfit)}</span>
+              </div>
+            `)}
+
+            <!-- Başa Baş Taban Fiyat -->
+            <div class="flex justify-between items-center text-[10.5px] px-1 text-slate-400 border-t border-slate-800/80 pt-1.5">
+              <span class="font-medium">🛡️ Başa Baş Taban Fiyat:</span>
+              <strong class="font-mono ${hasKnownCost && sim.redlineFloorPrice !== null ? 'text-amber-300' : 'text-slate-500'}">
+                ${hasKnownCost && sim.redlineFloorPrice !== null ? PriceCalculator.formatTL(sim.redlineFloorPrice) : 'Bilinmiyor'}
+              </strong>
+            </div>
           </div>
         </div>
       `;
@@ -5608,8 +5636,9 @@ function renderBulkOffersTable() {
 
     const renderTierBox = (title, tierKey, data, colorTheme) => {
       const hasKnownCost = item.unitCost > 0;
-      const isProfit = hasKnownCost && data.sim.isProfitable;
-      const isLoss = hasKnownCost && data.sim.isLoss;
+      const hasPrice = data.price > 0;
+      const isProfit = hasKnownCost && hasPrice && data.sim.isProfitable;
+      const isLoss = hasKnownCost && hasPrice && data.sim.isLoss;
       const isZero = data.price <= 0;
 
       let borderClr = 'border-slate-800 bg-slate-950/40';
@@ -5617,7 +5646,11 @@ function renderBulkOffersTable() {
       let badgeText = '⚠️ Maliyet Bilinmiyor';
 
       if (hasKnownCost) {
-        if (isProfit) {
+        if (!hasPrice) {
+          borderClr = 'border-amber-900/40 bg-amber-950/10';
+          badgeBg = 'bg-slate-900 text-amber-300 border-slate-700';
+          badgeText = 'Fiyat Yok';
+        } else if (isProfit) {
           borderClr = 'border-emerald-500/40 bg-emerald-950/20';
           badgeBg = 'bg-emerald-950 text-emerald-300 border-emerald-500/60';
           badgeText = `+${PriceCalculator.formatTL(data.sim.netProfit)}`;
@@ -5642,15 +5675,17 @@ function renderBulkOffersTable() {
           <div class="grid grid-cols-2 gap-1.5 text-xs">
             <div>
               <div class="flex items-center justify-between mb-0.5">
-                <label class="text-[9.5px] text-slate-400 font-bold">Hedef Fiyat (₺):</label>
+                <label class="text-[9.5px] text-slate-300 font-bold">Yeni Fiyat (₺):</label>
               </div>
-              <input type="number" step="0.01" value="${data.price}" 
+              <input type="number" step="0.01" 
+                     value="${hasPrice ? data.price : ''}" 
+                     placeholder="${hasKnownCost ? '0.00' : 'Maliyet Bilinmiyor'}"
                      onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'price', this.value)"
-                     class="w-full bg-slate-950 border border-slate-700 text-white font-black text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
+                     class="w-full bg-slate-950 border ${hasKnownCost ? 'border-slate-700 text-white' : 'border-amber-900/60 text-amber-300'} font-black text-xs p-1 rounded-lg text-center focus:border-amber-500 focus:outline-none" />
             </div>
             <div>
               <div class="flex items-center justify-between mb-0.5">
-                <label class="text-[9.5px] text-slate-400 font-bold">Komisyon (%):</label>
+                <label class="text-[9.5px] text-slate-300 font-bold">Komisyon (%):</label>
                 ${data.isSpecial ? `
                   <span class="text-[8.5px] font-black text-amber-400">🏷️ Destekli</span>
                 ` : `
@@ -5667,8 +5702,8 @@ function renderBulkOffersTable() {
           <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
             <div class="flex justify-between items-center">
               <span class="text-slate-400">🏦 Banka Hakedişi:</span>
-              <strong class="font-black text-xs ${data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300'}">
-                ${PriceCalculator.formatTL(data.sim.payout)}
+              <strong class="font-black text-xs ${hasKnownCost && hasPrice ? (data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300') : 'text-slate-500'}">
+                ${hasKnownCost && hasPrice ? PriceCalculator.formatTL(data.sim.payout) : 'Hesaplanamaz'}
               </strong>
             </div>
             <div class="flex justify-between items-center text-[10.5px]">
@@ -5685,6 +5720,10 @@ function renderBulkOffersTable() {
             <div class="text-center text-[10px] text-amber-400 font-bold py-1 bg-amber-950/30 rounded-lg border border-amber-800/40">
               ⚠️ Ham Maliyet Bilinmiyor
             </div>
+          ` : (!hasPrice ? `
+            <div class="text-center text-[10px] text-slate-400 font-bold py-1 bg-slate-900 rounded-lg border border-slate-800">
+              Fiyat Girilmedi
+            </div>
           ` : (isProfit ? `
             <div class="text-center text-[10px] text-emerald-400 font-bold py-1 bg-emerald-950/30 rounded-lg border border-emerald-800/40">
               ✅ Güvenle Onaylanabilir
@@ -5694,7 +5733,7 @@ function renderBulkOffersTable() {
                     class="w-full py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10.5px] rounded-lg shadow transition-all cursor-pointer flex items-center justify-center gap-1">
               🛡️ Tabanı Uygula (${PriceCalculator.formatTL(Math.ceil(data.sim.redlineFloorPrice))})
             </button>
-          `)}
+          `))}
         </div>
       `;
     };
@@ -5809,23 +5848,28 @@ function renderBulkOffersTable() {
           </div>
         ` : ''}
 
-        <!-- Açılır / Kapanır 3 Sütunlu Pazaryeri Hakediş Simülasyon Çekmecesi -->
+        <!-- Açılır / Kapanır Katman 1 Tasarımlı Pazaryeri Simülasyon Çekmecesi -->
         ${isSimOpen ? `
-          <div class="bg-[#090e1f] p-3.5 rounded-2xl border border-indigo-900/60 text-xs animate-slide-up space-y-3 shadow-xl">
-            <div class="flex flex-wrap items-center justify-between border-b border-indigo-950/80 pb-2.5 gap-2">
+          <div class="bg-[#0e172a] p-4 rounded-xl border border-slate-800 space-y-3.5 animate-slide-up shadow-xl">
+            <div class="flex flex-wrap items-center justify-between bg-[#0b1325] p-3 rounded-xl border border-slate-800 gap-3">
               <div class="flex items-center gap-2">
-                <span class="text-base p-1.5 rounded-lg bg-indigo-950 border border-indigo-800 text-indigo-400">⚡</span>
-                <div>
-                  <h6 class="font-black text-white text-xs">Pazaryeri Kesinti & Banka Hakediş Şelalesi</h6>
-                  <span class="text-[10.5px] text-slate-400">Kargo, komisyon ve net fabrika kârı formül dökümü (${currentBulkDesi} Desi Kargo: <strong class="text-indigo-300 font-bold">${PriceCalculator.formatTL(dhlCargo)}</strong>)</span>
-                </div>
+                <span class="text-sm font-extrabold text-amber-400 flex items-center gap-1.5">⚡ KATMAN 1 ENTEGRE PAZARYERİ KAMPANYA SİMÜLATÖRÜ</span>
+                <span class="text-xs text-slate-400">(Saf Fabrika Maliyeti & Kargo/Komisyon Kesintileri)</span>
               </div>
-              <div class="text-[10.5px] text-indigo-300 bg-indigo-950/60 border border-indigo-800/80 px-2.5 py-1 rounded-lg font-medium">
-                Katman 1 & Katman 3 Entegre Simülasyonu
+              <div class="flex items-center gap-2.5 text-xs">
+                <span class="text-slate-400 font-semibold">1. Katman Fabrika Maliyeti:</span>
+                <span class="font-black ${item.unitCost > 0 ? 'text-amber-300 bg-amber-950/80 border-amber-800' : 'text-amber-400 bg-slate-900 border-slate-800'} px-2.5 py-1 rounded-lg border">
+                  ${item.unitCost > 0 ? PriceCalculator.formatTL(item.unitCost) : '⚠️ Bilinmiyor'}
+                </span>
+                <span class="text-slate-600 font-bold">•</span>
+                <span class="text-slate-400 font-semibold">Kargo:</span>
+                <span class="font-bold text-sky-300 bg-sky-950/80 px-2 py-1 rounded-lg border border-sky-800 font-mono">
+                  ${currentBulkDesi} Desi (${PriceCalculator.formatTL(dhlCargo)})
+                </span>
               </div>
             </div>
 
-            <div class="grid ${currentBulkTierMode === 'all' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'} gap-3">
+            <div class="grid grid-cols-1 ${currentBulkTierMode === 'all' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-3.5 text-xs">
               ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderSimDetailCol('🏷️ 1. Avantajlı (%5 İndirim)', item.av1, 'amber', item.unitCost) : ''}
               ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderSimDetailCol('💎 2. Çok Avantajlı (%14 İndirim)', item.av2, 'sky', item.unitCost) : ''}
               ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderSimDetailCol('🚀 3. Süper Avantajlı (%23 İndirim)', item.av3, 'purple', item.unitCost) : ''}
