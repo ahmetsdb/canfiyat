@@ -5064,6 +5064,7 @@ let currentBulkProfitFilter = "all"; // 'all' | 'profit' | 'loss'
 let currentBulkSearchQuery = "";
 let bulkOfferCustomValues = (typeof StorageManager !== "undefined" && StorageManager.getBulkOfferCustoms) ? StorageManager.getBulkOfferCustoms() : {}; // { [idKey]: { av1: { price, comm }, av2: ..., av3: ... } }
 let bulkOpenInvoices = {}; // { [idKey]: boolean }
+let bulkOpenSims = {}; // { [idKey]: boolean }
 
 // Trendyol Kampanyasında özel komisyon desteği tanımlanmış ürünlerin haritası
 // Eğer ürün burada tanımlı değilse Trendyol komisyonu indirmez, ürünün temel komisyonu (%19) sabit kalır!
@@ -5078,26 +5079,25 @@ function extractVolumeAndPackFromTitle(title) {
   let packQty = 1;
   const adetMatch = t.match(/(\d+)\s*(?:adet|ad\b)/i);
   const xMatch = t.match(/(?:x\s*(\d+)|(\d+)\s*x)/i);
-  if (adetMatch && parseInt(adetMatch[1], 10) > 1) {
+  if (xMatch && parseInt(xMatch[1] || xMatch[2], 10) > 1) {
+    packQty = parseInt(xMatch[1] || xMatch[2], 10);
+  } else if (adetMatch && parseInt(adetMatch[1], 10) > 1) {
     packQty = parseInt(adetMatch[1], 10);
-  } else if (xMatch) {
-    const q = parseInt(xMatch[1] || xMatch[2], 10);
-    if (q > 1) packQty = q;
   }
 
   // Volume detection
   let volKey = "1000ml";
   if (/(?:^|[^\d])(5000\s*ml|5\s*kg|5000\s*g|5000\s*gr|5\s*lt|5\s*litre)(?:[^\d]|$)/i.test(t)) volKey = "5000ml";
   else if (/(?:^|[^\d])(1000\s*ml|1\s*kg|1000\s*g|1000\s*gr|1\s*lt|1\s*litre)(?:[^\d]|$)/i.test(t)) volKey = "1000ml";
-  else if (/(?:^|[^\d])(500\s*ml|500\s*g|500\s*gr)/i.test(t)) volKey = "500ml";
-  else if (/(?:^|[^\d])(300\s*ml|300\s*g|300\s*gr)/i.test(t)) volKey = "300ml";
-  else if (/(?:^|[^\d])(250\s*ml|250\s*g|250\s*gr)/i.test(t)) volKey = "250ml";
-  else if (/(?:^|[^\d])(150\s*ml|150\s*g|150\s*gr)/i.test(t)) volKey = "150ml";
-  else if (/(?:^|[^\d])(100\s*ml|100\s*g|100\s*gr)/i.test(t)) volKey = "100ml";
-  else if (/(?:^|[^\d])(50\s*ml|50\s*g|50\s*gr)/i.test(t)) volKey = "50ml";
-  else if (/(?:^|[^\d])(30\s*ml|30\s*g|30\s*gr)/i.test(t)) volKey = "30ml";
-  else if (/(?:^|[^\d])(20\s*ml|20\s*g|20\s*gr)/i.test(t)) volKey = "20ml";
-  else if (/(?:^|[^\d])(10\s*ml|10\s*g|10\s*gr)/i.test(t)) volKey = "10ml";
+  else if (/(?:^|[^\d])(500\s*ml|500\s*g|500\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "500ml";
+  else if (/(?:^|[^\d])(300\s*ml|300\s*g|300\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "300ml";
+  else if (/(?:^|[^\d])(250\s*ml|250\s*g|250\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "250ml";
+  else if (/(?:^|[^\d])(150\s*ml|150\s*g|150\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "150ml";
+  else if (/(?:^|[^\d])(100\s*ml|100\s*g|100\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "100ml";
+  else if (/(?:^|[^\d])(50\s*ml|50\s*g|50\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "50ml";
+  else if (/(?:^|[^\d])(30\s*ml|30\s*g|30\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "30ml";
+  else if (/(?:^|[^\d])(20\s*ml|20\s*g|20\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "20ml";
+  else if (/(?:^|[^\d])(10\s*ml|10\s*g|10\s*gr)(?:[^\d]|$)/i.test(t)) volKey = "10ml";
 
   return { volKey, packQty };
 }
@@ -5106,66 +5106,94 @@ function findFactoryProductForTrendyolItem(itemTitle) {
   if (!currentProducts || Object.keys(currentProducts).length === 0) {
     currentProducts = StorageManager.getProducts();
   }
-  const products = Object.values(currentProducts || {});
+  const products = currentProducts || {};
   const t = normalizeTr(itemTitle);
+  if (t.includes("endora")) return null;
 
-  for (const p of products) {
-    const pn = normalizeTr(p.name);
-    if (t.includes("endora")) continue;
+  const getById = (id) => products[id] || Object.values(products).find(p => p.id === id || p.sku === id);
 
-    if (pn.includes("aci badem") && (t.includes("aci") && t.includes("badem"))) return p;
-    if (!pn.includes("aci badem") && pn.includes("badem") && (t.includes("badem") && !t.includes("aci"))) return p;
-    if (pn.includes("findik") && t.includes("findik")) return p;
-    if (pn.includes("ceviz") && !pn.includes("hindistan") && (t.includes("ceviz") && !t.includes("hindistan"))) return p;
-    if (pn.includes("hindistan") && t.includes("hindistan")) return p;
-    if (pn.includes("kudret") && t.includes("kudret")) return p;
-    if (pn.includes("nar") && !pn.includes("kudret") && (t.includes("nar") && !t.includes("kudret"))) return p;
-    if (pn.includes("shea") && t.includes("shea")) {
-      if ((pn.includes("ham") || p.id.includes("ham")) && (t.includes("ham") || t.includes("raw"))) return p;
-      if (!pn.includes("ham") && !p.id.includes("ham") && !t.includes("ham") && !t.includes("raw")) return p;
-    }
-    if (pn.includes("skualen") && (t.includes("skualen") || t.includes("squalene"))) return p;
-    if (pn.includes("incir") && t.includes("incir")) return p;
-    if (pn.includes("defne tohumu") && t.includes("defne")) return p;
-    if (pn.includes("defne") && t.includes("defne")) return p;
-    if (pn.includes("hint") && !pn.includes("hindistan") && (t.includes("hint") && !t.includes("hindistan") && !t.includes("udi hindi") && !t.includes("udi"))) return p;
-    if (pn.includes("udi hindi") && (t.includes("udi hindi") || t.includes("udi"))) return p;
-    if (pn.includes("nioli") && t.includes("nioli")) return p;
-    if (pn.includes("at kestanesi") && t.includes("at kestanesi")) return p;
-    if (pn.includes("kantaron") && t.includes("kantaron")) return p;
-    if (pn.includes("papatya") && t.includes("papatya")) return p;
-    if (pn.includes("kakao") && t.includes("kakao")) return p;
-    if (pn.includes("jojoba") && t.includes("jojoba")) return p;
-    if (pn.includes("kenevir") && (t.includes("kenevir") || t.includes("kendir"))) return p;
-    if (pn.includes("uzum") && t.includes("uzum")) return p;
-    if (pn.includes("keten") && !pn.includes("ketencik") && (t.includes("keten") && !t.includes("ketencik"))) return p;
-    if (pn.includes("deve dikeni") && t.includes("deve dikeni")) return p;
-    if (pn.includes("aynisefa") && (t.includes("aynisefa") || t.includes("calendula"))) return p;
-    if (pn.includes("kayisi") && t.includes("kayisi")) return p;
-    if (pn.includes("susam") && t.includes("susam")) return p;
-    if (pn.includes("argan") && t.includes("argan")) return p;
-    if (pn.includes("hashas") && t.includes("hashas")) return p;
-    if (pn.includes("aloe") && (t.includes("aloe") || t.includes("aloevera"))) return p;
-    if (pn.includes("kabak") && t.includes("kabak")) return p;
-    if (pn.includes("bugday") && t.includes("bugday")) return p;
-    if (pn.includes("aspir") && t.includes("aspir")) return p;
-    if (pn.includes("corek") && t.includes("corek")) return p;
-    if (pn.includes("uzerlik") && t.includes("uzerlik")) return p;
-    if (pn.includes("gliserin") && (t.includes("gliserin") || t.includes("glycerol"))) return p;
-    if (pn.includes("menengic") && (t.includes("menengic") || t.includes("bittim"))) return p;
-    if (pn.includes("kusburnu") && t.includes("kusburnu")) return p;
-    if (pn.includes("isirgan") && t.includes("isirgan")) return p;
-    if (pn.includes("sarimsak") && t.includes("sarimsak")) return p;
-    if (pn.includes("avokado") && t.includes("avokado")) return p;
-    if (pn.includes("chia") && t.includes("chia")) return p;
-    if (pn.includes("bamya") && t.includes("bamya")) return p;
-    if (pn.includes("biberiye") && t.includes("biberiye")) return p;
-    if (pn.includes("lavanta") && t.includes("lavanta")) return p;
-    if (pn.includes("nane") && t.includes("nane")) return p;
-    if (pn.includes("kekik") && t.includes("kekik")) return p;
-    if (pn.includes("okaliptus") && t.includes("okaliptus")) return p;
-    if (pn.includes("karanfil") && t.includes("karanfil")) return p;
+  // 1. Badem (Tatlı vs Acı)
+  if (t.includes("aci badem") || (t.includes("badem") && t.includes("aci"))) return getById("T.0359");
+  if (t.includes("tatli badem") || (t.includes("badem") && !t.includes("aci"))) return getById("T.0078");
+
+  // 2. Hindistan Cevizi vs Normal Ceviz
+  if (t.includes("hindistan cevizi")) return getById("T.0077");
+  if (t.includes("ceviz") && !t.includes("hindistan")) return getById("T.0087");
+
+  // 3. Kudret Narı (Meyveli vs Süzülmüş)
+  if (t.includes("kudret nari") || t.includes("kudret")) {
+    if (t.includes("suzulmus")) return getById("T.0221");
+    return getById("T.0125"); // Meyveli
   }
+
+  // 4. Sarı Kantaron
+  if (t.includes("sari kantaron") || t.includes("kantaron")) return getById("T.0081");
+
+  // 5. Nar Çekirdeği (onarıcı veya kudret narı kelimelerine takılmasını engelle)
+  if (/\bnar\b/i.test(t) || t.includes("nar cekirdegi") || (t.includes("nar") && !t.includes("onar") && !t.includes("kudret"))) {
+    return getById("T.0084");
+  }
+
+  // 6. Defne (Tohumu vs Yaprağı)
+  if (t.includes("defne tohumu") || (t.includes("defne") && (t.includes("soguk") || t.includes("sabit")))) return getById("T.0353");
+  if (t.includes("defne yapragi") || t.includes("defne")) return getById("T.0407");
+
+  // 7. Shea (Ham vs Rafine)
+  if (t.includes("shea")) {
+    if (t.includes("ham") || t.includes("raw")) return getById("T.0355_ham");
+    return getById("T.0355");
+  }
+
+  // 8. Skualen (Sıvı vs Wax)
+  if (t.includes("skualen") || t.includes("squalene")) {
+    if (t.includes("wax")) return getById("A.0301_wax");
+    return getById("A.0301"); // Sıvı
+  }
+
+  // 9. Gliserin
+  if (t.includes("gliserin") || t.includes("glycerol")) return getById("A.0300");
+
+  // 10. Udi Hindi vs Hint
+  if (t.includes("udi hindi") || (t.includes("udi") && t.includes("hindi"))) return getById("T.0272");
+  if (t.includes("hint")) return getById("T.0155_sabit");
+
+  // 11. Diğer Özel Yağlar (Deterministik Anahtar Kelimeler)
+  if (t.includes("findik")) return getById("T.0079");
+  if (t.includes("incir")) return getById("T.0362");
+  if (t.includes("nioli")) return getById("U.0259");
+  if (t.includes("at kestanesi")) return getById("T.0097");
+  if (t.includes("papatya")) return getById("T.0367");
+  if (t.includes("kakao")) return getById("T.0224");
+  if (t.includes("jojoba")) return getById("T.0110");
+  if (t.includes("kenevir") || t.includes("kendir")) return getById("T.0209");
+  if (t.includes("uzum")) return getById("T.0086");
+  if (t.includes("keten") && !t.includes("ketencik")) return getById("T.0083");
+  if (t.includes("deve dikeni")) return getById("T.0323");
+  if (t.includes("aynisefa") || t.includes("calendula")) return getById("T.0148");
+  if (t.includes("kayisi")) return getById("T.0082");
+  if (t.includes("susam")) return getById("T.0085");
+  if (t.includes("argan")) return getById("T.0243");
+  if (t.includes("hashas")) return getById("T.0213");
+  if (t.includes("aloe") || t.includes("aloevera")) return getById("T.0361");
+  if (t.includes("kabak")) return getById("T.0080");
+  if (t.includes("bugday") || t.includes("ruseym")) return getById("T.0013");
+  if (t.includes("aspir")) return getById("T.0358");
+  if (t.includes("corek")) return getById("T.0074");
+  if (t.includes("uzerlik")) return getById("T.0360");
+  if (t.includes("menengic") || t.includes("bittim")) return getById("T.0210");
+  if (t.includes("kusburnu")) return getById("T.0104");
+  if (t.includes("isirgan")) return getById("T.0366");
+  if (t.includes("sarimsak")) return getById("T.0246");
+  if (t.includes("avokado")) return getById("T.0245");
+  if (t.includes("chia")) return getById("T.0232");
+  if (t.includes("bamya")) return getById("T.0322");
+  if (t.includes("biberiye")) return getById("U.0235");
+  if (t.includes("lavanta")) return getById("U.0155");
+  if (t.includes("nane")) return getById("U.0199");
+  if (t.includes("kekik")) return getById("U.0095");
+  if (t.includes("okaliptus")) return getById("U.0248");
+  if (t.includes("karanfil")) return getById("U.0105");
+
   return null;
 }
 
@@ -5238,6 +5266,11 @@ function clearBulkSearch() {
 
 function toggleBulkRowInvoice(prodId) {
   bulkOpenInvoices[prodId] = !bulkOpenInvoices[prodId];
+  renderBulkOffersTable();
+}
+
+function toggleBulkRowSim(prodId) {
+  bulkOpenSims[prodId] = !bulkOpenSims[prodId];
   renderBulkOffersTable();
 }
 
@@ -5481,6 +5514,7 @@ function renderBulkOffersTable() {
     const idKey = item.idKey;
     const isCustomized = !!bulkOfferCustomValues[idKey];
     const isInvoiceOpen = !!bulkOpenInvoices[idKey];
+    const isSimOpen = !!bulkOpenSims[idKey];
 
     const isMaceration = isMacerationOil(p);
     const isEssential = p.category === "Uçucu Yağlar";
@@ -5489,6 +5523,88 @@ function renderBulkOffersTable() {
     if (!supplyType) supplyType = isEssential ? "wholesale" : "press";
     const isWholesale = (supplyType === "wholesale");
     const yieldPct = (p.yieldPercent !== undefined && p.yieldPercent !== null) ? parseFloat(p.yieldPercent) : 0;
+
+    const renderSimDetailCol = (colTitle, data, theme, unitCost) => {
+      const sim = data.sim;
+      const hasKnownCost = unitCost > 0;
+      let themeBorder = 'border-amber-800/40 bg-amber-950/20';
+      let themeTitle = 'text-amber-400';
+      if (theme === 'sky') {
+        themeBorder = 'border-sky-800/40 bg-sky-950/20';
+        themeTitle = 'text-sky-400';
+      } else if (theme === 'purple') {
+        themeBorder = 'border-purple-800/40 bg-purple-950/20';
+        themeTitle = 'text-purple-400';
+      }
+
+      return `
+        <div class="p-3 rounded-xl border ${themeBorder} space-y-2 bg-slate-950/90 shadow-sm flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+              <span class="font-black text-xs ${themeTitle}">${colTitle}</span>
+              <span class="font-mono text-xs font-black text-white px-2 py-0.5 rounded bg-slate-900 border border-slate-800">${PriceCalculator.formatTL(sim.offerPrice)}</span>
+            </div>
+
+            <!-- Kesinti Şelalesi -->
+            <div class="space-y-1 text-[11px] pb-1 border-b border-slate-800/80">
+              <div class="flex justify-between text-slate-300">
+                <span class="text-slate-400">1. Teklif Satış:</span>
+                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(sim.offerPrice)}</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span class="text-slate-400">(-) Komisyon (%${data.comm}):</span>
+                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(sim.commAmount)}</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span class="text-slate-400">(-) Kargo (${currentBulkDesi} Desi):</span>
+                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(sim.cargoFee)}</span>
+              </div>
+            </div>
+
+            <!-- Banka Net Hakedişi -->
+            <div class="p-2 rounded-lg ${sim.payout >= 0 ? 'bg-sky-950/50 border border-sky-800/70 text-sky-200' : 'bg-rose-950/50 border border-rose-800/70 text-rose-200'} space-y-1">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-black flex items-center gap-1">🏦 Banka Hakedişi:</span>
+                <strong class="text-sm font-black">${PriceCalculator.formatTL(sim.payout)}</strong>
+              </div>
+              <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between pt-0.5 border-t border-slate-800/60">
+                <span>Hakediş Formülü:</span>
+                <span>${PriceCalculator.formatTL(sim.offerPrice)} − ${PriceCalculator.formatTL(sim.commAmount)} − ${PriceCalculator.formatTL(sim.cargoFee)}</span>
+              </div>
+            </div>
+
+            <!-- 1. Katman Fabrika Maliyeti & Net Kâr/Zarar -->
+            <div class="space-y-1 pt-1 border-t border-slate-800/80">
+              <div class="flex justify-between text-slate-300 text-[11px]">
+                <span class="text-slate-400">(-) 1. Katman Fabrika Maliyeti:</span>
+                <span class="font-bold ${hasKnownCost ? 'text-amber-300' : 'text-amber-400'}">
+                  ${hasKnownCost ? `-${PriceCalculator.formatTL(unitCost)}` : '⚠️ Bilinmiyor'}
+                </span>
+              </div>
+
+              <div class="p-2 rounded-lg ${hasKnownCost ? (sim.isProfitable ? 'bg-emerald-950/50 border border-emerald-800/70 text-emerald-200' : 'bg-rose-950/50 border border-rose-800/70 text-rose-200') : 'bg-slate-900 border border-slate-800 text-amber-300'} space-y-1">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-black flex items-center gap-1">💰 Net Kâr / Zarar:</span>
+                  <strong class="text-sm font-black">${hasKnownCost ? `${sim.isProfitable ? '+' : ''}${PriceCalculator.formatTL(sim.netProfit)}` : 'Bilinmiyor'}</strong>
+                </div>
+                ${hasKnownCost ? `
+                  <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between pt-0.5 border-t border-slate-800/60">
+                    <span>Net Kâr Formülü:</span>
+                    <span>${PriceCalculator.formatTL(sim.payout)} (Banka) − ${PriceCalculator.formatTL(unitCost)} (Fabrika)</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Kurtaran Taban Fiyat -->
+          <div class="pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10.5px]">
+            <span class="text-slate-400 font-bold">🛡️ Başa Baş Taban Fiyat:</span>
+            <span class="font-mono font-black text-amber-300">${hasKnownCost && sim.redlineFloorPrice !== null ? PriceCalculator.formatTL(sim.redlineFloorPrice) : 'Bilinmiyor'}</span>
+          </div>
+        </div>
+      `;
+    };
 
     const renderTierBox = (title, tierKey, data, colorTheme) => {
       const hasKnownCost = item.unitCost > 0;
@@ -5526,7 +5642,7 @@ function renderBulkOffersTable() {
           <div class="grid grid-cols-2 gap-1.5 text-xs">
             <div>
               <div class="flex items-center justify-between mb-0.5">
-                <label class="text-[9.5px] text-slate-400 font-bold">Hedef Fiyat (₺ ve altı):</label>
+                <label class="text-[9.5px] text-slate-400 font-bold">Hedef Fiyat (₺):</label>
               </div>
               <input type="number" step="0.01" value="${data.price}" 
                      onchange="onBulkCustomInput('${idKey}', '${tierKey}', 'price', this.value)"
@@ -5547,71 +5663,20 @@ function renderBulkOffersTable() {
             </div>
           </div>
 
-          <!-- KATMAN 1 PAZARYERİ SİMÜLASYONU & HAKEDİŞ HESAP CETVELİ (ŞEFFAF VE ANLAŞILIR) -->
-          <div class="bg-slate-950/90 p-2 rounded-xl border border-slate-800 text-[11px] space-y-1.5 shadow-inner">
-            <!-- 1. Pazaryeri Kesintileri -->
-            <div class="space-y-1 pb-1 border-b border-slate-800/70">
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">1. Teklif Satış:</span>
-                <span class="font-bold text-slate-100">${PriceCalculator.formatTL(data.sim.offerPrice)}</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">(-) Komisyon (%${data.comm}):</span>
-                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(data.sim.commAmount)}</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">(-) Kargo (${currentBulkDesi} Desi):</span>
-                <span class="font-bold text-rose-400">-${PriceCalculator.formatTL(data.sim.cargoFee)}</span>
-              </div>
+          <!-- Sade ve Kompakt Özet Kutusu -->
+          <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">🏦 Banka Hakedişi:</span>
+              <strong class="font-black text-xs ${data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300'}">
+                ${PriceCalculator.formatTL(data.sim.payout)}
+              </strong>
             </div>
-
-            <!-- 2. Banka Hakedişi (Nasıl Çıktı Dökümü) -->
-            <div class="py-1 px-1.5 rounded-lg ${data.sim.payout >= 0 ? 'bg-sky-950/40 border border-sky-900/50' : 'bg-rose-950/40 border border-rose-900/50'} space-y-0.5">
-              <div class="flex justify-between items-center">
-                <span class="font-extrabold ${data.sim.payout >= 0 ? 'text-sky-300' : 'text-rose-300'} flex items-center gap-1">
-                  🏦 (=) Banka Hakedişi:
-                </span>
-                <strong class="font-black text-xs ${data.sim.payout >= 0 ? 'text-sky-200' : 'text-rose-200'}">
-                  ${PriceCalculator.formatTL(data.sim.payout)}
-                </strong>
-              </div>
-              <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between">
-                <span>Hakediş Hesabı:</span>
-                <span>${PriceCalculator.formatTL(data.sim.offerPrice)} − ${PriceCalculator.formatTL(data.sim.commAmount)} − ${PriceCalculator.formatTL(data.sim.cargoFee)}</span>
-              </div>
-            </div>
-
-            <!-- 3. Fabrika Maliyeti ve Net Kâr/Zarar Çıkarımı -->
-            <div class="space-y-1 pt-1 border-t border-slate-800/70">
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">(-) 1. Katman Fabrika:</span>
-                <span class="font-bold ${hasKnownCost ? 'text-amber-300' : 'text-amber-400'}">
-                  ${hasKnownCost ? `-${PriceCalculator.formatTL(item.unitCost)}` : '⚠️ Bilinmiyor'}
-                </span>
-              </div>
-              <div class="flex justify-between items-center pt-0.5 border-t border-slate-800/50">
-                <span class="font-black ${hasKnownCost ? (isProfit ? 'text-emerald-400' : 'text-rose-400') : 'text-amber-400'}">
-                  💰 (=) Net Kâr/Zarar:
-                </span>
-                <strong class="font-black text-xs ${hasKnownCost ? (isProfit ? 'text-emerald-300' : 'text-rose-300') : 'text-amber-400'}">
-                  ${hasKnownCost ? `${isProfit ? '+' : ''}${PriceCalculator.formatTL(data.sim.netProfit)}` : 'Bilinmiyor'}
-                </strong>
-              </div>
-              ${hasKnownCost ? `
-                <div class="text-[9.5px] text-slate-400 font-mono flex items-center justify-between">
-                  <span>Net Kâr Hesabı:</span>
-                  <span>${PriceCalculator.formatTL(data.sim.payout)} (Banka) − ${PriceCalculator.formatTL(item.unitCost)} (Maliyet)</span>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- 4. Kurtaran Taban Fiyatı -->
-            <div class="flex justify-between items-center text-slate-300 pt-1 border-t border-slate-800/70 text-[10.5px]">
-              <span class="text-slate-400 font-bold">🛡️ Kurtaran Taban:</span>
+            <div class="flex justify-between items-center text-[10.5px]">
+              <span class="text-slate-400">🛡️ Kurtaran Taban:</span>
               ${hasKnownCost && data.sim.redlineFloorPrice !== null ? `
-                <strong class="text-amber-300 font-black">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
+                <strong class="text-amber-300 font-bold">${PriceCalculator.formatTL(data.sim.redlineFloorPrice)}</strong>
               ` : `
-                <strong class="text-amber-400/80 font-bold">Bilinmiyor</strong>
+                <span class="text-slate-500 font-medium">Bilinmiyor</span>
               `}
             </div>
           </div>
@@ -5621,7 +5686,7 @@ function renderBulkOffersTable() {
               ⚠️ Ham Maliyet Bilinmiyor
             </div>
           ` : (isProfit ? `
-            <div class="text-center text-[10px] text-emerald-400 font-bold py-0.5">
+            <div class="text-center text-[10px] text-emerald-400 font-bold py-1 bg-emerald-950/30 rounded-lg border border-emerald-800/40">
               ✅ Güvenle Onaylanabilir
             </div>
           ` : `
@@ -5692,6 +5757,11 @@ function renderBulkOffersTable() {
               ${isInvoiceOpen ? 'Faturayı Kapat ▲' : '📋 Fatura Detayı ▼'}
             </button>
 
+            <button type="button" onclick="toggleBulkRowSim('${idKey}')" 
+                    class="px-2 py-1 ${isSimOpen ? 'bg-indigo-950 hover:bg-indigo-900 border-indigo-500/80 text-indigo-300' : 'bg-slate-950 hover:bg-slate-800 border-slate-700 text-indigo-300 hover:text-white'} border text-[11px] font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1">
+              <span>⚡</span> ${isSimOpen ? 'Simülasyonu Kapat ▲' : 'Simülasyon Detayı ▼'}
+            </button>
+
             ${isCustomized ? `
               <button type="button" onclick="resetBulkRowCustoms('${idKey}')" 
                       class="px-2 py-1 bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 text-[10.5px] font-bold rounded-xl transition-all cursor-pointer" title="Teklifleri Varsayılana Döndür">
@@ -5739,6 +5809,30 @@ function renderBulkOffersTable() {
           </div>
         ` : ''}
 
+        <!-- Açılır / Kapanır 3 Sütunlu Pazaryeri Hakediş Simülasyon Çekmecesi -->
+        ${isSimOpen ? `
+          <div class="bg-[#090e1f] p-3.5 rounded-2xl border border-indigo-900/60 text-xs animate-slide-up space-y-3 shadow-xl">
+            <div class="flex flex-wrap items-center justify-between border-b border-indigo-950/80 pb-2.5 gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-base p-1.5 rounded-lg bg-indigo-950 border border-indigo-800 text-indigo-400">⚡</span>
+                <div>
+                  <h6 class="font-black text-white text-xs">Pazaryeri Kesinti & Banka Hakediş Şelalesi</h6>
+                  <span class="text-[10.5px] text-slate-400">Kargo, komisyon ve net fabrika kârı formül dökümü (${currentBulkDesi} Desi Kargo: <strong class="text-indigo-300 font-bold">${PriceCalculator.formatTL(dhlCargo)}</strong>)</span>
+                </div>
+              </div>
+              <div class="text-[10.5px] text-indigo-300 bg-indigo-950/60 border border-indigo-800/80 px-2.5 py-1 rounded-lg font-medium">
+                Katman 1 & Katman 3 Entegre Simülasyonu
+              </div>
+            </div>
+
+            <div class="grid ${currentBulkTierMode === 'all' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'} gap-3">
+              ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderSimDetailCol('🏷️ 1. Avantajlı (%5 İndirim)', item.av1, 'amber', item.unitCost) : ''}
+              ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av2') ? renderSimDetailCol('💎 2. Çok Avantajlı (%14 İndirim)', item.av2, 'sky', item.unitCost) : ''}
+              ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av3') ? renderSimDetailCol('🚀 3. Süper Avantajlı (%23 İndirim)', item.av3, 'purple', item.unitCost) : ''}
+            </div>
+          </div>
+        ` : ''}
+
         <!-- 3 Kampanya Seviyesi Izgarası -->
         <div class="grid ${currentBulkTierMode === 'all' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'} gap-2.5">
           ${(currentBulkTierMode === 'all' || currentBulkTierMode === 'av1') ? renderTierBox('🏷️ 1. Avantajlı (%5 İndirim)', 'av1', item.av1, 'text-amber-400') : ''}
@@ -5759,6 +5853,7 @@ window.setBulkProfitFilter = setBulkProfitFilter;
 window.onBulkSearchInput = onBulkSearchInput;
 window.clearBulkSearch = clearBulkSearch;
 window.toggleBulkRowInvoice = toggleBulkRowInvoice;
+window.toggleBulkRowSim = toggleBulkRowSim;
 window.onBulkCustomInput = onBulkCustomInput;
 window.applyBulkRedlinePrice = applyBulkRedlinePrice;
 window.resetBulkRowCustoms = resetBulkRowCustoms;
