@@ -5120,8 +5120,10 @@ function findFactoryProductForTrendyolItem(itemTitle) {
     if (pn.includes("hindistan") && t.includes("hindistan")) return p;
     if (pn.includes("kudret") && t.includes("kudret")) return p;
     if (pn.includes("nar") && !pn.includes("kudret") && (t.includes("nar") && !t.includes("kudret"))) return p;
-    if (pn.includes("shea") && (pn.includes("ham") || p.id.includes("ham")) && (t.includes("ham shea") || t.includes("raw shea"))) return p;
-    if (pn.includes("shea") && (!pn.includes("ham") && !p.id.includes("ham")) && (t.includes("rafine") || (!t.includes("ham") && !t.includes("raw")))) return p;
+    if (pn.includes("shea") && t.includes("shea")) {
+      if ((pn.includes("ham") || p.id.includes("ham")) && (t.includes("ham") || t.includes("raw"))) return p;
+      if (!pn.includes("ham") && !p.id.includes("ham") && !t.includes("ham") && !t.includes("raw")) return p;
+    }
     if (pn.includes("skualen") && (t.includes("skualen") || t.includes("squalene"))) return p;
     if (pn.includes("incir") && t.includes("incir")) return p;
     if (pn.includes("defne tohumu") && t.includes("defne")) return p;
